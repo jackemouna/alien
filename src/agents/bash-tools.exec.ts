@@ -19,6 +19,7 @@ import {
 } from "../infra/shell-env.js";
 import { logInfo } from "../logger.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+import { scrubSecretEnv } from "../security/scrub-secret-env.js";
 import { createLazyImportLoader } from "../shared/lazy-promise.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -1403,7 +1404,18 @@ export function createExecTool(
       }
       rejectUnsafeControlShellCommand(params.command);
 
-      const inheritedBaseEnv = coerceEnv(process.env);
+      // Audit M6: scrub Alien-/provider-secret env vars from the inherited
+      // process env before exposing it to the spawned shell. The shell tool
+      // gives the agent no legitimate reason to read ALIEN_GATEWAY_TOKEN,
+      // OPENAI_API_KEY, channel bot tokens, etc., and a prompt-injected
+      // `printenv | …` exfiltrates everything otherwise. Operators who need
+      // a specific var in a shell call can still pass it via params.env.
+      // ALIEN_NO_SCRUB_CHILD_ENV=1 opts out for backward compat.
+      const rawInheritedBaseEnv = coerceEnv(process.env);
+      const inheritedBaseEnv =
+        process.env.ALIEN_NO_SCRUB_CHILD_ENV === "1"
+          ? rawInheritedBaseEnv
+          : scrubSecretEnv(rawInheritedBaseEnv);
       const hostEnvResult =
         host === "sandbox"
           ? null
