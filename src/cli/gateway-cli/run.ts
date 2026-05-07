@@ -620,6 +620,13 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   }
   if (opts.token) {
     const token = toOptionString(opts.token);
+    if (token && process.env.ALIEN_ALLOW_INLINE_TOKEN !== "1") {
+      defaultRuntime.error(
+        "Refusing to start: --token exposes the gateway token via process listings (ps, /proc/<pid>/cmdline) and shell history. Set ALIEN_GATEWAY_TOKEN in the environment instead, or pass ALIEN_ALLOW_INLINE_TOKEN=1 to opt out (not recommended).",
+      );
+      defaultRuntime.exit(1);
+      return;
+    }
     if (token) {
       process.env.ALIEN_GATEWAY_TOKEN = token;
     }
@@ -850,7 +857,7 @@ export function addGatewayRunCommand(cmd: Command): Command {
     )
     .option(
       "--token <token>",
-      "Shared token required in connect.params.auth.token (default: ALIEN_GATEWAY_TOKEN env if set)",
+      "Shared token required in connect.params.auth.token. DEPRECATED: leaks via ps/shell history; the gateway refuses --token unless ALIEN_ALLOW_INLINE_TOKEN=1. Use ALIEN_GATEWAY_TOKEN env var instead.",
     )
     .option("--auth <mode>", `Gateway auth mode (${formatModeChoices(GATEWAY_AUTH_MODES)})`)
     .option("--password <password>", "Password for auth mode=password")

@@ -207,16 +207,18 @@ describe("gateway run option collisions", () => {
   }
 
   it("forwards parent-captured options to `gateway run` subcommand", async () => {
-    await runGatewayCli([
-      "gateway",
-      "run",
-      "--token",
-      "tok_run",
-      "--allow-unconfigured",
-      "--ws-log",
-      "full",
-      "--force",
-    ]);
+    await withEnvAsync({ ALIEN_ALLOW_INLINE_TOKEN: "1" }, async () => {
+      await runGatewayCli([
+        "gateway",
+        "run",
+        "--token",
+        "tok_run",
+        "--allow-unconfigured",
+        "--ws-log",
+        "full",
+        "--force",
+      ]);
+    });
 
     expect(forceFreePortAndWait).toHaveBeenCalledWith(18789, expect.anything());
     expect(waitForPortBindable).toHaveBeenCalledWith(
@@ -232,6 +234,17 @@ describe("gateway run option collisions", () => {
         }),
       }),
     );
+  });
+
+  it("refuses --token unless ALIEN_ALLOW_INLINE_TOKEN=1 (audit H6)", async () => {
+    await withEnvAsync({ ALIEN_ALLOW_INLINE_TOKEN: undefined }, async () => {
+      await expect(
+        runGatewayCli(["gateway", "run", "--token", "tok_run", "--allow-unconfigured"]),
+      ).rejects.toThrow("__exit__:1");
+    });
+
+    expect(startGatewayServer).not.toHaveBeenCalled();
+    expect(runtimeErrors.some((m) => /Refusing to start: --token/.test(m))).toBe(true);
   });
 
   it("blocks --force port cleanup from an older binary with newer config", async () => {
