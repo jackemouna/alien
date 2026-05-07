@@ -1,6 +1,11 @@
 import crypto from "node:crypto";
-import type { GatewayAuthConfig, GatewayTailscaleConfig } from "../config/types.gateway.js";
 import type { AlienConfig } from "../config/types.alien.js";
+import type { GatewayAuthConfig, GatewayTailscaleConfig } from "../config/types.gateway.js";
+import {
+  loadGatewayTokenFromKeychain,
+  resolveGatewayTokenKeychainPolicy,
+  saveGatewayTokenToKeychain,
+} from "../security/gateway-token-keychain.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
   hasConfiguredGatewayAuthSecretInput,
@@ -186,7 +191,42 @@ export async function ensureGatewayStartupAuth(params: {
     return { cfg: params.cfg, auth: resolved, persistedGeneratedToken: false };
   }
 
+  // Audit M2: when ALIEN_GATEWAY_TOKEN_KEYCHAIN=1, consult the OS keychain
+  // before generating a fresh token. This lets operators rotate the gateway
+  // token out of the on-disk config and into the keychain without losing
+  // the value across restarts. Falls back to generation if keychain is
+  // unavailable or empty — never blocks startup on keychain access.
+  const keychainPolicy = resolveGatewayTokenKeychainPolicy(env);
+  if (keychainPolicy === "preferred") {
+    const keychainToken = loadGatewayTokenFromKeychain();
+    if (keychainToken) {
+      const merged = resolveGatewayAuthFromConfig({
+        cfg: {
+          ...params.cfg,
+          gateway: {
+            ...params.cfg.gateway,
+            auth: { ...params.cfg.gateway?.auth, mode: "token", token: keychainToken },
+          },
+        },
+        env,
+        authOverride: params.authOverride,
+        tailscaleOverride: params.tailscaleOverride,
+      });
+      assertGatewayAuthNotKnownWeak(merged);
+      assertHooksTokenSeparateFromGatewayAuth({ cfg: params.cfg, auth: merged });
+      return { cfg: params.cfg, auth: merged, persistedGeneratedToken: false };
+    }
+  }
+
   const generatedToken = crypto.randomBytes(24).toString("hex");
+  if (keychainPolicy === "preferred") {
+    try {
+      saveGatewayTokenToKeychain(generatedToken);
+    } catch {
+      // Keychain write failures must not break startup. Operator will see
+      // the token persisted to config in the existing flow below.
+    }
+  }
   const nextCfg: AlienConfig = {
     ...params.cfg,
     gateway: {
