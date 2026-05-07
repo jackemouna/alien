@@ -117,6 +117,9 @@ The two HTTP-API callers (`openai-http`, `openresponses-prompt`) pass `untrusted
 | M6    | `f4bddb2092` | secrets scrubbed from child env    | `ALIEN_NO_SCRUB_CHILD_ENV=1`                 |
 | M4    | `27a996d60f` | cron events to audit.log (chained) | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
 | M2    | `f464ffc4f5` | OS keychain helper (no migration)  | n/a (building block)                         |
+| M8    | `f53c708f14` | redact AWS/Stripe/Google/Azure/JWT | n/a                                          |
+| M7    | `07911821d8` | browser `--disable-javascript`     | `ALIEN_BROWSER_DISABLE_JS=1` (opt-in)        |
+| M2.1  | `51d936f551` | gateway token from OS keychain     | `ALIEN_GATEWAY_TOKEN_KEYCHAIN=1` (opt-in)    |
 
 ---
 
@@ -174,13 +177,61 @@ A second hardening pass closed four of the eight Mediums:
 
 ---
 
+## Phases 11–13 (a third pass)
+
+### M8 — extend log-redaction patterns
+
+**Commit:** `f53c708f14` — `feat(logging): extend redact patterns with AWS, Stripe, Google, Azure, JWT (audit M8)`
+
+**What changed:** the default `redactSensitiveText` pattern set gained 8 high-value formats: AWS access keys (`AKIA…` and STS `ASIA…`), Stripe live/test/restricted keys (`sk_live_*`, `sk_test_*`, `rk_live_*`), Google OAuth tokens (`ya29.…`), Azure Storage `AccountKey=…`, and JWTs (three base64url segments). The Azure pattern masks only the value, keeping the field-name visible in diagnostics.
+
+**Threat:** these formats show up unredacted in stack traces, HTTP-error diagnostics, and tool-result strings today. The existing `sk-` / `ghp_` / `xox-` prefix set didn't catch them.
+
+### M7 — opt-in `--disable-javascript` for the browser tool
+
+**Commit:** `07911821d8` — `feat(browser): opt-in --disable-javascript for the browser tool (audit M7)`
+
+**What changed:** `ALIEN_BROWSER_DISABLE_JS=1` adds `--disable-javascript` to the Chromium launch flags. Pages can still be scraped (DOM is parsed) but cannot run scripts that exfiltrate local resources or attempt local-network probes through `fetch`/`WebSocket`.
+
+**Default:** unchanged (JS still runs). The browser plugin's existing SSRF policy (no private network, allowlist required, IP-literal-only-when-strict) remains in effect on every navigation.
+
+**Threat:** even with SSRF blocked at navigation time, a fetched page's JavaScript can still attempt `postMessage` tricks against embedded iframes or run prompt-injection content that lands via the model's tool-result rendering. JS-disabled mode closes that surface entirely.
+
+### M2 (gateway-token slice) — keychain-backed gateway token, opt-in
+
+**Commit:** `51d936f551` — `feat(security): keychain-backed gateway token (opt-in, audit M2 slice)`
+
+**What changed:** when `ALIEN_GATEWAY_TOKEN_KEYCHAIN=1` is set, `ensureGatewayStartupAuth` consults the OS keychain (entry `alien-gateway / token`) before generating a fresh token. Newly generated tokens are also stored in the keychain so subsequent restarts find them there. Keychain failures are logged-and-ignored — startup is never blocked on keychain access.
+
+**Operator workflow:**
+
+```bash
+# First run with the env var: token is generated, stored in keychain,
+# AND mirrored into ~/.alien/alien.json (existing behavior).
+ALIEN_GATEWAY_TOKEN_KEYCHAIN=1 alien gateway run
+
+# To rotate: clear from keychain, delete from alien.json, restart.
+security delete-generic-password -s alien-gateway -a token   # macOS
+secret-tool clear service alien-gateway account token        # Linux
+
+# Subsequent runs read from keychain only (when alien.json has no token).
+```
+
+**Default:** unchanged. Operators who never set the env var see the existing config-file-only persistence path.
+
+**Threat:** the gateway token is the highest-value secret in the install — any process with read access to `~/.alien/alien.json` (a backup tool, sync agent, misbehaving package) can hijack the gateway. Keychain gating on the user's login session removes that surface.
+
+**Scope:** gateway token only. Channel tokens, OAuth credentials, and provider keys remain in their existing JSON paths — migrating each is per-source follow-up work.
+
+---
+
 ## Still deferred
 
 The remaining Mediums are not addressed in this fork:
 
 - **M1** — per-plugin trust isolation (large redesign — capability tokens, per-plugin fs/network namespacing).
 - **M3** — tool-call origin tracking (operator vs. DM vs. webpage) — plumbing across many call sites.
-- **M7** — Chromium JS-disabled mode for the browser tool.
-- **M8** — broader log-redaction patterns beyond the existing `sk-` / base64 / UUID set.
+- **M2 broader migration** — keychain wire-in for channel tokens, OAuth credentials, and provider keys (the gateway-token slice landed; the rest is per-source follow-up).
+- **H4 channel-path fencing** — DM auto-reply path uses `buildHistoryContextFromMap` with channel-owned formatters, each of which would need its own fence treatment.
 
 The Lows are notes — already in good shape.
