@@ -29,6 +29,7 @@ import { withDiagnosticPhase } from "../../logging/diagnostic-phase.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { defaultRuntime } from "../../runtime.js";
 import { resolveSandboxStartupWarning } from "../../security/sandbox-startup-warning.js";
+import { resolveStateDirPermsWarning } from "../../security/state-dir-perms.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -677,6 +678,17 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   });
   if (sandboxStartupWarning) {
     for (const line of sandboxStartupWarning.split("\n")) {
+      gatewayLog.warn(line);
+    }
+  }
+
+  // Audit M5: warn when ~/.alien (or whichever resolved state dir) has
+  // looser permissions than 0o700.
+  const stateDirPermsWarning = resolveStateDirPermsWarning({
+    stateDir: resolveStateDir(process.env),
+  });
+  if (stateDirPermsWarning) {
+    for (const line of stateDirPermsWarning.split("\n")) {
       gatewayLog.warn(line);
     }
   }
