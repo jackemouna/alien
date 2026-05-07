@@ -113,6 +113,10 @@ The two HTTP-API callers (`openai-http`, `openresponses-prompt`) pass `untrusted
 | H4    | `910796039f` | HTTP-API messages fenced           | n/a                                          |
 | H3    | `94a2d4b8c9` | cron writes logged                 | `ALIEN_DENY_CRON_WRITES=1` (opt-in lockdown) |
 | H1    | `673cbd935d` | startup warning when sandbox off   | `ALIEN_HARDENED_DEFAULTS=1` (opt-in)         |
+| M5    | `c3e94da647` | warn when `~/.alien` perms loose   | n/a                                          |
+| M6    | `f4bddb2092` | secrets scrubbed from child env    | `ALIEN_NO_SCRUB_CHILD_ENV=1`                 |
+| M4    | `27a996d60f` | cron events to audit.log (chained) | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
+| M2    | `f464ffc4f5` | OS keychain helper (no migration)  | n/a (building block)                         |
 
 ---
 
@@ -124,14 +128,59 @@ Reports for issues in upstream-shared code should still go to [openclaw/openclaw
 
 ---
 
-## Mediums and Lows
+## Mediums (Phase 7–10)
 
-The audit also flagged 8 Medium and 9 Low findings ([AUDIT.md](AUDIT.md)). They are not addressed in this hardening pass. The Mediums most worth following up:
+A second hardening pass closed four of the eight Mediums:
 
-- **M1** — per-plugin trust isolation
-- **M2** — secrets at rest via OS keychain (instead of plaintext JSON, even with 0o600)
-- **M3 / M4** — tool-call origin tracking + tamper-evident audit log
-- **M6** — scrub provider keys / gateway token from `process.env` before spawning child processes
-- **M7** — Chromium JS-disabled mode for the browser tool
+### M5 — startup warning when `~/.alien/` perms are loose
+
+**Commit:** `c3e94da647` — `feat(security): warn at startup when ~/.alien perms are loose (audit M5)`
+
+**What changed:** at `alien gateway run` startup, if `~/.alien` has mode bits looser than `0o700` (group- or world-readable / world-writable), the gateway log emits a warning identifying the actual mode, the exposure class, and a `chmod 700` fix. Skipped on Windows (POSIX bits don't apply) and when the directory doesn't exist yet.
+
+**Threat:** code that creates `~/.alien` always passes `0o700`, but the directory may pre-exist with looser perms (umask, manual `chmod`, migration from upstream openclaw). Once it exists, nothing re-tightens it, and it holds plaintext channel tokens, OAuth credentials, and provider API keys.
+
+### M6 — scrub secret env vars from exec-tool child shells
+
+**Commit:** `f4bddb2092` — `feat(security): scrub secret env vars from exec-tool child shells (audit M6)`
+
+**What changed:** the `exec` tool's host-shell path drops Alien-/provider-secret env vars from the inherited environment before passing it to the spawned shell. Detection is by explicit prefix list (~50 services from the upstream `.env.example`) plus a generic `(?:TOKEN|API_KEY|SECRET|PASSWORD|CREDENTIAL|PRIVATE_KEY)` pattern. PATH, HOME, LANG, etc. are preserved. Operators who need a specific var in shell calls can pass it via the tool-level `env` override.
+
+**Opt-out:** `ALIEN_NO_SCRUB_CHILD_ENV=1` for backward compat with shell scripts that depend on env-var inheritance.
+
+**Threat:** without scrubbing, a successful prompt-injection that runs any fragment of `printenv` / `env` / `set` (or pipes those into `curl`) exfiltrates every credential the operator has configured.
+
+### M4 — hash-chained tamper-evident audit log
+
+**Commit:** `27a996d60f` — `feat(security): hash-chained tamper-evident audit log (audit M4)`
+
+**What changed:** new helpers `appendAuditLog` / `verifyAuditLog` write JSONL entries at `<state-dir>/audit.log` where each line includes the sha256 hash of the previous line. Tampering (edit, insert, delete) breaks the chain at every later entry. The cron-guard wires this in for write-class actions; broader integration is deliberate follow-up.
+
+**Opt-out:** `ALIEN_DISABLE_AUDIT_LOG=1`.
+
+**Threat:** the existing `ws-log` is for debugging, not forensics. An attacker who can write files can edit it to hide tracks. The chain doesn't _prevent_ tampering, but makes it visible after the fact.
+
+**Honest limitation:** an agent with shell access can `rm ~/.alien/audit.log` and start a fresh chain. Stronger guarantees require an append-only mount or shipping events off-host. Out of scope here.
+
+### M2 — macOS Keychain / Linux libsecret helper (building block only)
+
+**Commit:** `f464ffc4f5` — `feat(security): macOS Keychain / Linux libsecret helper (audit M2 building block)`
+
+**What changed:** new helper module `src/security/os-keychain.ts` wraps macOS `security` CLI (`add-generic-password` / `find-generic-password` / `delete-generic-password`) and Linux libsecret (`secret-tool store/lookup/clear`). Returns `unavailable` on Windows and headless servers without the CLI.
+
+**Scope:** building block only. Migrating the existing secret paths (`src/secrets/shared.ts`, channel/provider auth profiles) to use it is deliberate follow-up — the migration changes how every secret is stored and needs careful handling for operators with existing installs.
+
+**Threat:** even with 0o600 file mode, plaintext secrets are readable by any same-uid process — a Time Machine backup, a Dropbox sync agent, a misbehaving package. The OS keychain gates access on the user's login session.
+
+---
+
+## Still deferred
+
+The remaining Mediums are not addressed in this fork:
+
+- **M1** — per-plugin trust isolation (large redesign — capability tokens, per-plugin fs/network namespacing).
+- **M3** — tool-call origin tracking (operator vs. DM vs. webpage) — plumbing across many call sites.
+- **M7** — Chromium JS-disabled mode for the browser tool.
+- **M8** — broader log-redaction patterns beyond the existing `sk-` / base64 / UUID set.
 
 The Lows are notes — already in good shape.
