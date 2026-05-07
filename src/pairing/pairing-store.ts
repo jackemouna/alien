@@ -33,6 +33,15 @@ const PAIRING_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const PAIRING_CODE_MAX_ATTEMPTS = 500;
 const PAIRING_PENDING_TTL_MS = 60 * 60 * 1000;
 const PAIRING_PENDING_MAX = 3;
+
+// Audit H5: rate-limit pairing-code approval. Wrong-code submissions accumulate
+// per pairing-store file (i.e. per channel). After PAIRING_WRONG_ATTEMPT_THRESHOLD
+// misses, subsequent attempts are refused without checking the code for an
+// exponentially-growing cooldown window, capped at PAIRING_WRONG_ATTEMPT_MAX_COOLDOWN_MS.
+// A successful approval resets the counter.
+const PAIRING_WRONG_ATTEMPT_THRESHOLD = 3;
+const PAIRING_WRONG_ATTEMPT_BASE_COOLDOWN_MS = 60 * 1000;
+const PAIRING_WRONG_ATTEMPT_MAX_COOLDOWN_MS = 30 * 60 * 1000;
 const PAIRING_STORE_LOCK_OPTIONS = {
   retries: {
     retries: 10,
@@ -56,7 +65,56 @@ export type PairingRequest = {
 type PairingStore = {
   version: 1;
   requests: PairingRequest[];
+  wrongAttempts?: PairingWrongAttempts;
 };
+
+export type PairingWrongAttempts = {
+  count: number;
+  firstAt: string;
+  lastAt: string;
+};
+
+/**
+ * Audit H5 helper. Returns the number of milliseconds an additional approval
+ * attempt must wait given the current wrong-attempt count. Below the threshold
+ * the cooldown is 0; above it the cooldown grows exponentially capped at
+ * PAIRING_WRONG_ATTEMPT_MAX_COOLDOWN_MS.
+ */
+export function computePairingCooldownMs(count: number): number {
+  if (count < PAIRING_WRONG_ATTEMPT_THRESHOLD) {
+    return 0;
+  }
+  const exponent = count - PAIRING_WRONG_ATTEMPT_THRESHOLD;
+  const factor = 2 ** exponent;
+  return Math.min(
+    PAIRING_WRONG_ATTEMPT_BASE_COOLDOWN_MS * factor,
+    PAIRING_WRONG_ATTEMPT_MAX_COOLDOWN_MS,
+  );
+}
+
+/**
+ * Audit H5 helper. Given the latest wrong-attempts record and the current time,
+ * compute how many ms remain in the cooldown window. Returns 0 when no cooldown
+ * is active.
+ */
+export function pairingCooldownRemainingMs(
+  attempts: PairingWrongAttempts | undefined,
+  nowMs: number,
+): number {
+  if (!attempts) {
+    return 0;
+  }
+  const lastAt = parseTimestamp(attempts.lastAt);
+  if (lastAt === null) {
+    return 0;
+  }
+  const cooldown = computePairingCooldownMs(attempts.count);
+  if (cooldown <= 0) {
+    return 0;
+  }
+  const remaining = lastAt + cooldown - nowMs;
+  return remaining > 0 ? remaining : 0;
+}
 
 function resolvePairingPath(channel: PairingChannel, env: NodeJS.ProcessEnv = process.env): string {
   return path.join(resolvePairingCredentialsDir(env), `${safeChannelKey(channel)}-pairing.json`);
@@ -87,6 +145,27 @@ async function readPairingRequests(filePath: string): Promise<PairingRequest[]> 
     requests: [],
   });
   return Array.isArray(value.requests) ? value.requests : [];
+}
+
+async function readPairingStore(filePath: string): Promise<PairingStore> {
+  const { value } = await readJsonFile<PairingStore>(filePath, {
+    version: 1,
+    requests: [],
+  });
+  return {
+    version: 1,
+    requests: Array.isArray(value.requests) ? value.requests : [],
+    wrongAttempts:
+      value.wrongAttempts &&
+      typeof value.wrongAttempts === "object" &&
+      Number.isFinite((value.wrongAttempts as PairingWrongAttempts).count)
+        ? {
+            count: Math.max(0, Math.floor((value.wrongAttempts as PairingWrongAttempts).count)),
+            firstAt: String((value.wrongAttempts as PairingWrongAttempts).firstAt ?? ""),
+            lastAt: String((value.wrongAttempts as PairingWrongAttempts).lastAt ?? ""),
+          }
+        : undefined,
+  };
 }
 
 async function readPrunedPairingRequests(filePath: string): Promise<{
@@ -564,7 +643,12 @@ export async function upsertChannelPairingRequest(params: {
           : undefined;
       const meta = { ...baseMeta, accountId: normalizedAccountId };
 
-      let reqs = await readPairingRequests(filePath);
+      // Audit H5: read full store so we preserve wrongAttempts through writes
+      // here. Otherwise an attacker who triggered wrong-code lockout could
+      // bypass the cooldown by triggering a new pairing request.
+      const store = await readPairingStore(filePath);
+      let reqs = store.requests;
+      const wrongAttempts = store.wrongAttempts;
       const { requests: prunedExpired, removed: expiredRemoved } = pruneExpiredRequests(
         reqs,
         nowMs,
@@ -597,6 +681,7 @@ export async function upsertChannelPairingRequest(params: {
         await writeJsonFile(filePath, {
           version: 1,
           requests: capped,
+          wrongAttempts,
         } satisfies PairingStore);
         return { code, created: false };
       }
@@ -614,6 +699,7 @@ export async function upsertChannelPairingRequest(params: {
           await writeJsonFile(filePath, {
             version: 1,
             requests: reqs,
+            wrongAttempts,
           } satisfies PairingStore);
         }
         return { code: "", created: false };
@@ -629,6 +715,7 @@ export async function upsertChannelPairingRequest(params: {
       await writeJsonFile(filePath, {
         version: 1,
         requests: [...reqs, next],
+        wrongAttempts,
       } satisfies PairingStore);
       return { code, created: true };
     },
@@ -640,8 +727,13 @@ export async function approveChannelPairingCode(params: {
   code: string;
   accountId?: string;
   env?: NodeJS.ProcessEnv;
-}): Promise<{ id: string; entry?: PairingRequest } | null> {
+  /** Test/override hook for the current time (defaults to Date.now). */
+  now?: () => number;
+}): Promise<
+  { id: string; entry?: PairingRequest } | { rateLimited: true; retryAfterMs: number } | null
+> {
   const env = params.env ?? process.env;
+  const now = params.now ?? Date.now;
   const code = (normalizeNullableString(params.code) ?? "").toUpperCase();
   if (!code) {
     return null;
@@ -652,7 +744,15 @@ export async function approveChannelPairingCode(params: {
     filePath,
     { version: 1, requests: [] } satisfies PairingStore,
     async () => {
-      const { requests: pruned, removed } = await readPrunedPairingRequests(filePath);
+      const store = await readPairingStore(filePath);
+
+      // Audit H5: refuse early without checking the code if cooldown is active.
+      const remainingMs = pairingCooldownRemainingMs(store.wrongAttempts, now());
+      if (remainingMs > 0) {
+        return { rateLimited: true, retryAfterMs: remainingMs } as const;
+      }
+
+      const { requests: pruned, removed } = pruneExpiredRequests(store.requests, now());
       const normalizedAccountId = normalizePairingAccountId(params.accountId);
       const idx = pruned.findIndex((r) => {
         if (r.code.toUpperCase() !== code) {
@@ -660,12 +760,19 @@ export async function approveChannelPairingCode(params: {
         }
         return requestMatchesAccountId(r, normalizedAccountId);
       });
+
       if (idx < 0) {
-        if (removed) {
-          await writeJsonFile(filePath, {
-            version: 1,
-            requests: pruned,
-          } satisfies PairingStore);
+        // Audit H5: increment wrong-code counter on miss.
+        const updatedAttempts = bumpPairingWrongAttempts(store.wrongAttempts, now());
+        await writeJsonFile(filePath, {
+          version: 1,
+          requests: pruned,
+          wrongAttempts: updatedAttempts,
+        } satisfies PairingStore);
+        if (updatedAttempts.count > PAIRING_WRONG_ATTEMPT_THRESHOLD) {
+          // Lockout just kicked in or grew. Caller still sees null (preserving
+          // the historical "code didn't match" UX) but the next attempt will
+          // hit the rateLimited branch.
         }
         return null;
       }
@@ -677,7 +784,10 @@ export async function approveChannelPairingCode(params: {
       await writeJsonFile(filePath, {
         version: 1,
         requests: pruned,
+        // Audit H5: reset wrong-attempt counter on successful approval.
+        wrongAttempts: undefined,
       } satisfies PairingStore);
+      void removed;
       const entryAccountId = normalizeOptionalString(entry.meta?.accountId);
       await addChannelAllowFromStoreEntry({
         channel: params.channel,
@@ -688,4 +798,19 @@ export async function approveChannelPairingCode(params: {
       return { id: entry.id, entry };
     },
   );
+}
+
+function bumpPairingWrongAttempts(
+  current: PairingWrongAttempts | undefined,
+  nowMs: number,
+): PairingWrongAttempts {
+  const stamp = new Date(nowMs).toISOString();
+  if (!current) {
+    return { count: 1, firstAt: stamp, lastAt: stamp };
+  }
+  return {
+    count: current.count + 1,
+    firstAt: current.firstAt || stamp,
+    lastAt: stamp,
+  };
 }

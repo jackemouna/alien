@@ -184,6 +184,12 @@ export function registerPairingCli(program: Command) {
             channel,
             code: String(resolvedCode),
           });
+      if (approved && "rateLimited" in approved) {
+        const seconds = Math.ceil(approved.retryAfterMs / 1000);
+        throw new Error(
+          `Pairing approval is rate-limited after repeated wrong codes (audit H5). Retry in ${seconds}s.`,
+        );
+      }
       if (!approved) {
         throw new Error(`No pending pairing request found for code: ${String(resolvedCode)}`);
       }

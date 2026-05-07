@@ -28,7 +28,9 @@ import {
   addChannelAllowFromStoreEntry,
   clearPairingAllowFromReadCacheForTest,
   approveChannelPairingCode,
+  computePairingCooldownMs,
   listChannelPairingRequests,
+  pairingCooldownRemainingMs,
   readChannelAllowFromStore,
   readLegacyChannelAllowFromStore,
   readLegacyChannelAllowFromStoreSync,
@@ -634,6 +636,214 @@ describe("pairing store", () => {
           readAllowFrom: variant.readAllowFrom,
         });
       }
+    });
+  });
+
+  describe("audit H5: wrong-code rate limit", () => {
+    it("computePairingCooldownMs returns 0 below threshold", () => {
+      expect(computePairingCooldownMs(0)).toBe(0);
+      expect(computePairingCooldownMs(1)).toBe(0);
+      expect(computePairingCooldownMs(2)).toBe(0);
+    });
+
+    it("computePairingCooldownMs grows exponentially at and above threshold", () => {
+      expect(computePairingCooldownMs(3)).toBe(60_000);
+      expect(computePairingCooldownMs(4)).toBe(120_000);
+      expect(computePairingCooldownMs(5)).toBe(240_000);
+      expect(computePairingCooldownMs(6)).toBe(480_000);
+    });
+
+    it("computePairingCooldownMs is capped at the max", () => {
+      expect(computePairingCooldownMs(20)).toBe(30 * 60_000);
+      expect(computePairingCooldownMs(100)).toBe(30 * 60_000);
+    });
+
+    it("pairingCooldownRemainingMs returns 0 when no attempts recorded", () => {
+      expect(pairingCooldownRemainingMs(undefined, Date.now())).toBe(0);
+    });
+
+    it("pairingCooldownRemainingMs returns 0 below threshold", () => {
+      const now = Date.UTC(2026, 4, 7, 0, 0, 0);
+      const remaining = pairingCooldownRemainingMs(
+        {
+          count: 2,
+          firstAt: new Date(now - 5_000).toISOString(),
+          lastAt: new Date(now - 1_000).toISOString(),
+        },
+        now,
+      );
+      expect(remaining).toBe(0);
+    });
+
+    it("pairingCooldownRemainingMs reports remaining ms inside the window", () => {
+      const now = Date.UTC(2026, 4, 7, 0, 0, 0);
+      const lastAt = now - 30_000;
+      // count=3 → 60_000 ms cooldown, 30_000 elapsed → 30_000 remaining
+      const remaining = pairingCooldownRemainingMs(
+        {
+          count: 3,
+          firstAt: new Date(lastAt).toISOString(),
+          lastAt: new Date(lastAt).toISOString(),
+        },
+        now,
+      );
+      expect(remaining).toBe(30_000);
+    });
+
+    it("pairingCooldownRemainingMs returns 0 once the window has elapsed", () => {
+      const now = Date.UTC(2026, 4, 7, 0, 0, 0);
+      const lastAt = now - 120_000;
+      const remaining = pairingCooldownRemainingMs(
+        {
+          count: 3,
+          firstAt: new Date(lastAt).toISOString(),
+          lastAt: new Date(lastAt).toISOString(),
+        },
+        now,
+      );
+      expect(remaining).toBe(0);
+    });
+
+    it("3 wrong codes return null without rate-limiting", async () => {
+      await withTempStateDir(async () => {
+        await createTelegramPairingRequest("yy", "67890");
+        for (let i = 0; i < 3; i += 1) {
+          const result = await approveChannelPairingCode({
+            channel: "telegram",
+            code: "WRONGCD1",
+          });
+          expect(result).toBeNull();
+        }
+      });
+    });
+
+    it("the 4th wrong code returns rateLimited with retryAfterMs > 0", async () => {
+      await withTempStateDir(async () => {
+        await createTelegramPairingRequest("yy", "67890");
+        let now = 1_000_000_000_000;
+        for (let i = 0; i < 3; i += 1) {
+          await approveChannelPairingCode({
+            channel: "telegram",
+            code: "WRONGCD1",
+            now: () => now,
+          });
+          now += 1000;
+        }
+        const fourth = await approveChannelPairingCode({
+          channel: "telegram",
+          code: "WRONGCD1",
+          now: () => now,
+        });
+        expect(fourth).toEqual({ rateLimited: true, retryAfterMs: expect.any(Number) });
+        if (fourth && "rateLimited" in fourth) {
+          expect(fourth.retryAfterMs).toBeGreaterThan(0);
+          expect(fourth.retryAfterMs).toBeLessThanOrEqual(60_000);
+        }
+      });
+    });
+
+    it("attempts after the cooldown window are accepted again (still rate-limited until expired)", async () => {
+      await withTempStateDir(async () => {
+        const created = await createTelegramPairingRequest("yy", "67890");
+        let now = 1_000_000_000_000;
+        for (let i = 0; i < 4; i += 1) {
+          await approveChannelPairingCode({
+            channel: "telegram",
+            code: "WRONGCD1",
+            now: () => now,
+          });
+          now += 1000;
+        }
+        // Inside cooldown window: rate-limited.
+        const inside = await approveChannelPairingCode({
+          channel: "telegram",
+          code: created.code,
+          now: () => now,
+        });
+        expect(inside).toEqual({ rateLimited: true, retryAfterMs: expect.any(Number) });
+
+        // Outside cooldown window: actually checks the code, accepts.
+        now += 65_000;
+        const accepted = await approveChannelPairingCode({
+          channel: "telegram",
+          code: created.code,
+          now: () => now,
+        });
+        expect(accepted).not.toBeNull();
+        if (accepted && !("rateLimited" in accepted)) {
+          expect(accepted.id).toBe("67890");
+        }
+      });
+    });
+
+    it("a successful approval resets the wrong-attempt counter", async () => {
+      await withTempStateDir(async () => {
+        const created = await createTelegramPairingRequest("yy", "67890");
+        await approveChannelPairingCode({ channel: "telegram", code: "WRONGCD1" });
+        const approved = await approveChannelPairingCode({
+          channel: "telegram",
+          code: created.code,
+        });
+        expect(approved).not.toBeNull();
+
+        // After success, a fresh request can fail 3 times again before lockout.
+        const next = await createTelegramPairingRequest("yy", "67891");
+        for (let i = 0; i < 3; i += 1) {
+          const result = await approveChannelPairingCode({
+            channel: "telegram",
+            code: "WRONGCD2",
+          });
+          expect(result).toBeNull();
+        }
+        // 4th miss → locked out, proving counter started fresh after success.
+        const fourth = await approveChannelPairingCode({
+          channel: "telegram",
+          code: "WRONGCD2",
+        });
+        expect(fourth).toMatchObject({ rateLimited: true });
+        void next;
+      });
+    });
+
+    it("upsertChannelPairingRequest preserves the wrong-attempts counter", async () => {
+      await withTempStateDir(async () => {
+        await createTelegramPairingRequest("yy", "67890");
+        let now = 1_000_000_000_000;
+        for (let i = 0; i < 4; i += 1) {
+          await approveChannelPairingCode({
+            channel: "telegram",
+            code: "WRONGCD1",
+            now: () => now,
+          });
+          now += 1000;
+        }
+        // Trigger an upsert (new request from a different sender). Lockout
+        // must persist; otherwise an attacker can bypass by spamming new
+        // pairing requests.
+        await upsertChannelPairingRequest({ channel: "telegram", accountId: "yy", id: "newone" });
+        const after = await approveChannelPairingCode({
+          channel: "telegram",
+          code: "WRONGCD1",
+          now: () => now,
+        });
+        expect(after).toMatchObject({ rateLimited: true });
+      });
+    });
+
+    it("rate limits are per-channel-file (separate channels are independent)", async () => {
+      await withTempStateDir(async () => {
+        await createTelegramPairingRequest("yy", "67890");
+        for (let i = 0; i < 4; i += 1) {
+          await approveChannelPairingCode({ channel: "telegram", code: "WRONGCD1" });
+        }
+        // Telegram is locked.
+        const tg = await approveChannelPairingCode({ channel: "telegram", code: "WRONGCD1" });
+        expect(tg).toMatchObject({ rateLimited: true });
+
+        // Discord (different file) is not affected.
+        const discord = await approveChannelPairingCode({ channel: "discord", code: "WRONGCD1" });
+        expect(discord).toBeNull();
+      });
     });
   });
 });
