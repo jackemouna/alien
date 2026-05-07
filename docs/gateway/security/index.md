@@ -67,7 +67,7 @@ Alien assumes the host and config boundary are trusted:
 
 ### Secure file operations
 
-Alien uses `@alien/fs-safe` for root-bounded file access, atomic writes, archive extraction, temp workspaces, and secret-file helpers. Alien defaults fs-safe's optional POSIX Python helper to **off**; set `ALIEN_FS_SAFE_PYTHON_MODE=auto` or `require` only when you want the extra fd-relative mutation hardening and can support a Python runtime.
+Alien uses `@openclaw/fs-safe` for root-bounded file access, atomic writes, archive extraction, temp workspaces, and secret-file helpers. Alien defaults fs-safe's optional POSIX Python helper to **off**; set `ALIEN_FS_SAFE_PYTHON_MODE=auto` or `require` only when you want the extra fd-relative mutation hardening and can support a Python runtime.
 
 Details: [Secure file operations](/gateway/security/secure-file-operations).
 

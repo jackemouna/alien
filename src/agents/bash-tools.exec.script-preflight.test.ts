@@ -1,7 +1,7 @@
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { __setFsSafeTestHooksForTest } from "@alien/fs-safe/test-hooks";
+import { __setFsSafeTestHooksForTest } from "@openclaw/fs-safe/test-hooks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { withTempDir } from "../test-utils/temp-dir.js";
 import { __testing, createExecTool } from "./bash-tools.exec.js";
@@ -69,9 +69,9 @@ async function expectSymlinkSwapDuringPreflightToAvoidErrors(params: {
 
 describe("exec interactive Alien channel login guard", () => {
   it("recognizes direct and package-runner channel login commands before execution", () => {
-    expect(
-      parseAlienChannelsLoginShellCommand("alien channels login --channel whatsapp"),
-    ).toBe(true);
+    expect(parseAlienChannelsLoginShellCommand("alien channels login --channel whatsapp")).toBe(
+      true,
+    );
     expect(
       parseAlienChannelsLoginShellCommand(
         "pnpm exec alien channels login --channel whatsapp --verbose",

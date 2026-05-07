@@ -3,7 +3,7 @@ import {
   acquireFileLock as acquireFsSafeFileLock,
   drainFileLockManagerForTest,
   resetFileLockManagerForTest,
-} from "@alien/fs-safe/file-lock";
+} from "@openclaw/fs-safe/file-lock";
 import { isPidAlive } from "../shared/pid-alive.js";
 
 export type FileLockOptions = {

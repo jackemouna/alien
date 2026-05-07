@@ -9,4 +9,4 @@ export {
   type RootFileOpenFailure,
   type RootFileOpenFailureReason,
   type RootFileOpenResult,
-} from "@alien/fs-safe/advanced";
+} from "@openclaw/fs-safe/advanced";

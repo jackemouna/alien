@@ -3,4 +3,4 @@ export {
   PATH_ALIAS_POLICIES,
   assertNoPathAliasEscape,
   type PathAliasPolicy,
-} from "@alien/fs-safe/advanced";
+} from "@openclaw/fs-safe/advanced";

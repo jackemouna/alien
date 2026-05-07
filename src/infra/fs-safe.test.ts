@@ -1,7 +1,7 @@
 import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { __setFsSafeTestHooksForTest } from "@alien/fs-safe/test-hooks";
+import { __setFsSafeTestHooksForTest } from "@openclaw/fs-safe/test-hooks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createRebindableDirectoryAlias,

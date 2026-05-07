@@ -2,7 +2,6 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { WORKSPACE_TEMPLATE_PACK_PATHS } from "../scripts/lib/workspace-bootstrap-smoke.mjs";
 import {
   compareReleaseVersions,
   collectControlUiPackErrors,
@@ -20,6 +19,7 @@ import {
   shouldSkipPackedTarballValidation,
   utcCalendarDayDistance,
 } from "../scripts/alien-npm-release-check.ts";
+import { WORKSPACE_TEMPLATE_PACK_PATHS } from "../scripts/lib/workspace-bootstrap-smoke.mjs";
 import {
   LOCAL_BUILD_METADATA_DIST_PATHS,
   PACKAGE_DIST_INVENTORY_RELATIVE_PATH,
@@ -624,10 +624,10 @@ describe("collectReleasePackageMetadataErrors", () => {
         license: "MIT",
         repository: { url: "git+https://github.com/alien/alien.git" },
         bin: { alien: "alien.mjs" },
-        dependencies: { "@alien/fs-safe": "link:../fs-safe" },
+        dependencies: { "@openclaw/fs-safe": "link:../fs-safe" },
       }),
     ).toContain(
-      'package.json dependencies["@alien/fs-safe"] must use a published semver range before npm release; found "link:../fs-safe".',
+      'package.json dependencies["@openclaw/fs-safe"] must use a published semver range before npm release; found "link:../fs-safe".',
     );
   });
 

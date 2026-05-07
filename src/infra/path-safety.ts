@@ -13,5 +13,5 @@ export {
   safeRealpathSync,
   safeStatSync,
   splitSafeRelativePath,
-} from "@alien/fs-safe/path";
-export { formatPosixMode } from "@alien/fs-safe/advanced";
+} from "@openclaw/fs-safe/path";
+export { formatPosixMode } from "@openclaw/fs-safe/advanced";

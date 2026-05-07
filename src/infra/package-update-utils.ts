@@ -1,6 +1,6 @@
 import fsSync from "node:fs";
 import path from "node:path";
-import { readRootJsonObjectSync } from "@alien/fs-safe/json";
+import { readRootJsonObjectSync } from "@openclaw/fs-safe/json";
 
 export function expectedIntegrityForUpdate(
   spec: string | undefined,

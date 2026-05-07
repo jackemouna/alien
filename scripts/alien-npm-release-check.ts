@@ -63,7 +63,7 @@ export type NpmDistTagMirrorAuth = {
 };
 const EXPECTED_REPOSITORY_URL = "https://github.com/alien/alien";
 const OPTIONAL_LOCAL_EMBEDDING_RUNTIME_PACKAGE = "node-llama-cpp";
-const FS_SAFE_PACKAGE = "@alien/fs-safe";
+const FS_SAFE_PACKAGE = "@openclaw/fs-safe";
 const MAX_CALVER_DISTANCE_DAYS = 2;
 const REQUIRED_PACKED_PATHS = [
   PACKAGE_DIST_INVENTORY_RELATIVE_PATH,
@@ -315,9 +315,7 @@ export function collectReleasePackageMetadataErrors(pkg: PackageJson): string[] 
     );
   }
   if (pkg.bin?.alien !== "alien.mjs") {
-    errors.push(
-      `package.json bin.alien must be "alien.mjs"; found "${pkg.bin?.alien ?? ""}".`,
-    );
+    errors.push(`package.json bin.alien must be "alien.mjs"; found "${pkg.bin?.alien ?? ""}".`);
   }
   if (pkg.dependencies?.[OPTIONAL_LOCAL_EMBEDDING_RUNTIME_PACKAGE]) {
     errors.push(

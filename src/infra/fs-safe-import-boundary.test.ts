@@ -43,7 +43,7 @@ describe("fs-safe import boundary", () => {
           return false;
         }
         const source = fs.readFileSync(path.join(REPO_ROOT, filePath), "utf8");
-        return source.includes('"@alien/fs-safe') || source.includes("'@alien/fs-safe");
+        return source.includes('"@openclaw/fs-safe') || source.includes("'@openclaw/fs-safe");
       });
 
     expect(violations).toEqual([]);

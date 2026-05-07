@@ -5,7 +5,7 @@ read_when:
 title: "Secure file operations"
 ---
 
-Alien uses [`@alien/fs-safe`](https://github.com/alien/fs-safe) for security-sensitive local file operations: root-bounded reads/writes, atomic replacement, archive extraction, temp workspaces, JSON state, and secret-file handling.
+Alien uses [`@openclaw/fs-safe`](https://github.com/alien/fs-safe) for security-sensitive local file operations: root-bounded reads/writes, atomic replacement, archive extraction, temp workspaces, JSON state, and secret-file handling.
 
 The goal is a consistent **library guardrail** for trusted Alien code that receives untrusted path names. It is not a sandbox. Host filesystem permissions, OS users, containers, and the agent/tool policy still define the real blast radius.
 

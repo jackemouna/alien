@@ -11,7 +11,7 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alien/alien.git"
+    "url": "git+https://github.com/marczellklein/openclaw.git"
   },
   "bin": {
     "alien": "alien.mjs"
@@ -1286,6 +1286,8 @@
     "./cli-entry": "./alien.mjs"
   },
   "scripts": {
+    "alien": "node scripts/run-node.mjs",
+    "alien:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "android:assemble": "cd apps/android && ./gradlew :app:assemblePlayDebug",
     "android:assemble:third-party": "cd apps/android && ./gradlew :app:assembleThirdPartyDebug",
     "android:bundle:release": "bun apps/android/scripts/build-release-aab.ts",
@@ -1445,8 +1447,6 @@
     "mac:package": "bash scripts/package-mac-app.sh",
     "mac:restart": "bash scripts/restart-mac.sh",
     "moltbot:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
-    "alien": "node scripts/run-node.mjs",
-    "alien:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "perf:kova:summary": "node scripts/kova-ci-summary.mjs",
     "perf:source:summary": "node scripts/alien-performance-source-summary.mjs",
     "plugin-sdk:api:check": "node --max-old-space-size=8192 --import tsx scripts/generate-plugin-sdk-api-baseline.ts --check",
@@ -1487,10 +1487,10 @@
     "qa:lab:watch": "vite build --watch --config extensions/qa-lab/web/vite.config.ts",
     "qa:otel:smoke": "node --import tsx scripts/qa-otel-smoke.ts",
     "release-metadata:check": "node scripts/check-release-metadata-only.mjs",
-    "release:beta-smoke": "node --import tsx scripts/release-beta-smoke.ts",
-    "release:check": "pnpm deps:root-ownership:check && pnpm plugins:inventory:check && pnpm check:base-config-schema && pnpm check:bundled-channel-config-metadata && pnpm config:docs:check && pnpm plugin-sdk:check-exports && pnpm plugin-sdk:api:check && node --import tsx scripts/release-check.ts",
     "release:alien:npm:check": "node --import tsx scripts/alien-npm-release-check.ts",
     "release:alien:npm:verify-published": "node --import tsx scripts/alien-npm-postpublish-verify.ts",
+    "release:beta-smoke": "node --import tsx scripts/release-beta-smoke.ts",
+    "release:check": "pnpm deps:root-ownership:check && pnpm plugins:inventory:check && pnpm check:base-config-schema && pnpm check:bundled-channel-config-metadata && pnpm config:docs:check && pnpm plugin-sdk:check-exports && pnpm plugin-sdk:api:check && node --import tsx scripts/release-check.ts",
     "release:plugins:clawhub:check": "node --import tsx scripts/plugin-clawhub-release-check.ts",
     "release:plugins:clawhub:plan": "node --import tsx scripts/plugin-clawhub-release-plan.ts",
     "release:plugins:npm:check": "node --import tsx scripts/plugin-npm-release-check.ts",
@@ -1695,7 +1695,7 @@
     "@mariozechner/pi-tui": "0.73.0",
     "@modelcontextprotocol/sdk": "1.29.0",
     "@mozilla/readability": "^0.6.0",
-    "@alien/fs-safe": "github:alien/fs-safe#3412e03c09cdfd31c2da04b7d74e39ad7a92d07d",
+    "@openclaw/fs-safe": "github:openclaw/fs-safe#3412e03c09cdfd31c2da04b7d74e39ad7a92d07d",
     "@slack/bolt": "^4.7.2",
     "@slack/types": "^2.21.0",
     "@slack/web-api": "^7.15.2",
@@ -1803,7 +1803,7 @@
       "uuid": "14.0.0"
     },
     "onlyBuiltDependencies": [
-      "@alien/fs-safe",
+      "@openclaw/fs-safe",
       "@discordjs/opus",
       "@google/genai",
       "@lydell/node-pty",

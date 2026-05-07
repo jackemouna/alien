@@ -1,5 +1,5 @@
 import "./fs-safe-defaults.js";
-import { readSecretFileSync as readSecretFileSyncImpl } from "@alien/fs-safe/secret";
+import { readSecretFileSync as readSecretFileSyncImpl } from "@openclaw/fs-safe/secret";
 import { resolveUserPath } from "../utils.js";
 
 export {
@@ -9,8 +9,8 @@ export {
   readSecretFileSync,
   tryReadSecretFileSync,
   type SecretFileReadOptions,
-} from "@alien/fs-safe/secret";
-export { writeSecretFileAtomic as writePrivateSecretFileAtomic } from "@alien/fs-safe/secret";
+} from "@openclaw/fs-safe/secret";
+export { writeSecretFileAtomic as writePrivateSecretFileAtomic } from "@openclaw/fs-safe/secret";
 
 export type SecretFileReadResult =
   | {

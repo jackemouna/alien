@@ -175,7 +175,7 @@ function shouldNeverBundleDependency(id: string): boolean {
 }
 
 function shouldAlwaysBundleDependency(id: string): boolean {
-  return id === "@alien/fs-safe" || id.startsWith("@alien/fs-safe/");
+  return id === "@openclaw/fs-safe" || id.startsWith("@openclaw/fs-safe/");
 }
 
 function listBundledPluginEntrySources(

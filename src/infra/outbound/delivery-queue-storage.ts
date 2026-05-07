@@ -8,7 +8,7 @@ import {
   readJsonDurableQueueEntry,
   resolveJsonDurableQueueEntryPaths,
   writeJsonDurableQueueEntry,
-} from "@alien/fs-safe/store";
+} from "@openclaw/fs-safe/store";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { RenderedMessageBatchPlanItem } from "../../channels/message/types.js";
 import { resolveStateDir } from "../../config/paths.js";

@@ -4,7 +4,7 @@ const { configureFsSafePython } = vi.hoisted(() => ({
   configureFsSafePython: vi.fn(),
 }));
 
-vi.mock("@alien/fs-safe/config", () => ({
+vi.mock("@openclaw/fs-safe/config", () => ({
   configureFsSafePython,
 }));
 

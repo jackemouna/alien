@@ -6,4 +6,4 @@ export {
   resolveRootPathSync,
   type ResolvedRootPath,
   type RootPathAliasPolicy,
-} from "@alien/fs-safe/advanced";
+} from "@openclaw/fs-safe/advanced";
