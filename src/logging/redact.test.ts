@@ -419,4 +419,68 @@ describe("redactSensitiveLines", () => {
     expect(joined).toContain("…redacted…");
     expect(joined).not.toContain("ABCDEF1234567890");
   });
+
+  describe("audit M8: additional high-value secret patterns", () => {
+    const opts = { mode: "tools" as const, patterns: defaults };
+
+    it("masks AWS access key IDs (AKIA…)", () => {
+      const input = "creds: AKIAIOSFODNN7EXAMPLE in trace";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("AKIAIOSFODNN7EXAMPLE");
+      expect(out).toMatch(/AKIAIO…MPLE/);
+    });
+
+    it("masks AWS STS session keys (ASIA…)", () => {
+      const input = "ASIAIOSFODNN7EXAMPLE";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("ASIAIOSFODNN7EXAMPLE");
+    });
+
+    it("masks Stripe live secret keys", () => {
+      const input = "Authorization: Bearer sk_live_4eC39HqLyjWDarjtT1zdp7dc";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("4eC39HqLyjWDarjtT1zdp7dc");
+    });
+
+    it("masks Stripe test secret keys", () => {
+      const input = "STRIPE_KEY=sk_test_4eC39HqLyjWDarjtT1zdp7dc";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("4eC39HqLyjWDarjtT1zdp7dc");
+    });
+
+    it("masks Stripe restricted keys", () => {
+      const input = "rk_live_AbCdEfGhIjKlMnOpQrStUvWx in payload";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("AbCdEfGhIjKlMnOpQrStUvWx");
+    });
+
+    it("masks Google OAuth access tokens (ya29.…)", () => {
+      const input = "Authorization: Bearer ya29.a0AfH6SMC1abcDEFghi-jKlmnoPQRstuvwxyz";
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain("a0AfH6SMC1abcDEFghi-jKlmnoPQRstuvwxyz");
+    });
+
+    it("masks Azure Storage AccountKey values without removing the field name", () => {
+      const accountKey =
+        "ZmFrZWZha2VmYWtlZmFrZWZha2VmYWtlZmFrZWZha2VmYWtlZmFrZWZha2VmYWtlZmFrZWZha2VmYWtlZmFrZWZha2VmYWtlZmFrZQ==";
+      const input = `DefaultEndpointsProtocol=https;AccountName=foo;AccountKey=${accountKey};EndpointSuffix=core`;
+      const out = redactSensitiveText(input, opts);
+      expect(out).toContain("AccountKey=");
+      expect(out).not.toContain(accountKey);
+    });
+
+    it("masks JWTs in three-segment base64url form", () => {
+      const jwt =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWVuIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+      const input = `Authorization: ${jwt}`;
+      const out = redactSensitiveText(input, opts);
+      expect(out).not.toContain(jwt);
+    });
+
+    it("does not mask non-secret-looking dotted identifiers", () => {
+      const input = "module.path.thing.value";
+      const out = redactSensitiveText(input, opts);
+      expect(out).toBe(input);
+    });
+  });
 });

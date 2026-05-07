@@ -55,6 +55,24 @@ const DEFAULT_REDACT_PATTERNS: string[] = [
   // Telegram Bot API URLs embed the token as `/bot<token>/...` (no word-boundary before digits).
   String.raw`\bbot(\d{6,}:[A-Za-z0-9_-]{20,})\b`,
   String.raw`\b(\d{6,}:[A-Za-z0-9_-]{20,})\b`,
+  // Audit M8 — additional high-value secret prefixes:
+  // AWS access keys (AKIA + 16 chars).
+  String.raw`\b(AKIA[A-Z0-9]{16})\b`,
+  // AWS session tokens are very long base64-style values; the prefix FQoG…
+  // identifies them. Keep only the longest prefix-anchored pattern.
+  String.raw`\b(ASIA[A-Z0-9]{16})\b`,
+  // Stripe live/test secret + restricted keys.
+  String.raw`\b(sk_live_[A-Za-z0-9]{16,})\b`,
+  String.raw`\b(sk_test_[A-Za-z0-9]{16,})\b`,
+  String.raw`\b(rk_live_[A-Za-z0-9]{16,})\b`,
+  // Google OAuth access + refresh tokens.
+  String.raw`\b(ya29\.[A-Za-z0-9_-]{20,})\b`,
+  // Azure Storage connection strings embed AccountKey=<base64>;… —
+  // mask the value, not the whole string.
+  String.raw`\bAccountKey=([A-Za-z0-9+/=]{32,})`,
+  // JWT tokens (three base64url segments separated by dots). The minimum
+  // segment length keeps this from matching every dotted identifier.
+  String.raw`\b(eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,})\b`,
 ];
 
 type RedactOptions = {
