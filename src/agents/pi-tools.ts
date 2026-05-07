@@ -1,11 +1,12 @@
 import { createCodingTools, createReadTool } from "@mariozechner/pi-coding-agent";
 import { HEARTBEAT_RESPONSE_TOOL_NAME } from "../auto-reply/heartbeat-tool-response.js";
-import type { ModelCompatConfig } from "../config/types.models.js";
 import type { AlienConfig } from "../config/types.alien.js";
+import type { ModelCompatConfig } from "../config/types.models.js";
 import type { DiagnosticTraceContext } from "../infra/diagnostic-trace-context.js";
 import { resolveMergedSafeBinProfileFixtures } from "../infra/exec-safe-bin-runtime-policy.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
+import { resolveAlienInstallRoot } from "../security/self-edit-guard.js";
 import { createLazyImportLoader } from "../shared/lazy-promise.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -13,6 +14,9 @@ import {
 } from "../shared/string-coerce.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentConfig } from "./agent-scope.js";
+import { resolveAlienPluginToolsForOptions } from "./alien-plugin-tools.js";
+import { createAlienTools } from "./alien-tools.js";
+import { applySelfEditGuard } from "./alien-tools.self-edit-guard.js";
 import { createApplyPatchTool } from "./apply-patch.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
 import { describeExecTool, describeProcessTool } from "./bash-tools.descriptions.js";
@@ -23,8 +27,6 @@ import { listChannelAgentTools } from "./channel-tools.js";
 import { shouldSuppressManagedWebSearchTool } from "./codex-native-web-search.js";
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 import type { ModelAuthMode } from "./model-auth.js";
-import { resolveAlienPluginToolsForOptions } from "./alien-plugin-tools.js";
-import { createAlienTools } from "./alien-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import {
   type ToolOutcomeObserver,
@@ -540,15 +542,23 @@ export function createAlienCodingTools(options?: {
           if (sandboxRoot) {
             return [];
           }
-          const wrapped = createHostWorkspaceWriteTool(workspaceRoot, { workspaceOnly });
-          return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+          const base = createHostWorkspaceWriteTool(workspaceRoot, { workspaceOnly });
+          const guarded = applySelfEditGuard(base, {
+            root: workspaceRoot,
+            installRoot: resolveAlienInstallRoot(process.argv),
+          });
+          return [workspaceOnly ? wrapToolWorkspaceRootGuard(guarded, workspaceRoot) : guarded];
         }
         if (tool.name === "edit") {
           if (sandboxRoot) {
             return [];
           }
-          const wrapped = createHostWorkspaceEditTool(workspaceRoot, { workspaceOnly });
-          return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+          const base = createHostWorkspaceEditTool(workspaceRoot, { workspaceOnly });
+          const guarded = applySelfEditGuard(base, {
+            root: workspaceRoot,
+            installRoot: resolveAlienInstallRoot(process.argv),
+          });
+          return [workspaceOnly ? wrapToolWorkspaceRootGuard(guarded, workspaceRoot) : guarded];
         }
         return [tool];
       })
