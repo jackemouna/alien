@@ -2,9 +2,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { Command } from "commander";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawPluginApi } from "./api.js";
+import type { AlienPluginApi } from "./api.js";
 import type { VoiceCallRuntime } from "./runtime-entry.js";
 import type { CallRecord } from "./src/types.js";
 
@@ -31,7 +31,7 @@ type Registered = {
   methods: Map<string, unknown>;
   methodScopes: Map<string, string | undefined>;
   tools: unknown[];
-  service?: Parameters<OpenClawPluginApi["registerService"]>[0];
+  service?: Parameters<AlienPluginApi["registerService"]>[0];
 };
 type RegisterVoiceCall = (api: Record<string, unknown>) => void;
 type RegisterCliContext = {
@@ -120,7 +120,7 @@ function setup(config: Record<string, unknown>): Registered {
     source: "test",
     config: {},
     pluginConfig: config,
-    runtime: { tts: { textToSpeechTelephony: vi.fn() } } as unknown as OpenClawPluginApi["runtime"],
+    runtime: { tts: { textToSpeechTelephony: vi.fn() } } as unknown as AlienPluginApi["runtime"],
     logger: noopLogger,
     registerGatewayMethod: (method: string, handler: unknown, opts?: { scope?: string }) => {
       methods.set(method, handler);
@@ -190,12 +190,12 @@ describe("voice-call plugin", () => {
     voiceCallCliTesting.setCallGatewayFromCliForTests();
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
-    delete (globalThis as Record<PropertyKey, unknown>)[Symbol.for("openclaw.voice-call.runtime")];
+    delete (globalThis as Record<PropertyKey, unknown>)[Symbol.for("alien.voice-call.runtime")];
     delete (globalThis as Record<PropertyKey, unknown>)[
-      Symbol.for("openclaw.voice-call.runtimePromise")
+      Symbol.for("alien.voice-call.runtimePromise")
     ];
     delete (globalThis as Record<PropertyKey, unknown>)[
-      Symbol.for("openclaw.voice-call.runtimeStopPromise")
+      Symbol.for("alien.voice-call.runtimeStopPromise")
     ];
   });
 
@@ -245,7 +245,7 @@ describe("voice-call plugin", () => {
   });
 
   it("does not start the webhook runtime for CLI-only plugin loading", async () => {
-    vi.stubEnv("OPENCLAW_CLI", "1");
+    vi.stubEnv("ALIEN_CLI", "1");
     const { service } = setup({ provider: "mock" });
 
     await service?.start(createServiceContext());
@@ -255,8 +255,8 @@ describe("voice-call plugin", () => {
 
   it("still starts the webhook runtime for gateway CLI processes", async () => {
     const previousArgv = process.argv;
-    vi.stubEnv("OPENCLAW_CLI", "1");
-    process.argv = ["node", "openclaw", "gateway", "run"];
+    vi.stubEnv("ALIEN_CLI", "1");
+    process.argv = ["node", "alien", "gateway", "run"];
     const { service } = setup({ provider: "mock" });
 
     try {
@@ -591,7 +591,7 @@ describe("voice-call plugin", () => {
       },
     });
     expect(noopLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Run "openclaw doctor --fix"'),
+      expect.stringContaining('Run "alien doctor --fix"'),
     );
   });
 
@@ -1010,7 +1010,7 @@ describe("voice-call plugin", () => {
         from: "user",
       });
       expect(runtimeStub.manager.initiateCall).toHaveBeenCalledWith("+15550009999", undefined, {
-        message: "OpenClaw voice call smoke test.",
+        message: "Alien voice call smoke test.",
         mode: "notify",
       });
       expect(stdout.output()).toContain("live-call: started call-1");

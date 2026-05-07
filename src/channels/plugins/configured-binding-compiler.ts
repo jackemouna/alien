@@ -1,5 +1,5 @@
 import { listConfiguredBindings } from "../../config/bindings.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { pickFirstExistingAgentId } from "../../routing/resolve-route.js";
 import {
   normalizeOptionalLowercaseString,
@@ -71,7 +71,7 @@ function compileConfiguredBindingTarget(params: {
 }
 
 function compileConfiguredBindingRule(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ConfiguredBindingChannel;
   binding: CompiledConfiguredBinding["binding"];
   target: ChannelConfiguredBindingConversationRef;
@@ -119,7 +119,7 @@ function pushCompiledRule(
 }
 
 function compileConfiguredBindingRegistry(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): CompiledConfiguredBindingRegistry {
   const rulesByChannel = new Map<ConfiguredBindingChannel, CompiledConfiguredBinding[]>();
 
@@ -163,13 +163,13 @@ function compileConfiguredBindingRegistry(params: {
 }
 
 export function resolveCompiledBindingRegistry(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): CompiledConfiguredBindingRegistry {
   return compileConfiguredBindingRegistry({ cfg });
 }
 
 export function primeCompiledBindingRegistry(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): CompiledConfiguredBindingRegistry {
   return compileConfiguredBindingRegistry({ cfg });
 }

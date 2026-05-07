@@ -8,6 +8,6 @@ export async function writeViaSiblingTempPath(params: {
   await writeViaSiblingTempPathBase({
     ...params,
     fallbackFileName: "output.bin",
-    tempPrefix: ".openclaw-output-",
+    tempPrefix: ".alien-output-",
   });
 }

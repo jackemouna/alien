@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   getActiveDiagnosticsTimelineSpan,
   measureDiagnosticsTimelineSpanSync,
@@ -71,7 +71,7 @@ export function isPluginMetadataSnapshotCompatible(params: {
     PluginMetadataSnapshot,
     "configFingerprint" | "index" | "policyHash" | "workspaceDir"
   >;
-  config: OpenClawConfig;
+  config: AlienConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   index?: InstalledPluginIndex;

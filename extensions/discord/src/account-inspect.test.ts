@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { inspectDiscordAccount } from "./account-inspect.js";
 
-function asConfig(value: unknown): OpenClawConfig {
-  return value as OpenClawConfig;
+function asConfig(value: unknown): AlienConfig {
+  return value as AlienConfig;
 }
 
 describe("inspectDiscordAccount", () => {

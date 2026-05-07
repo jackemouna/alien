@@ -1,4 +1,4 @@
-import type { MockFn } from "openclaw/plugin-sdk/plugin-test-runtime";
+import type { MockFn } from "alien/plugin-sdk/plugin-test-runtime";
 import { vi } from "vitest";
 import type { DiscordMessageRunQueueTestingHooks } from "./message-run-queue.js";
 

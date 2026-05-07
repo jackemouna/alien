@@ -82,7 +82,7 @@ jobs:
           RELEASE_MAIN_REF="refs/remotes/origin/${PUBLIC_RELEASE_BRANCH}"
           export RELEASE_SHA RELEASE_TAG RELEASE_MAIN_REF
           git fetch --no-tags origin "+refs/heads/${PUBLIC_RELEASE_BRANCH}:refs/remotes/origin/${PUBLIC_RELEASE_BRANCH}"
-          pnpm release:openclaw:npm:check
+          pnpm release:alien:npm:check
 
       - name: Summarize next step
         env:
@@ -95,8 +95,8 @@ jobs:
             echo "It does not sign, notarize, or upload macOS assets."
             echo
             echo "Next step:"
-            echo "- Run \`openclaw/releases-private/.github/workflows/openclaw-macos-validate.yml\` with tag \`${RELEASE_TAG}\` and wait for the private mac validation lane to pass."
-            echo "- Run \`openclaw/releases-private/.github/workflows/openclaw-macos-publish.yml\` with tag \`${RELEASE_TAG}\` and \`preflight_only=true\` for the full private mac preflight."
+            echo "- Run \`alien/releases-private/.github/workflows/alien-macos-validate.yml\` with tag \`${RELEASE_TAG}\` and wait for the private mac validation lane to pass."
+            echo "- Run \`alien/releases-private/.github/workflows/alien-macos-publish.yml\` with tag \`${RELEASE_TAG}\` and \`preflight_only=true\` for the full private mac preflight."
             echo "- For the real publish path, run the same private mac publish workflow from \`main\` with the successful private preflight \`preflight_run_id\` so it promotes the prepared artifacts instead of rebuilding them."
-            echo "- For stable releases, also download \`macos-appcast-${RELEASE_TAG}\` from the successful private run and commit \`appcast.xml\` back to \`main\` in \`openclaw/openclaw\`."
+            echo "- For stable releases, also download \`macos-appcast-${RELEASE_TAG}\` from the successful private run and commit \`appcast.xml\` back to \`main\` in \`alien/alien\`."
           } >> "$GITHUB_STEP_SUMMARY"

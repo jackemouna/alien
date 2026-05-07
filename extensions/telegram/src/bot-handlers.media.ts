@@ -1,5 +1,5 @@
 import type { Message } from "@grammyjs/types";
-import { MediaFetchError } from "openclaw/plugin-sdk/media-runtime";
+import { MediaFetchError } from "alien/plugin-sdk/media-runtime";
 
 export function isMediaSizeLimitError(err: unknown): boolean {
   const errMsg = String(err);

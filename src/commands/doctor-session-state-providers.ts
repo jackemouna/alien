@@ -14,7 +14,7 @@ import {
 import { resolveAgentModelFallbackValues } from "../config/model-input.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { updateSessionStore } from "../config/sessions/store.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { listPluginDoctorSessionRouteStateOwners } from "../plugins/doctor-contract-registry.js";
 import type { DoctorSessionRouteStateOwner } from "../plugins/doctor-session-route-state-owner-types.js";
 import { normalizeAgentId } from "../routing/session-key.js";
@@ -59,16 +59,16 @@ function repairExample(repair: DoctorSessionRouteStateRepair): string {
   return `${repair.key} (${repair.reasons.join(", ")})`;
 }
 
-function resolveSessionAgentId(cfg: OpenClawConfig, sessionKey: string): string {
+function resolveSessionAgentId(cfg: AlienConfig, sessionKey: string): string {
   return parseAgentSessionKey(sessionKey)?.agentId ?? resolveDefaultAgentId(cfg);
 }
 
 function resolveRawConfiguredRuntime(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   env?: NodeJS.ProcessEnv;
 }): string | undefined {
-  const envRuntime = params.env?.OPENCLAW_AGENT_RUNTIME?.trim();
+  const envRuntime = params.env?.ALIEN_AGENT_RUNTIME?.trim();
   if (envRuntime) {
     return normalizeProviderId(envRuntime);
   }
@@ -85,7 +85,7 @@ function resolveRawConfiguredRuntime(params: {
 }
 
 export function resolveConfiguredDoctorSessionStateRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey: string;
   env?: NodeJS.ProcessEnv;
 }): DoctorSessionRouteState {
@@ -121,7 +121,7 @@ export function resolveConfiguredDoctorSessionStateRoute(params: {
 }
 
 function resolvePluginDoctorSessionRouteStateOwners(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
 }): DoctorSessionRouteStateOwner[] {
   return listPluginDoctorSessionRouteStateOwners({ config: params.cfg, env: params.env });
@@ -450,7 +450,7 @@ function groupRepairsByOwner(
 }
 
 export async function runPluginSessionStateDoctorRepairs(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   store: Record<string, SessionEntry>;
   absoluteStorePath: string;
   prompter: DoctorPrompterLike;

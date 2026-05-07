@@ -1,4 +1,4 @@
-import { importFreshModule } from "openclaw/plugin-sdk/test-fixtures";
+import { importFreshModule } from "alien/plugin-sdk/test-fixtures";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 let probeModule: typeof import("./list.probe.js");

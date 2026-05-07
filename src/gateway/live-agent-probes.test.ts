@@ -64,7 +64,7 @@ describe("live-agent-probes", () => {
         attempt: 1,
         exactReply: spec.name,
       }),
-    ).toContain("previous OpenClaw cron MCP tool call was cancelled");
+    ).toContain("previous Alien cron MCP tool call was cancelled");
     expect(JSON.parse(spec.argsJson)).toEqual(
       expect.objectContaining({
         job: expect.objectContaining({

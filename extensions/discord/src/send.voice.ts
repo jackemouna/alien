@@ -1,16 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { recordChannelActivity } from "alien/plugin-sdk/channel-activity-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   extensionForMime,
   maxBytesForKind,
   unlinkIfExists,
-} from "openclaw/plugin-sdk/media-runtime";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
-import type { RetryConfig } from "openclaw/plugin-sdk/retry-runtime";
-import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
-import { loadWebMediaRaw } from "openclaw/plugin-sdk/web-media";
+} from "alien/plugin-sdk/media-runtime";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
+import type { RetryConfig } from "alien/plugin-sdk/retry-runtime";
+import { tempWorkspace, resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
+import { loadWebMediaRaw } from "alien/plugin-sdk/web-media";
 import { resolveDiscordAccount } from "./accounts.js";
 import type { RequestClient } from "./internal/discord.js";
 import { parseAndResolveRecipient } from "./recipient-resolution.js";
@@ -24,7 +24,7 @@ import {
 } from "./voice-message.js";
 
 type VoiceMessageOpts = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   token?: string;
   accountId?: string;
   verbose?: boolean;
@@ -55,7 +55,7 @@ async function materializeVoiceMessageInput(
   const extFromMime = media.contentType ? extensionForMime(media.contentType) : "";
   const ext = extFromName || extFromMime || ".bin";
   const workspace = await tempWorkspace({
-    rootDir: resolvePreferredOpenClawTmpDir(),
+    rootDir: resolvePreferredAlienTmpDir(),
     prefix: "voice-src-",
   });
   const filePath = await workspace.write(`input${ext}`, media.buffer);

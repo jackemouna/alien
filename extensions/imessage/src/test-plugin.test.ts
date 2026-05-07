@@ -2,11 +2,11 @@ import {
   createMessageReceiptFromOutboundResults,
   verifyChannelMessageAdapterCapabilityProofs,
   verifyDurableFinalCapabilityProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   listImportedBundledPluginFacadeIds,
   resetFacadeRuntimeStateForTest,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/plugin-test-runtime";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { imessagePlugin } from "./channel.js";
 import { createIMessageTestPlugin } from "./imessage.test-plugin.js";

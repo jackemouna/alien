@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import type { GatewayAuthConfig, GatewayTailscaleConfig } from "../config/types.gateway.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
   hasConfiguredGatewayAuthSecretInput,
@@ -65,7 +65,7 @@ export function mergeGatewayTailscaleConfig(
 }
 
 function resolveGatewayAuthFromConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env: NodeJS.ProcessEnv;
   authOverride?: GatewayAuthConfig;
   tailscaleOverride?: GatewayTailscaleConfig;
@@ -83,11 +83,11 @@ function resolveGatewayAuthFromConfig(params: {
 }
 
 function hasGatewayTokenCandidate(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env: NodeJS.ProcessEnv;
   authOverride?: GatewayAuthConfig;
 }): boolean {
-  const envToken = trimToUndefined(params.env.OPENCLAW_GATEWAY_TOKEN);
+  const envToken = trimToUndefined(params.env.ALIEN_GATEWAY_TOKEN);
   if (envToken) {
     return true;
   }
@@ -120,7 +120,7 @@ function hasGatewayPasswordOverrideCandidate(params: {
 }
 
 export async function ensureGatewayStartupAuth(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   authOverride?: GatewayAuthConfig;
   tailscaleOverride?: GatewayTailscaleConfig;
@@ -131,7 +131,7 @@ export async function ensureGatewayStartupAuth(params: {
   persist?: boolean;
   baseHash?: string;
 }): Promise<{
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   auth: ReturnType<typeof resolveGatewayAuth>;
   generatedToken?: string;
   persistedGeneratedToken: boolean;
@@ -187,7 +187,7 @@ export async function ensureGatewayStartupAuth(params: {
   }
 
   const generatedToken = crypto.randomBytes(24).toString("hex");
-  const nextCfg: OpenClawConfig = {
+  const nextCfg: AlienConfig = {
     ...params.cfg,
     gateway: {
       ...params.cfg.gateway,
@@ -219,7 +219,7 @@ export async function ensureGatewayStartupAuth(params: {
 }
 
 export function assertHooksTokenSeparateFromGatewayAuth(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   auth: ResolvedGatewayAuth;
 }): void {
   if (params.cfg.hooks?.enabled !== true) {

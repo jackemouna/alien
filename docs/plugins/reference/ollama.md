@@ -1,5 +1,5 @@
 ---
-summary: "Adds Ollama model provider support to OpenClaw."
+summary: "Adds Ollama model provider support to Alien."
 read_when:
   - You are installing, configuring, or auditing the ollama plugin
 title: "Ollama plugin"
@@ -7,12 +7,12 @@ title: "Ollama plugin"
 
 # Ollama plugin
 
-Adds Ollama model provider support to OpenClaw.
+Adds Ollama model provider support to Alien.
 
 ## Distribution
 
-- Package: `@openclaw/ollama-provider`
-- Install route: included in OpenClaw
+- Package: `@alien/ollama-provider`
+- Install route: included in Alien
 
 ## Surface
 

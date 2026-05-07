@@ -3,11 +3,11 @@ import path from "node:path";
 import {
   createPluginRegistryFixture,
   registerTestPlugin,
-} from "openclaw/plugin-sdk/plugin-test-contracts";
+} from "alien/plugin-sdk/plugin-test-contracts";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { loadSessionStore, updateSessionStore, type SessionEntry } from "../../config/sessions.js";
 import { withTempConfig } from "../../gateway/test-temp-config.js";
-import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../../infra/tmp-alien-dir.js";
 import { cleanupReplacedPluginHostRegistry, runPluginHostCleanup } from "../host-hook-cleanup.js";
 import { clearPluginHostRuntimeState } from "../host-hook-runtime.js";
 import { patchPluginSessionExtension } from "../host-hook-state.js";
@@ -53,13 +53,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -99,9 +99,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -135,13 +135,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-projector-fail-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-projector-fail-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -227,9 +227,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -381,13 +381,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-cleanup-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-cleanup-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -424,9 +424,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -449,13 +449,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-active-cleanup-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-active-cleanup-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -491,9 +491,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -528,13 +528,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(previousFixture.registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-restart-cleanup-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-restart-cleanup-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -575,9 +575,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -622,13 +622,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(previousFixture.registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-restart-mixed-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-restart-mixed-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -684,9 +684,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -722,13 +722,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(previousFixture.registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-restart-preserve-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-restart-preserve-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -773,9 +773,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -784,13 +784,13 @@ describe("plugin session extension SessionEntry projection", () => {
   it("clears persisted promoted slots when registry metadata is unavailable", async () => {
     setActivePluginRegistry(createEmptyPluginRegistry());
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-metadata-cleanup-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-metadata-cleanup-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -829,9 +829,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -874,13 +874,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-policy-read-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-policy-read-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -933,9 +933,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }
@@ -967,13 +967,13 @@ describe("plugin session extension SessionEntry projection", () => {
     setActivePluginRegistry(registry.registry);
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-host-hooks-slot-noop-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-host-hooks-slot-noop-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = { session: { store: storePath } };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -998,9 +998,9 @@ describe("plugin session extension SessionEntry projection", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }

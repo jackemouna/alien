@@ -1,6 +1,6 @@
 import { withActivatedPluginIds } from "./activation-context.js";
 import { getLoadedRuntimePluginRegistry } from "./active-runtime-registry.js";
-import { isPluginRegistryLoadInFlight, loadOpenClawPlugins } from "./loader.js";
+import { isPluginRegistryLoadInFlight, loadAlienPlugins } from "./loader.js";
 import type { PluginLoadOptions } from "./loader.js";
 import type { PluginManifestRecord } from "./manifest-registry.js";
 import { hasExplicitPluginIdScope, normalizePluginIdScope } from "./plugin-scope.js";
@@ -179,7 +179,7 @@ export function resolvePluginWebProviders<TEntry>(
         return bundledArtifactProviders;
       }
     }
-    const registry = loadOpenClawPlugins(
+    const registry = loadAlienPlugins(
       buildPluginRuntimeLoadOptionsFromValues(
         {
           config: withActivatedPluginIds({
@@ -235,7 +235,7 @@ export function resolvePluginWebProviders<TEntry>(
   if (hasExplicitEmptyScope) {
     return [];
   }
-  const registry = loadOpenClawPlugins(loadOptions);
+  const registry = loadAlienPlugins(loadOptions);
   return deps.mapRegistryProviders({
     registry,
     onlyPluginIds: context.onlyPluginIds,

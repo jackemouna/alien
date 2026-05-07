@@ -14,16 +14,16 @@ import {
 const tempDirs: string[] = [];
 
 function createHandoffEnv(): NodeJS.ProcessEnv {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-restart-handoff-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-restart-handoff-"));
   tempDirs.push(dir);
   return {
     ...process.env,
-    OPENCLAW_STATE_DIR: dir,
+    ALIEN_STATE_DIR: dir,
   };
 }
 
 function handoffPath(env: NodeJS.ProcessEnv): string {
-  return path.join(env.OPENCLAW_STATE_DIR ?? "", GATEWAY_SUPERVISOR_RESTART_HANDOFF_FILENAME);
+  return path.join(env.ALIEN_STATE_DIR ?? "", GATEWAY_SUPERVISOR_RESTART_HANDOFF_FILENAME);
 }
 
 describe("gateway restart handoff", () => {
@@ -223,7 +223,7 @@ describe("gateway restart handoff", () => {
 
   it("does not follow an existing handoff-path symlink when writing", () => {
     const env = createHandoffEnv();
-    const targetPath = path.join(env.OPENCLAW_STATE_DIR ?? "", "attacker-target.txt");
+    const targetPath = path.join(env.ALIEN_STATE_DIR ?? "", "attacker-target.txt");
     fs.writeFileSync(targetPath, "keep", "utf8");
     try {
       fs.symlinkSync(targetPath, handoffPath(env));

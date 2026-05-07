@@ -1,6 +1,6 @@
 import Network
 import Observation
-import OpenClawKit
+import AlienKit
 import os
 import SwiftUI
 import UIKit
@@ -25,7 +25,7 @@ struct SettingsTab: View {
     @AppStorage("talk.button.enabled") private var talkButtonEnabled: Bool = true
     @AppStorage("talk.background.enabled") private var talkBackgroundEnabled: Bool = false
     @AppStorage("camera.enabled") private var cameraEnabled: Bool = true
-    @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = OpenClawLocationMode.off.rawValue
+    @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = AlienLocationMode.off.rawValue
     @AppStorage("screen.preventSleep") private var preventSleep: Bool = true
     @AppStorage("gateway.preferredStableID") private var preferredGatewayStableID: String = ""
     @AppStorage("gateway.lastDiscoveredStableID") private var lastDiscoveredGatewayStableID: String = ""
@@ -43,7 +43,7 @@ struct SettingsTab: View {
     @AppStorage("gateway.hasConnectedOnce") private var hasConnectedOnce: Bool = false
 
     @State private var connectingGatewayID: String?
-    @State private var lastLocationModeRaw: String = OpenClawLocationMode.off.rawValue
+    @State private var lastLocationModeRaw: String = AlienLocationMode.off.rawValue
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
     @State private var defaultShareInstruction: String = ""
@@ -60,7 +60,7 @@ struct SettingsTab: View {
     @State private var activeFeatureHelp: FeatureHelp?
     @State private var suppressCredentialPersist: Bool = false
 
-    private let gatewayLogger = Logger(subsystem: "ai.openclaw.ios", category: "GatewaySettings")
+    private let gatewayLogger = Logger(subsystem: "ai.alien.ios", category: "GatewaySettings")
 
     var body: some View {
         NavigationStack {
@@ -83,7 +83,7 @@ struct SettingsTab: View {
 
                         if !self.isGatewayConnected {
                             Text(
-                                "1. Open a chat with your OpenClaw agent and send /pair\n"
+                                "1. Open a chat with your Alien agent and send /pair\n"
                                     + "2. Copy the setup code it returns\n"
                                     + "3. Paste here and tap Connect\n"
                                     + "4. Back in that chat, run /pair approve")
@@ -285,7 +285,7 @@ struct SettingsTab: View {
                         self.featureToggle(
                             "Talk Mode",
                             isOn: self.$talkEnabled,
-                            help: "Enables voice conversation mode with your connected OpenClaw agent.")
+                            help: "Enables voice conversation mode with your connected Alien agent.")
                         { newValue in
                             self.appModel.setTalkEnabled(newValue)
                         }
@@ -311,7 +311,7 @@ struct SettingsTab: View {
                             "Allow Camera",
                             isOn: self.$cameraEnabled,
                             help: "Allows the gateway to request photos or short video clips "
-                                + "while OpenClaw is foregrounded.")
+                                + "while Alien is foregrounded.")
 
                         HStack(spacing: 8) {
                             Text("Location Access")
@@ -319,7 +319,7 @@ struct SettingsTab: View {
                             Button {
                                 self.activeFeatureHelp = FeatureHelp(
                                     title: "Location Access",
-                                    message: "Controls location permissions for OpenClaw. "
+                                    message: "Controls location permissions for Alien. "
                                         + "Off disables location tools, While Using enables "
                                         + "foreground location, and Always enables "
                                         + "background location.")
@@ -331,9 +331,9 @@ struct SettingsTab: View {
                             .accessibilityLabel("Location Access info")
                         }
                         Picker("Location Access", selection: self.$locationEnabledModeRaw) {
-                            Text("Off").tag(OpenClawLocationMode.off.rawValue)
-                            Text("While Using").tag(OpenClawLocationMode.whileUsing.rawValue)
-                            Text("Always").tag(OpenClawLocationMode.always.rawValue)
+                            Text("Off").tag(AlienLocationMode.off.rawValue)
+                            Text("While Using").tag(AlienLocationMode.whileUsing.rawValue)
+                            Text("Always").tag(AlienLocationMode.always.rawValue)
                         }
                         .labelsHidden()
                         .pickerStyle(.segmented)
@@ -341,7 +341,7 @@ struct SettingsTab: View {
                         self.featureToggle(
                             "Prevent Sleep",
                             isOn: self.$preventSleep,
-                            help: "Keeps the screen awake while OpenClaw is open.")
+                            help: "Keeps the screen awake while Alien is open.")
 
                         DisclosureGroup("Advanced") {
                             VStack(alignment: .leading, spacing: 8) {
@@ -383,7 +383,7 @@ struct SettingsTab: View {
                                     self.activeFeatureHelp = FeatureHelp(
                                         title: "Default Share Instruction",
                                         message: "Appends this instruction when sharing content "
-                                            + "into OpenClaw from iOS.")
+                                            + "into Alien from iOS.")
                                 } label: {
                                     Image(systemName: "info.circle")
                                         .foregroundStyle(.secondary)
@@ -414,7 +414,7 @@ struct SettingsTab: View {
                             .truncationMode(.middle)
                         LabeledContent("Device", value: DeviceInfoHelper.deviceFamily())
                         LabeledContent("Platform", value: DeviceInfoHelper.platformStringForDisplay())
-                        LabeledContent("OpenClaw", value: DeviceInfoHelper.openClawVersionString())
+                        LabeledContent("Alien", value: DeviceInfoHelper.openClawVersionString())
                     }
                 }
             }
@@ -557,7 +557,7 @@ struct SettingsTab: View {
             .onChange(of: self.locationEnabledModeRaw) { _, newValue in
                 let previous = self.lastLocationModeRaw
                 self.lastLocationModeRaw = newValue
-                guard let mode = OpenClawLocationMode(rawValue: newValue) else { return }
+                guard let mode = AlienLocationMode(rawValue: newValue) else { return }
                 Task {
                     let granted = await self.appModel.requestLocationPermissions(mode: mode)
                     if !granted {
@@ -978,7 +978,7 @@ struct SettingsTab: View {
         guard !trimmed.isEmpty else { return nil }
         let lower = trimmed.lowercased()
         if lower.contains("pairing required") {
-            return "Pairing required. Go back to your OpenClaw chat and run /pair approve, then tap Connect again."
+            return "Pairing required. Go back to your Alien chat and run /pair approve, then tap Connect again."
         }
         if lower.contains("device nonce required") || lower.contains("device nonce mismatch") {
             return "Secure handshake failed. Make sure Tailscale is connected, then tap Connect again."

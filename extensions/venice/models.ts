@@ -1,9 +1,9 @@
-import { buildManifestModelProviderConfig } from "openclaw/plugin-sdk/provider-catalog-shared";
-import type { ModelDefinitionConfig } from "openclaw/plugin-sdk/provider-model-shared";
-import { createSubsystemLogger, retryAsync } from "openclaw/plugin-sdk/runtime-env";
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
-import manifest from "./openclaw.plugin.json" with { type: "json" };
+import { buildManifestModelProviderConfig } from "alien/plugin-sdk/provider-catalog-shared";
+import type { ModelDefinitionConfig } from "alien/plugin-sdk/provider-model-shared";
+import { createSubsystemLogger, retryAsync } from "alien/plugin-sdk/runtime-env";
+import { fetchWithSsrFGuard } from "alien/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
+import manifest from "./alien.plugin.json" with { type: "json" };
 
 const log = createSubsystemLogger("venice-models");
 

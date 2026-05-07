@@ -1,19 +1,19 @@
 services:
   - type: web
-    name: openclaw
+    name: alien
     runtime: docker
     plan: starter
     healthCheckPath: /health
     envVars:
-      - key: OPENCLAW_GATEWAY_PORT
+      - key: ALIEN_GATEWAY_PORT
         value: "8080"
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
+      - key: ALIEN_STATE_DIR
+        value: /data/.alien
+      - key: ALIEN_WORKSPACE_DIR
         value: /data/workspace
-      - key: OPENCLAW_GATEWAY_TOKEN
+      - key: ALIEN_GATEWAY_TOKEN
         generateValue: true
     disk:
-      name: openclaw-data
+      name: alien-data
       mountPath: /data
       sizeGB: 1

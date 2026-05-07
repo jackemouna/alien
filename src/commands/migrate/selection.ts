@@ -3,9 +3,9 @@ import { markMigrationItemSkipped, summarizeMigrationItems } from "../../plugin-
 import type { MigrationItem, MigrationPlan } from "../../plugins/types.js";
 
 export const MIGRATION_SKILL_NOT_SELECTED_REASON = "not selected for migration";
-export const MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON = "__openclaw_migrate_toggle_all_on__";
-export const MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF = "__openclaw_migrate_toggle_all_off__";
-export const MIGRATION_SKILL_SELECTION_SKIP = "__openclaw_migrate_skip_for_now__";
+export const MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON = "__alien_migrate_toggle_all_on__";
+export const MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF = "__alien_migrate_toggle_all_off__";
+export const MIGRATION_SKILL_SELECTION_SKIP = "__alien_migrate_skip_for_now__";
 
 export type InteractiveMigrationSkillSelection =
   | { action: "skip" }

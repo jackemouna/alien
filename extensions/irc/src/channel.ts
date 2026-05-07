@@ -1,23 +1,23 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "openclaw/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
+} from "alien/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
 import {
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "alien/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createResolvedDirectoryEntriesLister,
-} from "openclaw/plugin-sdk/directory-runtime";
+} from "alien/plugin-sdk/directory-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/status-helpers";
 import {
   listIrcAccountIds,
   resolveDefaultIrcAccountId,

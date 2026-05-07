@@ -1,15 +1,15 @@
-import { isAllowedParsedChatSender } from "openclaw/plugin-sdk/allow-from";
+import { isAllowedParsedChatSender } from "alien/plugin-sdk/allow-from";
 import {
   parseChatAllowTargetPrefixes,
   parseChatTargetPrefixesOrThrow,
   type ParsedChatTarget,
   resolveServicePrefixedAllowTarget,
   resolveServicePrefixedTarget,
-} from "openclaw/plugin-sdk/channel-targets";
+} from "alien/plugin-sdk/channel-targets";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 
 type BlueBubblesService = "imessage" | "sms" | "auto";
 

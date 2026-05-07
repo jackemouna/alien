@@ -6,7 +6,7 @@ import {
   type HeartbeatToolResponse,
 } from "../auto-reply/heartbeat-tool-response.js";
 import { markReplyPayloadForSourceSuppressionDelivery } from "../auto-reply/types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { runHeartbeatOnce, type HeartbeatDeps } from "./heartbeat-runner.js";
 import { installHeartbeatRunnerTestRuntime } from "./heartbeat-runner.test-harness.js";
 import {
@@ -29,7 +29,7 @@ describe("runHeartbeatOnce heartbeat response tool", () => {
     visibleReplies?: "automatic" | "message_tool";
     agentRuntimeId?: string;
     model?: string;
-  }): OpenClawConfig {
+  }): AlienConfig {
     return {
       agents: {
         defaults: {
@@ -48,7 +48,7 @@ describe("runHeartbeatOnce heartbeat response tool", () => {
         },
       },
       session: { store: params.storePath },
-    } as OpenClawConfig;
+    } as AlienConfig;
   }
 
   function createDeps(params: {
@@ -265,7 +265,7 @@ describe("runHeartbeatOnce heartbeat response tool", () => {
   });
 
   it("uses the heartbeat response tool prompt when the Codex runtime is env-forced", async () => {
-    vi.stubEnv("OPENCLAW_AGENT_RUNTIME", "codex");
+    vi.stubEnv("ALIEN_AGENT_RUNTIME", "codex");
     await withTempTelegramHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
       const cfg = createConfig({ tmpDir, storePath, model: "openai/gpt-5.5" });
       await seedMainSessionStore(storePath, cfg, {

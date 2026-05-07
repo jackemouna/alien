@@ -1,7 +1,7 @@
 import type { EventEmitter } from "node:events";
-import { danger } from "openclaw/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
+import { danger } from "alien/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "alien/plugin-sdk/ssrf-runtime";
 
 type DiscordGatewayEventType = "disallowed-intents" | "fatal" | "other" | "reconnect-exhausted";
 

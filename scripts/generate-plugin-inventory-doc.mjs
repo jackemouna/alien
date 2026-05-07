@@ -173,12 +173,12 @@ function resolveDescription({ manifest, packageJson }) {
   if (channels.length > 0) {
     const channelLabel = displayList(channels);
     const channelNoun = channelLabel.toLowerCase().includes("channel") ? "" : " channel";
-    return `Adds the ${channelLabel}${channelNoun} surface for sending and receiving OpenClaw messages.`;
+    return `Adds the ${channelLabel}${channelNoun} surface for sending and receiving Alien messages.`;
   }
 
   const providers = Array.isArray(manifest.providers) ? manifest.providers : [];
   if (providers.length > 0) {
-    return `Adds ${displayList(providers)} model provider support to OpenClaw.`;
+    return `Adds ${displayList(providers)} model provider support to Alien.`;
   }
 
   const contracts = Object.keys(manifest.contracts ?? {}).toSorted((left, right) =>
@@ -209,7 +209,7 @@ function resolveDescription({ manifest, packageJson }) {
   }
 
   const packageDescription = normalizePackageDescription(packageJson.description);
-  return packageDescription ? `${packageDescription}.` : "Provides an OpenClaw plugin.";
+  return packageDescription ? `${packageDescription}.` : "Provides an Alien plugin.";
 }
 
 function pushUniqueDocLink(values, value) {
@@ -228,7 +228,7 @@ function resolveDocs({ dirName, manifest, packageJson }) {
     pushUniqueDocLink(links, { href: pluginAlias, label: manifest.id ?? dirName });
   }
 
-  const channelDoc = normalizeDocPath(packageJson.openclaw?.channel?.docsPath);
+  const channelDoc = normalizeDocPath(packageJson.alien?.channel?.docsPath);
   if (channelDoc) {
     pushUniqueDocLink(links, {
       href: channelDoc,
@@ -307,10 +307,10 @@ function resolveInstallRoute(packageJson, status) {
     return "source checkout only";
   }
   if (status === "core") {
-    return "included in OpenClaw";
+    return "included in Alien";
   }
-  const install = packageJson.openclaw?.install;
-  const release = packageJson.openclaw?.release;
+  const install = packageJson.alien?.install;
+  const release = packageJson.alien?.release;
   const clawhubSpec =
     typeof install?.clawhubSpec === "string" ? `: \`${install.clawhubSpec}\`` : "";
   const npmSpec =
@@ -333,10 +333,10 @@ function resolveInstallRoute(packageJson, status) {
 }
 
 function resolveStatus({ dirName, packageJson, excludedDirs }) {
-  const release = packageJson.openclaw?.release;
+  const release = packageJson.alien?.release;
   const hasInstallSpec =
-    typeof packageJson.openclaw?.install?.clawhubSpec === "string" ||
-    typeof packageJson.openclaw?.install?.npmSpec === "string";
+    typeof packageJson.alien?.install?.clawhubSpec === "string" ||
+    typeof packageJson.alien?.install?.npmSpec === "string";
   if (!excludedDirs.has(dirName)) {
     return "core";
   }
@@ -415,9 +415,9 @@ ${record.surface}${extraSections ? `\n\n${extraSections}` : ""}${relatedDocs ? `
 
 function renderReferenceIndex(records) {
   return `---
-summary: "Generated index of OpenClaw plugin reference pages"
+summary: "Generated index of Alien plugin reference pages"
 read_when:
-  - You need a reference page for a specific OpenClaw plugin
+  - You need a reference page for a specific Alien plugin
   - You are auditing plugin docs coverage
 title: "Plugin reference"
 ---
@@ -425,7 +425,7 @@ title: "Plugin reference"
 # Plugin reference
 
 This page is generated from \`extensions/*/package.json\` and
-\`openclaw.plugin.json\`. Regenerate it with:
+\`alien.plugin.json\`. Regenerate it with:
 
 \`\`\`bash
 pnpm plugins:inventory:gen
@@ -441,7 +441,7 @@ function collectPluginSourceEntries() {
     .readdirSync(EXTENSIONS_DIR)
     .toSorted((left, right) => left.localeCompare(right))) {
     const packagePath = path.join(EXTENSIONS_DIR, dirName, "package.json");
-    const manifestPath = path.join(EXTENSIONS_DIR, dirName, "openclaw.plugin.json");
+    const manifestPath = path.join(EXTENSIONS_DIR, dirName, "alien.plugin.json");
     if (!fs.existsSync(packagePath) || !fs.existsSync(manifestPath)) {
       continue;
     }
@@ -532,7 +532,7 @@ function renderDocument() {
   };
 
   return `---
-summary: "Generated inventory of OpenClaw plugins shipped in core, published externally, or kept source-only"
+summary: "Generated inventory of Alien plugins shipped in core, published externally, or kept source-only"
 read_when:
   - You are deciding whether a plugin ships in the core npm package or installs separately
   - You are updating bundled plugin package metadata or release automation
@@ -542,7 +542,7 @@ title: "Plugin inventory"
 
 # Plugin inventory
 
-This page is generated from \`extensions/*/package.json\`, \`openclaw.plugin.json\`,
+This page is generated from \`extensions/*/package.json\`, \`alien.plugin.json\`,
 and the root npm package \`files\` exclusions. Regenerate it with:
 
 \`\`\`bash
@@ -551,8 +551,8 @@ pnpm plugins:inventory:gen
 
 ## Definitions
 
-- **Core npm package:** built into the \`openclaw\` npm package and available without a separate plugin install.
-- **Official external package:** OpenClaw-maintained plugin omitted from the core npm package, kept in this official inventory, and installed on demand through ClawHub and/or npm.
+- **Core npm package:** built into the \`alien\` npm package and available without a separate plugin install.
+- **Official external package:** Alien-maintained plugin omitted from the core npm package, kept in this official inventory, and installed on demand through ClawHub and/or npm.
 - **Source checkout only:** repo-local plugin omitted from published npm artifacts and not advertised as an installable package.
 
 Source checkouts are different from npm installs: after \`pnpm install\`, bundled
@@ -562,19 +562,19 @@ dependencies are available.
 ## Install a plugin
 
 Use the **Distribution** column to decide whether install is needed. Plugins that
-say \`included in OpenClaw\` are already present in the core package. Official
+say \`included in Alien\` are already present in the core package. Official
 external packages need one install, then a Gateway restart.
 
 For example, Discord is an official external package:
 
 \`\`\`bash
-openclaw plugins install @openclaw/discord
-openclaw gateway restart
-openclaw plugins inspect discord --runtime --json
+alien plugins install @alien/discord
+alien gateway restart
+alien plugins inspect discord --runtime --json
 \`\`\`
 
 Bare package specs try ClawHub first, then npm fallback. To force a source, use
-\`clawhub:@openclaw/discord\` or \`npm:@openclaw/discord\`. After install, follow
+\`clawhub:@alien/discord\` or \`npm:@alien/discord\`. After install, follow
 the plugin's setup doc, such as [Discord](/channels/discord), to add credentials
 and channel config. See [Manage plugins](/plugins/manage-plugins) for update,
 uninstall, and publishing commands.

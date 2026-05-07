@@ -21,8 +21,8 @@ describe("talk logging", () => {
   let logFile: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-talk-logs-"));
-    logFile = path.join(tmpDir, "openclaw.log");
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-talk-logs-"));
+    logFile = path.join(tmpDir, "alien.log");
     resetDiagnosticEventsForTest();
     resetLogger();
     setLoggerOverride({ level: "info", file: logFile });

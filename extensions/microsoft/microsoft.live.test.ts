@@ -1,4 +1,4 @@
-import { isLiveTestEnabled } from "openclaw/plugin-sdk/test-env";
+import { isLiveTestEnabled } from "alien/plugin-sdk/test-env";
 import { describe, expect, it } from "vitest";
 import { listMicrosoftVoices } from "./speech-provider.js";
 

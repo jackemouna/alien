@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { getActiveMemorySearchManager } from "../plugins/memory-runtime.js";
 import type { RealtimeVoiceAgentConsultResult } from "./agent-consult-runtime.js";
@@ -65,7 +65,7 @@ function resolveLabels(
 ): RealtimeVoiceFastContextLabels {
   return {
     audienceLabel: labels?.audienceLabel?.trim() || "person",
-    contextName: labels?.contextName?.trim() || "OpenClaw memory context",
+    contextName: labels?.contextName?.trim() || "Alien memory context",
   };
 }
 
@@ -113,7 +113,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 }
 
 async function lookupFastContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   sessionKey: string;
   config: RealtimeVoiceFastContextConfig;
@@ -138,7 +138,7 @@ async function lookupFastContext(params: {
 }
 
 export async function resolveRealtimeVoiceFastContextConsult(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   sessionKey: string;
   config: RealtimeVoiceFastContextConfig;

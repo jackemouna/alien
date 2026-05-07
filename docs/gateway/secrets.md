@@ -8,7 +8,7 @@ title: "Secrets management"
 sidebarTitle: "Secrets management"
 ---
 
-OpenClaw supports additive SecretRefs so supported credentials do not need to be stored as plaintext in configuration.
+Alien supports additive SecretRefs so supported credentials do not need to be stored as plaintext in configuration.
 
 <Note>
 Plaintext still works. SecretRefs are opt-in per credential.
@@ -50,7 +50,7 @@ SecretRefs are validated only on effectively active surfaces.
       - In local mode without those remote surfaces:
         - `gateway.remote.token` is active when token auth can win and no env/auth token is configured.
         - `gateway.remote.password` is active only when password auth can win and no env/auth password is configured.
-    - `gateway.auth.token` SecretRef is inactive for startup auth resolution when `OPENCLAW_GATEWAY_TOKEN` is set, because env token input wins for that runtime.
+    - `gateway.auth.token` SecretRef is inactive for startup auth resolution when `ALIEN_GATEWAY_TOKEN` is set, because env token input wins for that runtime.
 
   </Accordion>
 </AccordionGroup>
@@ -66,7 +66,7 @@ These entries are logged with `SECRETS_GATEWAY_AUTH_SURFACE` and include the rea
 
 ## Onboarding reference preflight
 
-When onboarding runs in interactive mode and you choose SecretRef storage, OpenClaw runs preflight validation before saving:
+When onboarding runs in interactive mode and you choose SecretRef storage, Alien runs preflight validation before saving:
 
 - Env refs: validates env var name and confirms a non-empty value is visible during setup.
 - Provider refs (`file` or `exec`): validates provider selection, resolves `id`, and checks resolved value type.
@@ -131,12 +131,12 @@ Define providers under `secrets.providers`:
       default: { source: "env" },
       filemain: {
         source: "file",
-        path: "~/.openclaw/secrets.json",
+        path: "~/.alien/secrets.json",
         mode: "json", // or "singleValue"
       },
       vault: {
         source: "exec",
-        command: "/usr/local/bin/openclaw-vault-resolver",
+        command: "/usr/local/bin/alien-vault-resolver",
         args: ["--profile", "prod"],
         passEnv: ["PATH", "VAULT_ADDR"],
         jsonOnly: true,
@@ -173,7 +173,7 @@ Define providers under `secrets.providers`:
   <Accordion title="Exec provider">
     - Runs configured absolute binary path, no shell.
     - By default, `command` must point to a regular file (not a symlink).
-    - Set `allowSymlinkCommand: true` to allow symlink command paths (for example Homebrew shims). OpenClaw validates the resolved target path.
+    - Set `allowSymlinkCommand: true` to allow symlink command paths (for example Homebrew shims). Alien validates the resolved target path.
     - Pair `allowSymlinkCommand` with `trustedDirs` for package-manager paths (for example `["/opt/homebrew"]`).
     - Supports timeout, no-output timeout, output byte limits, env allowlist, and trusted dirs.
     - Windows fail-closed note: if ACL verification is unavailable for the command path, resolution fails. For trusted paths only, set `allowInsecurePath: true` on that provider to bypass path security checks.
@@ -216,7 +216,7 @@ Define providers under `secrets.providers`:
             command: "/opt/homebrew/bin/op",
             allowSymlinkCommand: true, // required for Homebrew symlinked binaries
             trustedDirs: ["/opt/homebrew"],
-            args: ["read", "op://Personal/OpenClaw QA API Key/password"],
+            args: ["read", "op://Personal/Alien QA API Key/password"],
             passEnv: ["HOME"],
             jsonOnly: false,
           },
@@ -244,7 +244,7 @@ Define providers under `secrets.providers`:
             command: "/opt/homebrew/bin/vault",
             allowSymlinkCommand: true, // required for Homebrew symlinked binaries
             trustedDirs: ["/opt/homebrew"],
-            args: ["kv", "get", "-field=OPENAI_API_KEY", "secret/openclaw"],
+            args: ["kv", "get", "-field=OPENAI_API_KEY", "secret/alien"],
             passEnv: ["VAULT_ADDR", "VAULT_TOKEN"],
             jsonOnly: false,
           },
@@ -350,7 +350,7 @@ The core `ssh` sandbox backend also supports SecretRefs for SSH auth material:
 
 Runtime behavior:
 
-- OpenClaw resolves these refs during sandbox activation, not lazily during each SSH call.
+- Alien resolves these refs during sandbox activation, not lazily during each SSH call.
 - Resolved values are written to temp files with restrictive permissions and used in generated SSH config.
 - If the effective sandbox backend is not `ssh`, these refs stay inactive and do not block startup.
 
@@ -369,12 +369,12 @@ Runtime-minted or rotating credentials and OAuth refresh material are intentiona
 - Field without a ref: unchanged.
 - Field with a ref: required on active surfaces during activation.
 - If both plaintext and ref are present, ref takes precedence on supported precedence paths.
-- The redaction sentinel `__OPENCLAW_REDACTED__` is reserved for internal config redaction/restore and is rejected as literal submitted config data.
+- The redaction sentinel `__ALIEN_REDACTED__` is reserved for internal config redaction/restore and is rejected as literal submitted config data.
 
 Warning and audit signals:
 
 - `SECRETS_REF_OVERRIDES_PLAINTEXT` (runtime warning)
-- `REF_SHADOWED` (audit finding when `auth-profiles.json` credentials take precedence over `openclaw.json` refs)
+- `REF_SHADOWED` (audit finding when `auth-profiles.json` credentials take precedence over `alien.json` refs)
 
 Google Chat compatibility behavior:
 
@@ -401,7 +401,7 @@ Activation contract:
 
 ## Degraded and recovered signals
 
-When reload-time activation fails after a healthy state, OpenClaw enters degraded secrets state.
+When reload-time activation fails after a healthy state, Alien enters degraded secrets state.
 
 One-shot system event and log codes:
 
@@ -423,10 +423,10 @@ There are two broad behaviors:
 
 <Tabs>
   <Tab title="Strict command paths">
-    For example `openclaw memory` remote-memory paths and `openclaw qr --remote` when it needs remote shared-secret refs. They read from the active snapshot and fail fast when a required SecretRef is unavailable.
+    For example `alien memory` remote-memory paths and `alien qr --remote` when it needs remote shared-secret refs. They read from the active snapshot and fail fast when a required SecretRef is unavailable.
   </Tab>
   <Tab title="Read-only command paths">
-    For example `openclaw status`, `openclaw status --all`, `openclaw channels status`, `openclaw channels resolve`, `openclaw security audit`, and read-only doctor/config repair flows. They also prefer the active snapshot, but degrade instead of aborting when a targeted SecretRef is unavailable in that command path.
+    For example `alien status`, `alien status --all`, `alien channels status`, `alien channels resolve`, `alien security audit`, and read-only doctor/config repair flows. They also prefer the active snapshot, but degrade instead of aborting when a targeted SecretRef is unavailable in that command path.
 
     Read-only behavior:
 
@@ -440,7 +440,7 @@ There are two broad behaviors:
 
 Other notes:
 
-- Snapshot refresh after backend secret rotation is handled by `openclaw secrets reload`.
+- Snapshot refresh after backend secret rotation is handled by `alien secrets reload`.
 - Gateway RPC method used by these command paths: `secrets.resolve`.
 
 ## Audit and configure workflow
@@ -450,17 +450,17 @@ Default operator flow:
 <Steps>
   <Step title="Audit current state">
     ```bash
-    openclaw secrets audit --check
+    alien secrets audit --check
     ```
   </Step>
   <Step title="Configure SecretRefs">
     ```bash
-    openclaw secrets configure
+    alien secrets configure
     ```
   </Step>
   <Step title="Re-audit">
     ```bash
-    openclaw secrets audit --check
+    alien secrets audit --check
     ```
   </Step>
 </Steps>
@@ -469,16 +469,16 @@ Default operator flow:
   <Accordion title="secrets audit">
     Findings include:
 
-    - plaintext values at rest (`openclaw.json`, `auth-profiles.json`, `.env`, and generated `agents/*/agent/models.json`)
+    - plaintext values at rest (`alien.json`, `auth-profiles.json`, `.env`, and generated `agents/*/agent/models.json`)
     - plaintext sensitive provider header residues in generated `models.json` entries
     - unresolved refs
-    - precedence shadowing (`auth-profiles.json` taking priority over `openclaw.json` refs)
+    - precedence shadowing (`auth-profiles.json` taking priority over `alien.json` refs)
     - legacy residues (`auth.json`, OAuth reminders)
 
     Exec note:
 
     - By default, audit skips exec SecretRef resolvability checks to avoid command side effects.
-    - Use `openclaw secrets audit --allow-exec` to execute exec providers during audit.
+    - Use `alien secrets audit --allow-exec` to execute exec providers during audit.
 
     Header residue note:
 
@@ -489,7 +489,7 @@ Default operator flow:
     Interactive helper that:
 
     - configures `secrets.providers` first (`env`/`file`/`exec`, add/edit/remove)
-    - lets you select supported secret-bearing fields in `openclaw.json` plus `auth-profiles.json` for one agent scope
+    - lets you select supported secret-bearing fields in `alien.json` plus `auth-profiles.json` for one agent scope
     - can create a new `auth-profiles.json` mapping directly in the target picker
     - captures SecretRef details (`source`, `provider`, `id`)
     - runs preflight resolution
@@ -502,9 +502,9 @@ Default operator flow:
 
     Helpful modes:
 
-    - `openclaw secrets configure --providers-only`
-    - `openclaw secrets configure --skip-provider-setup`
-    - `openclaw secrets configure --agent <id>`
+    - `alien secrets configure --providers-only`
+    - `alien secrets configure --skip-provider-setup`
+    - `alien secrets configure --agent <id>`
 
     `configure` apply defaults:
 
@@ -517,10 +517,10 @@ Default operator flow:
     Apply a saved plan:
 
     ```bash
-    openclaw secrets apply --from /tmp/openclaw-secrets-plan.json
-    openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --allow-exec
-    openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run
-    openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run --allow-exec
+    alien secrets apply --from /tmp/alien-secrets-plan.json
+    alien secrets apply --from /tmp/alien-secrets-plan.json --allow-exec
+    alien secrets apply --from /tmp/alien-secrets-plan.json --dry-run
+    alien secrets apply --from /tmp/alien-secrets-plan.json --dry-run --allow-exec
     ```
 
     Exec note:
@@ -536,7 +536,7 @@ Default operator flow:
 ## One-way safety policy
 
 <Warning>
-OpenClaw intentionally does not write rollback backups containing historical plaintext secret values.
+Alien intentionally does not write rollback backups containing historical plaintext secret values.
 </Warning>
 
 Safety model:

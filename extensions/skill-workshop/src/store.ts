@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+import { privateFileStore } from "alien/plugin-sdk/security-runtime";
 import type { SkillProposal, SkillWorkshopStatus } from "./types.js";
 
 type StoreFile = {

@@ -1,10 +1,10 @@
-import { buildThreadAwareOutboundSessionRoute } from "openclaw/plugin-sdk/channel-core";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { buildOutboundBaseSessionKey, type RoutePeer } from "openclaw/plugin-sdk/routing";
+import { buildThreadAwareOutboundSessionRoute } from "alien/plugin-sdk/channel-core";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { buildOutboundBaseSessionKey, type RoutePeer } from "alien/plugin-sdk/routing";
 import { parseDiscordTarget } from "./target-parsing.js";
 
 export type ResolveDiscordOutboundSessionRouteParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   accountId?: string | null;
   target: string;

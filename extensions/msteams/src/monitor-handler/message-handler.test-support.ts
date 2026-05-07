@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { OpenClawConfig, RuntimeEnv } from "../../runtime-api.js";
+import type { AlienConfig, RuntimeEnv } from "../../runtime-api.js";
 import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
 import { installMSTeamsTestRuntime } from "../monitor-handler.test-helpers.js";
 
@@ -14,7 +14,7 @@ type MessageHandlerDepsOptions = {
 };
 
 export function createMessageHandlerDeps(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   options: MessageHandlerDepsOptions = {},
 ) {
   const enqueueSystemEvent = options.enqueueSystemEvent ?? vi.fn();

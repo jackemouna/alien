@@ -1,10 +1,10 @@
-import type { ProviderAuthContext } from "openclaw/plugin-sdk/core";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk/ssrf-runtime";
+import type { ProviderAuthContext } from "alien/plugin-sdk/core";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { fetchWithSsrFGuard } from "alien/plugin-sdk/ssrf-runtime";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import {
   azLoginDeviceCode,
   azLoginDeviceCodeWithOptions,

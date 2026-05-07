@@ -2,16 +2,16 @@
 summary: "IRC plugin setup, access controls, and troubleshooting"
 title: IRC
 read_when:
-  - You want to connect OpenClaw to IRC channels or DMs
+  - You want to connect Alien to IRC channels or DMs
   - You are configuring IRC allowlists, group policy, or mention gating
 ---
 
-Use IRC when you want OpenClaw in classic channels (`#room`) and direct messages.
+Use IRC when you want Alien in classic channels (`#room`) and direct messages.
 IRC ships as a bundled plugin, but it is configured in the main config under `channels.irc`.
 
 ## Quick start
 
-1. Enable IRC config in `~/.openclaw/openclaw.json`.
+1. Enable IRC config in `~/.alien/alien.json`.
 2. Set at least:
 
 ```json5
@@ -22,8 +22,8 @@ IRC ships as a bundled plugin, but it is configured in the main config under `ch
       host: "irc.example.com",
       port: 6697,
       tls: true,
-      nick: "openclaw-bot",
-      channels: ["#openclaw"],
+      nick: "alien-bot",
+      channels: ["#alien"],
     },
   },
 }
@@ -34,12 +34,12 @@ Prefer a private IRC server for bot coordination. If you intentionally use a pub
 3. Start/restart gateway:
 
 ```bash
-openclaw gateway run
+alien gateway run
 ```
 
 ## Security defaults
 
-- IRC uses raw TCP/TLS sockets outside OpenClaw operator-managed forward proxy routing. In deployments that require all egress through that forward proxy, set `channels.irc.enabled=false` unless direct IRC egress is explicitly approved.
+- IRC uses raw TCP/TLS sockets outside Alien operator-managed forward proxy routing. In deployments that require all egress through that forward proxy, set `channels.irc.enabled=false` unless direct IRC egress is explicitly approved.
 - `channels.irc.dmPolicy` defaults to `"pairing"`.
 - `channels.irc.groupPolicy` defaults to `"allowlist"`.
 - With `groupPolicy="allowlist"`, set `channels.irc.groups` to define allowed channels.
@@ -90,7 +90,7 @@ Example (allow anyone in `#tuirc-dev` to talk to the bot):
 
 ## Reply triggering (mentions)
 
-Even if a channel is allowed (via `groupPolicy` + `groups`) and the sender is allowed, OpenClaw defaults to **mention-gating** in group contexts.
+Even if a channel is allowed (via `groupPolicy` + `groups`) and the sender is allowed, Alien defaults to **mention-gating** in group contexts.
 
 That means you may see logs like `drop channel … (missing-mention)` unless the message includes a mention pattern that matches the bot.
 

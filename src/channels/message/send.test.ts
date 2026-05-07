@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { OutboundDeliveryIntent } from "../../infra/outbound/deliver.js";
 
 const deliverOutboundPayloads = vi.hoisted(() => vi.fn());
@@ -14,7 +14,7 @@ type DeliveryIntentCallbackParams = {
   onDeliveryIntent?: (intent: OutboundDeliveryIntent) => void;
 };
 
-const cfg = {} as OpenClawConfig;
+const cfg = {} as AlienConfig;
 
 describe("withDurableMessageSendContext", () => {
   it("renders and sends through a durable send context", async () => {

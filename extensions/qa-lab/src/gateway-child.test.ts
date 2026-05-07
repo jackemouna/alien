@@ -17,12 +17,12 @@ const qaTempPathState = vi.hoisted(() => ({
   preferredTmpDir: process.env.TMPDIR || "/tmp",
 }));
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/temp-path", () => ({
-  resolvePreferredOpenClawTmpDir: () => qaTempPathState.preferredTmpDir,
+vi.mock("alien/plugin-sdk/temp-path", () => ({
+  resolvePreferredAlienTmpDir: () => qaTempPathState.preferredTmpDir,
 }));
 
 vi.mock("./node-exec.js", () => ({
@@ -42,14 +42,14 @@ afterEach(async () => {
 
 function createParams(baseEnv?: NodeJS.ProcessEnv) {
   return {
-    configPath: "/tmp/openclaw-qa/openclaw.json",
+    configPath: "/tmp/alien-qa/alien.json",
     gatewayToken: "qa-token",
-    homeDir: "/tmp/openclaw-qa/home",
-    stateDir: "/tmp/openclaw-qa/state",
-    xdgConfigHome: "/tmp/openclaw-qa/xdg-config",
-    xdgDataHome: "/tmp/openclaw-qa/xdg-data",
-    xdgCacheHome: "/tmp/openclaw-qa/xdg-cache",
-    bundledPluginsDir: "/tmp/openclaw-qa/bundled-plugins",
+    homeDir: "/tmp/alien-qa/home",
+    stateDir: "/tmp/alien-qa/state",
+    xdgConfigHome: "/tmp/alien-qa/xdg-config",
+    xdgDataHome: "/tmp/alien-qa/xdg-data",
+    xdgCacheHome: "/tmp/alien-qa/xdg-cache",
+    bundledPluginsDir: "/tmp/alien-qa/bundled-plugins",
     compatibilityHostVersion: "2026.4.8",
     baseEnv,
   };
@@ -84,21 +84,21 @@ describe("buildQaRuntimeEnv", () => {
       providerMode: "mock-openai",
     });
 
-    expect(env.OPENCLAW_TEST_FAST).toBe("1");
-    expect(env.OPENCLAW_QA_PARENT_PID).toBe(String(process.pid));
-    expect(env.OPENCLAW_QA_ALLOW_LOCAL_IMAGE_PROVIDER).toBe("1");
-    expect(env.OPENCLAW_ALLOW_SLOW_REPLY_TESTS).toBe("1");
-    expect(env.OPENCLAW_SKIP_STARTUP_MODEL_PREWARM).toBe("1");
-    expect(env.OPENCLAW_BUNDLED_PLUGINS_DIR).toBe("/tmp/openclaw-qa/bundled-plugins");
-    expect(env.OPENCLAW_COMPATIBILITY_HOST_VERSION).toBe("2026.4.8");
+    expect(env.ALIEN_TEST_FAST).toBe("1");
+    expect(env.ALIEN_QA_PARENT_PID).toBe(String(process.pid));
+    expect(env.ALIEN_QA_ALLOW_LOCAL_IMAGE_PROVIDER).toBe("1");
+    expect(env.ALIEN_ALLOW_SLOW_REPLY_TESTS).toBe("1");
+    expect(env.ALIEN_SKIP_STARTUP_MODEL_PREWARM).toBe("1");
+    expect(env.ALIEN_BUNDLED_PLUGINS_DIR).toBe("/tmp/alien-qa/bundled-plugins");
+    expect(env.ALIEN_COMPATIBILITY_HOST_VERSION).toBe("2026.4.8");
   });
 
   it("maps live frontier key aliases into provider env vars", () => {
     const env = buildQaRuntimeEnv({
       ...createParams({
-        OPENCLAW_LIVE_OPENAI_KEY: "openai-live",
-        OPENCLAW_LIVE_ANTHROPIC_KEY: "anthropic-live",
-        OPENCLAW_LIVE_GEMINI_KEY: "gemini-live",
+        ALIEN_LIVE_OPENAI_KEY: "openai-live",
+        ALIEN_LIVE_ANTHROPIC_KEY: "anthropic-live",
+        ALIEN_LIVE_GEMINI_KEY: "gemini-live",
       }),
       providerMode: "live-frontier",
     });
@@ -117,7 +117,7 @@ describe("buildQaRuntimeEnv", () => {
     const env = buildQaRuntimeEnv({
       ...createParams({
         OPENAI_API_KEY: "openai-explicit",
-        OPENCLAW_LIVE_OPENAI_KEY: "openai-live",
+        ALIEN_LIVE_OPENAI_KEY: "openai-live",
       }),
       providerMode: "live-frontier",
     });
@@ -125,7 +125,7 @@ describe("buildQaRuntimeEnv", () => {
     expect(env.OPENAI_API_KEY).toBe("openai-explicit");
   });
 
-  it("preserves Codex CLI auth home for live frontier runs while sandboxing OpenClaw home", async () => {
+  it("preserves Codex CLI auth home for live frontier runs while sandboxing Alien home", async () => {
     const hostHome = await mkdtemp(path.join(os.tmpdir(), "qa-host-home-"));
     cleanups.push(async () => {
       await rm(hostHome, { recursive: true, force: true });
@@ -140,12 +140,12 @@ describe("buildQaRuntimeEnv", () => {
       providerMode: "live-frontier",
     });
 
-    expect(env.HOME).toBe("/tmp/openclaw-qa/home");
-    expect(env.OPENCLAW_HOME).toBe("/tmp/openclaw-qa/home");
+    expect(env.HOME).toBe("/tmp/alien-qa/home");
+    expect(env.ALIEN_HOME).toBe("/tmp/alien-qa/home");
     expect(env.CODEX_HOME).toBe(codexHome);
   });
 
-  it("forwards host HOME for live Claude CLI runs while keeping OpenClaw home sandboxed", async () => {
+  it("forwards host HOME for live Claude CLI runs while keeping Alien home sandboxed", async () => {
     const hostHome = await mkdtemp(path.join(os.tmpdir(), "qa-host-home-"));
     cleanups.push(async () => {
       await rm(hostHome, { recursive: true, force: true });
@@ -160,11 +160,11 @@ describe("buildQaRuntimeEnv", () => {
     });
 
     expect(env.HOME).toBe(hostHome);
-    expect(env.OPENCLAW_HOME).toBe("/tmp/openclaw-qa/home");
-    expect(env.OPENCLAW_STATE_DIR).toBe("/tmp/openclaw-qa/state");
+    expect(env.ALIEN_HOME).toBe("/tmp/alien-qa/home");
+    expect(env.ALIEN_STATE_DIR).toBe("/tmp/alien-qa/state");
   });
 
-  it("can forward host HOME for browser-backed QA runs while keeping OpenClaw home sandboxed", async () => {
+  it("can forward host HOME for browser-backed QA runs while keeping Alien home sandboxed", async () => {
     const hostHome = await mkdtemp(path.join(os.tmpdir(), "qa-host-home-"));
     cleanups.push(async () => {
       await rm(hostHome, { recursive: true, force: true });
@@ -179,8 +179,8 @@ describe("buildQaRuntimeEnv", () => {
     });
 
     expect(env.HOME).toBe(hostHome);
-    expect(env.OPENCLAW_HOME).toBe("/tmp/openclaw-qa/home");
-    expect(env.OPENCLAW_STATE_DIR).toBe("/tmp/openclaw-qa/state");
+    expect(env.ALIEN_HOME).toBe("/tmp/alien-qa/home");
+    expect(env.ALIEN_STATE_DIR).toBe("/tmp/alien-qa/state");
   });
 
   it("preserves the live Anthropic key for live Claude CLI runs without writing it into config", async () => {
@@ -192,8 +192,8 @@ describe("buildQaRuntimeEnv", () => {
     const env = buildQaRuntimeEnv({
       ...createParams({
         HOME: hostHome,
-        OPENCLAW_LIVE_ANTHROPIC_KEY: "anthropic-live",
-        OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV: '["SAFE_KEEP"]',
+        ALIEN_LIVE_ANTHROPIC_KEY: "anthropic-live",
+        ALIEN_LIVE_CLI_BACKEND_PRESERVE_ENV: '["SAFE_KEEP"]',
       }),
       providerMode: "live-frontier",
       forwardHostHomeForClaudeCli: true,
@@ -201,8 +201,8 @@ describe("buildQaRuntimeEnv", () => {
     });
 
     expect(env.ANTHROPIC_API_KEY).toBe("anthropic-live");
-    expect(env.OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV).toBe('["SAFE_KEEP","ANTHROPIC_API_KEY"]');
-    expect(env.OPENCLAW_LIVE_CLI_BACKEND_AUTH_MODE).toBe("api-key");
+    expect(env.ALIEN_LIVE_CLI_BACKEND_PRESERVE_ENV).toBe('["SAFE_KEEP","ANTHROPIC_API_KEY"]');
+    expect(env.ALIEN_LIVE_CLI_BACKEND_AUTH_MODE).toBe("api-key");
   });
 
   it("removes preserved Anthropic keys for live Claude CLI subscription runs", async () => {
@@ -215,7 +215,7 @@ describe("buildQaRuntimeEnv", () => {
       ...createParams({
         HOME: hostHome,
         ANTHROPIC_API_KEY: "anthropic-live",
-        OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV: '["SAFE_KEEP","ANTHROPIC_API_KEY"]',
+        ALIEN_LIVE_CLI_BACKEND_PRESERVE_ENV: '["SAFE_KEEP","ANTHROPIC_API_KEY"]',
       }),
       providerMode: "live-frontier",
       forwardHostHomeForClaudeCli: true,
@@ -223,34 +223,34 @@ describe("buildQaRuntimeEnv", () => {
     });
 
     expect(env.ANTHROPIC_API_KEY).toBe("anthropic-live");
-    expect(env.OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV).toBe('["SAFE_KEEP"]');
-    expect(env.OPENCLAW_LIVE_CLI_BACKEND_AUTH_MODE).toBe("subscription");
+    expect(env.ALIEN_LIVE_CLI_BACKEND_PRESERVE_ENV).toBe('["SAFE_KEEP"]');
+    expect(env.ALIEN_LIVE_CLI_BACKEND_AUTH_MODE).toBe("subscription");
   });
 
   it("does not pass QA setup-token values to the gateway child env", () => {
     const env = buildQaRuntimeEnv({
       ...createParams({
-        OPENCLAW_LIVE_SETUP_TOKEN_VALUE: `sk-ant-oat01-${"a".repeat(80)}`,
-        OPENCLAW_QA_LIVE_ANTHROPIC_SETUP_TOKEN: `sk-ant-oat01-${"b".repeat(80)}`,
+        ALIEN_LIVE_SETUP_TOKEN_VALUE: `sk-ant-oat01-${"a".repeat(80)}`,
+        ALIEN_QA_LIVE_ANTHROPIC_SETUP_TOKEN: `sk-ant-oat01-${"b".repeat(80)}`,
       }),
       providerMode: "live-frontier",
     });
 
-    expect(env.OPENCLAW_LIVE_SETUP_TOKEN_VALUE).toBeUndefined();
-    expect(env.OPENCLAW_QA_LIVE_ANTHROPIC_SETUP_TOKEN).toBeUndefined();
+    expect(env.ALIEN_LIVE_SETUP_TOKEN_VALUE).toBeUndefined();
+    expect(env.ALIEN_QA_LIVE_ANTHROPIC_SETUP_TOKEN).toBeUndefined();
   });
 
   it("does not pass Convex credential broker secrets to the gateway child env", () => {
     const env = buildQaRuntimeEnv({
       ...createParams({
-        OPENCLAW_QA_CONVEX_SECRET_CI: "convex-ci-secret",
-        OPENCLAW_QA_CONVEX_SECRET_MAINTAINER: "convex-maintainer-secret",
+        ALIEN_QA_CONVEX_SECRET_CI: "convex-ci-secret",
+        ALIEN_QA_CONVEX_SECRET_MAINTAINER: "convex-maintainer-secret",
       }),
       providerMode: "live-frontier",
     });
 
-    expect(env.OPENCLAW_QA_CONVEX_SECRET_CI).toBeUndefined();
-    expect(env.OPENCLAW_QA_CONVEX_SECRET_MAINTAINER).toBeUndefined();
+    expect(env.ALIEN_QA_CONVEX_SECRET_CI).toBeUndefined();
+    expect(env.ALIEN_QA_CONVEX_SECRET_MAINTAINER).toBeUndefined();
   });
 
   it("requires an Anthropic key for live Claude CLI API-key mode", async () => {
@@ -296,10 +296,10 @@ describe("buildQaRuntimeEnv", () => {
           OPENAI_API_KEY: "openai-live",
           OPENAI_API_KEYS: "openai-a,openai-b",
           CODEX_HOME: "/host/.codex",
-          OPENCLAW_LIVE_ANTHROPIC_KEY: "anthropic-live",
-          OPENCLAW_LIVE_ANTHROPIC_KEYS: "anthropic-a,anthropic-b",
-          OPENCLAW_LIVE_GEMINI_KEY: "gemini-live",
-          OPENCLAW_LIVE_OPENAI_KEY: "openai-live",
+          ALIEN_LIVE_ANTHROPIC_KEY: "anthropic-live",
+          ALIEN_LIVE_ANTHROPIC_KEYS: "anthropic-a,anthropic-b",
+          ALIEN_LIVE_GEMINI_KEY: "gemini-live",
+          ALIEN_LIVE_OPENAI_KEY: "openai-live",
         }),
         providerMode,
       });
@@ -312,10 +312,10 @@ describe("buildQaRuntimeEnv", () => {
       expect(env.GEMINI_API_KEY).toBeUndefined();
       expect(env.GEMINI_API_KEYS).toBeUndefined();
       expect(env.GOOGLE_API_KEY).toBeUndefined();
-      expect(env.OPENCLAW_LIVE_OPENAI_KEY).toBeUndefined();
-      expect(env.OPENCLAW_LIVE_ANTHROPIC_KEY).toBeUndefined();
-      expect(env.OPENCLAW_LIVE_ANTHROPIC_KEYS).toBeUndefined();
-      expect(env.OPENCLAW_LIVE_GEMINI_KEY).toBeUndefined();
+      expect(env.ALIEN_LIVE_OPENAI_KEY).toBeUndefined();
+      expect(env.ALIEN_LIVE_ANTHROPIC_KEY).toBeUndefined();
+      expect(env.ALIEN_LIVE_ANTHROPIC_KEYS).toBeUndefined();
+      expect(env.ALIEN_LIVE_GEMINI_KEY).toBeUndefined();
     },
   );
 
@@ -384,7 +384,7 @@ describe("buildQaRuntimeEnv", () => {
       cfg: {},
       stateDir,
       env: {
-        OPENCLAW_LIVE_SETUP_TOKEN_VALUE: token,
+        ALIEN_LIVE_SETUP_TOKEN_VALUE: token,
       },
     });
 
@@ -661,10 +661,10 @@ describe("buildQaRuntimeEnv", () => {
     await writeFile(
       stdoutLogPath,
       [
-        "OPENCLAW_GATEWAY_TOKEN=qa-suite-token",
+        "ALIEN_GATEWAY_TOKEN=qa-suite-token",
         'OPENAI_API_KEY="openai-live"',
-        "OPENCLAW_QA_CONVEX_SECRET_CI=convex-ci-secret",
-        "OPENCLAW_QA_CONVEX_SECRET_MAINTAINER=convex-maintainer-secret",
+        "ALIEN_QA_CONVEX_SECRET_CI=convex-ci-secret",
+        "ALIEN_QA_CONVEX_SECRET_MAINTAINER=convex-maintainer-secret",
         "botToken=12345:AbCdEfGhIjKl",
         '"driverToken":"12345:driver-secr3t"',
         "sutToken='12345:sut-secr3t'",
@@ -692,10 +692,10 @@ describe("buildQaRuntimeEnv", () => {
     ]);
     await expect(readFile(path.join(artifactDir, "gateway.stdout.log"), "utf8")).resolves.toBe(
       [
-        "OPENCLAW_GATEWAY_TOKEN=<redacted>",
+        "ALIEN_GATEWAY_TOKEN=<redacted>",
         "OPENAI_API_KEY=<redacted>",
-        "OPENCLAW_QA_CONVEX_SECRET_CI=<redacted>",
-        "OPENCLAW_QA_CONVEX_SECRET_MAINTAINER=<redacted>",
+        "ALIEN_QA_CONVEX_SECRET_CI=<redacted>",
+        "ALIEN_QA_CONVEX_SECRET_MAINTAINER=<redacted>",
         "botToken=<redacted>",
         '"driverToken":"<redacted>"',
         "sutToken=<redacted>",
@@ -713,7 +713,7 @@ describe("buildQaRuntimeEnv", () => {
 
   it("rejects preserved gateway artifacts outside the repo root", async () => {
     await expect(
-      __testing.assertQaArtifactDirWithinRepo("/tmp/openclaw-repo", "/tmp/outside"),
+      __testing.assertQaArtifactDirWithinRepo("/tmp/alien-repo", "/tmp/outside"),
     ).rejects.toThrow("QA gateway artifact directory must stay within the repo root.");
   });
 
@@ -743,7 +743,7 @@ describe("buildQaRuntimeEnv", () => {
       await rm(stagedRoot, { recursive: true, force: true });
     });
 
-    await writeFile(path.join(tempRoot, "openclaw.json"), "{}", "utf8");
+    await writeFile(path.join(tempRoot, "alien.json"), "{}", "utf8");
     await writeFile(path.join(stagedRoot, "marker.txt"), "x", "utf8");
 
     await __testing.cleanupQaGatewayTempRoots({
@@ -838,7 +838,7 @@ describe("qa bundled plugin dir", () => {
       recursive: true,
     });
     await writeFile(
-      path.join(repoRoot, "dist", "extensions", "kimi-coding", "openclaw.plugin.json"),
+      path.join(repoRoot, "dist", "extensions", "kimi-coding", "alien.plugin.json"),
       JSON.stringify({ id: "kimi", providers: ["kimi"] }),
       "utf8",
     );
@@ -868,14 +868,14 @@ describe("qa bundled plugin dir", () => {
       "utf8",
     );
     await writeFile(
-      path.join(repoRoot, "dist", "extensions", "memory-core", "openclaw.plugin.json"),
+      path.join(repoRoot, "dist", "extensions", "memory-core", "alien.plugin.json"),
       JSON.stringify({ id: "memory-core", kind: "memory" }),
       "utf8",
     );
     await mkdir(path.join(repoRoot, "extensions", "memory-core"), { recursive: true });
     await writeFile(path.join(repoRoot, "extensions", "memory-core", "package.json"), "{}", "utf8");
     await writeFile(
-      path.join(repoRoot, "extensions", "memory-core", "openclaw.plugin.json"),
+      path.join(repoRoot, "extensions", "memory-core", "alien.plugin.json"),
       JSON.stringify({ id: "memory-core", kind: "memory" }),
       "utf8",
     );
@@ -902,7 +902,7 @@ describe("qa bundled plugin dir", () => {
       path.join(repoRoot, "package.json"),
       JSON.stringify(
         {
-          name: "openclaw",
+          name: "alien",
           type: "module",
           exports: {
             "./plugin-sdk/account-id": {
@@ -927,13 +927,13 @@ describe("qa bundled plugin dir", () => {
     );
     await writeFile(
       path.join(repoRoot, "dist", "extensions", "qa-channel", "package.json"),
-      JSON.stringify({ name: "@openclaw/qa-channel", type: "module" }, null, 2),
+      JSON.stringify({ name: "@alien/qa-channel", type: "module" }, null, 2),
       "utf8",
     );
     await writeFile(
       path.join(repoRoot, "dist", "extensions", "qa-channel", "index.js"),
       [
-        'import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";',
+        'import { normalizeAccountId } from "alien/plugin-sdk/account-id";',
         'export const accountId = normalizeAccountId("QA");',
         "",
       ].join("\n"),
@@ -974,7 +974,7 @@ describe("qa bundled plugin dir", () => {
       throw new Error("expected staged runtime root");
     }
     await expect(readFile(path.join(stagedRoot, "package.json"), "utf8")).resolves.toContain(
-      '"name": "openclaw"',
+      '"name": "alien"',
     );
     await expect(
       import(
@@ -1007,7 +1007,7 @@ describe("qa bundled plugin dir", () => {
     });
     await writeFile(
       path.join(repoRoot, "package.json"),
-      JSON.stringify({ name: "openclaw", type: "module" }, null, 2),
+      JSON.stringify({ name: "alien", type: "module" }, null, 2),
       "utf8",
     );
     await mkdir(path.join(repoRoot, "dist"), { recursive: true });
@@ -1026,7 +1026,7 @@ describe("qa bundled plugin dir", () => {
     );
     await writeFile(
       path.join(repoRoot, "dist-runtime", "extensions", "runtime-only", "package.json"),
-      JSON.stringify({ name: "@openclaw/runtime-only", type: "module" }, null, 2),
+      JSON.stringify({ name: "@alien/runtime-only", type: "module" }, null, 2),
       "utf8",
     );
     await writeFile(
@@ -1083,7 +1083,7 @@ describe("qa bundled plugin dir", () => {
     });
     await writeFile(
       path.join(repoRoot, "package.json"),
-      JSON.stringify({ name: "openclaw", type: "module" }, null, 2),
+      JSON.stringify({ name: "alien", type: "module" }, null, 2),
       "utf8",
     );
     const tempRoot = await mkdtemp(path.join(os.tmpdir(), "qa-bundled-invalid-target-"));
@@ -1113,7 +1113,7 @@ describe("qa bundled plugin dir", () => {
       path.join(repoRoot, "package.json"),
       JSON.stringify(
         {
-          name: "openclaw",
+          name: "alien",
           type: "module",
           exports: {
             "./plugin-sdk/account-id": {
@@ -1135,13 +1135,13 @@ describe("qa bundled plugin dir", () => {
     await mkdir(path.join(repoRoot, "extensions", "qa-channel"), { recursive: true });
     await writeFile(
       path.join(repoRoot, "extensions", "qa-channel", "package.json"),
-      JSON.stringify({ name: "@openclaw/qa-channel", type: "module" }, null, 2),
+      JSON.stringify({ name: "@alien/qa-channel", type: "module" }, null, 2),
       "utf8",
     );
     await writeFile(
       path.join(repoRoot, "extensions", "qa-channel", "index.ts"),
       [
-        'import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";',
+        'import { normalizeAccountId } from "alien/plugin-sdk/account-id";',
         'import { marker } from "fake-dep";',
         'export const accountId = `${normalizeAccountId("QA")}:${marker}`;',
         "",
@@ -1210,7 +1210,7 @@ describe("qa bundled plugin dir", () => {
     });
     await mkdir(path.join(repoRoot, "dist", "extensions", "openai"), { recursive: true });
     await writeFile(
-      path.join(repoRoot, "dist", "extensions", "openai", "openclaw.plugin.json"),
+      path.join(repoRoot, "dist", "extensions", "openai", "alien.plugin.json"),
       JSON.stringify({
         id: "openai",
         providers: ["openai", "openai-codex"],
@@ -1234,7 +1234,7 @@ describe("qa bundled plugin dir", () => {
     });
     await mkdir(path.join(repoRoot, "dist", "extensions", "openai"), { recursive: true });
     await writeFile(
-      path.join(repoRoot, "dist", "extensions", "openai", "openclaw.plugin.json"),
+      path.join(repoRoot, "dist", "extensions", "openai", "alien.plugin.json"),
       JSON.stringify({
         id: "openai",
         providers: ["openai"],
@@ -1272,7 +1272,7 @@ describe("qa bundled plugin dir", () => {
   it("copies selected live provider configs from the host config", async () => {
     const configPath = path.join(
       await mkdtemp(path.join(os.tmpdir(), "qa-provider-config-")),
-      "openclaw.json",
+      "alien.json",
     );
     cleanups.push(async () => {
       await rm(path.dirname(configPath), { recursive: true, force: true });
@@ -1312,7 +1312,7 @@ describe("qa bundled plugin dir", () => {
     await expect(
       __testing.readQaLiveProviderConfigOverrides({
         providerIds: ["custom-openai"],
-        env: { OPENCLAW_QA_LIVE_PROVIDER_CONFIG_PATH: configPath },
+        env: { ALIEN_QA_LIVE_PROVIDER_CONFIG_PATH: configPath },
       }),
     ).resolves.toEqual({
       "custom-openai": expect.objectContaining({
@@ -1336,14 +1336,14 @@ describe("qa bundled plugin dir", () => {
     await mkdir(path.join(bundledRoot, "qa-channel"), { recursive: true });
     await writeFile(
       path.join(bundledRoot, "qa-channel", "package.json"),
-      JSON.stringify({ openclaw: { install: { minHostVersion: ">=2026.4.8" } } }),
+      JSON.stringify({ alien: { install: { minHostVersion: ">=2026.4.8" } } }),
       "utf8",
     );
 
     await mkdir(path.join(bundledRoot, "memory-core"), { recursive: true });
     await writeFile(
       path.join(bundledRoot, "memory-core", "package.json"),
-      JSON.stringify({ openclaw: { install: { minHostVersion: ">=2026.4.7" } } }),
+      JSON.stringify({ alien: { install: { minHostVersion: ">=2026.4.7" } } }),
       "utf8",
     );
 
@@ -1369,13 +1369,13 @@ describe("qa bundled plugin dir", () => {
     await mkdir(path.join(bundledRoot, "qa-channel"), { recursive: true });
     await writeFile(
       path.join(bundledRoot, "qa-channel", "package.json"),
-      JSON.stringify({ openclaw: { install: { minHostVersion: ">=2026.4.8" } } }),
+      JSON.stringify({ alien: { install: { minHostVersion: ">=2026.4.8" } } }),
       "utf8",
     );
     await mkdir(path.join(bundledRoot, "speech-core"), { recursive: true });
     await writeFile(
       path.join(bundledRoot, "speech-core", "package.json"),
-      JSON.stringify({ openclaw: { install: { minHostVersion: ">=2026.4.9" } } }),
+      JSON.stringify({ alien: { install: { minHostVersion: ">=2026.4.9" } } }),
       "utf8",
     );
 

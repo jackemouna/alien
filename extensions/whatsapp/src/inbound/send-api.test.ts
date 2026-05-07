@@ -6,17 +6,17 @@ import type {
   MiscMessageGenerationOptions,
   WAMessage,
 } from "@whiskeysockets/baileys";
-import { listMessageReceiptPlatformIds } from "openclaw/plugin-sdk/channel-message";
+import { listMessageReceiptPlatformIds } from "alien/plugin-sdk/channel-message";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveWhatsAppOutboundMentions } from "./outbound-mentions.js";
 import { createWebSendApi } from "./send-api.js";
 
 const recordChannelActivity = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/channel-activity-runtime", async () => {
+vi.mock("alien/plugin-sdk/channel-activity-runtime", async () => {
   const actual = await vi.importActual<
-    typeof import("openclaw/plugin-sdk/channel-activity-runtime")
-  >("openclaw/plugin-sdk/channel-activity-runtime");
+    typeof import("alien/plugin-sdk/channel-activity-runtime")
+  >("alien/plugin-sdk/channel-activity-runtime");
   return {
     ...actual,
     recordChannelActivity: (...args: unknown[]) => recordChannelActivity(...args),
@@ -388,7 +388,7 @@ describe("createWebSendApi LID resolution (issue #67378)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    authDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-wa-lid-"));
+    authDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-wa-lid-"));
     fs.writeFileSync(path.join(authDir, "lid-mapping-15555550000.json"), JSON.stringify("987654"));
   });
 

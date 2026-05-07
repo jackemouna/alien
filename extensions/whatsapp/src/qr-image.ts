@@ -1,1 +1,1 @@
-export { renderQrPngBase64, renderQrPngDataUrl } from "openclaw/plugin-sdk/media-runtime";
+export { renderQrPngBase64, renderQrPngDataUrl } from "alien/plugin-sdk/media-runtime";

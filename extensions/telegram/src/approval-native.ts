@@ -1,22 +1,22 @@
 import {
   createApproverRestrictedNativeApprovalCapability,
   splitChannelApprovalCapability,
-} from "openclaw/plugin-sdk/approval-delivery-runtime";
-import { createLazyChannelApprovalNativeRuntimeAdapter } from "openclaw/plugin-sdk/approval-handler-adapter-runtime";
-import type { ChannelApprovalNativeRuntimeAdapter } from "openclaw/plugin-sdk/approval-handler-runtime";
+} from "alien/plugin-sdk/approval-delivery-runtime";
+import { createLazyChannelApprovalNativeRuntimeAdapter } from "alien/plugin-sdk/approval-handler-adapter-runtime";
+import type { ChannelApprovalNativeRuntimeAdapter } from "alien/plugin-sdk/approval-handler-runtime";
 import {
   createChannelApproverDmTargetResolver,
   createChannelNativeOriginTargetResolver,
-} from "openclaw/plugin-sdk/approval-native-runtime";
+} from "alien/plugin-sdk/approval-native-runtime";
 import type {
   ExecApprovalRequest,
   PluginApprovalRequest,
-} from "openclaw/plugin-sdk/approval-runtime";
-import type { ChannelApprovalCapability } from "openclaw/plugin-sdk/channel-contract";
+} from "alien/plugin-sdk/approval-runtime";
+import type { ChannelApprovalCapability } from "alien/plugin-sdk/channel-contract";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { listTelegramAccountIds } from "./accounts.js";
 import {
   getTelegramExecApprovalApprovers,

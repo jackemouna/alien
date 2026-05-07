@@ -52,7 +52,7 @@ export async function runWindowsBackgroundPowerShell(
   const append = options.append;
   const safeLabel = options.label.replaceAll(/[^A-Za-z0-9_-]/g, "-");
   const nonce = `${safeLabel}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-  const fileBase = `openclaw-parallels-${nonce}`;
+  const fileBase = `alien-parallels-${nonce}`;
   const pathsScript = `$base = Join-Path $env:TEMP ${psSingleQuote(fileBase)}
 $scriptPath = "$base.ps1"
 $logPath = "$base.log"
@@ -170,14 +170,14 @@ $offset = ${lastLogOffset}
 if (Test-Path $logPath) {
   $bytes = [System.IO.File]::ReadAllBytes($logPath)
   if ($bytes.Length -gt $offset) {
-    "__OPENCLAW_LOG_OFFSET__:$($bytes.Length)"
+    "__ALIEN_LOG_OFFSET__:$($bytes.Length)"
     [System.Text.Encoding]::UTF8.GetString($bytes, $offset, $bytes.Length - $offset)
   }
 }
 if (Test-Path $donePath) {
   $backgroundExit = if (Test-Path $exitPath) { (Get-Content -Path $exitPath -Raw).Trim() } else { '0' }
-  "__OPENCLAW_BACKGROUND_EXIT__:$backgroundExit"
-  '__OPENCLAW_BACKGROUND_DONE__'
+  "__ALIEN_BACKGROUND_EXIT__:$backgroundExit"
+  '__ALIEN_BACKGROUND_DONE__'
   if ($backgroundExit -ne '0') { exit 23 }
   exit 0
 }`),
@@ -185,12 +185,12 @@ if (Test-Path $donePath) {
       { check: false, quiet: true, timeoutMs: timeoutBefore(deadline, 30_000) },
     );
     appendOutput(append, poll);
-    const offsetMatch = poll.stdout.match(/__OPENCLAW_LOG_OFFSET__:(\d+)/);
+    const offsetMatch = poll.stdout.match(/__ALIEN_LOG_OFFSET__:(\d+)/);
     if (offsetMatch) {
       lastLogOffset = Number(offsetMatch[1]);
     }
-    if (poll.stdout.includes("__OPENCLAW_BACKGROUND_DONE__")) {
-      const exitMatch = poll.stdout.match(/__OPENCLAW_BACKGROUND_EXIT__:(\S+)/);
+    if (poll.stdout.includes("__ALIEN_BACKGROUND_DONE__")) {
+      const exitMatch = poll.stdout.match(/__ALIEN_BACKGROUND_EXIT__:(\S+)/);
       const backgroundExit = exitMatch?.[1] ?? "0";
       if (backgroundExit !== "0" || (poll.status !== 0 && poll.status !== 124)) {
         throw new Error(`${options.label} failed`);
@@ -276,7 +276,7 @@ export class LinuxGuest {
   }
 
   bash(script: string): string {
-    const scriptPath = `/tmp/openclaw-parallels-${process.pid}-${Date.now()}.sh`;
+    const scriptPath = `/tmp/alien-parallels-${process.pid}-${Date.now()}.sh`;
     const write = run(
       "prlctl",
       ["exec", this.vmName, "/usr/bin/env", "HOME=/root", "dd", `of=${scriptPath}`, "bs=1048576"],
@@ -351,7 +351,7 @@ export class MacosGuest {
   }
 
   sh(script: string, env: Record<string, string> = {}): string {
-    const scriptPath = `/tmp/openclaw-parallels-${process.pid}-${Date.now()}.sh`;
+    const scriptPath = `/tmp/alien-parallels-${process.pid}-${Date.now()}.sh`;
     this.exec(["/bin/dd", `of=${scriptPath}`, "bs=1048576"], {
       input: `umask 022\n${script}`,
     });
@@ -387,7 +387,7 @@ export class WindowsGuest {
   }
 
   powershell(script: string, options: GuestExecOptions = {}): string {
-    const scriptName = `openclaw-parallels-${process.pid}-${Date.now()}.ps1`;
+    const scriptName = `alien-parallels-${process.pid}-${Date.now()}.ps1`;
     const writeScript = `$scriptPath = Join-Path $env:TEMP ${JSON.stringify(scriptName)}
 [System.IO.File]::WriteAllText($scriptPath, [Console]::In.ReadToEnd(), [System.Text.UTF8Encoding]::new($false))`;
     const write = run(

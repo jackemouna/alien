@@ -1,5 +1,5 @@
 import { ensureOpenDmPolicyAllowFromWildcard } from "../../../channels/plugins/dm-access.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
 import { resolveAllowFromMode, type AllowFromMode } from "./allow-from-mode.js";
 import { asObjectRecord } from "./object.js";
@@ -17,8 +17,8 @@ export function collectOpenPolicyAllowFromWarnings(params: {
   ];
 }
 
-export function maybeRepairOpenPolicyAllowFrom(cfg: OpenClawConfig): {
-  config: OpenClawConfig;
+export function maybeRepairOpenPolicyAllowFrom(cfg: AlienConfig): {
+  config: AlienConfig;
   changes: string[];
 } {
   const channels = cfg.channels;

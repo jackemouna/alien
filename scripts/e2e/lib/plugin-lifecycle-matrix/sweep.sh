@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source scripts/lib/openclaw-e2e-instance.sh
+source scripts/lib/alien-e2e-instance.sh
 
-openclaw_e2e_eval_test_state_from_b64 "${OPENCLAW_TEST_STATE_SCRIPT_B64:?missing OPENCLAW_TEST_STATE_SCRIPT_B64}"
-openclaw_e2e_install_package /tmp/openclaw-plugin-lifecycle-install.log "mounted OpenClaw package" /tmp/npm-prefix
+alien_e2e_eval_test_state_from_b64 "${ALIEN_TEST_STATE_SCRIPT_B64:?missing ALIEN_TEST_STATE_SCRIPT_B64}"
+alien_e2e_install_package /tmp/alien-plugin-lifecycle-install.log "mounted Alien package" /tmp/npm-prefix
 
-package_root="$(openclaw_e2e_package_root /tmp/npm-prefix)"
-entry="$(openclaw_e2e_package_entrypoint "$package_root")"
+package_root="$(alien_e2e_package_root /tmp/npm-prefix)"
+entry="$(alien_e2e_package_entrypoint "$package_root")"
 export PATH="/tmp/npm-prefix/bin:$PATH"
 export npm_config_loglevel=error
 export npm_config_fund=false
@@ -16,10 +16,10 @@ export npm_config_audit=false
 source scripts/e2e/lib/plugins/fixtures.sh
 
 plugin_id="lifecycle-claw"
-package_name="@openclaw/lifecycle-claw"
+package_name="@alien/lifecycle-claw"
 probe="scripts/e2e/lib/plugin-lifecycle-matrix/probe.mjs"
 measure="scripts/e2e/lib/plugin-lifecycle-matrix/measure.mjs"
-resource_dir="/tmp/openclaw-plugin-lifecycle-matrix"
+resource_dir="/tmp/alien-plugin-lifecycle-matrix"
 mkdir -p "$resource_dir"
 summary_tsv="$resource_dir/resource-summary.tsv"
 printf "phase\tmax_rss_kb\tcpu_seconds\twall_ms\tcpu_core_ratio\tsignal\n" >"$summary_tsv"
@@ -32,8 +32,8 @@ run_measured() {
   node "$measure" "$summary_tsv" "$phase" -- "$@"
 }
 
-pack_root="$(mktemp -d "/tmp/openclaw-plugin-lifecycle-pack.XXXXXX")"
-registry_root="$(mktemp -d "/tmp/openclaw-plugin-lifecycle-registry.XXXXXX")"
+pack_root="$(mktemp -d "/tmp/alien-plugin-lifecycle-pack.XXXXXX")"
+registry_root="$(mktemp -d "/tmp/alien-plugin-lifecycle-registry.XXXXXX")"
 pack_fixture_plugin "$pack_root/v1" /tmp/lifecycle-claw-1.0.0.tgz "$plugin_id" 1.0.0 lifecycle.v1 "Lifecycle Claw"
 pack_fixture_plugin "$pack_root/v2" /tmp/lifecycle-claw-2.0.0.tgz "$plugin_id" 2.0.0 lifecycle.v2 "Lifecycle Claw"
 start_npm_fixture_registry "$package_name" 1.0.0 /tmp/lifecycle-claw-1.0.0.tgz "$registry_root" "$package_name" 2.0.0 /tmp/lifecycle-claw-2.0.0.tgz

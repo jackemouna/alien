@@ -4,7 +4,7 @@ import type {
   ChannelThreadingAdapter,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type {
   OutboundSessionRoute,
   ResolveOutboundSessionRouteParams,
@@ -16,7 +16,7 @@ type ResolveAutoThreadId = NonNullable<ChannelThreadingAdapter["resolveAutoThrea
 export function resolveAndApplyOutboundThreadId(
   actionParams: Record<string, unknown>,
   context: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     to: string;
     accountId?: string | null;
     toolContext?: ChannelThreadingToolContext;
@@ -113,7 +113,7 @@ export function resolveAndApplyOutboundReplyToId(
 }
 
 export async function prepareOutboundMirrorRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   to: string;
   actionParams: Record<string, unknown>;
@@ -128,7 +128,7 @@ export async function prepareOutboundMirrorRoute(params: {
     params: ResolveOutboundSessionRouteParams,
   ) => Promise<OutboundSessionRoute | null>;
   ensureOutboundSessionEntry: (params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     channel: ChannelId;
     accountId?: string | null;
     route: OutboundSessionRoute;

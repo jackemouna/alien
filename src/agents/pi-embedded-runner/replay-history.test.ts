@@ -37,12 +37,12 @@ function userMessage(text: string): AgentMessage {
   return { role: "user", content: text, timestamp: 0 } as unknown as AgentMessage;
 }
 
-function openclawTranscriptAssistant(model: "delivery-mirror" | "gateway-injected"): AgentMessage {
+function alienTranscriptAssistant(model: "delivery-mirror" | "gateway-injected"): AgentMessage {
   return {
     role: "assistant",
     content: [{ type: "text", text: "channel mirror" }],
     api: "openai-responses",
-    provider: "openclaw",
+    provider: "alien",
     model,
     usage: {
       input: 0,
@@ -168,12 +168,12 @@ describe("normalizeAssistantReplayContent", () => {
     expect(JSON.stringify(out)).not.toContain("assistant copied inbound metadata omitted");
   });
 
-  it("filters openclaw delivery-mirror and gateway-injected assistant messages from replay", () => {
+  it("filters alien delivery-mirror and gateway-injected assistant messages from replay", () => {
     const messages = [
       userMessage("hello"),
-      openclawTranscriptAssistant("delivery-mirror"),
+      alienTranscriptAssistant("delivery-mirror"),
       bedrockAssistant([{ type: "text", text: "real reply" }]),
-      openclawTranscriptAssistant("gateway-injected"),
+      alienTranscriptAssistant("gateway-injected"),
     ];
     const out = normalizeAssistantReplayContent(messages);
     expect(out).toHaveLength(2);

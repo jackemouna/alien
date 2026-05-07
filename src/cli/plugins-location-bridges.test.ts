@@ -61,8 +61,8 @@ function makeRegistry(pluginId: string): PluginManifestRegistry {
         activation: {},
         startup: {},
         packageInstall: {
-          clawhubSpec: `clawhub:@openclaw/${pluginId}`,
-          npmSpec: `@openclaw/${pluginId}`,
+          clawhubSpec: `clawhub:@alien/${pluginId}`,
+          npmSpec: `@alien/${pluginId}`,
           defaultChoice: "clawhub",
         },
       },
@@ -81,7 +81,7 @@ describe("listPersistedBundledPluginLocationBridges", () => {
     readPersistedInstalledPluginIndexMock.mockResolvedValue(
       makeIndex({
         pluginId: "diagnostics-otel",
-        manifestPath: "/app/dist/extensions/diagnostics-otel/openclaw.plugin.json",
+        manifestPath: "/app/dist/extensions/diagnostics-otel/alien.plugin.json",
         manifestHash: "hash",
         source: "/app/dist/extensions/diagnostics-otel/index.js",
         rootDir: "/app/dist/extensions/diagnostics-otel",
@@ -92,13 +92,13 @@ describe("listPersistedBundledPluginLocationBridges", () => {
         packageInstall: {
           defaultChoice: "clawhub",
           clawhub: {
-            spec: "clawhub:@openclaw/diagnostics-otel",
-            packageName: "@openclaw/diagnostics-otel",
+            spec: "clawhub:@alien/diagnostics-otel",
+            packageName: "@alien/diagnostics-otel",
             exactVersion: false,
           },
           npm: {
-            spec: "@openclaw/diagnostics-otel",
-            packageName: "@openclaw/diagnostics-otel",
+            spec: "@alien/diagnostics-otel",
+            packageName: "@alien/diagnostics-otel",
             selectorKind: "none",
             exactVersion: false,
             pinState: "floating-without-integrity",
@@ -116,8 +116,8 @@ describe("listPersistedBundledPluginLocationBridges", () => {
         bundledPluginId: "diagnostics-otel",
         pluginId: "diagnostics-otel",
         preferredSource: "npm",
-        npmSpec: "@openclaw/diagnostics-otel",
-        clawhubSpec: "clawhub:@openclaw/diagnostics-otel",
+        npmSpec: "@alien/diagnostics-otel",
+        clawhubSpec: "clawhub:@alien/diagnostics-otel",
         channelIds: ["diagnostics-otel"],
       },
     ]);
@@ -127,7 +127,7 @@ describe("listPersistedBundledPluginLocationBridges", () => {
     readPersistedInstalledPluginIndexMock.mockResolvedValue(
       makeIndex({
         pluginId: "diagnostics-otel",
-        manifestPath: "/app/dist/extensions/diagnostics-otel/openclaw.plugin.json",
+        manifestPath: "/app/dist/extensions/diagnostics-otel/alien.plugin.json",
         manifestHash: "hash",
         source: "/app/dist/extensions/diagnostics-otel/index.js",
         rootDir: "/app/dist/extensions/diagnostics-otel",
@@ -138,8 +138,8 @@ describe("listPersistedBundledPluginLocationBridges", () => {
         packageInstall: {
           defaultChoice: "clawhub",
           clawhub: {
-            spec: "clawhub:@openclaw/diagnostics-otel",
-            packageName: "@openclaw/diagnostics-otel",
+            spec: "clawhub:@alien/diagnostics-otel",
+            packageName: "@alien/diagnostics-otel",
             exactVersion: false,
           },
           warnings: [],
@@ -155,8 +155,8 @@ describe("listPersistedBundledPluginLocationBridges", () => {
         bundledPluginId: "diagnostics-otel",
         pluginId: "diagnostics-otel",
         preferredSource: "npm",
-        npmSpec: "@openclaw/diagnostics-otel",
-        clawhubSpec: "clawhub:@openclaw/diagnostics-otel",
+        npmSpec: "@alien/diagnostics-otel",
+        clawhubSpec: "clawhub:@alien/diagnostics-otel",
         channelIds: ["diagnostics-otel"],
       },
     ]);
@@ -166,7 +166,7 @@ describe("listPersistedBundledPluginLocationBridges", () => {
     readPersistedInstalledPluginIndexMock.mockResolvedValue(
       makeIndex({
         pluginId: "local-only",
-        manifestPath: "/app/dist/extensions/local-only/openclaw.plugin.json",
+        manifestPath: "/app/dist/extensions/local-only/alien.plugin.json",
         manifestHash: "hash",
         source: "/app/dist/extensions/local-only/index.js",
         rootDir: "/app/dist/extensions/local-only",

@@ -1,7 +1,7 @@
 import net from "node:net";
 import tls from "node:tls";
-import { withTimeout } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { withTimeout } from "alien/plugin-sdk/security-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   parseIrcLine,
   parseIrcPrefix,
@@ -68,7 +68,7 @@ function toError(err: unknown): Error {
 function buildFallbackNick(nick: string): string {
   const normalized = nick.replace(/\s+/g, "");
   const safe = normalized.replace(/[^A-Za-z0-9_\-[\]\\`^{}|]/g, "");
-  const base = safe || "openclaw";
+  const base = safe || "alien";
   const suffix = "_";
   const maxNickLen = 30;
   if (base.length >= maxNickLen) {

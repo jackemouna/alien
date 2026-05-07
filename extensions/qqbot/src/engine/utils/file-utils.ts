@@ -5,7 +5,7 @@ import {
   openLocalFileSafely,
   readRegularFile,
   statRegularFileSync,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import { getPlatformAdapter } from "../adapter/index.js";
 import type { SsrfPolicyConfig } from "../adapter/types.js";
 import { MediaFileType } from "../types.js";

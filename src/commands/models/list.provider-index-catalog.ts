@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
-  loadOpenClawProviderIndex,
+  loadAlienProviderIndex,
   normalizeModelCatalogProviderId,
   planProviderIndexModelCatalogRows,
 } from "../../model-catalog/index.js";
@@ -9,12 +9,12 @@ import { normalizePluginsConfig, resolveEffectiveEnableState } from "../../plugi
 
 export function loadProviderIndexCatalogRowsForList(params: {
   providerFilter?: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): readonly NormalizedModelCatalogRow[] {
   const providerFilter = params.providerFilter
     ? normalizeModelCatalogProviderId(params.providerFilter)
     : undefined;
-  const index = loadOpenClawProviderIndex();
+  const index = loadAlienProviderIndex();
   return planProviderIndexModelCatalogRows({
     index,
     ...(providerFilter ? { providerFilter } : {}),

@@ -7,8 +7,8 @@ import {
   normalizeBatchBaseUrl,
   sanitizeAndNormalizeEmbedding,
   withRemoteHttpResponse,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
-import { createProviderHttpError } from "openclaw/plugin-sdk/provider-http";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
+import { createProviderHttpError } from "alien/plugin-sdk/provider-http";
 import type { GeminiEmbeddingClient, GeminiTextEmbeddingRequest } from "./embedding-provider.js";
 
 type EmbeddingBatchExecutionParams = {
@@ -64,7 +64,7 @@ function buildGeminiUploadBody(params: { jsonl: string; displayName: string }): 
   body: Blob;
   contentType: string;
 } {
-  const boundary = `openclaw-${hashText(params.displayName)}`;
+  const boundary = `alien-${hashText(params.displayName)}`;
   const jsonPart = JSON.stringify({
     file: {
       displayName: params.displayName,

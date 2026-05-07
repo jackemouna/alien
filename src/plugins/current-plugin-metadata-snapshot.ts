@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   clearCurrentPluginMetadataSnapshotState,
   getCurrentPluginMetadataSnapshotState,
@@ -12,7 +12,7 @@ import {
 import type { PluginMetadataSnapshot } from "./plugin-metadata-snapshot.types.js";
 
 export function resolvePluginMetadataControlPlaneFingerprint(
-  config?: OpenClawConfig,
+  config?: AlienConfig,
   options: Omit<ResolvePluginControlPlaneContextParams, "config"> = {},
 ): string {
   return resolvePluginControlPlaneFingerprint({
@@ -26,8 +26,8 @@ export function resolvePluginMetadataControlPlaneFingerprint(
 export function setCurrentPluginMetadataSnapshot(
   snapshot: PluginMetadataSnapshot | undefined,
   options: {
-    config?: OpenClawConfig;
-    compatibleConfigs?: readonly OpenClawConfig[];
+    config?: AlienConfig;
+    compatibleConfigs?: readonly AlienConfig[];
     env?: NodeJS.ProcessEnv;
     workspaceDir?: string;
   } = {},
@@ -66,7 +66,7 @@ export function clearCurrentPluginMetadataSnapshot(): void {
 
 export function getCurrentPluginMetadataSnapshot(
   params: {
-    config?: OpenClawConfig;
+    config?: AlienConfig;
     env?: NodeJS.ProcessEnv;
     workspaceDir?: string;
     allowWorkspaceScopedSnapshot?: boolean;

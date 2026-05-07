@@ -1,6 +1,6 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "openclaw/plugin-sdk/provider-auth-api-key";
-import { PASSTHROUGH_GEMINI_REPLAY_HOOKS } from "openclaw/plugin-sdk/provider-model-shared";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "alien/plugin-sdk/provider-auth-api-key";
+import { PASSTHROUGH_GEMINI_REPLAY_HOOKS } from "alien/plugin-sdk/provider-model-shared";
 import { applyOpencodeGoConfig, OPENCODE_GO_DEFAULT_MODEL_REF } from "./api.js";
 import { opencodeGoMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import {

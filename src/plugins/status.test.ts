@@ -10,7 +10,7 @@ import {
 } from "./status.test-helpers.js";
 
 const loadConfigMock = vi.fn();
-const loadOpenClawPluginsMock = vi.fn();
+const loadAlienPluginsMock = vi.fn();
 const loadPluginMetadataRegistrySnapshotMock = vi.fn();
 const loadPluginManifestRegistryForPluginRegistryMock = vi.fn();
 const loadPluginRegistrySnapshotWithMetadataMock = vi.fn();
@@ -56,7 +56,7 @@ vi.mock("../config/plugin-auto-enable.js", () => ({
 }));
 
 vi.mock("./loader.js", () => ({
-  loadOpenClawPlugins: (...args: unknown[]) => loadOpenClawPluginsMock(...args),
+  loadAlienPlugins: (...args: unknown[]) => loadAlienPluginsMock(...args),
 }));
 
 vi.mock("./runtime/metadata-registry-loader.js", () => ({
@@ -116,7 +116,7 @@ function setPluginLoadResult(overrides: Partial<ReturnType<typeof createPluginLo
     plugins: [],
     ...overrides,
   });
-  loadOpenClawPluginsMock.mockReturnValue(result);
+  loadAlienPluginsMock.mockReturnValue(result);
   loadPluginMetadataRegistrySnapshotMock.mockReturnValue(result);
 }
 
@@ -167,7 +167,7 @@ function expectPluginLoaderCall(params: {
   logger?: unknown;
   loadModules?: boolean;
 }) {
-  expect(loadOpenClawPluginsMock).toHaveBeenCalledWith(
+  expect(loadAlienPluginsMock).toHaveBeenCalledWith(
     expect.objectContaining({
       ...(params.config !== undefined ? { config: params.config } : {}),
       ...(params.activationSourceConfig !== undefined
@@ -384,7 +384,7 @@ describe("plugin status reports", () => {
 
   beforeEach(() => {
     loadConfigMock.mockReset();
-    loadOpenClawPluginsMock.mockReset();
+    loadAlienPluginsMock.mockReset();
     loadPluginMetadataRegistrySnapshotMock.mockReset();
     loadPluginManifestRegistryForPluginRegistryMock.mockReset();
     loadPluginRegistrySnapshotWithMetadataMock.mockReset();
@@ -428,7 +428,7 @@ describe("plugin status reports", () => {
   });
 
   it("forwards an explicit env to plugin loading", () => {
-    const env = { HOME: "/tmp/openclaw-home" } as NodeJS.ProcessEnv;
+    const env = { HOME: "/tmp/alien-home" } as NodeJS.ProcessEnv;
 
     buildPluginSnapshotReport({
       config: {},
@@ -470,7 +470,7 @@ describe("plugin status reports", () => {
       snapshot: createInstalledPluginIndexSnapshot([
         {
           pluginId: "provider-env-plugin",
-          manifestPath: "/tmp/provider-env-plugin/openclaw.plugin.json",
+          manifestPath: "/tmp/provider-env-plugin/alien.plugin.json",
           manifestHash: "manifest-hash",
           rootDir: "/tmp/provider-env-plugin",
           origin: "workspace",
@@ -508,7 +508,7 @@ describe("plugin status reports", () => {
         loadModules: false,
       }),
     );
-    expect(loadOpenClawPluginsMock).not.toHaveBeenCalled();
+    expect(loadAlienPluginsMock).not.toHaveBeenCalled();
   });
 
   it("loads plugin status from the auto-enabled config snapshot", () => {
@@ -625,7 +625,7 @@ describe("plugin status reports", () => {
     const report = buildPluginDiagnosticsReport({
       config: {},
       env: {
-        OPENCLAW_VERSION: "2026.3.23-1",
+        ALIEN_VERSION: "2026.3.23-1",
       } as NodeJS.ProcessEnv,
     });
 

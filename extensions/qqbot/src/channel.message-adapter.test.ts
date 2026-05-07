@@ -1,5 +1,5 @@
-import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { verifyChannelMessageAdapterCapabilityProofs } from "alien/plugin-sdk/channel-message";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it, vi } from "vitest";
 import { qqbotPlugin } from "./channel.js";
 
@@ -19,7 +19,7 @@ const cfg = {
       clientSecret: "secret",
     },
   },
-} as OpenClawConfig;
+} as AlienConfig;
 
 describe("qqbot message adapter", () => {
   it("declares durable text, media, and reply target capabilities with receipt proofs", async () => {

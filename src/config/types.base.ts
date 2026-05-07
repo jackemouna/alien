@@ -38,7 +38,7 @@ export type BlockStreamingChunkConfig = {
 export type ChannelStreamingProgressConfig = {
   /** Initial progress title. "auto" picks from labels; false hides the title. Default: "auto". */
   label?: string | false;
-  /** Candidate labels for label="auto". Defaults to OpenClaw's built-in progress labels. */
+  /** Candidate labels for label="auto". Defaults to Alien's built-in progress labels. */
   labels?: string[];
   /** Maximum number of progress lines to keep below the label. Default: 8. */
   maxLines?: number;
@@ -230,7 +230,7 @@ export type SessionMaintenanceConfig = {
   pruneDays?: number;
   /** Maximum number of session entries to keep. Default: 500. */
   maxEntries?: number;
-  /** @deprecated Ignored. Run `openclaw doctor --fix` to remove. */
+  /** @deprecated Ignored. Run `alien doctor --fix` to remove. */
   rotateBytes?: number | string;
   /**
    * Retention for archived reset transcripts (`*.reset.<timestamp>`).

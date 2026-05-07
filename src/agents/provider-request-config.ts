@@ -744,7 +744,7 @@ export function resolveProviderRequestHeaders(params: {
 }
 
 const MODEL_PROVIDER_REQUEST_TRANSPORT_SYMBOL = Symbol.for(
-  "openclaw.modelProviderRequestTransport",
+  "alien.modelProviderRequestTransport",
 );
 
 type ModelWithProviderRequestTransport = {

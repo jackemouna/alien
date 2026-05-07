@@ -1,5 +1,5 @@
-import { captureWsEvent } from "openclaw/plugin-sdk/proxy-capture";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { captureWsEvent } from "alien/plugin-sdk/proxy-capture";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 export const trimToUndefined = normalizeOptionalString;
 

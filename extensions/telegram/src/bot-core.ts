@@ -1,28 +1,28 @@
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "alien/plugin-sdk/channel-policy";
 import {
   resolveThreadBindingIdleTimeoutMsForChannel,
   resolveThreadBindingMaxAgeMsForChannel,
   resolveThreadBindingSpawnPolicy,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { formatErrorMessage, formatUncaughtError } from "openclaw/plugin-sdk/error-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
+import { formatErrorMessage, formatUncaughtError } from "alien/plugin-sdk/error-runtime";
 import {
   isNativeCommandsExplicitlyDisabled,
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "openclaw/plugin-sdk/native-command-config-runtime";
-import { resolveTextChunkLimit } from "openclaw/plugin-sdk/reply-chunking";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "openclaw/plugin-sdk/reply-history";
-import { danger, logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { getChildLogger } from "openclaw/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { createNonExitingRuntime, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/native-command-config-runtime";
+import { resolveTextChunkLimit } from "alien/plugin-sdk/reply-chunking";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "alien/plugin-sdk/reply-history";
+import { danger, logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { getChildLogger } from "alien/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
+import { createNonExitingRuntime, type RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { resolveTelegramAccount } from "./accounts.js";
 import { normalizeTelegramApiRoot } from "./api-root.js";
 import type { TelegramBotDeps } from "./bot-deps.js";

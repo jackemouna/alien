@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect } from "vitest";
-import type { OpenClawConfig } from "../../../../config/config.js";
+import type { AlienConfig } from "../../../../config/config.js";
 import {
   getSessionBindingService,
   type SessionBindingCapabilities,
   type SessionBindingRecord,
 } from "../../../../infra/outbound/session-binding-service.js";
-import { resolvePreferredOpenClawTmpDir } from "../../../../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../../../../infra/tmp-alien-dir.js";
 import { setActivePluginRegistry } from "../../../../plugins/runtime.js";
 import { createTestRegistry } from "../../../../test-utils/channel-plugins.js";
 import { createChannelConversationBindingManager } from "../../conversation-bindings.js";
@@ -31,7 +31,7 @@ type SessionBindingContractEntry = {
 const contractApiPromises = new Map<string, Promise<Record<string, unknown>>>();
 
 const matrixSessionBindingStateDir = fs.mkdtempSync(
-  path.join(resolvePreferredOpenClawTmpDir(), "openclaw-matrix-session-binding-contract-"),
+  path.join(resolvePreferredAlienTmpDir(), "alien-matrix-session-binding-contract-"),
 );
 const matrixSessionBindingAuth = {
   accountId: "ops",
@@ -119,7 +119,7 @@ async function createContractMatrixThreadBindingManager() {
 
 const baseSessionBindingCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies OpenClawConfig;
+} satisfies AlienConfig;
 
 type ChannelConversationBindingManagerFactory = NonNullable<
   NonNullable<ChannelPlugin["conversationBindings"]>["createManager"]
@@ -135,7 +135,7 @@ type BlueBubblesContractApi = {
 type DiscordContractApi = {
   createThreadBindingManager: (params: {
     accountId: string;
-    cfg?: OpenClawConfig;
+    cfg?: AlienConfig;
     persist: boolean;
     enableSweeper: boolean;
   }) => unknown;
@@ -147,7 +147,7 @@ type DiscordContractApi = {
 type FeishuContractApi = {
   createFeishuThreadBindingManager: (params: {
     accountId?: string;
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
   }) => unknown;
   feishuThreadBindingTesting: {
     resetFeishuThreadBindingsForTests: () => void;

@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { OpenClawChannelBridge } from "./channel-bridge.js";
+import type { AlienChannelBridge } from "./channel-bridge.js";
 import {
   extractAttachmentsFromMessage,
   resolveMessageId,
@@ -21,10 +21,10 @@ export function getChannelMcpCapabilities(claudeChannelMode: "off" | "on" | "aut
   };
 }
 
-export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChannelBridge): void {
+export function registerChannelMcpTools(server: McpServer, bridge: AlienChannelBridge): void {
   server.tool(
     "conversations_list",
-    "List OpenClaw channel-backed conversations available through session routes.",
+    "List Alien channel-backed conversations available through session routes.",
     {
       limit: z.number().int().min(1).max(500).optional(),
       search: z.string().optional(),
@@ -43,7 +43,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "conversation_get",
-    "Get one OpenClaw conversation by session key.",
+    "Get one Alien conversation by session key.",
     { session_key: z.string().min(1) },
     async ({ session_key }) => {
       const conversation = await bridge.getConversation(session_key);
@@ -62,7 +62,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "messages_read",
-    "Read recent messages for one OpenClaw conversation.",
+    "Read recent messages for one Alien conversation.",
     {
       session_key: z.string().min(1),
       limit: z.number().int().min(1).max(200).optional(),
@@ -78,7 +78,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "attachments_fetch",
-    "List non-text attachments for a message in one OpenClaw conversation.",
+    "List non-text attachments for a message in one Alien conversation.",
     {
       session_key: z.string().min(1),
       message_id: z.string().min(1),
@@ -103,7 +103,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "events_poll",
-    "Poll queued OpenClaw conversation events since a cursor.",
+    "Poll queued Alien conversation events since a cursor.",
     {
       after_cursor: z.number().int().min(0).optional(),
       session_key: z.string().optional(),
@@ -123,7 +123,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "events_wait",
-    "Wait for the next queued OpenClaw conversation event.",
+    "Wait for the next queued Alien conversation event.",
     {
       after_cursor: z.number().int().min(0).optional(),
       session_key: z.string().optional(),
@@ -143,7 +143,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "messages_send",
-    "Send a message back through the same OpenClaw conversation route.",
+    "Send a message back through the same Alien conversation route.",
     {
       session_key: z.string().min(1),
       text: z.string().min(1),
@@ -159,7 +159,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "permissions_list_open",
-    "List open OpenClaw exec or plugin approval requests visible through the Gateway.",
+    "List open Alien exec or plugin approval requests visible through the Gateway.",
     {},
     async () => {
       const approvals = bridge.listPendingApprovals();
@@ -172,7 +172,7 @@ export function registerChannelMcpTools(server: McpServer, bridge: OpenClawChann
 
   server.tool(
     "permissions_respond",
-    "Allow or deny one pending OpenClaw exec or plugin approval request.",
+    "Allow or deny one pending Alien exec or plugin approval request.",
     {
       kind: z.enum(["exec", "plugin"]),
       id: z.string().min(1),

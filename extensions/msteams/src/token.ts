@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
-import { privateFileStoreSync } from "openclaw/plugin-sdk/security-runtime";
+import { privateFileStoreSync } from "alien/plugin-sdk/security-runtime";
 import type { MSTeamsConfig } from "../runtime-api.js";
 import type { MSTeamsDelegatedTokens } from "./oauth.shared.js";
 import { refreshMSTeamsDelegatedTokens } from "./oauth.token.js";

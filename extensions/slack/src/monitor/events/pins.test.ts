@@ -5,13 +5,13 @@ let registerSlackPinEvents: typeof import("./pins.js").registerSlackPinEvents;
 let buildPinHarness: typeof import("./system-event-test-harness.js").createSlackSystemEventTestHarness;
 type PinOverrides = import("./system-event-test-harness.js").SlackSystemEventTestOverrides;
 
-vi.mock("openclaw/plugin-sdk/system-event-runtime", () => ({
+vi.mock("alien/plugin-sdk/system-event-runtime", () => ({
   enqueueSystemEvent: (...args: unknown[]) => pinEnqueueMock(...args),
 }));
-vi.mock("openclaw/plugin-sdk/system-event-runtime.js", () => ({
+vi.mock("alien/plugin-sdk/system-event-runtime.js", () => ({
   enqueueSystemEvent: (...args: unknown[]) => pinEnqueueMock(...args),
 }));
-vi.mock("openclaw/plugin-sdk/security-runtime", () => ({
+vi.mock("alien/plugin-sdk/security-runtime", () => ({
   readStoreAllowFromForDmPolicy: async () => [],
 }));
 

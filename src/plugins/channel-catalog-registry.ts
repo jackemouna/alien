@@ -1,5 +1,5 @@
 import type { PluginInstallRecord } from "../config/types.plugins.js";
-import { discoverOpenClawPlugins } from "./discovery.js";
+import { discoverAlienPlugins } from "./discovery.js";
 import { loadInstalledPluginIndexInstallRecordsSync } from "./installed-plugin-index-record-reader.js";
 import {
   loadPluginManifest,
@@ -33,7 +33,7 @@ export function listChannelCatalogEntries(
   } = {},
 ): PluginChannelCatalogEntry[] {
   const installRecords = resolveInstallRecords(params);
-  return discoverOpenClawPlugins({
+  return discoverAlienPlugins({
     workspaceDir: params.workspaceDir,
     env: params.env,
     ...(installRecords && Object.keys(installRecords).length > 0 ? { installRecords } : {}),

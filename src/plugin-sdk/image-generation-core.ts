@@ -12,7 +12,7 @@ export type {
   ImageGenerationResult,
   ImageGenerationSourceImage,
 } from "../image-generation/types.js";
-export type { OpenClawConfig } from "../config/types.openclaw.js";
+export type { AlienConfig } from "../config/types.alien.js";
 
 export { describeFailoverError, isFailoverError } from "../agents/failover-error.js";
 export {

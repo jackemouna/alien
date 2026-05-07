@@ -1,13 +1,13 @@
 import type {
   ChannelDoctorConfigMutation,
   ChannelDoctorLegacyConfigRule,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { asObjectRecord, normalizeLegacyChannelAliases } from "openclaw/plugin-sdk/runtime-doctor";
+} from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { asObjectRecord, normalizeLegacyChannelAliases } from "alien/plugin-sdk/runtime-doctor";
 import { resolveDiscordPreviewStreamMode } from "./preview-streaming.js";
 
 const LEGACY_TTS_PROVIDER_KEYS = ["openai", "elevenlabs", "microsoft", "edge"] as const;
-type AgentBindingConfig = NonNullable<OpenClawConfig["bindings"]>[number];
+type AgentBindingConfig = NonNullable<AlienConfig["bindings"]>[number];
 
 function hasLegacyTtsProviderKeys(value: unknown): boolean {
   const tts = asObjectRecord(value);
@@ -224,7 +224,7 @@ function isDiscordChannelAgentBinding(
 }
 
 function normalizeDiscordGuildChannelAgentIds(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   entry: Record<string, unknown>;
   pathPrefix: string;
   accountId?: string;
@@ -310,37 +310,37 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
   {
     path: ["channels", "discord", "voice", "tts"],
     message:
-      'channels.discord.voice.tts.<provider> keys (openai/elevenlabs/microsoft/edge) are legacy; use channels.discord.voice.tts.providers.<provider>. Run "openclaw doctor --fix".',
+      'channels.discord.voice.tts.<provider> keys (openai/elevenlabs/microsoft/edge) are legacy; use channels.discord.voice.tts.providers.<provider>. Run "alien doctor --fix".',
     match: hasLegacyTtsProviderKeys,
   },
   {
     path: ["channels", "discord", "accounts"],
     message:
-      'channels.discord.accounts.<id>.voice.tts.<provider> keys (openai/elevenlabs/microsoft/edge) are legacy; use channels.discord.accounts.<id>.voice.tts.providers.<provider>. Run "openclaw doctor --fix".',
+      'channels.discord.accounts.<id>.voice.tts.<provider> keys (openai/elevenlabs/microsoft/edge) are legacy; use channels.discord.accounts.<id>.voice.tts.providers.<provider>. Run "alien doctor --fix".',
     match: hasLegacyDiscordAccountTtsProviderKeys,
   },
   {
     path: ["channels", "discord"],
     message:
-      'channels.discord.guilds.<id>.channels.<id>.allow is legacy; use channels.discord.guilds.<id>.channels.<id>.enabled instead. Run "openclaw doctor --fix".',
+      'channels.discord.guilds.<id>.channels.<id>.allow is legacy; use channels.discord.guilds.<id>.channels.<id>.enabled instead. Run "alien doctor --fix".',
     match: hasLegacyDiscordGuildChannelAllowAlias,
   },
   {
     path: ["channels", "discord", "accounts"],
     message:
-      'channels.discord.accounts.<id>.guilds.<id>.channels.<id>.allow is legacy; use channels.discord.accounts.<id>.guilds.<id>.channels.<id>.enabled instead. Run "openclaw doctor --fix".',
+      'channels.discord.accounts.<id>.guilds.<id>.channels.<id>.allow is legacy; use channels.discord.accounts.<id>.guilds.<id>.channels.<id>.enabled instead. Run "alien doctor --fix".',
     match: hasLegacyDiscordAccountGuildChannelAllowAlias,
   },
   {
     path: ["channels", "discord"],
     message:
-      'channels.discord.guilds.<id>.channels.<id>.agentId is legacy; use top-level bindings[] for per-channel Discord agent routing. Run "openclaw doctor --fix".',
+      'channels.discord.guilds.<id>.channels.<id>.agentId is legacy; use top-level bindings[] for per-channel Discord agent routing. Run "alien doctor --fix".',
     match: hasLegacyDiscordGuildChannelAgentId,
   },
   {
     path: ["channels", "discord", "accounts"],
     message:
-      'channels.discord.accounts.<id>.guilds.<id>.channels.<id>.agentId is legacy; use top-level bindings[] with match.accountId for per-channel Discord agent routing. Run "openclaw doctor --fix".',
+      'channels.discord.accounts.<id>.guilds.<id>.channels.<id>.agentId is legacy; use top-level bindings[] with match.accountId for per-channel Discord agent routing. Run "alien doctor --fix".',
     match: hasLegacyDiscordAccountGuildChannelAgentId,
   },
 ];
@@ -348,7 +348,7 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
 export function normalizeCompatibilityConfig({
   cfg,
 }: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): ChannelDoctorConfigMutation {
   const rawEntry = asObjectRecord((cfg.channels as Record<string, unknown> | undefined)?.discord);
   if (!rawEntry) {
@@ -468,7 +468,7 @@ export function normalizeCompatibilityConfig({
       channels: {
         ...cfg.channels,
         discord: updated,
-      } as OpenClawConfig["channels"],
+      } as AlienConfig["channels"],
       bindings:
         bindingsToAdd.length > 0 ? [...(cfg.bindings ?? []), ...bindingsToAdd] : cfg.bindings,
     },

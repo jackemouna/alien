@@ -95,7 +95,7 @@ describe("config doc baseline integration", () => {
       label: "Matrix",
       help: "open protocol; install the plugin to enable.",
     });
-    expect(byPath.get("channels.msteams")?.label).not.toContain("@openclaw/");
+    expect(byPath.get("channels.msteams")?.label).not.toContain("@alien/");
     expect(byPath.get("channels.matrix")?.help).not.toContain("homeserver");
   });
 
@@ -120,7 +120,7 @@ describe("config doc baseline integration", () => {
   });
 
   it("supports check mode for stale hash files", async () => {
-    await withTempDir({ prefix: "openclaw-config-doc-baseline-" }, async (tempRoot) => {
+    await withTempDir({ prefix: "alien-config-doc-baseline-" }, async (tempRoot) => {
       const rendered = getSharedRendered();
 
       const initial = await writeConfigDocBaselineArtifacts({

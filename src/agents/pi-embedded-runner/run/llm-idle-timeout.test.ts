@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../../config/config.js";
+import type { AlienConfig } from "../../../config/config.js";
 import {
   DEFAULT_LLM_IDLE_TIMEOUT_MS,
   resolveLlmIdleTimeoutMs,
@@ -12,17 +12,17 @@ describe("resolveLlmIdleTimeoutMs", () => {
   });
 
   it("returns default when agent defaults are missing", () => {
-    const cfg = { agents: {} } as OpenClawConfig;
+    const cfg = { agents: {} } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg })).toBe(DEFAULT_LLM_IDLE_TIMEOUT_MS);
   });
 
   it("caps agents.defaults.timeoutSeconds fallback at the default idle watchdog", () => {
-    const cfg = { agents: { defaults: { timeoutSeconds: 300 } } } as OpenClawConfig;
+    const cfg = { agents: { defaults: { timeoutSeconds: 300 } } } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg })).toBe(DEFAULT_LLM_IDLE_TIMEOUT_MS);
   });
 
   it("uses agents.defaults.timeoutSeconds when it is shorter than the default idle watchdog", () => {
-    const cfg = { agents: { defaults: { timeoutSeconds: 30 } } } as OpenClawConfig;
+    const cfg = { agents: { defaults: { timeoutSeconds: 30 } } } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg })).toBe(30_000);
   });
 
@@ -62,7 +62,7 @@ describe("resolveLlmIdleTimeoutMs", () => {
   it("bounds provider request timeout by agents.defaults.timeoutSeconds when shorter", () => {
     const cfg = {
       agents: { defaults: { timeoutSeconds: 45 } },
-    } as OpenClawConfig;
+    } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg, modelRequestTimeoutMs: 300_000 })).toBe(45_000);
   });
 
@@ -81,12 +81,12 @@ describe("resolveLlmIdleTimeoutMs", () => {
   it("disables the default idle timeout for cron when no timeout is configured", () => {
     expect(resolveLlmIdleTimeoutMs({ trigger: "cron" })).toBe(0);
 
-    const cfg = { agents: { defaults: {} } } as OpenClawConfig;
+    const cfg = { agents: { defaults: {} } } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg, trigger: "cron" })).toBe(0);
   });
 
   it("caps agents.defaults.timeoutSeconds for cron before disabling the default idle timeout", () => {
-    const cfg = { agents: { defaults: { timeoutSeconds: 300 } } } as OpenClawConfig;
+    const cfg = { agents: { defaults: { timeoutSeconds: 300 } } } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg, trigger: "cron" })).toBe(DEFAULT_LLM_IDLE_TIMEOUT_MS);
   });
 
@@ -199,7 +199,7 @@ describe("resolveLlmIdleTimeoutMs", () => {
   });
 
   it("still applies agents.defaults.timeoutSeconds cap for local providers", () => {
-    const cfg = { agents: { defaults: { timeoutSeconds: 30 } } } as OpenClawConfig;
+    const cfg = { agents: { defaults: { timeoutSeconds: 30 } } } as AlienConfig;
     expect(resolveLlmIdleTimeoutMs({ cfg, model: { baseUrl: "http://127.0.0.1:11434" } })).toBe(
       30_000,
     );

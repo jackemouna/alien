@@ -1,21 +1,21 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/provider-auth";
+import type { AlienConfig } from "alien/plugin-sdk/provider-auth";
 import {
   isKnownEnvApiKeyMarker,
   isNonSecretApiKeyMarker,
   normalizeOptionalSecretInput,
-} from "openclaw/plugin-sdk/provider-auth";
-import { resolveEnvApiKey } from "openclaw/plugin-sdk/provider-auth-runtime";
-import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
+} from "alien/plugin-sdk/provider-auth";
+import { resolveEnvApiKey } from "alien/plugin-sdk/provider-auth-runtime";
+import { normalizeProviderId } from "alien/plugin-sdk/provider-model-shared";
 import {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
+} from "alien/plugin-sdk/secret-input";
 import {
   fetchWithSsrFGuard,
   formatErrorMessage,
   ssrfPolicyFromHttpBaseUrlAllowedHostname,
   type SsrFPolicy,
-} from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
 import { OLLAMA_CLOUD_BASE_URL } from "./defaults.js";
 import { normalizeOllamaWireModelId } from "./model-id.js";
 import { readProviderBaseUrl } from "./provider-base-url.js";
@@ -30,7 +30,7 @@ export type OllamaEmbeddingProvider = {
 };
 
 type OllamaEmbeddingOptions = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   agentDir?: string;
   provider?: string;
   remote?: {

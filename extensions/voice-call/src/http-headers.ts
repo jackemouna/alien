@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 type HttpHeaderMap = Record<string, string | string[] | undefined>;
 

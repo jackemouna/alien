@@ -1,7 +1,7 @@
 import { mkdirSync, statSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { requireNodeSqlite } from "../infra/node-sqlite.js";
-import { withOpenClawTestState } from "../test-utils/openclaw-test-state.js";
+import { withAlienTestState } from "../test-utils/alien-test-state.js";
 import {
   closePluginStateSqliteStore,
   createCorePluginStateKeyedStore,
@@ -21,7 +21,7 @@ afterEach(() => {
 
 describe("plugin state keyed store", () => {
   it("registers and looks up values across store instances", async () => {
-    await withOpenClawTestState({ label: "plugin-state-roundtrip" }, async () => {
+    await withAlienTestState({ label: "plugin-state-roundtrip" }, async () => {
       const store = createPluginStateKeyedStore<{ count: number }>("discord", {
         namespace: "components",
         maxEntries: 10,
@@ -37,7 +37,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("upserts values and refreshes deterministic entry ordering", async () => {
-    await withOpenClawTestState({ label: "plugin-state-upsert" }, async () => {
+    await withAlienTestState({ label: "plugin-state-upsert" }, async () => {
       vi.useFakeTimers();
       const store = createPluginStateKeyedStore<{ version: number }>("discord", {
         namespace: "components",
@@ -59,7 +59,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("registerIfAbsent inserts the first value and preserves live duplicates", async () => {
-    await withOpenClawTestState({ label: "plugin-state-register-if-absent-live" }, async () => {
+    await withAlienTestState({ label: "plugin-state-register-if-absent-live" }, async () => {
       vi.useFakeTimers();
       const store = createPluginStateKeyedStore<{ version: number }>("discord", {
         namespace: "claims",
@@ -83,7 +83,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("registerIfAbsent replaces expired keys", async () => {
-    await withOpenClawTestState({ label: "plugin-state-register-if-absent-expired" }, async () => {
+    await withAlienTestState({ label: "plugin-state-register-if-absent-expired" }, async () => {
       vi.useFakeTimers();
       const store = createPluginStateKeyedStore<{ version: number }>("discord", {
         namespace: "claims-expired",
@@ -105,7 +105,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("registerIfAbsent keeps plugin and namespace claims isolated", async () => {
-    await withOpenClawTestState(
+    await withAlienTestState(
       { label: "plugin-state-register-if-absent-isolation" },
       async () => {
         const discordA = createPluginStateKeyedStore<{ owner: string }>("discord", {
@@ -138,7 +138,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("registerIfAbsent only lets one parallel claimant win", async () => {
-    await withOpenClawTestState({ label: "plugin-state-register-if-absent-race" }, async () => {
+    await withAlienTestState({ label: "plugin-state-register-if-absent-race" }, async () => {
       const store = createPluginStateKeyedStore<{ claimant: number }>("discord", {
         namespace: "claims-race",
         maxEntries: 10,
@@ -158,7 +158,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("registerIfAbsent preserves eviction and plugin row cap behavior", async () => {
-    await withOpenClawTestState({ label: "plugin-state-register-if-absent-limits" }, async () => {
+    await withAlienTestState({ label: "plugin-state-register-if-absent-limits" }, async () => {
       vi.useFakeTimers();
       const evicting = createPluginStateKeyedStore<number>("discord", {
         namespace: "claims-evict",
@@ -198,7 +198,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("returns undefined for missing lookups and consumes by deleting atomically", async () => {
-    await withOpenClawTestState({ label: "plugin-state-consume" }, async () => {
+    await withAlienTestState({ label: "plugin-state-consume" }, async () => {
       const store = createPluginStateKeyedStore<{ ok: boolean }>("discord", {
         namespace: "components",
         maxEntries: 10,
@@ -213,7 +213,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("deletes and clears only the targeted namespace", async () => {
-    await withOpenClawTestState({ label: "plugin-state-clear" }, async () => {
+    await withAlienTestState({ label: "plugin-state-clear" }, async () => {
       const first = createPluginStateKeyedStore("discord", { namespace: "a", maxEntries: 10 });
       const second = createPluginStateKeyedStore("discord", { namespace: "b", maxEntries: 10 });
       await first.register("k1", { value: 1 });
@@ -230,7 +230,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("excludes expired entries and sweeps them", async () => {
-    await withOpenClawTestState({ label: "plugin-state-expiry" }, async () => {
+    await withAlienTestState({ label: "plugin-state-expiry" }, async () => {
       vi.useFakeTimers();
       vi.setSystemTime(1000);
       const store = createPluginStateKeyedStore("discord", {
@@ -250,7 +250,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("evicts oldest live entries over maxEntries", async () => {
-    await withOpenClawTestState({ label: "plugin-state-eviction" }, async () => {
+    await withAlienTestState({ label: "plugin-state-eviction" }, async () => {
       vi.useFakeTimers();
       const store = createPluginStateKeyedStore("discord", { namespace: "evict", maxEntries: 2 });
       vi.setSystemTime(1000);
@@ -265,7 +265,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("keeps the just-registered key when namespace eviction timestamps tie", async () => {
-    await withOpenClawTestState({ label: "plugin-state-eviction-tie-register" }, async () => {
+    await withAlienTestState({ label: "plugin-state-eviction-tie-register" }, async () => {
       vi.useFakeTimers();
       vi.setSystemTime(1000);
       const store = createPluginStateKeyedStore<number>("discord", {
@@ -282,7 +282,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("keeps a same-millisecond registerIfAbsent claim during namespace eviction", async () => {
-    await withOpenClawTestState({ label: "plugin-state-eviction-tie-claim" }, async () => {
+    await withAlienTestState({ label: "plugin-state-eviction-tie-claim" }, async () => {
       vi.useFakeTimers();
       vi.setSystemTime(1000);
       const store = createPluginStateKeyedStore<number>("discord", {
@@ -299,7 +299,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("rejects when the per-plugin live row ceiling would be exceeded without evicting siblings", async () => {
-    await withOpenClawTestState({ label: "plugin-state-plugin-limit" }, async () => {
+    await withAlienTestState({ label: "plugin-state-plugin-limit" }, async () => {
       seedPluginStateEntriesForTests([
         ...Array.from({ length: 999 }, (_, entryIndex) => ({
           pluginId: "discord",
@@ -336,7 +336,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("segregates plugins sharing a namespace and key", async () => {
-    await withOpenClawTestState({ label: "plugin-state-segregation" }, async () => {
+    await withAlienTestState({ label: "plugin-state-segregation" }, async () => {
       const discord = createPluginStateKeyedStore("discord", { namespace: "same", maxEntries: 10 });
       const telegram = createPluginStateKeyedStore("telegram", {
         namespace: "same",
@@ -352,7 +352,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("validates namespaces, keys, options, and JSON values before writes", async () => {
-    await withOpenClawTestState({ label: "plugin-state-validation" }, async () => {
+    await withAlienTestState({ label: "plugin-state-validation" }, async () => {
       expect(() =>
         createPluginStateKeyedStore("discord", { namespace: "../bad", maxEntries: 10 }),
       ).toThrow(PluginStateStoreError);
@@ -417,7 +417,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("rejects reopening the same namespace with incompatible options", async () => {
-    await withOpenClawTestState({ label: "plugin-state-option-consistency" }, async () => {
+    await withAlienTestState({ label: "plugin-state-option-consistency" }, async () => {
       createPluginStateKeyedStore("discord", { namespace: "same", maxEntries: 10 });
       expect(() =>
         createPluginStateKeyedStore("discord", { namespace: "same", maxEntries: 11 }),
@@ -426,7 +426,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("allows core owners and reserves core-prefixed plugin ids", async () => {
-    await withOpenClawTestState({ label: "plugin-state-core" }, async () => {
+    await withAlienTestState({ label: "plugin-state-core" }, async () => {
       const store = createCorePluginStateKeyedStore<{ stopped: boolean }>({
         ownerId: "core:channel-intent",
         namespace: "stopped",
@@ -441,7 +441,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("closes the cached DB handle and reopens cleanly", async () => {
-    await withOpenClawTestState({ label: "plugin-state-close" }, async () => {
+    await withAlienTestState({ label: "plugin-state-close" }, async () => {
       const store = createPluginStateKeyedStore("discord", { namespace: "close", maxEntries: 10 });
       await store.register("k", { ok: true });
       closePluginStateSqliteStore();
@@ -450,7 +450,7 @@ describe("plugin state keyed store", () => {
   });
 
   it.runIf(process.platform !== "win32")("hardens DB directory and file permissions", async () => {
-    await withOpenClawTestState({ label: "plugin-state-permissions" }, async () => {
+    await withAlienTestState({ label: "plugin-state-permissions" }, async () => {
       const store = createPluginStateKeyedStore("discord", { namespace: "perms", maxEntries: 10 });
       await store.register("k", { ok: true });
 
@@ -460,7 +460,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("reports healthy diagnostics without stored values", async () => {
-    await withOpenClawTestState({ label: "plugin-state-probe" }, async () => {
+    await withAlienTestState({ label: "plugin-state-probe" }, async () => {
       const result = probePluginStateStore();
       expect(result.ok).toBe(true);
       expect(result.steps.every((step) => step.ok)).toBe(true);
@@ -469,7 +469,7 @@ describe("plugin state keyed store", () => {
   });
 
   it("throws on unsupported future schema versions", async () => {
-    await withOpenClawTestState({ label: "plugin-state-schema" }, async () => {
+    await withAlienTestState({ label: "plugin-state-schema" }, async () => {
       mkdirSync(resolvePluginStateDir(), { recursive: true });
       const { DatabaseSync } = requireNodeSqlite();
       const db = new DatabaseSync(resolvePluginStateSqlitePath());

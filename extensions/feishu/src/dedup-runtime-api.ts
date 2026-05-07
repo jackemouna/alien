@@ -1,1 +1,1 @@
-export { createPersistentDedupe } from "openclaw/plugin-sdk/persistent-dedupe";
+export { createPersistentDedupe } from "alien/plugin-sdk/persistent-dedupe";

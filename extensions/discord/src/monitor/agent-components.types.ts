@@ -1,4 +1,4 @@
-import type { DiscordAccountConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { DiscordAccountConfig, AlienConfig } from "alien/plugin-sdk/config-types";
 import type {
   ButtonInteraction,
   ChannelSelectMenuInteraction,
@@ -35,10 +35,10 @@ export type DiscordChannelContext = {
 };
 
 export type AgentComponentContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
   discordConfig?: DiscordAccountConfig;
-  runtime?: import("openclaw/plugin-sdk/runtime-env").RuntimeEnv;
+  runtime?: import("alien/plugin-sdk/runtime-env").RuntimeEnv;
   token?: string;
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
   allowFrom?: string[];

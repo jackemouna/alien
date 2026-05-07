@@ -1,12 +1,12 @@
-import { resolveAckReaction } from "openclaw/plugin-sdk/channel-feedback";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { resolveAckReaction } from "alien/plugin-sdk/channel-feedback";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import type { CoreConfig } from "../../types.js";
 import { resolveMatrixAccountConfig } from "../account-config.js";
 
 type MatrixAckReactionScope = "group-mentions" | "group-all" | "direct" | "all" | "none" | "off";
 
 export function resolveMatrixAckReactionConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   accountId?: string | null;
 }): { ackReaction: string; ackReactionScope: MatrixAckReactionScope } {

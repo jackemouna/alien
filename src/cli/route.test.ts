@@ -48,10 +48,10 @@ describe("tryRouteCli", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    originalDisableRouteFirst = process.env.OPENCLAW_DISABLE_ROUTE_FIRST;
-    originalHideBanner = process.env.OPENCLAW_HIDE_BANNER;
-    delete process.env.OPENCLAW_DISABLE_ROUTE_FIRST;
-    delete process.env.OPENCLAW_HIDE_BANNER;
+    originalDisableRouteFirst = process.env.ALIEN_DISABLE_ROUTE_FIRST;
+    originalHideBanner = process.env.ALIEN_HIDE_BANNER;
+    delete process.env.ALIEN_DISABLE_ROUTE_FIRST;
+    delete process.env.ALIEN_HIDE_BANNER;
     originalForceStderr = loggingState.forceConsoleToStderr;
     loggingState.forceConsoleToStderr = false;
     findRoutedCommandMock.mockReturnValue({
@@ -65,26 +65,26 @@ describe("tryRouteCli", () => {
       loggingState.forceConsoleToStderr = originalForceStderr;
     }
     if (originalDisableRouteFirst === undefined) {
-      delete process.env.OPENCLAW_DISABLE_ROUTE_FIRST;
+      delete process.env.ALIEN_DISABLE_ROUTE_FIRST;
     } else {
-      process.env.OPENCLAW_DISABLE_ROUTE_FIRST = originalDisableRouteFirst;
+      process.env.ALIEN_DISABLE_ROUTE_FIRST = originalDisableRouteFirst;
     }
     if (originalHideBanner === undefined) {
-      delete process.env.OPENCLAW_HIDE_BANNER;
+      delete process.env.ALIEN_HIDE_BANNER;
     } else {
-      process.env.OPENCLAW_HIDE_BANNER = originalHideBanner;
+      process.env.ALIEN_HIDE_BANNER = originalHideBanner;
     }
   });
 
   it("skips config guard for routed status --json commands", async () => {
-    await expect(tryRouteCli(["node", "openclaw", "status", "--json"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "alien", "status", "--json"])).resolves.toBe(true);
 
     expect(ensureConfigReadyMock).not.toHaveBeenCalled();
     expect(ensurePluginRegistryLoadedMock).not.toHaveBeenCalled();
   });
 
   it("does not pass suppressDoctorStdout for routed non-json commands", async () => {
-    await expect(tryRouteCli(["node", "openclaw", "status"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "alien", "status"])).resolves.toBe(true);
 
     expect(ensureConfigReadyMock).toHaveBeenCalledWith({
       runtime: expect.any(Object),
@@ -108,7 +108,7 @@ describe("tryRouteCli", () => {
       captured.push(loggingState.forceConsoleToStderr);
     });
 
-    await tryRouteCli(["node", "openclaw", "agents", "--json"]);
+    await tryRouteCli(["node", "alien", "agents", "--json"]);
 
     expect(ensurePluginRegistryLoadedMock).toHaveBeenCalled();
     expect(captured[0]).toBe(true);
@@ -122,7 +122,7 @@ describe("tryRouteCli", () => {
       return true;
     });
 
-    await expect(tryRouteCli(["node", "openclaw", "models", "status", "--json"])).resolves.toBe(
+    await expect(tryRouteCli(["node", "alien", "models", "status", "--json"])).resolves.toBe(
       true,
     );
 
@@ -141,7 +141,7 @@ describe("tryRouteCli", () => {
       captured.push(loggingState.forceConsoleToStderr);
     });
 
-    await tryRouteCli(["node", "openclaw", "agents"]);
+    await tryRouteCli(["node", "alien", "agents"]);
 
     expect(ensurePluginRegistryLoadedMock).toHaveBeenCalled();
     expect(captured[0]).toBe(false);
@@ -149,13 +149,13 @@ describe("tryRouteCli", () => {
   });
 
   it("routes status when root options precede the command", async () => {
-    await expect(tryRouteCli(["node", "openclaw", "--log-level", "debug", "status"])).resolves.toBe(
+    await expect(tryRouteCli(["node", "alien", "--log-level", "debug", "status"])).resolves.toBe(
       true,
     );
 
     expect(findRoutedCommandMock).toHaveBeenCalledWith(
       ["status"],
-      ["node", "openclaw", "--log-level", "debug", "status"],
+      ["node", "alien", "--log-level", "debug", "status"],
     );
     expect(ensureConfigReadyMock).toHaveBeenCalledWith({
       runtime: expect.any(Object),
@@ -166,10 +166,10 @@ describe("tryRouteCli", () => {
     });
   });
 
-  it("respects OPENCLAW_HIDE_BANNER for routed commands", async () => {
-    process.env.OPENCLAW_HIDE_BANNER = "1";
+  it("respects ALIEN_HIDE_BANNER for routed commands", async () => {
+    process.env.ALIEN_HIDE_BANNER = "1";
 
-    await expect(tryRouteCli(["node", "openclaw", "status"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "alien", "status"])).resolves.toBe(true);
 
     expect(emitCliBannerMock).not.toHaveBeenCalled();
   });
@@ -181,7 +181,7 @@ describe("tryRouteCli", () => {
       run: runRouteMock,
     });
 
-    await expect(tryRouteCli(["node", "openclaw", "tasks", "list"])).resolves.toBe(false);
+    await expect(tryRouteCli(["node", "alien", "tasks", "list"])).resolves.toBe(false);
 
     expect(ensureConfigReadyMock).not.toHaveBeenCalled();
     expect(ensurePluginRegistryLoadedMock).not.toHaveBeenCalled();

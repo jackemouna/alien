@@ -33,10 +33,10 @@ describe("installScheduledTask", () => {
   async function withUserProfileDir(
     run: (tmpDir: string, env: Record<string, string>) => Promise<void>,
   ) {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-schtasks-install-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-schtasks-install-"));
     const env = {
       USERPROFILE: tmpDir,
-      OPENCLAW_PROFILE: "default",
+      ALIEN_PROFILE: "default",
     };
     try {
       await run(tmpDir, env);
@@ -56,11 +56,11 @@ describe("installScheduledTask", () => {
 
   function expectInitialTaskQueries(): void {
     expect(schtasksCalls[0]).toEqual(["/Query"]);
-    expect(schtasksCalls[1]).toEqual(["/Query", "/TN", "OpenClaw Gateway"]);
+    expect(schtasksCalls[1]).toEqual(["/Query", "/TN", "Alien Gateway"]);
   }
 
   function expectTaskRunCall(index: number): void {
-    expect(schtasksCalls[index]).toEqual(["/Run", "/TN", "OpenClaw Gateway"]);
+    expect(schtasksCalls[index]).toEqual(["/Run", "/TN", "Alien Gateway"]);
   }
 
   it("writes quoted set assignments and escapes metacharacters", async () => {
@@ -126,9 +126,9 @@ describe("installScheduledTask", () => {
       expect(parsed?.environment).not.toHaveProperty("OC_EMPTY");
 
       expect(schtasksCalls[0]).toEqual(["/Query"]);
-      expect(schtasksCalls[1]).toEqual(["/Query", "/TN", "OpenClaw Gateway"]);
+      expect(schtasksCalls[1]).toEqual(["/Query", "/TN", "Alien Gateway"]);
       expect(schtasksCalls[2]?.[0]).toBe("/Change");
-      expect(schtasksCalls[3]).toEqual(["/Run", "/TN", "OpenClaw Gateway"]);
+      expect(schtasksCalls[3]).toEqual(["/Run", "/TN", "Alien Gateway"]);
     });
   });
 
@@ -235,13 +235,13 @@ describe("installScheduledTask", () => {
         programArguments: ["node", "gateway.js"],
         environment: {
           PATH: "C:\\Windows\\System32;C:\\Program Files\\Docker\\Docker\\resources\\bin",
-          OPENCLAW_GATEWAY_PORT: "18789",
+          ALIEN_GATEWAY_PORT: "18789",
         },
       });
 
       const script = await fs.readFile(scriptPath, "utf8");
       expect(script).not.toContain('set "PATH=');
-      expect(script).toContain('set "OPENCLAW_GATEWAY_PORT=18789"');
+      expect(script).toContain('set "ALIEN_GATEWAY_PORT=18789"');
     });
   });
 
@@ -252,14 +252,14 @@ describe("installScheduledTask", () => {
         stdout: new PassThrough(),
         programArguments: ["node", "gateway.js"],
         environment: {
-          OPENCLAW_SERVICE_MANAGED_ENV_KEYS: "TAVILY_API_KEY",
+          ALIEN_SERVICE_MANAGED_ENV_KEYS: "TAVILY_API_KEY",
           TAVILY_API_KEY: "old-inline-value",
         },
       });
 
       const command = await readScheduledTaskCommand(env);
       expect(command?.environmentValueSources).toMatchObject({
-        OPENCLAW_SERVICE_MANAGED_ENV_KEYS: "inline",
+        ALIEN_SERVICE_MANAGED_ENV_KEYS: "inline",
         TAVILY_API_KEY: "inline",
       });
       expect(command?.sourcePath).toBe(scriptPath);

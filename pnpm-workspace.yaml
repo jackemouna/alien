@@ -13,7 +13,7 @@ minimumReleaseAgeExclude:
   - "axios"
   - "basic-ftp"
   - "hono"
-  - "openclaw"
+  - "alien"
   - "protobufjs"
   - "vite"
   - "@cloudflare/workers-types"
@@ -33,7 +33,7 @@ minimumReleaseAgeExclude:
   - "sqlite-vec-*"
 
 onlyBuiltDependencies:
-  - "@openclaw/fs-safe"
+  - "@alien/fs-safe"
   - "@discordjs/opus"
   - "@google/genai"
   - "@lydell/node-pty"

@@ -1,9 +1,9 @@
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   resolveChannelMediaMaxBytes,
   type MSTeamsConfig,
   type MSTeamsReplyStyle,
-  type OpenClawConfig,
+  type AlienConfig,
   type PluginRuntime,
 } from "../runtime-api.js";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
@@ -133,7 +133,7 @@ async function findConversationReference(recipient: {
 }
 
 export async function resolveMSTeamsSendContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   to: string;
 }): Promise<MSTeamsProactiveContext> {
   const msteamsCfg = params.cfg.channels?.msteams;

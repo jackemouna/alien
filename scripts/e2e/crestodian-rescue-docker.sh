@@ -5,9 +5,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-image.sh"
-IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-crestodian-rescue-e2e" OPENCLAW_CRESTODIAN_RESCUE_E2E_IMAGE)"
-CONTAINER_NAME="openclaw-crestodian-rescue-e2e-$$"
-RUN_LOG="$(mktemp -t openclaw-crestodian-rescue-log.XXXXXX)"
+IMAGE_NAME="$(docker_e2e_resolve_image "alien-crestodian-rescue-e2e" ALIEN_CRESTODIAN_RESCUE_E2E_IMAGE)"
+CONTAINER_NAME="alien-crestodian-rescue-e2e-$$"
+RUN_LOG="$(mktemp -t alien-crestodian-rescue-log.XXXXXX)"
 
 cleanup() {
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -16,18 +16,18 @@ cleanup() {
 trap cleanup EXIT
 
 docker_e2e_build_or_reuse "$IMAGE_NAME" crestodian-rescue
-OPENCLAW_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 crestodian-rescue empty)"
+ALIEN_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 crestodian-rescue empty)"
 
 echo "Running in-container Crestodian rescue smoke..."
 # Harness files are mounted read-only; the app under test comes from /app/dist.
 set +e
 docker_e2e_run_with_harness \
   --name "$CONTAINER_NAME" \
-  -e "OPENCLAW_TEST_STATE_SCRIPT_B64=$OPENCLAW_TEST_STATE_SCRIPT_B64" \
+  -e "ALIEN_TEST_STATE_SCRIPT_B64=$ALIEN_TEST_STATE_SCRIPT_B64" \
   "$IMAGE_NAME" \
   bash -lc "set -euo pipefail
-    source scripts/lib/openclaw-e2e-instance.sh
-    openclaw_e2e_eval_test_state_from_b64 \"\${OPENCLAW_TEST_STATE_SCRIPT_B64:?missing OPENCLAW_TEST_STATE_SCRIPT_B64}\"
+    source scripts/lib/alien-e2e-instance.sh
+    alien_e2e_eval_test_state_from_b64 \"\${ALIEN_TEST_STATE_SCRIPT_B64:?missing ALIEN_TEST_STATE_SCRIPT_B64}\"
     tsx scripts/e2e/crestodian-rescue-docker-client.ts
   " >"$RUN_LOG" 2>&1
 status=${PIPESTATUS[0]}

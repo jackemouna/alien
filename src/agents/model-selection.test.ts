@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import { resetLogger, setLoggerOverride } from "../logging/logger.js";
 import { createWarnLogCapture } from "../logging/test-helpers/warn-log-capture.js";
 import {
@@ -113,7 +113,7 @@ const EXPLICIT_ALLOWLIST_CONFIG = {
       },
     },
   },
-} as OpenClawConfig;
+} as AlienConfig;
 
 const BUNDLED_ALLOWLIST_CATALOG = [
   { provider: "anthropic", id: "claude-sonnet-4-6", name: "Claude Sonnet 4.5" },
@@ -138,7 +138,7 @@ const ANTHROPIC_OPUS_47_CATALOG = [
   },
 ];
 
-function resolveAnthropicOpusThinking(cfg: OpenClawConfig) {
+function resolveAnthropicOpusThinking(cfg: AlienConfig) {
   return resolveThinkingDefault({
     cfg,
     provider: "anthropic",
@@ -147,7 +147,7 @@ function resolveAnthropicOpusThinking(cfg: OpenClawConfig) {
   });
 }
 
-function resolveAnthropicOpus47Thinking(cfg: OpenClawConfig) {
+function resolveAnthropicOpus47Thinking(cfg: AlienConfig) {
   return resolveThinkingDefault({
     cfg,
     provider: "anthropic",
@@ -186,7 +186,7 @@ function createAgentFallbackConfig(params: {
           }
         : {}),
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function createProviderWithModelsConfig(provider: string, models: Array<Record<string, unknown>>) {
@@ -199,12 +199,12 @@ function createProviderWithModelsConfig(provider: string, models: Array<Record<s
         },
       },
     },
-  } as Partial<OpenClawConfig>;
+  } as Partial<AlienConfig>;
 }
 
-function resolveConfiguredRefForTest(cfg: Partial<OpenClawConfig>) {
+function resolveConfiguredRefForTest(cfg: Partial<AlienConfig>) {
   return resolveConfiguredModelRef({
-    cfg: cfg as OpenClawConfig,
+    cfg: cfg as AlienConfig,
     defaultProvider: "openai",
     defaultModel: "gpt-5.4",
   });
@@ -560,7 +560,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -580,7 +580,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -599,7 +599,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -618,7 +618,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -637,7 +637,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -659,7 +659,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -672,7 +672,7 @@ describe("model-selection", () => {
 
   describe("buildModelAliasIndex", () => {
     it("should build alias index from config", () => {
-      const cfg: Partial<OpenClawConfig> = {
+      const cfg: Partial<AlienConfig> = {
         agents: {
           defaults: {
             models: {
@@ -684,7 +684,7 @@ describe("model-selection", () => {
       };
 
       const index = buildModelAliasIndex({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as AlienConfig,
         defaultProvider: "anthropic",
       });
 
@@ -718,7 +718,7 @@ describe("model-selection", () => {
     });
 
     it("overlays configured provider metadata and alias onto matching catalog entries", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             model: { primary: "openai/gpt-test-z" },
@@ -742,7 +742,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -764,7 +764,7 @@ describe("model-selection", () => {
     });
 
     it("keeps configured provider models visible when the catalog is otherwise allow-any", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             model: { primary: "ollama/existing" },
@@ -786,7 +786,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -809,7 +809,7 @@ describe("model-selection", () => {
     });
 
     it("matches allowlisted catalog entries with normalized provider and model ids", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             models: {
@@ -817,7 +817,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -842,7 +842,7 @@ describe("model-selection", () => {
     });
 
     it("applies configured provider metadata and alias to synthetic allowlist entries", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             model: { primary: "nvidia/moonshotai/kimi-k2.5" },
@@ -867,7 +867,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -970,7 +970,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveAllowedModelRef({
         cfg,
@@ -987,7 +987,7 @@ describe("model-selection", () => {
     });
 
     it("strips trailing auth profile suffix before allowlist matching", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             models: {
@@ -995,7 +995,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = resolveAllowedModelRef({
         cfg,
@@ -1021,7 +1021,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       // When session default is openai-codex, switching to a bare "kimi-k2.6"
       // should resolve to opencode-go/kimi-k2.6, not openai-codex/kimi-k2.6
@@ -1049,7 +1049,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveAllowedModelRef({
         cfg,
@@ -1224,7 +1224,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1239,7 +1239,7 @@ describe("model-selection", () => {
       setLoggerOverride({ level: "silent", consoleLevel: "warn" });
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
-        const cfg: Partial<OpenClawConfig> = {
+        const cfg: Partial<AlienConfig> = {
           agents: {
             defaults: {
               model: { primary: "claude-3-5-sonnet" },
@@ -1248,7 +1248,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as OpenClawConfig,
+          cfg: cfg as AlienConfig,
           defaultProvider: "google",
           defaultModel: "gemini-pro",
         });
@@ -1265,9 +1265,9 @@ describe("model-selection", () => {
     });
 
     it("sanitizes control characters in providerless-model warnings", async () => {
-      const warnLogs = createWarnLogCapture("openclaw-model-selection-test");
+      const warnLogs = createWarnLogCapture("alien-model-selection-test");
       try {
-        const cfg: Partial<OpenClawConfig> = {
+        const cfg: Partial<AlienConfig> = {
           agents: {
             defaults: {
               model: { primary: "\u001B[31mclaude-3-5-sonnet\nspoof" },
@@ -1276,7 +1276,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as OpenClawConfig,
+          cfg: cfg as AlienConfig,
           defaultProvider: "google",
           defaultModel: "gemini-pro",
         });
@@ -1307,7 +1307,7 @@ describe("model-selection", () => {
               },
             },
           },
-        } as OpenClawConfig;
+        } as AlienConfig;
 
         const result = resolveConfiguredModelRef({
           cfg,
@@ -1336,7 +1336,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1348,9 +1348,9 @@ describe("model-selection", () => {
     });
 
     it("should use default provider/model if config is empty", () => {
-      const cfg: Partial<OpenClawConfig> = {};
+      const cfg: Partial<AlienConfig> = {};
       const result = resolveConfiguredModelRef({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as AlienConfig,
         defaultProvider: "openai",
         defaultModel: "gpt-4",
       });
@@ -1396,7 +1396,7 @@ describe("model-selection", () => {
             model: { primary: "google-vertex/gemini-3.1-flash-lite" },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1427,7 +1427,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       expect(
         resolveConfiguredModelRef({
@@ -1445,7 +1445,7 @@ describe("model-selection", () => {
             model: { primary: "modelstudio/qwen3.5-plus" },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       expect(
         resolveConfiguredModelRef({
@@ -1466,7 +1466,7 @@ describe("model-selection", () => {
       setLoggerOverride({ level: "silent", consoleLevel: "warn" });
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
-        const cfg: Partial<OpenClawConfig> = {
+        const cfg: Partial<AlienConfig> = {
           agents: {
             defaults: {
               model: { primary: "openai/" },
@@ -1475,7 +1475,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as OpenClawConfig,
+          cfg: cfg as AlienConfig,
           defaultProvider: "openai",
           defaultModel: "gpt-5.4",
         });
@@ -1498,7 +1498,7 @@ describe("model-selection", () => {
             model: { primary: "openrouter:auto" },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1519,7 +1519,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1558,7 +1558,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1581,7 +1581,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const catalog = [
         {
@@ -1634,7 +1634,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       const catalog = [
         {
@@ -1674,7 +1674,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("high");
     });
@@ -1690,7 +1690,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       expect(
         resolveThinkingDefault({
@@ -1712,7 +1712,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("adaptive");
     });
@@ -1724,19 +1724,19 @@ describe("model-selection", () => {
             model: { primary: "anthropic/claude-opus-4-7" },
           },
         },
-      } as OpenClawConfig;
+      } as AlienConfig;
 
       expect(resolveAnthropicOpus47Thinking(cfg)).toBe("off");
     });
 
     it("uses bundled provider thinking defaults when no explicit config overrides them", () => {
-      const cfg = {} as OpenClawConfig;
+      const cfg = {} as AlienConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("adaptive");
     });
 
     it("falls back to medium when no provider thinking policy is active", () => {
-      const cfg = {} as OpenClawConfig;
+      const cfg = {} as AlienConfig;
 
       expect(
         resolveThinkingDefault({
@@ -1791,7 +1791,7 @@ describe("resolveDefaultModelForAgent", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveDefaultModelForAgent({ cfg, agentId: "main" })).toEqual({
       provider: "openai-codex",
@@ -1843,7 +1843,7 @@ describe("resolveSubagentConfiguredModelSelection", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveSubagentConfiguredModelSelection({ cfg, agentId: "research" })).toBe(
       "anthropic/claude-opus-4-6",
@@ -1865,7 +1865,7 @@ describe("resolveSubagentConfiguredModelSelection", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveSubagentConfiguredModelSelection({ cfg, agentId: "research" })).toBe(
       "google/gemini-2.5-pro",
@@ -1885,7 +1885,7 @@ describe("resolveSubagentSpawnModelSelection", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(
       resolveSubagentSpawnModelSelection({ cfg, agentId: "main", modelOverride: "opus" }),
@@ -1908,7 +1908,7 @@ describe("resolveSubagentSpawnModelSelection", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(
       resolveSubagentSpawnModelSelection({
@@ -1930,7 +1930,7 @@ describe("resolveSubagentSpawnModelSelection", () => {
           subagents: { model: "gpt" },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveSubagentSpawnModelSelection({ cfg, agentId: "main" })).toBe("openai/gpt-5.4");
   });
@@ -1942,7 +1942,7 @@ describe("resolveSubagentSpawnModelSelection", () => {
           model: { primary: "anthropic/claude-sonnet-4-6" },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(
       resolveSubagentSpawnModelSelection({
@@ -1960,7 +1960,7 @@ describe("resolveSubagentSpawnModelSelection", () => {
           model: { primary: "anthropic/claude-sonnet-4-6" },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveSubagentSpawnModelSelection({ cfg, agentId: "main" })).toBe(
       "anthropic/claude-sonnet-4-6",

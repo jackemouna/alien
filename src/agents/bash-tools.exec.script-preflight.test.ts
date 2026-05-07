@@ -1,7 +1,7 @@
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { __setFsSafeTestHooksForTest } from "@openclaw/fs-safe/test-hooks";
+import { __setFsSafeTestHooksForTest } from "@alien/fs-safe/test-hooks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { withTempDir } from "../test-utils/temp-dir.js";
 import { __testing, createExecTool } from "./bash-tools.exec.js";
@@ -24,7 +24,7 @@ const isWin = process.platform === "win32";
 
 const describeNonWin = isWin ? describe.skip : describe;
 const describeWin = isWin ? describe : describe.skip;
-const parseOpenClawChannelsLoginShellCommand = __testing.parseOpenClawChannelsLoginShellCommand;
+const parseAlienChannelsLoginShellCommand = __testing.parseAlienChannelsLoginShellCommand;
 const validateExecScriptPreflight = __testing.validateScriptFileForShellBleed;
 const createPreflightTool = () =>
   createExecTool({ host: "gateway", security: "full", ask: "on-miss" });
@@ -36,7 +36,7 @@ afterEach(() => {
 async function expectSymlinkSwapDuringPreflightToAvoidErrors(params: {
   hookName: "afterPreOpenLstat" | "beforeOpen";
 }) {
-  await withTempDir("openclaw-exec-preflight-open-race-", async (parent) => {
+  await withTempDir("alien-exec-preflight-open-race-", async (parent) => {
     const workdir = path.join(parent, "workdir");
     const scriptPath = path.join(workdir, "script.js");
     const outsidePath = path.join(parent, "outside.js");
@@ -67,53 +67,53 @@ async function expectSymlinkSwapDuringPreflightToAvoidErrors(params: {
   });
 }
 
-describe("exec interactive OpenClaw channel login guard", () => {
+describe("exec interactive Alien channel login guard", () => {
   it("recognizes direct and package-runner channel login commands before execution", () => {
     expect(
-      parseOpenClawChannelsLoginShellCommand("openclaw channels login --channel whatsapp"),
+      parseAlienChannelsLoginShellCommand("alien channels login --channel whatsapp"),
     ).toBe(true);
     expect(
-      parseOpenClawChannelsLoginShellCommand(
-        "pnpm exec openclaw channels login --channel whatsapp --verbose",
+      parseAlienChannelsLoginShellCommand(
+        "pnpm exec alien channels login --channel whatsapp --verbose",
       ),
     ).toBe(true);
-    expect(parseOpenClawChannelsLoginShellCommand("openclaw channels status --deep")).toBe(false);
+    expect(parseAlienChannelsLoginShellCommand("alien channels status --deep")).toBe(false);
   });
 
   it("blocks interactive channel login commands from exec", async () => {
     const tool = createPreflightTool();
 
     await expect(
-      tool.execute("call-openclaw-channel-login", {
-        command: "openclaw channels login --channel whatsapp --verbose",
+      tool.execute("call-alien-channel-login", {
+        command: "alien channels login --channel whatsapp --verbose",
       }),
-    ).rejects.toThrow(/exec cannot run interactive OpenClaw channel login commands/);
+    ).rejects.toThrow(/exec cannot run interactive Alien channel login commands/);
     await expect(
-      tool.execute("call-wrapped-openclaw-channel-login", {
-        command: "sudo -u openclaw bash -lc 'openclaw channels login --channel whatsapp'",
+      tool.execute("call-wrapped-alien-channel-login", {
+        command: "sudo -u alien bash -lc 'alien channels login --channel whatsapp'",
       }),
-    ).rejects.toThrow(/exec cannot run interactive OpenClaw channel login commands/);
+    ).rejects.toThrow(/exec cannot run interactive Alien channel login commands/);
     await expect(
       tool.execute("call-clustered-sudo-channel-login", {
-        command: "sudo -EH bash -lc 'openclaw channels login --channel whatsapp'",
+        command: "sudo -EH bash -lc 'alien channels login --channel whatsapp'",
       }),
-    ).rejects.toThrow(/exec cannot run interactive OpenClaw channel login commands/);
+    ).rejects.toThrow(/exec cannot run interactive Alien channel login commands/);
     await expect(
       tool.execute("call-deep-env-channel-login", {
-        command: "env env env env env env openclaw channels login --channel whatsapp",
+        command: "env env env env env env alien channels login --channel whatsapp",
       }),
-    ).rejects.toThrow(/exec cannot run interactive OpenClaw channel login commands/);
+    ).rejects.toThrow(/exec cannot run interactive Alien channel login commands/);
     await expect(
       tool.execute("call-env-s-trailing-channel-login", {
-        command: "env -S 'openclaw channels' login --channel whatsapp",
+        command: "env -S 'alien channels' login --channel whatsapp",
       }),
-    ).rejects.toThrow(/exec cannot run interactive OpenClaw channel login commands/);
+    ).rejects.toThrow(/exec cannot run interactive Alien channel login commands/);
   });
 });
 
 describeNonWin("exec script preflight", () => {
   it("blocks shell env var injection tokens in python scripts before execution", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const pyPath = path.join(tmp, "bad.py");
 
       await fs.writeFile(
@@ -139,7 +139,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("blocks obvious shell-as-js output before node execution", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const jsPath = path.join(tmp, "bad.js");
 
       await fs.writeFile(
@@ -162,7 +162,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("blocks shell env var injection when script path is quoted", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const jsPath = path.join(tmp, "bad.js");
       await fs.writeFile(jsPath, "const value = $DM_JSON;", "utf-8");
 
@@ -177,7 +177,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates in-workdir scripts whose names start with '..'", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const jsPath = path.join(tmp, "..bad.js");
       await fs.writeFile(jsPath, "const value = $DM_JSON;", "utf-8");
 
@@ -192,7 +192,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates in-workdir symlinked script entrypoints", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const targetPath = path.join(tmp, "bad-target.js");
       const linkPath = path.join(tmp, "link.js");
       await fs.writeFile(targetPath, "const value = $DM_JSON;", "utf-8");
@@ -209,7 +209,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates scripts under literal tilde directories in workdir", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const literalTildeDir = path.join(tmp, "~");
       await fs.mkdir(literalTildeDir, { recursive: true });
       await fs.writeFile(path.join(literalTildeDir, "bad.js"), "const value = $DM_JSON;", "utf-8");
@@ -225,7 +225,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates python scripts when interpreter is prefixed with env", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const pyPath = path.join(tmp, "bad.py");
       await fs.writeFile(pyPath, "payload = $DM_JSON", "utf-8");
 
@@ -240,7 +240,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates python scripts when interpreter is prefixed with path-qualified env", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const pyPath = path.join(tmp, "bad.py");
       await fs.writeFile(pyPath, "payload = $DM_JSON", "utf-8");
 
@@ -255,7 +255,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node scripts when interpreter is prefixed with env", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const jsPath = path.join(tmp, "bad.js");
       await fs.writeFile(jsPath, "const value = $DM_JSON;", "utf-8");
 
@@ -270,7 +270,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates the first positional python script operand when extra args follow", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.py"), "payload = $DM_JSON", "utf-8");
       await fs.writeFile(path.join(tmp, "ghost.py"), "print('ok')", "utf-8");
 
@@ -285,7 +285,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates python script operand even when trailing option values look like scripts", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "script.py"), "payload = $DM_JSON", "utf-8");
       await fs.writeFile(path.join(tmp, "out.py"), "print('ok')", "utf-8");
 
@@ -300,7 +300,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates the first positional node script operand when extra args follow", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "app.js"), "const value = $DM_JSON;", "utf-8");
       await fs.writeFile(path.join(tmp, "config.js"), "console.log('ok')", "utf-8");
 
@@ -315,7 +315,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("still resolves node script when --require consumes a preceding .js option value", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bootstrap.js"), "console.log('bootstrap')", "utf-8");
       await fs.writeFile(path.join(tmp, "app.js"), "const value = $DM_JSON;", "utf-8");
 
@@ -330,7 +330,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node --require preload modules before a benign entry script", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad-preload.js"), "const value = $DM_JSON;", "utf-8");
       await fs.writeFile(path.join(tmp, "app.js"), "console.log('ok')", "utf-8");
 
@@ -345,7 +345,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node --require preload modules when no entry script is provided", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.js"), "const value = $DM_JSON;", "utf-8");
 
       const tool = createPreflightTool();
@@ -359,7 +359,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node --import preload modules when no entry script is provided", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.js"), "const value = $DM_JSON;", "utf-8");
 
       const tool = createPreflightTool();
@@ -373,7 +373,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node --require preload modules even when -e is present", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.js"), "const value = $DM_JSON;", "utf-8");
 
       const tool = createPreflightTool();
@@ -387,7 +387,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("validates node --import preload modules even when -e is present", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.js"), "const value = $DM_JSON;", "utf-8");
 
       const tool = createPreflightTool();
@@ -401,7 +401,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("skips script-file preflight in yolo host mode", async () => {
-    await withTempDir("openclaw-exec-preflight-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-", async (tmp) => {
       const jsPath = path.join(tmp, "bad.js");
       await fs.writeFile(jsPath, "const value = $DM_JSON;", "utf-8");
 
@@ -441,7 +441,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("skips preflight file reads for script paths outside the workdir", async () => {
-    await withTempDir("openclaw-exec-preflight-parent-", async (parent) => {
+    await withTempDir("alien-exec-preflight-parent-", async (parent) => {
       const outsidePath = path.join(parent, "outside.js");
       const workdir = path.join(parent, "workdir");
       await fs.mkdir(workdir, { recursive: true });
@@ -469,7 +469,7 @@ describeNonWin("exec script preflight", () => {
   });
 
   it("opens preflight script reads with O_NONBLOCK to avoid FIFO stalls", async () => {
-    await withTempDir("openclaw-exec-preflight-nonblock-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-nonblock-", async (tmp) => {
       const scriptPath = path.join(tmp, "script.js");
       await fs.writeFile(scriptPath, 'console.log("ok")', "utf-8");
       const scriptRealPath = await fs.realpath(scriptPath);
@@ -557,7 +557,7 @@ describeNonWin("exec script preflight", () => {
 
 describeWin("exec script preflight on windows path syntax", () => {
   it("preserves windows-style python relative path separators during script extraction", async () => {
-    await withTempDir("openclaw-exec-preflight-win-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-win-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.py"), "payload = $DM_JSON", "utf-8");
 
       const tool = createPreflightTool();
@@ -571,7 +571,7 @@ describeWin("exec script preflight on windows path syntax", () => {
   });
 
   it("preserves windows-style node relative path separators during script extraction", async () => {
-    await withTempDir("openclaw-exec-preflight-win-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-win-", async (tmp) => {
       await fs.writeFile(path.join(tmp, "bad.js"), "const value = $DM_JSON;", "utf-8");
 
       const tool = createPreflightTool();
@@ -585,7 +585,7 @@ describeWin("exec script preflight on windows path syntax", () => {
   });
 
   it("preserves windows-style python absolute drive paths during script extraction", async () => {
-    await withTempDir("openclaw-exec-preflight-win-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-win-", async (tmp) => {
       const absPath = path.join(tmp, "bad.py");
       await fs.writeFile(absPath, "payload = $DM_JSON", "utf-8");
       const winAbsPath = absPath.replaceAll("/", "\\");
@@ -601,7 +601,7 @@ describeWin("exec script preflight on windows path syntax", () => {
   });
 
   it("preserves windows-style nested relative path separators during script extraction", async () => {
-    await withTempDir("openclaw-exec-preflight-win-", async (tmp) => {
+    await withTempDir("alien-exec-preflight-win-", async (tmp) => {
       await fs.mkdir(path.join(tmp, "subdir"), { recursive: true });
       await fs.writeFile(path.join(tmp, "subdir", "bad.py"), "payload = $DM_JSON", "utf-8");
 
@@ -621,7 +621,7 @@ describe("exec interpreter heuristics ReDoS guard", () => {
     // Simulate a heredoc with HTML content after a VAR= assignment. Keep the
     // command parser check direct so no shell process timing hides regex cost.
     const htmlBlock = '<section style="padding: 30px 20px; font-family: Arial;">'.repeat(50);
-    const command = `ACCESS_TOKEN=$(__openclaw_missing_redos_guard__)\ncat > /tmp/out.html << 'EOF'\n${htmlBlock}\nEOF`;
+    const command = `ACCESS_TOKEN=$(__alien_missing_redos_guard__)\ncat > /tmp/out.html << 'EOF'\n${htmlBlock}\nEOF`;
 
     const start = Date.now();
     await validateExecScriptPreflight({ command, workdir: process.cwd() });

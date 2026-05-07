@@ -8,11 +8,11 @@ These fixtures capture the default OpenAI/Codex happy path for prompt review:
 - `messages.visibleReplies: "message_tool"`, which is the Codex-harness default for visible source replies.
 - Telegram direct chat, Discord group chat, and a heartbeat turn with `heartbeat_respond` available.
 
-The Markdown files show selected app-server thread/turn params plus a reconstructed model-bound prompt layer stack: Codex `gpt-5.5` model instructions from a pinned Codex model catalog fixture, Codex permission developer instructions for the happy-path yolo profile, simulated OpenClaw workspace bootstrap config instructions, OpenClaw developer instructions, user turn input, and references to the complete dynamic tool catalog.
+The Markdown files show selected app-server thread/turn params plus a reconstructed model-bound prompt layer stack: Codex `gpt-5.5` model instructions from a pinned Codex model catalog fixture, Codex permission developer instructions for the happy-path yolo profile, simulated Alien workspace bootstrap config instructions, Alien developer instructions, user turn input, and references to the complete dynamic tool catalog.
 
-The workspace bootstrap simulation includes dummy `SOUL.md`, `TOOLS.md`, and `HEARTBEAT.md` contents so prompt reviewers can see how those OpenClaw project/user context files are forwarded to Codex. `AGENTS.md` is intentionally not repeated here because Codex loads it natively.
+The workspace bootstrap simulation includes dummy `SOUL.md`, `TOOLS.md`, and `HEARTBEAT.md` contents so prompt reviewers can see how those Alien project/user context files are forwarded to Codex. `AGENTS.md` is intentionally not repeated here because Codex loads it natively.
 
-The tool catalog is pinned to the canonical happy-path OpenClaw tools so optional locally installed plugin tools do not create fixture churn.
+The tool catalog is pinned to the canonical happy-path Alien tools so optional locally installed plugin tools do not create fixture churn.
 
 The Codex model prompt fixture is generated from the same Codex model catalog/cache shape that the Codex runtime uses for remote model metadata. Regenerate it from Codex's runtime cache or, when present, a local Codex checkout with:
 
@@ -20,7 +20,7 @@ The Codex model prompt fixture is generated from the same Codex model catalog/ca
 pnpm prompt:snapshots:sync-codex-model
 ```
 
-These snapshots are still not a byte-for-byte raw OpenAI request capture. Codex-owned native `AGENTS.md`, environment context, memories, app/plugin instructions, and built-in collaboration-mode instructions can be added inside the Codex runtime after OpenClaw sends thread and turn params.
+These snapshots are still not a byte-for-byte raw OpenAI request capture. Codex-owned native `AGENTS.md`, environment context, memories, app/plugin instructions, and built-in collaboration-mode instructions can be added inside the Codex runtime after Alien sends thread and turn params.
 
 Regenerate with:
 

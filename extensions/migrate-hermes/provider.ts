@@ -2,7 +2,7 @@ import type {
   MigrationPlan,
   MigrationProviderContext,
   MigrationProviderPlugin,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/plugin-entry";
 import { applyHermesPlan } from "./apply.js";
 import { buildHermesPlan } from "./plan.js";
 import { discoverHermesSource, hasHermesSource } from "./source.js";

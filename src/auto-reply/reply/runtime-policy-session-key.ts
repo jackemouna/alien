@@ -1,5 +1,5 @@
 import { normalizeChatType } from "../../channels/chat-type.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   buildAgentMainSessionKey,
   buildAgentPeerSessionKey,
@@ -54,7 +54,7 @@ function resolvePolicyDirectPeerId(ctx?: RuntimePolicyContext): string | undefin
 }
 
 function isMainSessionAlias(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentId: string;
   sessionKey: string;
 }): boolean {
@@ -84,7 +84,7 @@ function isMainSessionAlias(params: {
 }
 
 export function resolveRuntimePolicySessionKey(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   ctx?: RuntimePolicyContext;
   sessionKey?: string | null;
 }): string | undefined {

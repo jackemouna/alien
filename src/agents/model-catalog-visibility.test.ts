@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { resolveVisibleModelCatalog } from "./model-catalog-visibility.js";
 import type { ModelCatalogEntry } from "./model-catalog.types.js";
 import { createProviderAuthChecker } from "./model-provider-auth.js";
@@ -24,7 +24,7 @@ describe("resolveVisibleModelCatalog", () => {
     ];
 
     const result = resolveVisibleModelCatalog({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       catalog,
       defaultProvider: "openai",
       runtimeAuthDiscovery: false,

@@ -1,8 +1,8 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/provider-onboard";
+import type { AlienConfig } from "alien/plugin-sdk/provider-onboard";
 
 export const VYDRA_DEFAULT_IMAGE_MODEL_REF = "vydra/grok-imagine";
 
-export function applyVydraConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyVydraConfig(cfg: AlienConfig): AlienConfig {
   if (cfg.agents?.defaults?.imageGenerationModel) {
     return cfg;
   }

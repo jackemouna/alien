@@ -1,7 +1,7 @@
 import {
   isMissingEmbeddingApiKeyError,
   type MemoryEmbeddingProviderAdapter,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
 import {
   createDeepInfraEmbeddingProvider,
   DEFAULT_DEEPINFRA_EMBEDDING_MODEL,

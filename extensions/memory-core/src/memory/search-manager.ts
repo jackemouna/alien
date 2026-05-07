@@ -1,14 +1,14 @@
 import fs from "node:fs/promises";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   createSubsystemLogger,
   resolveAgentContextLimits,
   resolveAgentWorkspaceDir,
   resolveGlobalSingleton,
   resolveMemorySearchSyncConfig,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
-import { checkQmdBinaryAvailability } from "openclaw/plugin-sdk/memory-core-host-engine-qmd";
+  type AlienConfig,
+} from "alien/plugin-sdk/memory-core-host-engine-foundation";
+import { checkQmdBinaryAvailability } from "alien/plugin-sdk/memory-core-host-engine-qmd";
 import {
   resolveMemoryBackendConfig,
   type MemoryEmbeddingProbeResult,
@@ -17,10 +17,10 @@ import {
   type MemorySource,
   type MemorySyncProgressUpdate,
   type ResolvedQmdConfig,
-} from "openclaw/plugin-sdk/memory-core-host-engine-storage";
-import { normalizeAgentId } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/memory-core-host-engine-storage";
+import { normalizeAgentId } from "alien/plugin-sdk/routing";
 
-const MEMORY_SEARCH_MANAGER_CACHE_KEY = Symbol.for("openclaw.memorySearchManagerCache");
+const MEMORY_SEARCH_MANAGER_CACHE_KEY = Symbol.for("alien.memorySearchManagerCache");
 type Maybe<T> = T | null;
 type QmdManagerRuntimeConfig = {
   workspaceDir: string;
@@ -146,7 +146,7 @@ function clearQmdManagerOpenFailure(scopeKey: string, identityKey: string): void
 }
 
 export async function getMemorySearchManager(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   purpose?: MemorySearchManagerPurpose;
 }): Promise<MemorySearchManagerResult> {
@@ -310,7 +310,7 @@ export async function getMemorySearchManager(params: {
 }
 
 async function getBuiltinMemorySearchManager(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   purpose?: MemorySearchManagerPurpose;
 }): Promise<MemorySearchManagerResult> {
@@ -619,7 +619,7 @@ function buildQmdManagerIdentityKey(
 }
 
 function resolveQmdManagerRuntimeConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId: string,
 ): QmdManagerRuntimeConfig {
   return {

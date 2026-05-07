@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   plan:
-    if: github.repository == 'openclaw/openclaw' && (github.event_name != 'push' || github.actor != 'github-actions[bot]')
+    if: github.repository == 'alien/alien' && (github.event_name != 'push' || github.actor != 'github-actions[bot]')
     runs-on: ubuntu-latest
     outputs:
       has_locales: ${{ steps.plan.outputs.has_locales }}
@@ -102,7 +102,7 @@ jobs:
 
   refresh:
     needs: plan
-    if: github.repository == 'openclaw/openclaw' && needs.plan.outputs.has_locales == 'true'
+    if: github.repository == 'alien/alien' && needs.plan.outputs.has_locales == 'true'
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -124,21 +124,21 @@ jobs:
 
       - name: Ensure translation provider secrets exist
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENCLAW_DOCS_I18N_OPENAI_API_KEY || secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.ALIEN_DOCS_I18N_OPENAI_API_KEY || secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -euo pipefail
           if [ -z "${OPENAI_API_KEY:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "Missing OPENCLAW_DOCS_I18N_OPENAI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY secret."
+            echo "Missing ALIEN_DOCS_I18N_OPENAI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY secret."
             exit 1
           fi
 
       - name: Refresh control UI locale files
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENCLAW_DOCS_I18N_OPENAI_API_KEY || secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.ALIEN_DOCS_I18N_OPENAI_API_KEY || secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENCLAW_CONTROL_UI_I18N_MODEL: ${{ vars.OPENCLAW_CI_OPENAI_MODEL_BARE }}
-          OPENCLAW_CONTROL_UI_I18N_THINKING: low
+          ALIEN_CONTROL_UI_I18N_MODEL: ${{ vars.ALIEN_CI_OPENAI_MODEL_BARE }}
+          ALIEN_CONTROL_UI_I18N_THINKING: low
           LOCALE: ${{ matrix.locale }}
         run: node --import tsx scripts/control-ui-i18n.ts sync --locale "${LOCALE}" --write
 

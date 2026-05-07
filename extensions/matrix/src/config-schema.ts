@@ -1,4 +1,4 @@
-import { buildChannelConfigSchema } from "openclaw/plugin-sdk/channel-config-primitives";
+import { buildChannelConfigSchema } from "alien/plugin-sdk/channel-config-primitives";
 import {
   AllowFromListSchema,
   buildNestedDmConfigSchema,
@@ -6,9 +6,9 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   ToolPolicySchema,
-} from "openclaw/plugin-sdk/channel-config-schema";
-import { buildSecretInputSchema } from "openclaw/plugin-sdk/secret-input";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "alien/plugin-sdk/channel-config-schema";
+import { buildSecretInputSchema } from "alien/plugin-sdk/secret-input";
+import { z } from "alien/plugin-sdk/zod";
 import { matrixChannelConfigUiHints } from "./config-ui-hints.js";
 
 const matrixActionSchema = z

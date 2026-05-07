@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export type IMessageAccountConfig = Omit<
-  NonNullable<NonNullable<OpenClawConfig["channels"]>["imessage"]>,
+  NonNullable<NonNullable<AlienConfig["channels"]>["imessage"]>,
   "accounts" | "defaultAccount"
 >;

@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+import { replaceFileAtomic } from "alien/plugin-sdk/security-runtime";
 
 export function isMatrixQaPlainRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));

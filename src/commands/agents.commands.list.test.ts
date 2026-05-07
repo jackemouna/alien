@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { OutputRuntimeEnv } from "../runtime.js";
 
 const {
@@ -54,7 +54,7 @@ function createRuntime(): OutputRuntimeEnv & { json: unknown[] } {
   };
 }
 
-function createConfig(): OpenClawConfig {
+function createConfig(): AlienConfig {
   return {
     agents: {
       list: [{ id: "main", default: true }],

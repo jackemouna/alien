@@ -1,7 +1,7 @@
-import { resolveCommandAuthorizedFromAuthorizers } from "openclaw/plugin-sdk/command-auth-native";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { DiscordAccountConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveOpenProviderRuntimeGroupPolicy } from "openclaw/plugin-sdk/runtime-group-policy";
+import { resolveCommandAuthorizedFromAuthorizers } from "alien/plugin-sdk/command-auth-native";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { DiscordAccountConfig } from "alien/plugin-sdk/config-types";
+import { resolveOpenProviderRuntimeGroupPolicy } from "alien/plugin-sdk/runtime-group-policy";
 import type { Guild } from "../internal/discord.js";
 import {
   isDiscordGroupAllowedByPolicy,
@@ -13,7 +13,7 @@ import {
 } from "../monitor/allow-list.js";
 
 export async function authorizeDiscordVoiceIngress(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   discordConfig: DiscordAccountConfig;
   groupPolicy?: "open" | "disabled" | "allowlist";
   useAccessGroups?: boolean;

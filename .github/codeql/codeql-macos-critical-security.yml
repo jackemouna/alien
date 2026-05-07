@@ -1,4 +1,4 @@
-name: openclaw-codeql-macos-critical-security
+name: alien-codeql-macos-critical-security
 
 disable-default-queries: true
 

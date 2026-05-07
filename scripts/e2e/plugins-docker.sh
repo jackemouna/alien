@@ -3,30 +3,30 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-image.sh"
-IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-plugins-e2e" OPENCLAW_PLUGINS_E2E_IMAGE)"
+IMAGE_NAME="$(docker_e2e_resolve_image "alien-plugins-e2e" ALIEN_PLUGINS_E2E_IMAGE)"
 
 docker_e2e_build_or_reuse "$IMAGE_NAME" plugins
 
-OPENCLAW_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 plugins empty)"
+ALIEN_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 plugins empty)"
 DOCKER_ENV_ARGS=(
   -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-  -e "OPENCLAW_TEST_STATE_SCRIPT_B64=$OPENCLAW_TEST_STATE_SCRIPT_B64"
+  -e "ALIEN_TEST_STATE_SCRIPT_B64=$ALIEN_TEST_STATE_SCRIPT_B64"
 )
 for env_name in \
-  OPENCLAW_PLUGINS_E2E_CLAWHUB \
-  OPENCLAW_PLUGINS_E2E_LIVE_CLAWHUB \
-  OPENCLAW_PLUGINS_E2E_CLAWHUB_SPEC \
-  OPENCLAW_PLUGINS_E2E_CLAWHUB_ID; do
+  ALIEN_PLUGINS_E2E_CLAWHUB \
+  ALIEN_PLUGINS_E2E_LIVE_CLAWHUB \
+  ALIEN_PLUGINS_E2E_CLAWHUB_SPEC \
+  ALIEN_PLUGINS_E2E_CLAWHUB_ID; do
   env_value="${!env_name:-}"
   if [[ -n "$env_value" && "$env_value" != "undefined" && "$env_value" != "null" ]]; then
     DOCKER_ENV_ARGS+=(-e "$env_name")
   fi
 done
-if [[ "${OPENCLAW_PLUGINS_E2E_LIVE_CLAWHUB:-0}" = "1" ]]; then
+if [[ "${ALIEN_PLUGINS_E2E_LIVE_CLAWHUB:-0}" = "1" ]]; then
   for env_name in \
-    OPENCLAW_CLAWHUB_URL \
+    ALIEN_CLAWHUB_URL \
     CLAWHUB_URL \
-    OPENCLAW_CLAWHUB_TOKEN \
+    ALIEN_CLAWHUB_TOKEN \
     CLAWHUB_TOKEN \
     CLAWHUB_AUTH_TOKEN; do
     env_value="${!env_name:-}"

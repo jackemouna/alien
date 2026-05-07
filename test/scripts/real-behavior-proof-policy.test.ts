@@ -24,8 +24,8 @@ function externalPr(body: string, overrides: Record<string, unknown> = {}) {
 function proofBody(evidence: string, overrides: Record<string, string> = {}) {
   const fields = {
     behavior: "Gateway startup no longer drops the configured Discord channel.",
-    environment: "macOS 15.4, Node 24, local OpenClaw gateway with a redacted Discord token.",
-    steps: "pnpm openclaw gateway restart, then pnpm openclaw gateway status",
+    environment: "macOS 15.4, Node 24, local Alien gateway with a redacted Discord token.",
+    steps: "pnpm alien gateway restart, then pnpm alien gateway status",
     evidence,
     observedResult: "The gateway stayed connected and the Discord channel showed ready.",
     notTested: "No known gaps.",
@@ -46,9 +46,9 @@ function proofBody(evidence: string, overrides: Record<string, string> = {}) {
 describe("real-behavior-proof-policy", () => {
   it.each([
     "![after](https://github.com/user-attachments/assets/abc123)",
-    "Linked artifact: https://github.com/openclaw/openclaw/actions/runs/123456789/artifacts/987654321",
+    "Linked artifact: https://github.com/alien/alien/actions/runs/123456789/artifacts/987654321",
     "Redacted runtime log: gateway connected Discord channel and delivered the reply.",
-    ["Terminal transcript:", "```text", "$ openclaw gateway status", "discord ready", "```"].join(
+    ["Terminal transcript:", "```text", "$ alien gateway status", "discord ready", "```"].join(
       "\n",
     ),
   ])("passes external PRs with real after-fix evidence: %s", (evidence) => {

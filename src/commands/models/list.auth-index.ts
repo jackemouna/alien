@@ -13,7 +13,7 @@ import {
 import { resolveProviderAuthAliasMap } from "../../agents/provider-auth-aliases.js";
 import { normalizeProviderIdForAuth } from "../../agents/provider-id.js";
 import { resolveAgentModelPrimaryValue } from "../../config/model-input.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { loadPluginRegistrySnapshotWithMetadata } from "../../plugins/plugin-registry.js";
 
 export type ModelListAuthIndex = {
@@ -21,7 +21,7 @@ export type ModelListAuthIndex = {
 };
 
 export type CreateModelListAuthIndexParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   authStore: AuthProfileStore;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
@@ -37,7 +37,7 @@ function normalizeAuthProvider(
 }
 
 function listValidatedSyntheticAuthProviderRefs(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): readonly string[] {

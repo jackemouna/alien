@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
 import { stripHeartbeatToken } from "../auto-reply/heartbeat.js";
 
 type HeartbeatDeliveryPayload = {

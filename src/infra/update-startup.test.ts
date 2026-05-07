@@ -5,11 +5,11 @@ import { createSuiteTempRootTracker } from "../test-helpers/temp-dir.js";
 import { captureEnv } from "../test-utils/env.js";
 import type { UpdateCheckResult } from "./update-check.js";
 
-vi.mock("./openclaw-root.js", async () => {
-  const actual = await vi.importActual<typeof import("./openclaw-root.js")>("./openclaw-root.js");
+vi.mock("./alien-root.js", async () => {
+  const actual = await vi.importActual<typeof import("./alien-root.js")>("./alien-root.js");
   return {
     ...actual,
-    resolveOpenClawPackageRoot: vi.fn(),
+    resolveAlienPackageRoot: vi.fn(),
   };
 });
 
@@ -44,11 +44,11 @@ vi.mock("../process/exec.js", () => ({
 }));
 
 describe("update-startup", () => {
-  const suiteRootTracker = createSuiteTempRootTracker({ prefix: "openclaw-update-check-suite-" });
+  const suiteRootTracker = createSuiteTempRootTracker({ prefix: "alien-update-check-suite-" });
   let tempDir: string;
   let envSnapshot: ReturnType<typeof captureEnv>;
 
-  let resolveOpenClawPackageRoot: (typeof import("./openclaw-root.js"))["resolveOpenClawPackageRoot"];
+  let resolveAlienPackageRoot: (typeof import("./alien-root.js"))["resolveAlienPackageRoot"];
   let checkUpdateStatus: (typeof import("./update-check.js"))["checkUpdateStatus"];
   let resolveNpmChannelTag: (typeof import("./update-check.js"))["resolveNpmChannelTag"];
   let runCommandWithTimeout: (typeof import("../process/exec.js"))["runCommandWithTimeout"];
@@ -67,12 +67,12 @@ describe("update-startup", () => {
     vi.setSystemTime(new Date("2026-01-17T10:00:00Z"));
     tempDir = await suiteRootTracker.make("case");
     envSnapshot = captureEnv([
-      "OPENCLAW_NO_AUTO_UPDATE",
-      "OPENCLAW_STATE_DIR",
+      "ALIEN_NO_AUTO_UPDATE",
+      "ALIEN_STATE_DIR",
       "NODE_ENV",
       "VITEST",
     ]);
-    process.env.OPENCLAW_STATE_DIR = tempDir;
+    process.env.ALIEN_STATE_DIR = tempDir;
 
     process.env.NODE_ENV = "test";
 
@@ -81,7 +81,7 @@ describe("update-startup", () => {
 
     // Perf: load mocked modules once (after timers/env are set up).
     if (!loaded) {
-      ({ resolveOpenClawPackageRoot } = await import("./openclaw-root.js"));
+      ({ resolveAlienPackageRoot } = await import("./alien-root.js"));
       ({ checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js"));
       ({ runCommandWithTimeout } = await import("../process/exec.js"));
       ({
@@ -92,7 +92,7 @@ describe("update-startup", () => {
       } = await import("./update-startup.js"));
       loaded = true;
     }
-    vi.mocked(resolveOpenClawPackageRoot).mockClear();
+    vi.mocked(resolveAlienPackageRoot).mockClear();
     vi.mocked(checkUpdateStatus).mockClear();
     vi.mocked(resolveNpmChannelTag).mockClear();
     vi.mocked(runCommandWithTimeout).mockClear();
@@ -115,9 +115,9 @@ describe("update-startup", () => {
   }
 
   function mockPackageInstallStatus() {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
+    vi.mocked(resolveAlienPackageRoot).mockResolvedValue("/opt/alien");
     vi.mocked(checkUpdateStatus).mockResolvedValue({
-      root: "/opt/openclaw",
+      root: "/opt/alien",
       installKind: "package",
       packageManager: "npm",
     } satisfies UpdateCheckResult);
@@ -338,7 +338,7 @@ describe("update-startup", () => {
     expect(runAutoUpdate).toHaveBeenCalledWith({
       channel: "stable",
       timeoutMs: 45 * 60 * 1000,
-      root: "/opt/openclaw",
+      root: "/opt/alien",
     });
   });
 
@@ -355,7 +355,7 @@ describe("update-startup", () => {
     expect(runAutoUpdate).toHaveBeenCalledWith({
       channel: "beta",
       timeoutMs: 45 * 60 * 1000,
-      root: "/opt/openclaw",
+      root: "/opt/alien",
     });
   });
 
@@ -371,9 +371,9 @@ describe("update-startup", () => {
     expect(runAutoUpdate).toHaveBeenCalledTimes(1);
   });
 
-  it("honors OPENCLAW_NO_AUTO_UPDATE for configured auto-updates", async () => {
+  it("honors ALIEN_NO_AUTO_UPDATE for configured auto-updates", async () => {
     mockPackageUpdateStatus("beta", "2.0.0-beta.1");
-    process.env.OPENCLAW_NO_AUTO_UPDATE = "1";
+    process.env.ALIEN_NO_AUTO_UPDATE = "1";
     const log = { info: vi.fn() };
     const runAutoUpdate = createAutoUpdateSuccessMock();
 
@@ -387,7 +387,7 @@ describe("update-startup", () => {
 
     expect(runAutoUpdate).not.toHaveBeenCalled();
     expect(log.info).toHaveBeenCalledWith(
-      "auto-update disabled by OPENCLAW_NO_AUTO_UPDATE",
+      "auto-update disabled by ALIEN_NO_AUTO_UPDATE",
       expect.objectContaining({
         version: "2.0.0-beta.1",
         tag: "beta",
@@ -408,7 +408,7 @@ describe("update-startup", () => {
     });
 
     const originalArgv = process.argv.slice();
-    process.argv = [process.execPath, "/opt/openclaw/dist/entry.js"];
+    process.argv = [process.execPath, "/opt/alien/dist/entry.js"];
     try {
       await runAutoUpdateCheckWithDefaults({
         cfg: createBetaAutoUpdateConfig(),
@@ -420,7 +420,7 @@ describe("update-startup", () => {
     expect(runCommandWithTimeout).toHaveBeenCalledWith(
       [
         process.execPath,
-        "/opt/openclaw/dist/entry.js",
+        "/opt/alien/dist/entry.js",
         "update",
         "--yes",
         "--channel",
@@ -430,7 +430,7 @@ describe("update-startup", () => {
       expect.objectContaining({
         timeoutMs: 45 * 60 * 1000,
         env: expect.objectContaining({
-          OPENCLAW_AUTO_UPDATE: "1",
+          ALIEN_AUTO_UPDATE: "1",
         }),
       }),
     );

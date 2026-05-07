@@ -6,7 +6,7 @@ const readFileMock = vi.fn();
 const parseSessionEntriesMock = vi.fn();
 const migrateSessionEntriesMock = vi.fn();
 const buildSessionContextMock = vi.fn();
-const ensureOpenClawModelsJsonMock = vi.fn();
+const ensureAlienModelsJsonMock = vi.fn();
 const discoverAuthStorageMock = vi.fn();
 const discoverModelsMock = vi.fn();
 const resolveModelWithRegistryMock = vi.fn();
@@ -44,7 +44,7 @@ vi.mock("@mariozechner/pi-coding-agent", () => ({
 }));
 
 vi.mock("./models-config.js", () => ({
-  ensureOpenClawModelsJson: (...args: unknown[]) => ensureOpenClawModelsJsonMock(...args),
+  ensureAlienModelsJson: (...args: unknown[]) => ensureAlienModelsJsonMock(...args),
 }));
 
 vi.mock("./pi-model-discovery.js", () => ({
@@ -285,7 +285,7 @@ describe("runBtwSideQuestion", () => {
     parseSessionEntriesMock.mockReset();
     migrateSessionEntriesMock.mockReset();
     buildSessionContextMock.mockReset();
-    ensureOpenClawModelsJsonMock.mockReset();
+    ensureAlienModelsJsonMock.mockReset();
     discoverAuthStorageMock.mockReset();
     discoverModelsMock.mockReset();
     resolveModelWithRegistryMock.mockReset();
@@ -417,7 +417,7 @@ describe("runBtwSideQuestion", () => {
     const result = await runSideQuestion();
 
     expect(result).toEqual({ text: "Final answer." });
-    expect(ensureOpenClawModelsJsonMock).toHaveBeenCalledWith(
+    expect(ensureAlienModelsJsonMock).toHaveBeenCalledWith(
       expect.any(Object),
       DEFAULT_AGENT_DIR,
       {

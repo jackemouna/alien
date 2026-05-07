@@ -8,25 +8,25 @@ import { defaultRuntime } from "../../runtime.js";
 import { formatCliCommand } from "../command-format.js";
 
 function renderGatewayServiceStopHints(env: NodeJS.ProcessEnv = process.env): string[] {
-  const profile = env.OPENCLAW_PROFILE;
+  const profile = env.ALIEN_PROFILE;
   switch (process.platform) {
     case "darwin":
       return [
-        `Tip: ${formatCliCommand("openclaw gateway stop")}`,
+        `Tip: ${formatCliCommand("alien gateway stop")}`,
         `Or: launchctl bootout gui/$UID/${resolveGatewayLaunchAgentLabel(profile)}`,
       ];
     case "linux":
       return [
-        `Tip: ${formatCliCommand("openclaw gateway stop")}`,
+        `Tip: ${formatCliCommand("alien gateway stop")}`,
         `Or: systemctl --user stop ${resolveGatewaySystemdServiceName(profile)}.service`,
       ];
     case "win32":
       return [
-        `Tip: ${formatCliCommand("openclaw gateway stop")}`,
+        `Tip: ${formatCliCommand("alien gateway stop")}`,
         `Or: schtasks /End /TN "${resolveGatewayWindowsTaskName(profile)}"`,
       ];
     default:
-      return [`Tip: ${formatCliCommand("openclaw gateway stop")}`];
+      return [`Tip: ${formatCliCommand("alien gateway stop")}`];
   }
 }
 

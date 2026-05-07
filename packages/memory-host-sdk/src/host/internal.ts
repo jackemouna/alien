@@ -23,11 +23,11 @@ import {
   detectMime,
   estimateStringChars,
   runTasksWithConcurrency,
-} from "./openclaw-runtime-io.js";
+} from "./alien-runtime-io.js";
 import {
   resolveCanonicalRootMemoryFile,
   shouldSkipRootMemoryAuxiliaryPath,
-} from "./openclaw-runtime-memory.js";
+} from "./alien-runtime-memory.js";
 
 export { hashText } from "./hash.js";
 import { hashText } from "./hash.js";
@@ -116,7 +116,7 @@ function shouldDescendMemoryEntry(
   if (shouldSkipPath?.(entry.path)) {
     return false;
   }
-  return entry.kind === "directory" && entry.name !== ".openclaw-repair";
+  return entry.kind === "directory" && entry.name !== ".alien-repair";
 }
 
 async function collectMemoryFilesFromDir(

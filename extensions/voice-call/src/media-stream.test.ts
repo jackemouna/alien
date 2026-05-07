@@ -4,8 +4,8 @@ import type {
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
   RealtimeTranscriptionSessionCreateRequest,
-} from "openclaw/plugin-sdk/realtime-transcription";
-import { createTalkSessionController, type TalkEvent } from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-transcription";
+import { createTalkSessionController, type TalkEvent } from "alien/plugin-sdk/realtime-voice";
 import { describe, expect, it, vi } from "vitest";
 import { WebSocket } from "ws";
 import { MediaStreamHandler, sanitizeLogText } from "./media-stream.js";

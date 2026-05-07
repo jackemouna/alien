@@ -7,7 +7,7 @@ import {
 export const runNodeSourceRoots = ["src", BUNDLED_PLUGIN_ROOT_DIR];
 export const runNodeConfigFiles = ["tsconfig.json", "package.json", "tsdown.config.ts"];
 export const runNodeWatchedPaths = [...runNodeSourceRoots, ...runNodeConfigFiles];
-export const extensionRestartMetadataFiles = new Set(["openclaw.plugin.json", "package.json"]);
+export const extensionRestartMetadataFiles = new Set(["alien.plugin.json", "package.json"]);
 
 const ignoredRunNodeRepoPaths = new Set([
   "src/canvas-host/a2ui/.bundle.hash",

@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { handleDiscordMessageAction, requestDiscord } from "@openclaw/discord/api.js";
-import { DEFAULT_EMOJIS } from "openclaw/plugin-sdk/channel-feedback";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { handleDiscordMessageAction, requestDiscord } from "@alien/discord/api.js";
+import { DEFAULT_EMOJIS } from "alien/plugin-sdk/channel-feedback";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import { chromium } from "playwright-core";
 import { z } from "zod";
 import { startQaGatewayChild } from "../../gateway-child.js";
@@ -232,16 +232,16 @@ type DiscordThreadReplyAttachmentEvidence = {
   threadName: string;
 };
 
-const DISCORD_QA_CAPTURE_CONTENT_ENV = "OPENCLAW_QA_DISCORD_CAPTURE_CONTENT";
-const DISCORD_QA_CAPTURE_UI_METADATA_ENV = "OPENCLAW_QA_DISCORD_CAPTURE_UI_METADATA";
-const DISCORD_QA_KEEP_THREADS_ENV = "OPENCLAW_QA_DISCORD_KEEP_THREADS";
-const QA_REDACT_PUBLIC_METADATA_ENV = "OPENCLAW_QA_REDACT_PUBLIC_METADATA";
+const DISCORD_QA_CAPTURE_CONTENT_ENV = "ALIEN_QA_DISCORD_CAPTURE_CONTENT";
+const DISCORD_QA_CAPTURE_UI_METADATA_ENV = "ALIEN_QA_DISCORD_CAPTURE_UI_METADATA";
+const DISCORD_QA_KEEP_THREADS_ENV = "ALIEN_QA_DISCORD_KEEP_THREADS";
+const QA_REDACT_PUBLIC_METADATA_ENV = "ALIEN_QA_REDACT_PUBLIC_METADATA";
 const DISCORD_QA_ENV_KEYS = [
-  "OPENCLAW_QA_DISCORD_GUILD_ID",
-  "OPENCLAW_QA_DISCORD_CHANNEL_ID",
-  "OPENCLAW_QA_DISCORD_DRIVER_BOT_TOKEN",
-  "OPENCLAW_QA_DISCORD_SUT_BOT_TOKEN",
-  "OPENCLAW_QA_DISCORD_SUT_APPLICATION_ID",
+  "ALIEN_QA_DISCORD_GUILD_ID",
+  "ALIEN_QA_DISCORD_CHANNEL_ID",
+  "ALIEN_QA_DISCORD_DRIVER_BOT_TOKEN",
+  "ALIEN_QA_DISCORD_SUT_BOT_TOKEN",
+  "ALIEN_QA_DISCORD_SUT_APPLICATION_ID",
 ] as const;
 
 const DISCORD_QA_SCENARIOS: DiscordQaScenarioDefinition[] = [
@@ -361,13 +361,13 @@ function isTruthyOptIn(value: string | undefined) {
 
 function resolveDiscordQaRuntimeEnv(env: NodeJS.ProcessEnv = process.env): DiscordQaRuntimeEnv {
   const runtimeEnv = {
-    guildId: resolveEnvValue(env, "OPENCLAW_QA_DISCORD_GUILD_ID"),
-    channelId: resolveEnvValue(env, "OPENCLAW_QA_DISCORD_CHANNEL_ID"),
-    driverBotToken: resolveEnvValue(env, "OPENCLAW_QA_DISCORD_DRIVER_BOT_TOKEN"),
-    sutBotToken: resolveEnvValue(env, "OPENCLAW_QA_DISCORD_SUT_BOT_TOKEN"),
-    sutApplicationId: resolveEnvValue(env, "OPENCLAW_QA_DISCORD_SUT_APPLICATION_ID"),
+    guildId: resolveEnvValue(env, "ALIEN_QA_DISCORD_GUILD_ID"),
+    channelId: resolveEnvValue(env, "ALIEN_QA_DISCORD_CHANNEL_ID"),
+    driverBotToken: resolveEnvValue(env, "ALIEN_QA_DISCORD_DRIVER_BOT_TOKEN"),
+    sutBotToken: resolveEnvValue(env, "ALIEN_QA_DISCORD_SUT_BOT_TOKEN"),
+    sutApplicationId: resolveEnvValue(env, "ALIEN_QA_DISCORD_SUT_APPLICATION_ID"),
   };
-  validateDiscordQaRuntimeEnv(runtimeEnv, "OPENCLAW_QA_DISCORD");
+  validateDiscordQaRuntimeEnv(runtimeEnv, "ALIEN_QA_DISCORD");
   return runtimeEnv;
 }
 
@@ -391,7 +391,7 @@ function parseDiscordQaCredentialPayload(payload: unknown): DiscordQaRuntimeEnv 
 }
 
 function buildDiscordQaConfig(
-  baseCfg: OpenClawConfig,
+  baseCfg: AlienConfig,
   params: {
     guildId: string;
     channelId: string;
@@ -402,7 +402,7 @@ function buildDiscordQaConfig(
   options: {
     statusReactionsToolOnly?: boolean;
   } = {},
-): OpenClawConfig {
+): AlienConfig {
   const pluginAllow = [...new Set([...(baseCfg.plugins?.allow ?? []), "discord"])];
   const pluginEntries = {
     ...baseCfg.plugins?.entries,
@@ -762,7 +762,7 @@ function renderDiscordThreadReplyAttachmentHtml(params: {
     <h1>${escapeHtml(params.scenarioTitle)}</h1>
     <div class="sub">Thread: ${escapeHtml(params.threadName)}</div>
     <section class="message">
-      <div class="author">OpenClaw Discord SUT</div>
+      <div class="author">Alien Discord SUT</div>
       <div class="badge">${params.status === "pass" ? "Attachment found" : "Attachment missing"}</div>
       <div class="content">${escapeHtml(params.messageContent ?? "No SUT reply content captured")}</div>
       <div class="attachments">${attachmentRows}</div>
@@ -979,7 +979,7 @@ async function pollThreadReplyMessage(params: {
 }
 
 async function runDiscordThreadReplyFilePathAttachmentScenario(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   driverBotId: string;
   outputDir: string;
   runtimeEnv: DiscordQaRuntimeEnv;
@@ -1583,7 +1583,7 @@ export async function runDiscordQaLive(params: {
 
   const finishedAt = new Date().toISOString();
   const publishedCleanupIssues = redactPublicMetadata
-    ? cleanupIssues.map(() => "details redacted (OPENCLAW_QA_REDACT_PUBLIC_METADATA=1)")
+    ? cleanupIssues.map(() => "details redacted (ALIEN_QA_REDACT_PUBLIC_METADATA=1)")
     : cleanupIssues;
   const passedCount = scenarioResults.filter((entry) => entry.status === "pass").length;
   const failedCount = scenarioResults.filter((entry) => entry.status === "fail").length;

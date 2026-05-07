@@ -1,5 +1,5 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { MediaNormalizationEntry } from "../media-generation/normalization.types.js";
 
 export type GeneratedImageAsset = {
@@ -54,7 +54,7 @@ export type ImageGenerationSourceImage = {
 };
 
 export type ImageGenerationProviderConfiguredContext = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
 };
 
@@ -62,7 +62,7 @@ export type ImageGenerationRequest = {
   provider: string;
   model: string;
   prompt: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentDir?: string;
   authStore?: AuthProfileStore;
   timeoutMs?: number;

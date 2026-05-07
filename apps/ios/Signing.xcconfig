@@ -4,17 +4,17 @@
 
 #include "Config/Version.xcconfig"
 
-OPENCLAW_CODE_SIGN_STYLE = Manual
-OPENCLAW_DEVELOPMENT_TEAM = Y5PE65HELJ
+ALIEN_CODE_SIGN_STYLE = Manual
+ALIEN_DEVELOPMENT_TEAM = Y5PE65HELJ
 
-OPENCLAW_APP_BUNDLE_ID = ai.openclaw.client
-OPENCLAW_SHARE_BUNDLE_ID = ai.openclaw.client.share
-OPENCLAW_WATCH_APP_BUNDLE_ID = ai.openclaw.client.watchkitapp
-OPENCLAW_WATCH_EXTENSION_BUNDLE_ID = ai.openclaw.client.watchkitapp.extension
-OPENCLAW_ACTIVITY_WIDGET_BUNDLE_ID = ai.openclaw.client.activitywidget
+ALIEN_APP_BUNDLE_ID = ai.alien.client
+ALIEN_SHARE_BUNDLE_ID = ai.alien.client.share
+ALIEN_WATCH_APP_BUNDLE_ID = ai.alien.client.watchkitapp
+ALIEN_WATCH_EXTENSION_BUNDLE_ID = ai.alien.client.watchkitapp.extension
+ALIEN_ACTIVITY_WIDGET_BUNDLE_ID = ai.alien.client.activitywidget
 
-OPENCLAW_APP_PROFILE = ai.openclaw.client Development
-OPENCLAW_SHARE_PROFILE = ai.openclaw.client.share Development
+ALIEN_APP_PROFILE = ai.alien.client Development
+ALIEN_SHARE_PROFILE = ai.alien.client.share Development
 
 // Keep local includes after defaults: xcconfig is evaluated top-to-bottom,
 // so later assignments in local files override the defaults above.

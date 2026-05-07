@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   createAgentToAgentPolicy,
   createSessionVisibilityChecker,
@@ -20,7 +20,7 @@ export {
 } from "../../plugin-sdk/session-visibility.js";
 
 export function resolveSandboxedSessionToolContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentSessionKey?: string;
   sandboxed?: boolean;
 }): {

@@ -73,17 +73,17 @@ function writeJsonFile(targetPath, value) {
   fs.writeFileSync(targetPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
-function ensureOpenClawExtensionAlias(params) {
+function ensureAlienExtensionAlias(params) {
   const pluginSdkDir = path.join(params.repoRoot, "dist", "plugin-sdk");
   if (!fs.existsSync(pluginSdkDir)) {
     return;
   }
 
-  const aliasDir = path.join(params.distExtensionsRoot, "node_modules", "openclaw");
+  const aliasDir = path.join(params.distExtensionsRoot, "node_modules", "alien");
   const pluginSdkAliasPath = path.join(aliasDir, "plugin-sdk");
   fs.mkdirSync(aliasDir, { recursive: true });
   writeJsonFile(path.join(aliasDir, "package.json"), {
-    name: "openclaw",
+    name: "alien",
     type: "module",
     exports: {
       "./plugin-sdk": "./plugin-sdk/index.js",
@@ -119,7 +119,7 @@ function shouldCopyRuntimeFile(relativePath) {
   return (
     isBundledSkillRuntimePath(relativePath) ||
     isPathOrNestedPath(relativePath, "package.json") ||
-    isPathOrNestedPath(relativePath, "openclaw.plugin.json") ||
+    isPathOrNestedPath(relativePath, "alien.plugin.json") ||
     isPathOrNestedPath(relativePath, ".codex-plugin/plugin.json") ||
     isPathOrNestedPath(relativePath, ".claude-plugin/plugin.json") ||
     isPathOrNestedPath(relativePath, ".cursor-plugin/plugin.json") ||
@@ -220,7 +220,7 @@ export function stageBundledPluginRuntime(params = {}) {
 
   removePathIfExists(runtimeRoot);
   fs.mkdirSync(runtimeExtensionsRoot, { recursive: true });
-  ensureOpenClawExtensionAlias({ repoRoot, distExtensionsRoot });
+  ensureAlienExtensionAlias({ repoRoot, distExtensionsRoot });
 
   for (const dirent of fs.readdirSync(distExtensionsRoot, { withFileTypes: true })) {
     if (!dirent.isDirectory() || dirent.name === "node_modules") {

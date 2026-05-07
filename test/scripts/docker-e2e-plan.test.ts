@@ -182,7 +182,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
         }),
         expect.objectContaining({
           name: "upgrade-survivor",
-          command: "OPENCLAW_SKIP_DOCKER_BUILD=1 pnpm test:docker:upgrade-survivor",
+          command: "ALIEN_SKIP_DOCKER_BUILD=1 pnpm test:docker:upgrade-survivor",
           stateScenario: "upgrade-survivor",
         }),
         expect.objectContaining({
@@ -191,7 +191,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
         }),
         expect.objectContaining({
           name: "update-restart-auth",
-          command: "OPENCLAW_SKIP_DOCKER_BUILD=1 pnpm test:docker:update-restart-auth",
+          command: "ALIEN_SKIP_DOCKER_BUILD=1 pnpm test:docker:update-restart-auth",
           stateScenario: "upgrade-survivor",
         }),
       ]),
@@ -315,7 +315,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
     const plan = planFor({
       selectedLaneNames: ["published-upgrade-survivor"],
       upgradeSurvivorBaselines:
-        "openclaw@2026.4.29 2026.4.23 openclaw@2026.4.23 openclaw@2026.3.13-1",
+        "alien@2026.4.29 2026.4.23 alien@2026.4.23 alien@2026.3.13-1",
     });
 
     expect(plan.lanes.map((lane) => lane.name)).toEqual([
@@ -326,24 +326,24 @@ describe("scripts/lib/docker-e2e-plan", () => {
     expect(plan.lanes).toEqual([
       expect.objectContaining({
         command: expect.stringContaining(
-          "OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC='openclaw@2026.4.29'",
+          "ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC='alien@2026.4.29'",
         ),
         imageKind: "bare",
         stateScenario: "upgrade-survivor",
       }),
       expect.objectContaining({
         command: expect.stringContaining(
-          "OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC='openclaw@2026.4.23'",
+          "ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC='alien@2026.4.23'",
         ),
       }),
       expect.objectContaining({
         command: expect.stringContaining(
-          "OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC='openclaw@2026.3.13-1'",
+          "ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC='alien@2026.3.13-1'",
         ),
       }),
     ]);
     expect(plan.lanes[0]?.command).toContain(
-      'OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_DIR="$PWD/.artifacts/upgrade-survivor/published-upgrade-survivor-2026.4.29"',
+      'ALIEN_UPGRADE_SURVIVOR_ARTIFACT_DIR="$PWD/.artifacts/upgrade-survivor/published-upgrade-survivor-2026.4.29"',
     );
   });
 
@@ -365,10 +365,10 @@ describe("scripts/lib/docker-e2e-plan", () => {
     expect(plan.lanes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          command: expect.stringContaining("OPENCLAW_UPGRADE_SURVIVOR_SCENARIO='feishu-channel'"),
+          command: expect.stringContaining("ALIEN_UPGRADE_SURVIVOR_SCENARIO='feishu-channel'"),
         }),
         expect.objectContaining({
-          command: expect.stringContaining("OPENCLAW_UPGRADE_SURVIVOR_SCENARIO='tilde-log-path'"),
+          command: expect.stringContaining("ALIEN_UPGRADE_SURVIVOR_SCENARIO='tilde-log-path'"),
         }),
       ]),
     );
@@ -376,7 +376,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
       plan.lanes.find((lane) => lane.name === "published-upgrade-survivor-2026.4.29-tilde-log-path")
         ?.command,
     ).toContain(
-      'OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_DIR="$PWD/.artifacts/upgrade-survivor/published-upgrade-survivor-2026.4.29-tilde-log-path"',
+      'ALIEN_UPGRADE_SURVIVOR_ARTIFACT_DIR="$PWD/.artifacts/upgrade-survivor/published-upgrade-survivor-2026.4.29-tilde-log-path"',
     );
   });
 
@@ -445,7 +445,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
         }),
         expect.objectContaining({
           command: expect.stringContaining(
-            "OPENCLAW_UPGRADE_SURVIVOR_SCENARIO='plugin-deps-cleanup'",
+            "ALIEN_UPGRADE_SURVIVOR_SCENARIO='plugin-deps-cleanup'",
           ),
         }),
       ]),
@@ -471,7 +471,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
     expect(plan.credentials).toEqual(["openai"]);
     expect(plan.lanes).toEqual([
       expect.objectContaining({
-        command: "OPENCLAW_SKIP_DOCKER_BUILD=1 pnpm test:docker:live-codex-npm-plugin",
+        command: "ALIEN_SKIP_DOCKER_BUILD=1 pnpm test:docker:live-codex-npm-plugin",
         imageKind: "bare",
         live: true,
         name: "live-codex-npm-plugin",
@@ -629,11 +629,11 @@ describe("scripts/lib/docker-e2e-plan", () => {
     expect(selectedLaneNames).toEqual(["install-e2e-openai", "install-e2e-anthropic"]);
     expect(plan.lanes).toEqual([
       expect.objectContaining({
-        command: expect.stringContaining("OPENCLAW_E2E_MODELS=openai"),
+        command: expect.stringContaining("ALIEN_E2E_MODELS=openai"),
         name: "install-e2e-openai",
       }),
       expect.objectContaining({
-        command: expect.stringContaining("OPENCLAW_E2E_MODELS=anthropic"),
+        command: expect.stringContaining("ALIEN_E2E_MODELS=anthropic"),
         name: "install-e2e-anthropic",
       }),
     ]);
@@ -653,7 +653,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
     expect(plan.lanes).toHaveLength(BUNDLED_PLUGIN_INSTALL_UNINSTALL_SHARDS);
     expect(plan.lanes[0]).toEqual(
       expect.objectContaining({
-        command: expect.stringContaining("OPENCLAW_BUNDLED_PLUGIN_SWEEP_INDEX=0"),
+        command: expect.stringContaining("ALIEN_BUNDLED_PLUGIN_SWEEP_INDEX=0"),
         imageKind: "functional",
         live: false,
         name: "bundled-plugin-install-uninstall-0",
@@ -662,7 +662,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
     );
     expect(plan.lanes[23]).toEqual(
       expect.objectContaining({
-        command: expect.stringContaining("OPENCLAW_BUNDLED_PLUGIN_SWEEP_INDEX=23"),
+        command: expect.stringContaining("ALIEN_BUNDLED_PLUGIN_SWEEP_INDEX=23"),
         imageKind: "functional",
         live: false,
         name: "bundled-plugin-install-uninstall-23",
@@ -677,7 +677,7 @@ describe("scripts/lib/docker-e2e-plan", () => {
 
   it("rejects unknown selected lanes with the available lane names", () => {
     expect(() => planFor({ selectedLaneNames: ["missing-lane"] })).toThrow(
-      /OPENCLAW_DOCKER_ALL_LANES unknown lane\(s\): missing-lane/u,
+      /ALIEN_DOCKER_ALL_LANES unknown lane\(s\): missing-lane/u,
     );
   });
 });

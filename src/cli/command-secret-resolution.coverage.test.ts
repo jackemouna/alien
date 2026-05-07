@@ -1,4 +1,4 @@
-import { bundledPluginFile } from "openclaw/plugin-sdk/test-fixtures";
+import { bundledPluginFile } from "alien/plugin-sdk/test-fixtures";
 import { describe, expect, it } from "vitest";
 import { readCommandSource } from "./command-source.test-helpers.js";
 

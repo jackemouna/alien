@@ -1,5 +1,5 @@
 import { TOOL_NAME_SEPARATOR } from "../../pi-bundle-mcp-names.js";
-import type { OpenClawCodingToolConstructionPlan } from "../../pi-tools.js";
+import type { AlienCodingToolConstructionPlan } from "../../pi-tools.js";
 import { isToolAllowedByPolicyName } from "../../tool-policy-match.js";
 import {
   buildPluginToolGroups,
@@ -12,10 +12,10 @@ const BASE_CODING_TOOL_FACTORY_NAMES = new Set(["edit", "read", "write"]);
 
 const SHELL_CODING_TOOL_FACTORY_NAMES = new Set(["apply_patch", "exec", "process"]);
 
-// Names here must be emitted directly by createOpenClawTools(). Catalog entries
+// Names here must be emitted directly by createAlienTools(). Catalog entries
 // backed by plugin registration, such as browser/x_search/code_execution, stay
 // out of this set so narrow allowlists still materialize plugin tools.
-const OPENCLAW_TOOL_FACTORY_NAMES = new Set([
+const ALIEN_TOOL_FACTORY_NAMES = new Set([
   "agents_list",
   "canvas",
   "cron",
@@ -42,25 +42,25 @@ const OPENCLAW_TOOL_FACTORY_NAMES = new Set([
   "web_search",
 ]);
 
-const ALL_CODING_TOOL_CONSTRUCTION_PLAN: OpenClawCodingToolConstructionPlan = {
+const ALL_CODING_TOOL_CONSTRUCTION_PLAN: AlienCodingToolConstructionPlan = {
   includeBaseCodingTools: true,
   includeShellTools: true,
   includeChannelTools: true,
-  includeOpenClawTools: true,
+  includeAlienTools: true,
   includePluginTools: true,
 };
 
-const NO_CODING_TOOL_CONSTRUCTION_PLAN: OpenClawCodingToolConstructionPlan = {
+const NO_CODING_TOOL_CONSTRUCTION_PLAN: AlienCodingToolConstructionPlan = {
   includeBaseCodingTools: false,
   includeShellTools: false,
   includeChannelTools: false,
-  includeOpenClawTools: false,
+  includeAlienTools: false,
   includePluginTools: false,
 };
 
 function cloneCodingToolConstructionPlan(
-  plan: OpenClawCodingToolConstructionPlan,
-): OpenClawCodingToolConstructionPlan {
+  plan: AlienCodingToolConstructionPlan,
+): AlienCodingToolConstructionPlan {
   return { ...plan };
 }
 
@@ -80,7 +80,7 @@ function isKnownLocalCodingToolName(normalized: string): boolean {
   return (
     BASE_CODING_TOOL_FACTORY_NAMES.has(normalized) ||
     SHELL_CODING_TOOL_FACTORY_NAMES.has(normalized) ||
-    OPENCLAW_TOOL_FACTORY_NAMES.has(normalized)
+    ALIEN_TOOL_FACTORY_NAMES.has(normalized)
   );
 }
 
@@ -111,7 +111,7 @@ export function applyEmbeddedAttemptToolsAllow<T extends { name: string }>(
 
 function resolveCodingToolConstructionPlanForAllowlist(
   toolsAllow?: string[],
-): OpenClawCodingToolConstructionPlan {
+): AlienCodingToolConstructionPlan {
   if (!toolsAllow) {
     return cloneCodingToolConstructionPlan(ALL_CODING_TOOL_CONSTRUCTION_PLAN);
   }
@@ -127,7 +127,7 @@ function resolveCodingToolConstructionPlanForAllowlist(
     BASE_CODING_TOOL_FACTORY_NAMES.has(name),
   );
   const includeShellTools = normalized.some((name) => SHELL_CODING_TOOL_FACTORY_NAMES.has(name));
-  const includeOpenClawTools = normalized.some((name) => OPENCLAW_TOOL_FACTORY_NAMES.has(name));
+  const includeAlienTools = normalized.some((name) => ALIEN_TOOL_FACTORY_NAMES.has(name));
   const includePluginTools = normalized.some(
     (name) =>
       name === "group:plugins" ||
@@ -139,7 +139,7 @@ function resolveCodingToolConstructionPlanForAllowlist(
     includeBaseCodingTools,
     includeShellTools,
     includeChannelTools,
-    includeOpenClawTools,
+    includeAlienTools,
     includePluginTools,
   };
 }
@@ -152,7 +152,7 @@ export function resolveEmbeddedAttemptToolConstructionPlan(params: {
   constructTools: boolean;
   includeCoreTools: boolean;
   runtimeToolAllowlist?: string[];
-  codingToolConstructionPlan: OpenClawCodingToolConstructionPlan;
+  codingToolConstructionPlan: AlienCodingToolConstructionPlan;
 } {
   if (params.disableTools === true || params.isRawModelRun === true) {
     return {
@@ -167,7 +167,7 @@ export function resolveEmbeddedAttemptToolConstructionPlan(params: {
   const includeCoreTools =
     codingToolConstructionPlan.includeBaseCodingTools ||
     codingToolConstructionPlan.includeShellTools ||
-    codingToolConstructionPlan.includeOpenClawTools;
+    codingToolConstructionPlan.includeAlienTools;
   const constructTools =
     includeCoreTools ||
     codingToolConstructionPlan.includeChannelTools ||

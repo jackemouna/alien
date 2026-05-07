@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.types.js";
 import type { FinalizedMsgContext } from "../auto-reply/templating.js";
 import type { RecordInboundSession } from "../channels/session.types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 const deliverInboundReplyWithMessageSendContext = vi.hoisted(() => vi.fn());
 
@@ -72,7 +72,7 @@ describe("recordInboundSessionAndDispatchReply", () => {
     } as FinalizedMsgContext;
 
     await recordChannelMessageReplyDispatch({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       channel: "test",
       accountId: "default",
       agentId: "main",
@@ -115,7 +115,7 @@ describe("recordInboundSessionAndDispatchReply", () => {
     }) as DispatchReplyWithBufferedBlockDispatcher;
 
     await recordInboundSessionAndDispatchReply({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       channel: "telegram",
       accountId: "default",
       agentId: "main",
@@ -178,7 +178,7 @@ describe("recordInboundSessionAndDispatchReply", () => {
     } as FinalizedMsgContext;
 
     await dispatchChannelMessageReplyWithBase({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       channel: "telegram",
       accountId: "default",
       route: {

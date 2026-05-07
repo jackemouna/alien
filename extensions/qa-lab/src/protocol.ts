@@ -1,1 +1,1 @@
-export type * from "openclaw/plugin-sdk/qa-channel-protocol";
+export type * from "alien/plugin-sdk/qa-channel-protocol";

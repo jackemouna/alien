@@ -40,7 +40,7 @@ afterEach(async () => {
 });
 
 async function makeTempDir(label: string): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), `openclaw-${label}-`));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), `alien-${label}-`));
   tempDirs.push(dir);
   return dir;
 }
@@ -68,7 +68,7 @@ async function packPlugin(params: {
         name: params.packageName,
         version: params.version,
         type: "module",
-        openclaw: { extensions: ["./dist/index.js"] },
+        alien: { extensions: ["./dist/index.js"] },
         ...(params.peerDependencies
           ? {
               peerDependencies: params.peerDependencies,
@@ -82,7 +82,7 @@ async function packPlugin(params: {
     "utf8",
   );
   await fs.writeFile(
-    path.join(packageDir, "openclaw.plugin.json"),
+    path.join(packageDir, "alien.plugin.json"),
     `${JSON.stringify(
       {
         id: params.pluginId,
@@ -273,14 +273,14 @@ async function startMutableRegistry(params: {
 }
 
 describe("installPluginFromNpmSpec e2e", () => {
-  it("scrubs root openclaw materialized by required npm peers", async () => {
+  it("scrubs root alien materialized by required npm peers", async () => {
     const rootDir = await makeTempDir("npm-plugin-required-peer-e2e");
     const npmRoot = path.join(rootDir, "managed-npm");
     const packageName = `required-peer-plugin-${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
     const versions = [
       await packPlugin({
         packageName,
-        peerDependencies: { openclaw: ">=2026.0.0" },
+        peerDependencies: { alien: ">=2026.0.0" },
         peerDependenciesMeta: {},
         pluginId: packageName,
         version: "1.0.0",
@@ -289,15 +289,15 @@ describe("installPluginFromNpmSpec e2e", () => {
     ];
     const openClawVersions = [
       await packPlugin({
-        packageName: "openclaw",
-        pluginId: "registry-openclaw-copy",
+        packageName: "alien",
+        pluginId: "registry-alien-copy",
         version: "2026.0.0",
         rootDir,
       }),
     ];
     const registry = await startStaticRegistry([
       { packageName, latest: "1.0.0", versions },
-      { packageName: "openclaw", latest: "2026.0.0", versions: openClawVersions },
+      { packageName: "alien", latest: "2026.0.0", versions: openClawVersions },
     ]);
     process.env.NPM_CONFIG_REGISTRY = registry;
     process.env.npm_config_registry = registry;
@@ -331,7 +331,7 @@ describe("installPluginFromNpmSpec e2e", () => {
     ) as {
       packages?: Record<string, unknown>;
     };
-    expect(rawLock.packages?.["node_modules/openclaw"]).toMatchObject({
+    expect(rawLock.packages?.["node_modules/alien"]).toMatchObject({
       peer: true,
       version: "2026.0.0",
     });
@@ -349,13 +349,13 @@ describe("installPluginFromNpmSpec e2e", () => {
     const lock = JSON.parse(await fs.readFile(path.join(npmRoot, "package-lock.json"), "utf8")) as {
       packages?: Record<string, unknown>;
     };
-    expect(lock.packages?.["node_modules/openclaw"]).toBeUndefined();
-    await expect(fs.lstat(path.join(npmRoot, "node_modules", "openclaw"))).rejects.toMatchObject({
+    expect(lock.packages?.["node_modules/alien"]).toBeUndefined();
+    await expect(fs.lstat(path.join(npmRoot, "node_modules", "alien"))).rejects.toMatchObject({
       code: "ENOENT",
     });
     await expect(
       fs
-        .lstat(path.join(result.targetDir, "node_modules", "openclaw"))
+        .lstat(path.join(result.targetDir, "node_modules", "alien"))
         .then((stat) => stat.isSymbolicLink()),
     ).resolves.toBe(true);
   });
@@ -372,8 +372,8 @@ describe("installPluginFromNpmSpec e2e", () => {
         versions: [
           await packPlugin({
             packageName: codexName,
-            peerDependencies: { openclaw: ">=2026.5.5-beta.2" },
-            peerDependenciesMeta: { openclaw: { optional: true } },
+            peerDependencies: { alien: ">=2026.5.5-beta.2" },
+            peerDependenciesMeta: { alien: { optional: true } },
             pluginId: codexName,
             version: "1.0.0",
             rootDir,
@@ -386,7 +386,7 @@ describe("installPluginFromNpmSpec e2e", () => {
         versions: [
           await packPlugin({
             packageName: opikName,
-            peerDependencies: { openclaw: ">=2026.3.2" },
+            peerDependencies: { alien: ">=2026.3.2" },
             peerDependenciesMeta: {},
             pluginId: opikName,
             version: "1.0.0",
@@ -395,12 +395,12 @@ describe("installPluginFromNpmSpec e2e", () => {
         ],
       },
       {
-        packageName: "openclaw",
+        packageName: "alien",
         latest: "2026.5.4",
         versions: [
           await packPlugin({
-            packageName: "openclaw",
-            pluginId: "registry-openclaw-copy",
+            packageName: "alien",
+            pluginId: "registry-alien-copy",
             version: "2026.5.4",
             rootDir,
           }),
@@ -447,23 +447,23 @@ describe("installPluginFromNpmSpec e2e", () => {
     const lock = JSON.parse(await fs.readFile(path.join(npmRoot, "package-lock.json"), "utf8")) as {
       packages?: Record<string, unknown>;
     };
-    expect(lock.packages?.["node_modules/openclaw"]).toBeUndefined();
-    await expect(fs.lstat(path.join(npmRoot, "node_modules", "openclaw"))).rejects.toMatchObject({
+    expect(lock.packages?.["node_modules/alien"]).toBeUndefined();
+    await expect(fs.lstat(path.join(npmRoot, "node_modules", "alien"))).rejects.toMatchObject({
       code: "ENOENT",
     });
     await expect(
       fs
-        .lstat(path.join(npmRoot, "node_modules", codexName, "node_modules", "openclaw"))
+        .lstat(path.join(npmRoot, "node_modules", codexName, "node_modules", "alien"))
         .then((stat) => stat.isSymbolicLink()),
     ).resolves.toBe(true);
     await expect(
       fs
-        .lstat(path.join(npmRoot, "node_modules", opikName, "node_modules", "openclaw"))
+        .lstat(path.join(npmRoot, "node_modules", opikName, "node_modules", "alien"))
         .then((stat) => stat.isSymbolicLink()),
     ).resolves.toBe(true);
   });
 
-  it("relinks managed npm sibling openclaw peers after later plugin installs", async () => {
+  it("relinks managed npm sibling alien peers after later plugin installs", async () => {
     const rootDir = await makeTempDir("npm-plugin-peer-e2e");
     const npmRoot = path.join(rootDir, "managed-npm");
     const peerPackageName = `peer-plugin-${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
@@ -471,7 +471,7 @@ describe("installPluginFromNpmSpec e2e", () => {
     const peerVersions = [
       await packPlugin({
         packageName: peerPackageName,
-        peerDependencies: { openclaw: ">=2026.0.0" },
+        peerDependencies: { alien: ">=2026.0.0" },
         pluginId: peerPackageName,
         version: "1.0.0",
         rootDir,
@@ -501,7 +501,7 @@ describe("installPluginFromNpmSpec e2e", () => {
     if (!first.ok) {
       throw new Error(first.error);
     }
-    const peerLink = path.join(first.targetDir, "node_modules", "openclaw");
+    const peerLink = path.join(first.targetDir, "node_modules", "alien");
     await expect(fs.lstat(peerLink).then((stat) => stat.isSymbolicLink())).resolves.toBe(true);
 
     const second = await installPluginFromNpmSpec({
@@ -518,11 +518,11 @@ describe("installPluginFromNpmSpec e2e", () => {
     const manifest = JSON.parse(await fs.readFile(path.join(npmRoot, "package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
     };
-    expect(manifest.dependencies?.openclaw).toBeUndefined();
+    expect(manifest.dependencies?.alien).toBeUndefined();
     const lock = JSON.parse(await fs.readFile(path.join(npmRoot, "package-lock.json"), "utf8")) as {
       packages?: Record<string, unknown>;
     };
-    expect(lock.packages?.["node_modules/openclaw"]).toBeUndefined();
+    expect(lock.packages?.["node_modules/alien"]).toBeUndefined();
   });
 
   it("pins a mutable npm tag to the version resolved before install", async () => {

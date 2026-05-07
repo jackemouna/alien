@@ -9,16 +9,16 @@ import {
   normalizeSessionTranscriptPathForComparison,
   parseUsageCountedSessionIdFromFileName,
   sessionPathForFile,
-} from "openclaw/plugin-sdk/memory-core-host-engine-qmd";
-import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-core-host-runtime-files";
+} from "alien/plugin-sdk/memory-core-host-engine-qmd";
+import type { MemorySearchResult } from "alien/plugin-sdk/memory-core-host-runtime-files";
 import {
   formatMemoryDreamingDay,
   resolveMemoryDreamingWorkspaces,
   resolveMemoryLightDreamingConfig,
   resolveMemoryRemDreamingConfig,
-} from "openclaw/plugin-sdk/memory-core-host-status";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
-import { appendRegularFile, privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/memory-core-host-status";
+import type { AlienPluginApi } from "alien/plugin-sdk/plugin-entry";
+import { appendRegularFile, privateFileStore } from "alien/plugin-sdk/security-runtime";
 import { writeDailyDreamingPhaseBlock } from "./dreaming-markdown.js";
 import {
   generateAndAppendDreamNarrative,
@@ -34,7 +34,7 @@ import {
   type ShortTermRecallEntry,
 } from "./short-term-promotion.js";
 
-type Logger = Pick<OpenClawPluginApi["logger"], "info" | "warn" | "error">;
+type Logger = Pick<AlienPluginApi["logger"], "info" | "warn" | "error">;
 type DreamingHostConfig = unknown;
 type DreamingPhaseStorageConfig = {
   timezone?: string;
@@ -71,8 +71,8 @@ type RunPhaseIfTriggeredParams = {
       config: RemDreamingConfig;
     }
 );
-const LIGHT_SLEEP_EVENT_TEXT = "__openclaw_memory_core_light_sleep__";
-const REM_SLEEP_EVENT_TEXT = "__openclaw_memory_core_rem_sleep__";
+const LIGHT_SLEEP_EVENT_TEXT = "__alien_memory_core_light_sleep__";
+const REM_SLEEP_EVENT_TEXT = "__alien_memory_core_rem_sleep__";
 const MEMORY_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DAILY_MEMORY_FILENAME_RE = /^(\d{4}-\d{2}-\d{2})\.md$/;
 const DAILY_INGESTION_STATE_RELATIVE_PATH = path.join("memory", ".dreams", "daily-ingestion.json");
@@ -100,13 +100,13 @@ const GENERIC_DAY_HEADING_RE =
 const MANAGED_DAILY_DREAMING_BLOCKS = [
   {
     heading: "## Light Sleep",
-    startMarker: "<!-- openclaw:dreaming:light:start -->",
-    endMarker: "<!-- openclaw:dreaming:light:end -->",
+    startMarker: "<!-- alien:dreaming:light:start -->",
+    endMarker: "<!-- alien:dreaming:light:end -->",
   },
   {
     heading: "## REM Sleep",
-    startMarker: "<!-- openclaw:dreaming:rem:start -->",
-    endMarker: "<!-- openclaw:dreaming:rem:end -->",
+    startMarker: "<!-- alien:dreaming:rem:start -->",
+    endMarker: "<!-- alien:dreaming:rem:end -->",
   },
 ] as const;
 

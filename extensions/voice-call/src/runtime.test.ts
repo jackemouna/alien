@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/core";
+import type { AlienConfig } from "alien/plugin-sdk/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
@@ -213,7 +213,7 @@ describe("createVoiceCallRuntime lifecycle", () => {
           openai: { enabled: true },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await createVoiceCallRuntime({
       config: createBaseConfig(),
@@ -352,12 +352,12 @@ describe("createVoiceCallRuntime lifecycle", () => {
 
     expect(mocks.realtimeHandlerCtorArgs[0]?.[0]).toMatchObject({
       tools: [
-        expect.objectContaining({ name: "openclaw_agent_consult" }),
+        expect.objectContaining({ name: "alien_agent_consult" }),
         expect.objectContaining({ name: "custom_tool" }),
       ],
     });
     expect(mocks.realtimeHandlerRegisterToolHandler).toHaveBeenCalledWith(
-      "openclaw_agent_consult",
+      "alien_agent_consult",
       expect.any(Function),
     );
 
@@ -495,7 +495,7 @@ describe("createVoiceCallRuntime lifecycle", () => {
     mocks.resolveRealtimeFastContextConsult.mockResolvedValue({
       handled: true,
       result: {
-        text: "Fast OpenClaw memory or session context found.\nThe caller's basement lights are on.",
+        text: "Fast Alien memory or session context found.\nThe caller's basement lights are on.",
       },
     });
 

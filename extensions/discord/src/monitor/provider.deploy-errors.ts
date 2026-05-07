@@ -1,6 +1,6 @@
 import { inspect } from "node:util";
-import { formatDurationSeconds } from "openclaw/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
+import { formatDurationSeconds } from "alien/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "alien/plugin-sdk/ssrf-runtime";
 import { RateLimitError } from "../internal/discord.js";
 
 const DISCORD_DEPLOY_REJECTED_ENTRY_LIMIT = 3;

@@ -8,7 +8,7 @@ describe("write-cli-startup-metadata", () => {
   const { createTempDir } = createScriptTestHarness();
 
   it("writes startup metadata with populated root help text when dist falls back to source rendering", async () => {
-    const tempRoot = createTempDir("openclaw-startup-metadata-");
+    const tempRoot = createTempDir("alien-startup-metadata-");
     const distDir = path.join(tempRoot, "dist");
     const extensionsDir = path.join(tempRoot, "extensions");
     const outputPath = path.join(distDir, "cli-startup-metadata.json");
@@ -18,7 +18,7 @@ describe("write-cli-startup-metadata", () => {
     writeFileSync(
       path.join(extensionsDir, "matrix", "package.json"),
       JSON.stringify({
-        openclaw: {
+        alien: {
           channel: {
             id: "matrix",
             order: 120,
@@ -36,8 +36,8 @@ describe("write-cli-startup-metadata", () => {
       renderBundledRootHelpText: async () => {
         throw new Error("dist root help unavailable");
       },
-      renderSourceRootHelpText: () => "Usage: openclaw\n",
-      renderSourceBrowserHelpText: () => "Usage: openclaw browser\n",
+      renderSourceRootHelpText: () => "Usage: alien\n",
+      renderSourceBrowserHelpText: () => "Usage: alien browser\n",
     });
 
     const written = JSON.parse(readFileSync(outputPath, "utf8")) as {
@@ -47,8 +47,8 @@ describe("write-cli-startup-metadata", () => {
     };
     expect(written.channelOptions).toContain("matrix");
     expect(written.browserHelpText).toContain("Usage:");
-    expect(written.browserHelpText).toContain("openclaw browser");
+    expect(written.browserHelpText).toContain("alien browser");
     expect(written.rootHelpText).toContain("Usage:");
-    expect(written.rootHelpText).toContain("openclaw");
+    expect(written.rootHelpText).toContain("alien");
   });
 });

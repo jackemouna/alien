@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 import { resolveUndiciAutoSelectFamilyConnectOptions } from "./undici-family-policy.js";
 
-export const TEST_UNDICI_RUNTIME_DEPS_KEY = "__OPENCLAW_TEST_UNDICI_RUNTIME_DEPS__";
+export const TEST_UNDICI_RUNTIME_DEPS_KEY = "__ALIEN_TEST_UNDICI_RUNTIME_DEPS__";
 
 export type UndiciRuntimeDeps = {
   Agent: typeof import("undici").Agent;

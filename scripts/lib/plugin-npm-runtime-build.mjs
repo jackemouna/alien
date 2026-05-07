@@ -17,7 +17,7 @@ function readJsonFile(filePath) {
 }
 
 export function isPublishablePluginPackage(packageJson) {
-  return packageJson.openclaw?.release?.publishToNpm === true;
+  return packageJson.alien?.release?.publishToNpm === true;
 }
 
 function normalizePackageEntry(value) {
@@ -61,7 +61,7 @@ function getRecord(value) {
 function createNeverBundleDependencyMatcher(packageJson) {
   const externalDependencies = collectExternalDependencyNames(packageJson);
   return (id) => {
-    if (id === "openclaw" || id.startsWith("openclaw/")) {
+    if (id === "alien" || id.startsWith("alien/")) {
       return true;
     }
     for (const dependency of externalDependencies) {
@@ -116,8 +116,8 @@ export function resolvePluginNpmRuntimePackageFiles(plan) {
       : [],
   );
   merged.add("dist/**");
-  if (packageRelativePathExists(plan.packageDir, "openclaw.plugin.json")) {
-    merged.add("openclaw.plugin.json");
+  if (packageRelativePathExists(plan.packageDir, "alien.plugin.json")) {
+    merged.add("alien.plugin.json");
   }
   if (packageRelativePathExists(plan.packageDir, "README.md")) {
     merged.add("README.md");
@@ -131,7 +131,7 @@ export function resolvePluginNpmRuntimePackageFiles(plan) {
   return [...merged];
 }
 
-function normalizeOpenClawPeerRange(value) {
+function normalizeAlienPeerRange(value) {
   const normalized = normalizePackageEntry(value);
   if (!normalized) {
     return "";
@@ -141,35 +141,35 @@ function normalizeOpenClawPeerRange(value) {
     : `>=${normalized}`;
 }
 
-function resolveOpenClawPeerRange(packageJson, rootPackageJson) {
+function resolveAlienPeerRange(packageJson, rootPackageJson) {
   return (
-    normalizeOpenClawPeerRange(packageJson.openclaw?.compat?.pluginApi) ||
-    normalizeOpenClawPeerRange(packageJson.peerDependencies?.openclaw) ||
-    normalizeOpenClawPeerRange(packageJson.openclaw?.build?.openclawVersion) ||
-    normalizeOpenClawPeerRange(rootPackageJson?.version) ||
-    normalizeOpenClawPeerRange(packageJson.version)
+    normalizeAlienPeerRange(packageJson.alien?.compat?.pluginApi) ||
+    normalizeAlienPeerRange(packageJson.peerDependencies?.alien) ||
+    normalizeAlienPeerRange(packageJson.alien?.build?.alienVersion) ||
+    normalizeAlienPeerRange(rootPackageJson?.version) ||
+    normalizeAlienPeerRange(packageJson.version)
   );
 }
 
 export function resolvePluginNpmRuntimePackagePeerMetadata(plan) {
-  const openclawPeerRange = resolveOpenClawPeerRange(plan.packageJson, plan.rootPackageJson);
-  if (!openclawPeerRange) {
+  const alienPeerRange = resolveAlienPeerRange(plan.packageJson, plan.rootPackageJson);
+  if (!alienPeerRange) {
     throw new Error(
-      `cannot infer openclaw peerDependency range for ${plan.pluginDir}; set openclaw.compat.pluginApi or package version`,
+      `cannot infer alien peerDependency range for ${plan.pluginDir}; set alien.compat.pluginApi or package version`,
     );
   }
   const existingPeerDependencies = getStringRecord(plan.packageJson.peerDependencies);
   const existingPeerDependenciesMeta = getRecord(plan.packageJson.peerDependenciesMeta);
-  const existingOpenClawMeta = getRecord(existingPeerDependenciesMeta.openclaw);
+  const existingAlienMeta = getRecord(existingPeerDependenciesMeta.alien);
   return {
     peerDependencies: {
       ...existingPeerDependencies,
-      openclaw: openclawPeerRange,
+      alien: alienPeerRange,
     },
     peerDependenciesMeta: {
       ...existingPeerDependenciesMeta,
-      openclaw: {
-        ...existingOpenClawMeta,
+      alien: {
+        ...existingAlienMeta,
         optional: true,
       },
     },
@@ -221,15 +221,15 @@ export function resolvePluginNpmRuntimeBuildPlan(params) {
     sourceEntries,
     entry,
     outDir: path.join(packageDir, "dist"),
-    runtimeExtensions: (Array.isArray(packageJson.openclaw?.extensions)
-      ? packageJson.openclaw.extensions
+    runtimeExtensions: (Array.isArray(packageJson.alien?.extensions)
+      ? packageJson.alien.extensions
       : []
     )
       .map(normalizePackageEntry)
       .filter(Boolean)
       .map(toPackageRuntimeEntry),
-    runtimeSetupEntry: normalizePackageEntry(packageJson.openclaw?.setupEntry)
-      ? toPackageRuntimeEntry(packageJson.openclaw.setupEntry)
+    runtimeSetupEntry: normalizePackageEntry(packageJson.alien?.setupEntry)
+      ? toPackageRuntimeEntry(packageJson.alien.setupEntry)
       : undefined,
   };
   return {

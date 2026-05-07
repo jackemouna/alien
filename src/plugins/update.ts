@@ -1,17 +1,17 @@
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import { parseClawHubPluginSpec } from "../infra/clawhub-spec.js";
 import type { NpmSpecResolution } from "../infra/install-source-utils.js";
 import { resolveNpmSpecMetadata } from "../infra/install-source-utils.js";
 import {
-  compareOpenClawReleaseVersions,
+  compareAlienReleaseVersions,
   isPrereleaseResolutionAllowed,
   parseRegistryNpmSpec,
 } from "../infra/npm-registry-spec.js";
 import {
   expectedIntegrityForUpdate,
-  installedPackageNeedsOpenClawPeerLinkRepair,
+  installedPackageNeedsAlienPeerLinkRepair,
   readInstalledPackagePeerDependencies,
   readInstalledPackageVersion,
 } from "../infra/package-update-utils.js";
@@ -47,7 +47,7 @@ import {
   getOfficialExternalPluginCatalogEntry,
   resolveOfficialExternalPluginInstall,
 } from "./official-external-plugin-catalog.js";
-import { linkOpenClawPeerDependencies } from "./plugin-peer-link.js";
+import { linkAlienPeerDependencies } from "./plugin-peer-link.js";
 
 export type PluginUpdateLogger = {
   info?: (message: string) => void;
@@ -66,7 +66,7 @@ export type PluginUpdateOutcome = {
 };
 
 export type PluginUpdateSummary = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   changed: boolean;
   outcomes: PluginUpdateOutcome[];
 };
@@ -90,7 +90,7 @@ export type PluginChannelSyncSummary = {
 };
 
 export type PluginChannelSyncResult = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   changed: boolean;
   summary: PluginChannelSyncSummary;
 };
@@ -209,7 +209,7 @@ function shouldBypassTrustedOfficialUnchangedNpmCheck(params: {
 }
 
 function isBundledVersionNewer(bundledVersion: string, installedVersion: string): boolean {
-  const releaseCmp = compareOpenClawReleaseVersions(bundledVersion, installedVersion);
+  const releaseCmp = compareAlienReleaseVersions(bundledVersion, installedVersion);
   if (releaseCmp !== null) {
     return releaseCmp > 0;
   }
@@ -371,7 +371,7 @@ function resolveBridgeInstallRecord(params: {
 }
 
 function isBridgeChannelEnabledByConfig(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   bridge: ExternalizedBundledPluginBridge;
 }): boolean {
   const channels = params.config.channels;
@@ -391,7 +391,7 @@ function isBridgeChannelEnabledByConfig(params: {
 }
 
 function isExternalizedBundledPluginEnabled(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   bridge: ExternalizedBundledPluginBridge;
 }): boolean {
   const normalized = normalizePluginsConfig(params.config.plugins);
@@ -662,7 +662,7 @@ function replacePluginIdInList(
   return next;
 }
 
-function migratePluginConfigId(cfg: OpenClawConfig, fromId: string, toId: string): OpenClawConfig {
+function migratePluginConfigId(cfg: AlienConfig, fromId: string, toId: string): AlienConfig {
   if (fromId === toId) {
     return cfg;
   }
@@ -743,7 +743,7 @@ function createPluginUpdateIntegrityDriftHandler(params: {
   };
 }
 
-function disablePluginConfigEntry(config: OpenClawConfig, pluginId: string): OpenClawConfig {
+function disablePluginConfigEntry(config: AlienConfig, pluginId: string): AlienConfig {
   const existingEntry = config.plugins?.entries?.[pluginId];
   return {
     ...config,
@@ -760,8 +760,8 @@ function disablePluginConfigEntry(config: OpenClawConfig, pluginId: string): Ope
   };
 }
 
-async function repairOpenClawPeerLinksForNpmInstalls(params: {
-  config: OpenClawConfig;
+async function repairAlienPeerLinksForNpmInstalls(params: {
+  config: AlienConfig;
   logger: PluginUpdateLogger;
 }): Promise<boolean> {
   let repaired = false;
@@ -777,30 +777,30 @@ async function repairOpenClawPeerLinksForNpmInstalls(params: {
       );
     } catch (err) {
       params.logger.warn?.(
-        `Could not repair openclaw peer link for "${pluginId}" due to invalid install path: ${String(err)}`,
+        `Could not repair alien peer link for "${pluginId}" due to invalid install path: ${String(err)}`,
       );
       continue;
     }
 
-    if (!installedPackageNeedsOpenClawPeerLinkRepair(installPath)) {
+    if (!installedPackageNeedsAlienPeerLinkRepair(installPath)) {
       continue;
     }
 
     const peerDependencies = readInstalledPackagePeerDependencies(installPath);
-    if (!Object.hasOwn(peerDependencies, "openclaw")) {
+    if (!Object.hasOwn(peerDependencies, "alien")) {
       continue;
     }
 
     try {
-      await linkOpenClawPeerDependencies({
+      await linkAlienPeerDependencies({
         installedDir: installPath,
         peerDependencies,
         logger: params.logger,
       });
-      repaired = !installedPackageNeedsOpenClawPeerLinkRepair(installPath) || repaired;
+      repaired = !installedPackageNeedsAlienPeerLinkRepair(installPath) || repaired;
     } catch (err) {
       params.logger.warn?.(
-        `Could not repair openclaw peer link for "${pluginId}" at ${installPath}: ${String(err)}`,
+        `Could not repair alien peer link for "${pluginId}" at ${installPath}: ${String(err)}`,
       );
     }
   }
@@ -808,7 +808,7 @@ async function repairOpenClawPeerLinksForNpmInstalls(params: {
 }
 
 export async function updateNpmInstalledPlugins(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   logger?: PluginUpdateLogger;
   pluginIds?: string[];
   skipIds?: Set<string>;
@@ -843,7 +843,7 @@ export async function updateNpmInstalledPlugins(params: {
   const recordFailure = (pluginId: string, message: string) => {
     if (params.disableOnFailure && !params.dryRun) {
       const disabledMessage =
-        `Disabled "${pluginId}" after plugin update failure; OpenClaw will continue without it. ` +
+        `Disabled "${pluginId}" after plugin update failure; Alien will continue without it. ` +
         message;
       logger.warn?.(disabledMessage);
       next = disablePluginConfigEntry(next, pluginId);
@@ -1058,7 +1058,7 @@ export async function updateNpmInstalledPlugins(params: {
             spec: effectiveSpec!,
             trustedSourceLinkedOfficialInstall,
           }) &&
-          !installedPackageNeedsOpenClawPeerLinkRepair(installPath) &&
+          !installedPackageNeedsAlienPeerLinkRepair(installPath) &&
           shouldSkipUnchangedNpmInstall({
             currentVersion,
             record,
@@ -1498,7 +1498,7 @@ export async function updateNpmInstalledPlugins(params: {
 
   if (ranNpmInstaller) {
     changed =
-      (await repairOpenClawPeerLinksForNpmInstalls({
+      (await repairAlienPeerLinksForNpmInstalls({
         config: next,
         logger,
       })) || changed;
@@ -1508,7 +1508,7 @@ export async function updateNpmInstalledPlugins(params: {
 }
 
 export async function syncPluginsForUpdateChannel(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   channel: UpdateChannel;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;

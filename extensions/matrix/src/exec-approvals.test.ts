@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   getMatrixExecApprovalApprovers,
@@ -28,15 +28,15 @@ afterEach(() => {
 });
 
 function createTempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-matrix-exec-approvals-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-matrix-exec-approvals-"));
   tempDirs.push(dir);
   return dir;
 }
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<OpenClawConfig["channels"]>["matrix"]>["execApprovals"],
-  channelOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["channels"]>["matrix"]>>,
-): OpenClawConfig {
+  execApprovals?: NonNullable<NonNullable<AlienConfig["channels"]>["matrix"]>["execApprovals"],
+  channelOverrides?: Partial<NonNullable<NonNullable<AlienConfig["channels"]>["matrix"]>>,
+): AlienConfig {
   return {
     channels: {
       matrix: {
@@ -47,7 +47,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function matrixAccount(
@@ -70,7 +70,7 @@ function buildMultiAccountMatrixConfig(params: {
   opsExecApprovals?: MatrixExecApprovalConfig;
   defaultOverrides?: Partial<MatrixAccountConfig>;
   opsOverrides?: Partial<MatrixAccountConfig>;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     ...(params.sessionStorePath ? { session: { store: params.sessionStorePath } } : {}),
     channels: {
@@ -95,7 +95,7 @@ function buildMultiAccountMatrixConfig(params: {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function makeForeignChannelApprovalRequest(params: {
@@ -183,7 +183,7 @@ describe("matrix exec approvals", () => {
           ],
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(isMatrixExecApprovalTargetRecipient({ cfg, senderId: "@target:example.org" })).toBe(
       true,

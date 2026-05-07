@@ -1,16 +1,16 @@
 import type { LegacyConfigRule } from "../../config/legacy.shared.js";
-import type { OpenClawConfig } from "../../config/types.js";
+import type { AlienConfig } from "../../config/types.js";
 import { loadBundledPluginPublicArtifactModuleSync } from "../../plugins/public-surface-loader.js";
 
 type BundledChannelDoctorCompatibilityMutation = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   changes: string[];
 };
 
 type BundledChannelDoctorContractApi = {
   legacyConfigRules?: readonly LegacyConfigRule[];
   normalizeCompatibilityConfig?: (params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
   }) => BundledChannelDoctorCompatibilityMutation;
 };
 

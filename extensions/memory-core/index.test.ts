@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import {
   buildMemoryFlushPlan,
@@ -61,7 +61,7 @@ describe("buildMemoryFlushPlan", () => {
         timeFormat: "12",
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 
   it("replaces YYYY-MM-DD using user timezone and appends current time", () => {
     const plan = buildMemoryFlushPlan({

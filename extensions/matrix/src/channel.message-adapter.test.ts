@@ -2,9 +2,9 @@ import {
   verifyChannelMessageAdapterCapabilityProofs,
   verifyChannelMessageLiveCapabilityAdapterProofs,
   verifyChannelMessageLiveFinalizerProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../runtime-api.js";
+import type { AlienConfig } from "../runtime-api.js";
 
 const mocks = vi.hoisted(() => ({
   sendMessageMatrix: vi.fn(),
@@ -34,7 +34,7 @@ const cfg = {
       accessToken: "resolved-token",
     },
   },
-} as OpenClawConfig;
+} as AlienConfig;
 
 describe("matrix channel message adapter", () => {
   beforeEach(() => {
@@ -70,7 +70,7 @@ describe("matrix channel message adapter", () => {
         to: "room:!room:example",
         text: "caption",
         mediaUrl: "file:///tmp/cat.png",
-        mediaLocalRoots: ["/tmp/openclaw"],
+        mediaLocalRoots: ["/tmp/alien"],
         accountId: "default",
         audioAsVoice: true,
       });
@@ -80,7 +80,7 @@ describe("matrix channel message adapter", () => {
         expect.objectContaining({
           cfg,
           mediaUrl: "file:///tmp/cat.png",
-          mediaLocalRoots: ["/tmp/openclaw"],
+          mediaLocalRoots: ["/tmp/alien"],
           audioAsVoice: true,
         }),
       );

@@ -8,7 +8,7 @@ import {
   legacyModelKey,
   modelKey,
 } from "../agents/model-selection.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { getResolvedLoggerSettings } from "../logging.js";
 import { collectEnabledInsecureOrDangerousFlags } from "../security/dangerous-config-flags.js";
 
@@ -23,7 +23,7 @@ type StartupThinkLevel =
   | "max";
 
 export function logGatewayStartup(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   bindHost: string;
   bindHosts?: string[];
   port: number;
@@ -63,7 +63,7 @@ export function logGatewayStartup(params: {
   if (enabledDangerousFlags.length > 0) {
     const warning =
       `security warning: dangerous config flags enabled: ${enabledDangerousFlags.join(", ")}. ` +
-      "Run `openclaw security audit`.";
+      "Run `alien security audit`.";
     params.log.warn(warning);
   }
 }
@@ -82,7 +82,7 @@ function normalizeStartupThinkLevel(value: unknown): StartupThinkLevel | undefin
 }
 
 function resolveExplicitStartupThinking(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   provider: string;
   model: string;
   defaultAgentThinking: unknown;
@@ -99,7 +99,7 @@ function resolveExplicitStartupThinking(params: {
 }
 
 export function formatAgentModelStartupDetails(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   provider: string;
   model: string;
 }): string {

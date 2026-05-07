@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveDefaultSecretProviderAlias } from "openclaw/plugin-sdk/provider-auth";
-import { coerceSecretRef, normalizeSecretInputString } from "openclaw/plugin-sdk/secret-input";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveDefaultSecretProviderAlias } from "alien/plugin-sdk/provider-auth";
+import { coerceSecretRef, normalizeSecretInputString } from "alien/plugin-sdk/secret-input";
 import { getPlatformAdapter } from "../engine/adapter/index.js";
 import {
   DEFAULT_ACCOUNT_ID as ENGINE_DEFAULT_ACCOUNT_ID,
@@ -30,7 +30,7 @@ function assertNotLegacySecretRefMarker(value: unknown, path: string): void {
 }
 
 function resolveEnvSecretRefValue(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   value: unknown;
   env?: NodeJS.ProcessEnv;
 }): string | undefined {
@@ -61,7 +61,7 @@ function resolveEnvSecretRefValue(params: {
 }
 
 function resolveQQBotClientSecretInput(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   value: unknown;
   path: string;
 }): string | undefined {
@@ -82,18 +82,18 @@ function resolveQQBotClientSecretInput(params: {
 }
 
 /** List all configured QQBot account IDs. */
-export function listQQBotAccountIds(cfg: OpenClawConfig): string[] {
+export function listQQBotAccountIds(cfg: AlienConfig): string[] {
   return listAccountIds(cfg as unknown as Record<string, unknown>);
 }
 
 /** Resolve the default QQBot account ID. */
-export function resolveDefaultQQBotAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultQQBotAccountId(cfg: AlienConfig): string {
   return resolveDefaultAccountId(cfg as unknown as Record<string, unknown>);
 }
 
 /** Resolve QQBot account config for runtime or setup flows. */
 export function resolveQQBotAccount(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId?: string | null,
   opts?: { allowUnresolvedSecretRef?: boolean },
 ): ResolvedQQBotAccount {
@@ -157,9 +157,9 @@ export function resolveQQBotAccount(
   };
 }
 
-/** Apply account config updates back into the OpenClaw config object. */
+/** Apply account config updates back into the Alien config object. */
 export function applyQQBotAccountConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   input: {
     appId?: string;
@@ -167,10 +167,10 @@ export function applyQQBotAccountConfig(
     clientSecretFile?: string;
     name?: string;
   },
-): OpenClawConfig {
+): AlienConfig {
   return applyAccountConfig(
     cfg as unknown as Record<string, unknown>,
     accountId,
     input,
-  ) as OpenClawConfig;
+  ) as AlienConfig;
 }

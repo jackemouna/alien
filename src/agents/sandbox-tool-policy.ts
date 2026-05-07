@@ -1,7 +1,7 @@
 import type { SandboxToolPolicy } from "./sandbox/types.js";
 
 export const IMPLICIT_ALLOW_ALL_FROM_ALSO_ALLOW = Symbol.for(
-  "openclaw.toolPolicy.implicitAllowAllFromAlsoAllow",
+  "alien.toolPolicy.implicitAllowAllFromAlsoAllow",
 );
 
 type SandboxToolPolicyConfig = {

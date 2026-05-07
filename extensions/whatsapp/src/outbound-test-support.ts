@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export function createWhatsAppPollFixture() {
-  const cfg = { marker: "resolved-cfg" } as OpenClawConfig;
+  const cfg = { marker: "resolved-cfg" } as AlienConfig;
   const poll = {
     question: "Lunch?",
     options: ["Pizza", "Sushi"],

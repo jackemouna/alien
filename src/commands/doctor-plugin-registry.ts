@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { saveJsonFile } from "../infra/json-file.js";
 import { tryReadJsonSync } from "../infra/json-files.js";
 import { resolveDefaultPluginNpmDir } from "../plugins/install-paths.js";
@@ -20,7 +20,7 @@ import {
 
 type PluginRegistryDoctorRepairParams = Omit<PluginRegistryInstallMigrationParams, "config"> &
   InstalledPluginIndexRecordStoreOptions & {
-    config: OpenClawConfig;
+    config: AlienConfig;
     prompter: Pick<DoctorPrompter, "shouldRepair">;
   };
 
@@ -69,7 +69,7 @@ function readPackageVersion(packageDir: string): string | undefined {
 }
 
 function readPluginManifestId(packageDir: string): string | undefined {
-  const manifest = readJsonObject(path.join(packageDir, "openclaw.plugin.json"));
+  const manifest = readJsonObject(path.join(packageDir, "alien.plugin.json"));
   const id = manifest?.id;
   return typeof id === "string" && id.trim() ? id.trim() : undefined;
 }
@@ -92,7 +92,7 @@ function listStaleManagedNpmBundledPlugins(
   const stale: StaleManagedNpmBundledPlugin[] = [];
 
   for (const packageName of Object.keys(dependencies).toSorted()) {
-    if (!packageName.startsWith("@openclaw/")) {
+    if (!packageName.startsWith("@alien/")) {
       continue;
     }
     const bundled = bundledByPackage.get(packageName);
@@ -202,7 +202,7 @@ export function maybeRepairStaleManagedNpmBundledPlugins(
           (plugin) =>
             `- ${plugin.pluginId}: ${plugin.packageName}${plugin.version ? `@${plugin.version}` : ""}`,
         ),
-        `Repair with ${formatCliCommand("openclaw doctor --fix")} to remove stale managed npm packages and rebuild the plugin registry.`,
+        `Repair with ${formatCliCommand("alien doctor --fix")} to remove stale managed npm packages and rebuild the plugin registry.`,
       ].join("\n"),
       "Plugin registry",
     );
@@ -227,7 +227,7 @@ export function maybeRepairStaleManagedNpmBundledPlugins(
 
 export async function maybeRepairPluginRegistryState(
   params: PluginRegistryDoctorRepairParams,
-): Promise<OpenClawConfig> {
+): Promise<AlienConfig> {
   const preflight = preflightPluginRegistryInstallMigration(params);
   for (const warning of preflight.deprecationWarnings) {
     note(warning, "Plugin registry");
@@ -250,7 +250,7 @@ export async function maybeRepairPluginRegistryState(
       note(
         [
           "Persisted plugin registry is missing or stale.",
-          `Repair with ${formatCliCommand("openclaw doctor --fix")} to rebuild ${shortenHomePath(preflight.filePath)} from enabled plugins.`,
+          `Repair with ${formatCliCommand("alien doctor --fix")} to rebuild ${shortenHomePath(preflight.filePath)} from enabled plugins.`,
         ].join("\n"),
         "Plugin registry",
       );

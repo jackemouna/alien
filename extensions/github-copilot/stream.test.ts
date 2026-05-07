@@ -1,4 +1,4 @@
-import { buildCopilotDynamicHeaders } from "openclaw/plugin-sdk/provider-stream-shared";
+import { buildCopilotDynamicHeaders } from "alien/plugin-sdk/provider-stream-shared";
 import { describe, expect, it, vi } from "vitest";
 import {
   wrapCopilotAnthropicStream,
@@ -205,7 +205,7 @@ describe("wrapCopilotAnthropicStream", () => {
     expect(baseStreamFn).toHaveBeenCalledOnce();
   });
 
-  it("does not claim provider transport before OpenClaw chooses one", () => {
+  it("does not claim provider transport before Alien chooses one", () => {
     expect(
       wrapCopilotProviderStream({
         streamFn: undefined,

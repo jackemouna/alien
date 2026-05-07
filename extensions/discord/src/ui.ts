@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { Container } from "./internal/discord.js";
 import { normalizeDiscordAccentColor, resolveDiscordAccentColor } from "./ui-colors.js";
 
@@ -6,7 +6,7 @@ type DiscordContainerComponents = ConstructorParameters<typeof Container>[0];
 
 export class DiscordUiContainer extends Container {
   constructor(params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     accountId?: string | null;
     components?: DiscordContainerComponents;
     accentColor?: string;

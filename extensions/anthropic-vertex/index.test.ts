@@ -1,4 +1,4 @@
-import { registerSingleProviderPlugin } from "openclaw/plugin-sdk/plugin-test-runtime";
+import { registerSingleProviderPlugin } from "alien/plugin-sdk/plugin-test-runtime";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 const { hasAnthropicVertexAvailableAuthMock } = vi.hoisted(() => ({

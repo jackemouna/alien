@@ -3,31 +3,31 @@ import {
   buildMentionRegexes,
   matchesMentionPatterns,
   resolveInboundMentionDecision,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { createChannelPairingChallengeIssuer } from "openclaw/plugin-sdk/channel-pairing";
-import { hasControlCommand, resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-inbound";
+import { createChannelPairingChallengeIssuer } from "alien/plugin-sdk/channel-pairing";
+import { hasControlCommand, resolveControlCommandGate } from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   readChannelAllowFromStore,
   resolvePairingIdLabel,
   upsertChannelPairingRequest,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { evaluateMatchedGroupAccessForPolicy } from "openclaw/plugin-sdk/group-access";
-import { createClaimableDedupe, type ClaimableDedupe } from "openclaw/plugin-sdk/persistent-dedupe";
+} from "alien/plugin-sdk/conversation-runtime";
+import { evaluateMatchedGroupAccessForPolicy } from "alien/plugin-sdk/group-access";
+import { createClaimableDedupe, type ClaimableDedupe } from "alien/plugin-sdk/persistent-dedupe";
 import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   clearHistoryEntriesIfEnabled,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-import { danger, logVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/reply-history";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime";
+import { danger, logVerbose } from "alien/plugin-sdk/runtime-env";
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
+} from "alien/plugin-sdk/runtime-group-policy";
 import {
   firstDefined,
   isSenderAllowed,
@@ -73,7 +73,7 @@ function isDownloadableLineMessageType(
 }
 
 export interface LineHandlerContext {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;
@@ -401,7 +401,7 @@ function resolveEventRawText(event: MessageEvent | PostbackEvent): string {
 }
 
 function resolveLineCommandAuthorized(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   event: MessageEvent | PostbackEvent;
   senderId?: string;
   allow: NormalizedAllowFrom;

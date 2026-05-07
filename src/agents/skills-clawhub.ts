@@ -286,7 +286,7 @@ async function performClawHubSkillInstall(
     try {
       const install = await withExtractedArchiveRoot({
         archivePath: archive.archivePath,
-        tempDirPrefix: "openclaw-skill-clawhub-",
+        tempDirPrefix: "alien-skill-clawhub-",
         timeoutMs: 120_000,
         rootMarkers: ["SKILL.md"],
         onExtracted: async (rootDir) =>

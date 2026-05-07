@@ -6,8 +6,8 @@ import {
   clearMemoryEmbeddingProviders as clearRegistry,
   listRegisteredMemoryEmbeddingProviderAdapters as listRegisteredAdapters,
   registerMemoryEmbeddingProvider as registerAdapter,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
-import { resolveSessionTranscriptsDirForAgent } from "openclaw/plugin-sdk/memory-core-host-runtime-core";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
+import { resolveSessionTranscriptsDirForAgent } from "alien/plugin-sdk/memory-core-host-runtime-core";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import "./test-runtime-mocks.js";
 import type { MemoryIndexManager } from "./index.js";
@@ -157,7 +157,7 @@ describe("memory index", () => {
   const managersForCleanup = new Set<MemoryIndexManager>();
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-fixtures-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "alien-mem-fixtures-"));
     workspaceDir = path.join(fixtureRoot, "workspace");
     memoryDir = path.join(workspaceDir, "memory");
     indexMainPath = path.join(workspaceDir, "index-main.sqlite");
@@ -182,7 +182,7 @@ describe("memory index", () => {
     vi.useRealTimers();
     // Perf: most suites don't need atomic swap behavior for full reindexes.
     // Keep atomic reindex tests on the safe path.
-    vi.stubEnv("OPENCLAW_TEST_MEMORY_UNSAFE_REINDEX", "1");
+    vi.stubEnv("ALIEN_TEST_MEMORY_UNSAFE_REINDEX", "1");
     clearRegistry();
     registerBuiltInMemoryEmbeddingProviders({ registerMemoryEmbeddingProvider: registerAdapter });
     embedBatchCalls = 0;
@@ -315,7 +315,7 @@ describe("memory index", () => {
     storeFileName: string;
   }): Promise<MemoryIndexManager | null> {
     forceNoProvider = true;
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, params.stateDirName));
+    vi.stubEnv("ALIEN_STATE_DIR", path.join(workspaceDir, params.stateDirName));
     const cfg = createCfg({
       storePath: path.join(workspaceDir, params.storeFileName),
       sources: ["memory", "sessions"],
@@ -467,7 +467,7 @@ describe("memory index", () => {
   });
 
   it("streams embedding cache rows during safe reindex", async () => {
-    vi.stubEnv("OPENCLAW_TEST_MEMORY_UNSAFE_REINDEX", "0");
+    vi.stubEnv("ALIEN_TEST_MEMORY_UNSAFE_REINDEX", "0");
     type EmbeddingCacheRow = {
       provider: string;
       model: string;

@@ -1,5 +1,5 @@
 import type { SecretRefSource } from "../config/types.secrets.js";
-import { listOpenClawPluginManifestMetadata } from "../plugins/manifest-metadata-scan.js";
+import { listAlienPluginManifestMetadata } from "../plugins/manifest-metadata-scan.js";
 import { listKnownProviderEnvApiKeyNames } from "./model-auth-env-vars.js";
 
 export const MINIMAX_OAUTH_MARKER = "minimax-oauth";
@@ -55,7 +55,7 @@ export function listKnownNonSecretApiKeyMarkers(): string[] {
   knownNonSecretApiKeyMarkersCache ??= [
     ...new Set([
       ...CORE_NON_SECRET_API_KEY_MARKERS,
-      ...listOpenClawPluginManifestMetadata().flatMap((plugin) =>
+      ...listAlienPluginManifestMetadata().flatMap((plugin) =>
         plugin.origin === "bundled"
           ? normalizeStringList(plugin.manifest.nonSecretAuthMarkers)
           : [],

@@ -7,12 +7,12 @@ read_when:
 title: "Discovery and transports"
 ---
 
-OpenClaw has two distinct problems that look similar on the surface:
+Alien has two distinct problems that look similar on the surface:
 
 1. **Operator remote control**: the macOS menu bar app controlling a gateway running elsewhere.
 2. **Node pairing**: iOS/Android (and future nodes) finding a gateway and pairing securely.
 
-The design goal is to keep all network discovery/advertising in the **Node Gateway** (`openclaw gateway`) and keep clients (mac app, iOS) as consumers.
+The design goal is to keep all network discovery/advertising in the **Node Gateway** (`alien gateway`) and keep clients (mac app, iOS) as consumers.
 
 ## Terms
 
@@ -44,7 +44,7 @@ Protocol details:
 
 ### 1) Bonjour / DNS-SD discovery
 
-Multicast Bonjour is best-effort and does not cross networks. OpenClaw can also browse the
+Multicast Bonjour is best-effort and does not cross networks. Alien can also browse the
 same gateway beacon via a configured wide-area DNS-SD domain, so discovery can cover:
 
 - `local.` on the same LAN
@@ -62,7 +62,7 @@ Troubleshooting and beacon details: [Bonjour](/gateway/bonjour).
 #### Service beacon details
 
 - Service types:
-  - `_openclaw-gw._tcp` (gateway transport beacon)
+  - `_alien-gw._tcp` (gateway transport beacon)
 - TXT keys (non-secret):
   - `role=gateway`
   - `transport=gateway`
@@ -85,18 +85,18 @@ Security notes:
 
 Enable/disable/override:
 
-- `openclaw plugins enable bonjour` enables LAN multicast advertising.
-- `OPENCLAW_DISABLE_BONJOUR=1` disables advertising.
-- When the Bonjour plugin is enabled and `OPENCLAW_DISABLE_BONJOUR` is unset,
+- `alien plugins enable bonjour` enables LAN multicast advertising.
+- `ALIEN_DISABLE_BONJOUR=1` disables advertising.
+- When the Bonjour plugin is enabled and `ALIEN_DISABLE_BONJOUR` is unset,
   Bonjour advertises on normal hosts and auto-disables inside detected containers.
   Empty-config macOS Gateway startup enables the plugin automatically; Linux,
   Windows, and containerized deployments need explicit enablement.
   Use `0` only on host, macvlan, or another mDNS-capable network; use `1` to
   force-disable.
-- `gateway.bind` in `~/.openclaw/openclaw.json` controls the Gateway bind mode.
-- `OPENCLAW_SSH_PORT` overrides the SSH port advertised when `sshPort` is emitted.
-- `OPENCLAW_TAILNET_DNS` publishes a `tailnetDns` hint (MagicDNS).
-- `OPENCLAW_CLI_PATH` overrides the advertised CLI path.
+- `gateway.bind` in `~/.alien/alien.json` controls the Gateway bind mode.
+- `ALIEN_SSH_PORT` overrides the SSH port advertised when `sshPort` is emitted.
+- `ALIEN_TAILNET_DNS` publishes a `tailnetDns` hint (MagicDNS).
+- `ALIEN_CLI_PATH` overrides the advertised CLI path.
 
 ### 2) Tailnet (cross-network)
 

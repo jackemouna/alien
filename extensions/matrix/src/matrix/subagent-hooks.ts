@@ -1,15 +1,15 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
 import {
   getSessionBindingService,
   type SessionBindingRecord,
-} from "openclaw/plugin-sdk/conversation-binding-runtime";
+} from "alien/plugin-sdk/conversation-binding-runtime";
 import {
   formatThreadBindingDisabledError,
   formatThreadBindingSpawnDisabledError,
   resolveThreadBindingSpawnPolicy,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
+import type { AlienPluginApi } from "alien/plugin-sdk/core";
+import { normalizeOptionalString } from "alien/plugin-sdk/string-coerce-runtime";
 import { resolveMatrixTargetIdentity } from "./target-ids.js";
 import {
   getMatrixThreadBindingManager,
@@ -103,7 +103,7 @@ function resolveMatrixBindingDeliveryOrigin(
 }
 
 export async function handleMatrixSubagentSpawning(
-  api: OpenClawPluginApi,
+  api: AlienPluginApi,
   event: MatrixSubagentSpawningEvent,
 ): Promise<SpawningResult | undefined> {
   if (!event.threadRequested) {

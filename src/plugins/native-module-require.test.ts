@@ -10,7 +10,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeTempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-native-require-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-native-require-"));
   tempDirs.push(dir);
   return dir;
 }
@@ -67,7 +67,7 @@ describe("tryNativeRequireJavaScriptModule", () => {
   it("declines missing dependency errors when source-transform fallback is available", () => {
     const dir = makeTempDir();
     const modulePath = path.join(dir, "plugin.cjs");
-    fs.writeFileSync(modulePath, 'require("openclaw/plugin-sdk");\n', "utf8");
+    fs.writeFileSync(modulePath, 'require("alien/plugin-sdk");\n', "utf8");
 
     expect(
       tryNativeRequireJavaScriptModule(modulePath, {

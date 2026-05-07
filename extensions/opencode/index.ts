@@ -1,11 +1,11 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "openclaw/plugin-sdk/provider-auth-api-key";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "alien/plugin-sdk/provider-auth-api-key";
 import {
   matchesExactOrPrefix,
   PASSTHROUGH_GEMINI_REPLAY_HOOKS,
   resolveClaudeThinkingProfile,
-} from "openclaw/plugin-sdk/provider-model-shared";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/provider-model-shared";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { applyOpencodeZenConfig, OPENCODE_ZEN_DEFAULT_MODEL } from "./api.js";
 import { opencodeMediaUnderstandingProvider } from "./media-understanding-provider.js";
 

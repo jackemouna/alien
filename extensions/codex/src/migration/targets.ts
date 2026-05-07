@@ -3,8 +3,8 @@ import {
   resolveAgentConfig,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
-} from "openclaw/plugin-sdk/agent-runtime";
-import type { MigrationProviderContext } from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/agent-runtime";
+import type { MigrationProviderContext } from "alien/plugin-sdk/plugin-entry";
 import { resolveHomePath } from "./helpers.js";
 
 type CodexMigrationTargets = {

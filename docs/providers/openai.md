@@ -1,26 +1,26 @@
 ---
-summary: "Use OpenAI via API keys or Codex subscription in OpenClaw"
+summary: "Use OpenAI via API keys or Codex subscription in Alien"
 read_when:
-  - You want to use OpenAI models in OpenClaw
+  - You want to use OpenAI models in Alien
   - You want Codex subscription auth instead of API keys
   - You need stricter GPT-5 agent execution behavior
 title: "OpenAI"
 ---
 
 OpenAI provides developer APIs for GPT models, and Codex is also available as a
-ChatGPT-plan coding agent through OpenAI's Codex clients. OpenClaw keeps those
+ChatGPT-plan coding agent through OpenAI's Codex clients. Alien keeps those
 surfaces separate so config stays predictable.
 
-OpenClaw supports three OpenAI-family routes. Most ChatGPT/Codex subscribers
+Alien supports three OpenAI-family routes. Most ChatGPT/Codex subscribers
 who want Codex behavior should use the native Codex app-server runtime. The
 model prefix selects the provider/model name; a separate runtime setting selects
 who executes the embedded agent loop:
 
 - **API key** - direct OpenAI Platform access with usage-based billing (`openai/*` models)
 - **Codex subscription with native Codex runtime** - ChatGPT/Codex sign-in plus Codex app-server execution (`openai/*` models plus `agents.defaults.agentRuntime.id: "codex"`)
-- **Codex subscription through PI** - ChatGPT/Codex sign-in with the normal OpenClaw PI runner (`openai-codex/*` models)
+- **Codex subscription through PI** - ChatGPT/Codex sign-in with the normal Alien PI runner (`openai-codex/*` models)
 
-OpenAI explicitly supports subscription OAuth usage in external tools and workflows like OpenClaw.
+OpenAI explicitly supports subscription OAuth usage in external tools and workflows like Alien.
 
 Provider, model, runtime, and channel are separate layers. If those labels are
 getting mixed together, read [Agent runtimes](/concepts/agent-runtimes) before
@@ -43,15 +43,15 @@ The names are similar but not interchangeable:
 | Name you see                       | Layer             | Meaning                                                                                           |
 | ---------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------- |
 | `openai`                           | Provider prefix   | Direct OpenAI Platform API route.                                                                 |
-| `openai-codex`                     | Provider prefix   | OpenAI Codex OAuth/subscription route through the normal OpenClaw PI runner.                      |
-| `codex` plugin                     | Plugin            | Bundled OpenClaw plugin that provides native Codex app-server runtime and `/codex` chat controls. |
+| `openai-codex`                     | Provider prefix   | OpenAI Codex OAuth/subscription route through the normal Alien PI runner.                      |
+| `codex` plugin                     | Plugin            | Bundled Alien plugin that provides native Codex app-server runtime and `/codex` chat controls. |
 | `agentRuntime.id: codex`           | Agent runtime     | Force the native Codex app-server harness for embedded turns.                                     |
 | `/codex ...`                       | Chat command set  | Bind/control Codex app-server threads from a conversation.                                        |
 | `runtime: "acp", agentId: "codex"` | ACP session route | Explicit fallback path that runs Codex through ACP/acpx.                                          |
 
 This means a config can intentionally contain both `openai-codex/*` and the
 `codex` plugin. That is valid when you want Codex OAuth through PI and also want
-native `/codex` chat controls available. `openclaw doctor` warns about that
+native `/codex` chat controls available. `alien doctor` warns about that
 combination so you can confirm it is intentional; it does not rewrite it.
 
 <Note>
@@ -64,16 +64,16 @@ without a Codex runtime override for direct `OPENAI_API_KEY` traffic.
 
 <Note>
 Enabling the OpenAI plugin, or selecting an `openai-codex/*` model, does not
-enable the bundled Codex app-server plugin. OpenClaw enables that plugin only
+enable the bundled Codex app-server plugin. Alien enables that plugin only
 when you explicitly select the native Codex harness with
 `agentRuntime.id: "codex"` or use a legacy `codex/*` model ref.
 If the bundled `codex` plugin is enabled but `openai-codex/*` still resolves
-through PI, `openclaw doctor` warns and leaves the route unchanged.
+through PI, `alien doctor` warns and leaves the route unchanged.
 </Note>
 
-## OpenClaw feature coverage
+## Alien feature coverage
 
-| OpenAI capability         | OpenClaw surface                                           | Status                                                 |
+| OpenAI capability         | Alien surface                                           | Status                                                 |
 | ------------------------- | ---------------------------------------------------------- | ------------------------------------------------------ |
 | Chat / Responses          | `openai/<model>` model provider                            | Yes                                                    |
 | Codex subscription models | `openai-codex/<model>` with `openai-codex` OAuth           | Yes                                                    |
@@ -89,7 +89,7 @@ through PI, `openclaw doctor` warns and leaves the route unchanged.
 
 ## Memory embeddings
 
-OpenClaw can use OpenAI, or an OpenAI-compatible embedding endpoint, for
+Alien can use OpenAI, or an OpenAI-compatible embedding endpoint, for
 `memory_search` indexing and query embeddings:
 
 ```json5
@@ -106,7 +106,7 @@ OpenClaw can use OpenAI, or an OpenAI-compatible embedding endpoint, for
 ```
 
 For OpenAI-compatible endpoints that require asymmetric embedding labels, set
-`queryInputType` and `documentInputType` under `memorySearch`. OpenClaw forwards
+`queryInputType` and `documentInputType` under `memorySearch`. Alien forwards
 those as provider-specific `input_type` request fields: query embeddings use
 `queryInputType`; indexed memory chunks and batch indexing use
 `documentInputType`. See the [Memory configuration reference](/reference/memory-config#provider-specific-config) for the full example.
@@ -125,18 +125,18 @@ Choose your preferred auth method and follow the setup steps.
       </Step>
       <Step title="Run onboarding">
         ```bash
-        openclaw onboard --auth-choice openai-api-key
+        alien onboard --auth-choice openai-api-key
         ```
 
         Or pass the key directly:
 
         ```bash
-        openclaw onboard --openai-api-key "$OPENAI_API_KEY"
+        alien onboard --openai-api-key "$OPENAI_API_KEY"
         ```
       </Step>
       <Step title="Verify the model is available">
         ```bash
-        openclaw models list --provider openai
+        alien models list --provider openai
         ```
       </Step>
     </Steps>
@@ -166,7 +166,7 @@ Choose your preferred auth method and follow the setup steps.
     ```
 
     <Warning>
-    OpenClaw does **not** expose `openai/gpt-5.3-codex-spark`. Live OpenAI API requests reject that model, and the current Codex catalog does not expose it either.
+    Alien does **not** expose `openai/gpt-5.3-codex-spark`. Live OpenAI API requests reject that model, and the current Codex catalog does not expose it either.
     </Warning>
 
   </Tab>
@@ -177,31 +177,31 @@ Choose your preferred auth method and follow the setup steps.
     <Steps>
       <Step title="Run Codex OAuth">
         ```bash
-        openclaw onboard --auth-choice openai-codex
+        alien onboard --auth-choice openai-codex
         ```
 
         Or run OAuth directly:
 
         ```bash
-        openclaw models auth login --provider openai-codex
+        alien models auth login --provider openai-codex
         ```
 
         For headless or callback-hostile setups, add `--device-code` to sign in with a ChatGPT device-code flow instead of the localhost browser callback:
 
         ```bash
-        openclaw models auth login --provider openai-codex --device-code
+        alien models auth login --provider openai-codex --device-code
         ```
       </Step>
       <Step title="Use the native Codex runtime">
         ```bash
-        openclaw config set plugins.entries.codex '{"enabled":true}' --strict-json --merge
-        openclaw config set agents.defaults.model.primary openai/gpt-5.5
-        openclaw config set agents.defaults.agentRuntime '{"id":"codex"}' --strict-json
+        alien config set plugins.entries.codex '{"enabled":true}' --strict-json --merge
+        alien config set agents.defaults.model.primary openai/gpt-5.5
+        alien config set agents.defaults.agentRuntime '{"id":"codex"}' --strict-json
         ```
       </Step>
       <Step title="Verify Codex auth is available">
         ```bash
-        openclaw models list --provider openai-codex
+        alien models list --provider openai-codex
         ```
 
         After the gateway is running, send `/codex status` or `/codex models`
@@ -253,7 +253,7 @@ Choose your preferred auth method and follow the setup steps.
     `openai-codex/gpt-5.5` and omit the Codex runtime override.
 
     <Note>
-    Onboarding no longer imports OAuth material from `~/.codex`. Sign in with browser OAuth (default) or the device-code flow above — OpenClaw manages the resulting credentials in its own agent auth store.
+    Onboarding no longer imports OAuth material from `~/.codex`. Sign in with browser OAuth (default) or the device-code flow above — Alien manages the resulting credentials in its own agent auth store.
     </Note>
 
     ### Check and recover Codex OAuth routing
@@ -262,17 +262,17 @@ Choose your preferred auth method and follow the setup steps.
     agent is using:
 
     ```bash
-    openclaw models status
-    openclaw models auth list --provider openai-codex
-    openclaw config get agents.defaults.model --json
-    openclaw config get agents.defaults.agentRuntime --json
+    alien models status
+    alien models auth list --provider openai-codex
+    alien config get agents.defaults.model --json
+    alien config get agents.defaults.agentRuntime --json
     ```
 
     For a specific agent, add `--agent <id>`:
 
     ```bash
-    openclaw models status --agent <id>
-    openclaw models auth list --agent <id> --provider openai-codex
+    alien models status --agent <id>
+    alien models auth list --agent <id> --provider openai-codex
     ```
 
     If a 2026.5.5 `doctor --fix` run changed a GPT-5.5 subscription setup from
@@ -280,16 +280,16 @@ Choose your preferred auth method and follow the setup steps.
     to the Codex OAuth PI route:
 
     ```bash
-    openclaw models set openai-codex/gpt-5.5
-    openclaw config validate
+    alien models set openai-codex/gpt-5.5
+    alien config validate
     ```
 
     If `models auth list --provider openai-codex` shows no usable profile, sign
     in again:
 
     ```bash
-    openclaw models auth login --provider openai-codex
-    openclaw models status --probe --probe-provider openai-codex
+    alien models auth login --provider openai-codex
+    alien models status --probe --probe-provider openai-codex
     ```
 
     `openai-codex/*` means ChatGPT/Codex OAuth through PI. `openai/*` with
@@ -298,7 +298,7 @@ Choose your preferred auth method and follow the setup steps.
     ### Status indicator
 
     Chat `/status` shows which model runtime is active for the current session.
-    The default PI harness appears as `Runtime: OpenClaw Pi Default`. When the
+    The default PI harness appears as `Runtime: Alien Pi Default`. When the
     bundled Codex app-server harness is selected, `/status` shows
     `Runtime: OpenAI Codex`. Existing sessions keep their recorded harness id, so use
     `/new` or `/reset` after changing `agentRuntime` if you want `/status` to
@@ -307,14 +307,14 @@ Choose your preferred auth method and follow the setup steps.
     ### Doctor warning
 
     If the bundled `codex` plugin is enabled while an `openai-codex/*` route is
-    selected, `openclaw doctor` warns that the model still resolves through PI.
+    selected, `alien doctor` warns that the model still resolves through PI.
     Keep the config unchanged only when that PI subscription-auth route is
     intentional. Switch to `openai/<model>` plus `agentRuntime.id: "codex"` when
     you want native Codex app-server execution.
 
     ### Context window cap
 
-    OpenClaw treats model metadata and the runtime context cap as separate values.
+    Alien treats model metadata and the runtime context cap as separate values.
 
     For `openai-codex/gpt-5.5` through Codex OAuth:
 
@@ -341,9 +341,9 @@ Choose your preferred auth method and follow the setup steps.
 
     ### Catalog recovery
 
-    OpenClaw uses upstream Codex catalog metadata for `gpt-5.5` when it is
+    Alien uses upstream Codex catalog metadata for `gpt-5.5` when it is
     present. If live Codex discovery omits the `openai-codex/gpt-5.5` row while
-    the account is authenticated, OpenClaw synthesizes that OAuth model row so
+    the account is authenticated, Alien synthesizes that OAuth model row so
     cron, sub-agent, and configured default-model runs do not fail with
     `Unknown model`.
 
@@ -353,10 +353,10 @@ Choose your preferred auth method and follow the setup steps.
 ## Native Codex app-server auth
 
 The native Codex app-server harness uses `openai/*` model refs plus
-`agentRuntime.id: "codex"`, but its auth is still account-based. OpenClaw
+`agentRuntime.id: "codex"`, but its auth is still account-based. Alien
 selects auth in this order:
 
-1. An explicit OpenClaw `openai-codex` auth profile bound to the agent.
+1. An explicit Alien `openai-codex` auth profile bound to the agent.
 2. The app-server's existing account, such as a local Codex CLI ChatGPT sign-in.
 3. For local stdio app-server launches only, `CODEX_API_KEY`, then
    `OPENAI_API_KEY`, when the app-server reports no account and still requires
@@ -366,7 +366,7 @@ That means a local ChatGPT/Codex subscription sign-in is not replaced just
 because the gateway process also has `OPENAI_API_KEY` for direct OpenAI models
 or embeddings. Env API-key fallback is only the local stdio no-account path; it
 is not sent to WebSocket app-server connections. When a subscription-style Codex
-profile is selected, OpenClaw also keeps `CODEX_API_KEY` and `OPENAI_API_KEY`
+profile is selected, Alien also keeps `CODEX_API_KEY` and `OPENAI_API_KEY`
 out of the spawned stdio app-server child and sends the selected credentials
 through the app-server login RPC.
 
@@ -409,7 +409,7 @@ PNG/WebP output; the current `gpt-image-2` API rejects
 For a transparent-background request, agents should call `image_generate` with
 `model: "openai/gpt-image-1.5"`, `outputFormat: "png"` or `"webp"`, and
 `background: "transparent"`; the older `openai.background` provider option is
-still accepted. OpenClaw also protects the public OpenAI and
+still accepted. Alien also protects the public OpenAI and
 OpenAI Codex OAuth routes by rewriting default `openai/gpt-image-2` transparent
 requests to `gpt-image-1.5`; Azure and custom OpenAI-compatible endpoints keep
 their configured deployment/model names.
@@ -417,7 +417,7 @@ their configured deployment/model names.
 The same setting is exposed for headless CLI runs:
 
 ```bash
-openclaw infer image generate \
+alien infer image generate \
   --model openai/gpt-image-1.5 \
   --output-format png \
   --background transparent \
@@ -426,25 +426,25 @@ openclaw infer image generate \
 ```
 
 Use the same `--output-format` and `--background` flags with
-`openclaw infer image edit` when starting from an input file.
+`alien infer image edit` when starting from an input file.
 `--openai-background` remains available as an OpenAI-specific alias.
 
 For Codex OAuth installs, keep the same `openai/gpt-image-2` ref. When an
-`openai-codex` OAuth profile is configured, OpenClaw resolves that stored OAuth
+`openai-codex` OAuth profile is configured, Alien resolves that stored OAuth
 access token and sends image requests through the Codex Responses backend. It
 does not first try `OPENAI_API_KEY` or silently fall back to an API key for that
 request. Configure `models.providers.openai` explicitly with an API key,
 custom base URL, or Azure endpoint when you want the direct OpenAI Images API
 route instead.
 If that custom image endpoint is on a trusted LAN/private address, also set
-`browser.ssrfPolicy.dangerouslyAllowPrivateNetwork: true`; OpenClaw keeps
+`browser.ssrfPolicy.dangerouslyAllowPrivateNetwork: true`; Alien keeps
 private/internal OpenAI-compatible image endpoints blocked unless this opt-in is
 present.
 
 Generate:
 
 ```
-/tool image_generate model=openai/gpt-image-2 prompt="A polished launch poster for OpenClaw on macOS" size=3840x2160 count=1
+/tool image_generate model=openai/gpt-image-2 prompt="A polished launch poster for Alien on macOS" size=3840x2160 count=1
 ```
 
 Generate a transparent PNG:
@@ -487,11 +487,11 @@ See [Video Generation](/tools/video-generation) for shared tool parameters, prov
 
 ## GPT-5 prompt contribution
 
-OpenClaw adds a shared GPT-5 prompt contribution for GPT-5-family runs across providers. It applies by model id, so `openai-codex/gpt-5.5`, `openai/gpt-5.5`, `openrouter/openai/gpt-5.5`, `opencode/gpt-5.5`, and other compatible GPT-5 refs receive the same overlay. Older GPT-4.x models do not.
+Alien adds a shared GPT-5 prompt contribution for GPT-5-family runs across providers. It applies by model id, so `openai-codex/gpt-5.5`, `openai/gpt-5.5`, `openrouter/openai/gpt-5.5`, `opencode/gpt-5.5`, and other compatible GPT-5 refs receive the same overlay. Older GPT-4.x models do not.
 
 The bundled native Codex harness uses the same GPT-5 behavior and heartbeat overlay through Codex app-server developer instructions, so `openai/gpt-5.x` sessions forced through `agentRuntime.id: "codex"` keep the same follow-through and proactive heartbeat guidance even though Codex owns the rest of the harness prompt.
 
-The GPT-5 contribution adds a tagged behavior contract for persona persistence, execution safety, tool discipline, output shape, completion checks, and verification. Channel-specific reply and silent-message behavior stays in the shared OpenClaw system prompt and outbound delivery policy. The GPT-5 guidance is always enabled for matching models. The friendly interaction-style layer is separate and configurable.
+The GPT-5 contribution adds a tagged behavior contract for persona persistence, execution safety, tool discipline, output shape, completion checks, and verification. Channel-specific reply and silent-message behavior stays in the shared Alien system prompt and outbound delivery policy. The GPT-5 guidance is always enabled for matching models. The friendly interaction-style layer is separate and configurable.
 
 | Value                  | Effect                                      |
 | ---------------------- | ------------------------------------------- |
@@ -515,7 +515,7 @@ The GPT-5 contribution adds a tagged behavior contract for persona persistence, 
   </Tab>
   <Tab title="CLI">
     ```bash
-    openclaw config set agents.defaults.promptOverlays.gpt5.personality off
+    alien config set agents.defaults.promptOverlays.gpt5.personality off
     ```
   </Tab>
 </Tabs>
@@ -547,7 +547,7 @@ Legacy `plugins.entries.openai.config.personality` is still read as a compatibil
 
     Available models: `gpt-4o-mini-tts`, `tts-1`, `tts-1-hd`. Available voices: `alloy`, `ash`, `ballad`, `cedar`, `coral`, `echo`, `fable`, `juniper`, `marin`, `onyx`, `nova`, `sage`, `shimmer`, `verse`.
 
-    `extraBody` is merged into `/audio/speech` request JSON after OpenClaw's generated fields, so use it for OpenAI-compatible endpoints that require additional keys such as `lang`. Prototype keys are ignored.
+    `extraBody` is merged into `/audio/speech` request JSON after Alien's generated fields, so use it for OpenAI-compatible endpoints that require additional keys such as `lang`. Prototype keys are ignored.
 
     ```json5
     {
@@ -569,12 +569,12 @@ Legacy `plugins.entries.openai.config.personality` is still read as a compatibil
 
   <Accordion title="Speech-to-text">
     The bundled `openai` plugin registers batch speech-to-text through
-    OpenClaw's media-understanding transcription surface.
+    Alien's media-understanding transcription surface.
 
     - Default model: `gpt-4o-transcribe`
     - Endpoint: OpenAI REST `/v1/audio/transcriptions`
     - Input path: multipart audio file upload
-    - Supported by OpenClaw wherever inbound audio transcription uses
+    - Supported by Alien wherever inbound audio transcription uses
       `tools.media.audio`, including Discord voice-channel segments and channel
       audio attachments
 
@@ -653,7 +653,7 @@ Legacy `plugins.entries.openai.config.personality` is still read as a compatibil
 ## Azure OpenAI endpoints
 
 The bundled `openai` provider can target an Azure OpenAI resource for image
-generation by overriding the base URL. On the image-generation path, OpenClaw
+generation by overriding the base URL. On the image-generation path, Alien
 detects Azure hostnames on `models.providers.openai.baseUrl` and switches to
 Azure's request shape automatically.
 
@@ -690,14 +690,14 @@ the Azure OpenAI key (not an OpenAI Platform key):
 }
 ```
 
-OpenClaw recognizes these Azure host suffixes for the Azure image-generation
+Alien recognizes these Azure host suffixes for the Azure image-generation
 route:
 
 - `*.openai.azure.com`
 - `*.services.ai.azure.com`
 - `*.cognitiveservices.azure.com`
 
-For image-generation requests on a recognized Azure host, OpenClaw:
+For image-generation requests on a recognized Azure host, Alien:
 
 - Sends the `api-key` header instead of `Authorization: Bearer`
 - Uses deployment-scoped paths (`/openai/deployments/{deployment}/...`)
@@ -710,7 +710,7 @@ OpenAI image request shape.
 
 <Note>
 Azure routing for the `openai` provider's image-generation path requires
-OpenClaw 2026.4.22 or later. Earlier versions treat any custom
+Alien 2026.4.22 or later. Earlier versions treat any custom
 `openai.baseUrl` like the public OpenAI endpoint and will fail against Azure
 image deployments.
 </Note>
@@ -729,7 +729,7 @@ The default is `2024-12-01-preview` when the variable is unset.
 ### Model names are deployment names
 
 Azure OpenAI binds models to deployments. For Azure image-generation requests
-routed through the bundled `openai` provider, the `model` field in OpenClaw
+routed through the bundled `openai` provider, the `model` field in Alien
 must be the **Azure deployment name** you configured in the Azure portal, not
 the public OpenAI model id.
 
@@ -755,13 +755,13 @@ Azure OpenAI and public OpenAI do not always accept the same image parameters.
 Azure may reject options that public OpenAI allows (for example certain
 `background` values on `gpt-image-2`) or expose them only on specific model
 versions. These differences come from Azure and the underlying model, not
-OpenClaw. If an Azure request fails with a validation error, check the
+Alien. If an Azure request fails with a validation error, check the
 parameter set supported by your specific deployment and API version in the
 Azure portal.
 
 <Note>
 Azure OpenAI uses native transport and compat behavior but does not receive
-OpenClaw's hidden attribution headers — see the **Native vs OpenAI-compatible
+Alien's hidden attribution headers — see the **Native vs OpenAI-compatible
 routes** accordion under [Advanced configuration](#advanced-configuration).
 
 For chat or Responses traffic on Azure (beyond image generation), use the
@@ -775,9 +775,9 @@ the Server-side compaction accordion below.
 
 <AccordionGroup>
   <Accordion title="Transport (WebSocket vs SSE)">
-    OpenClaw uses WebSocket-first with SSE fallback (`"auto"`) for both `openai/*` and `openai-codex/*`.
+    Alien uses WebSocket-first with SSE fallback (`"auto"`) for both `openai/*` and `openai-codex/*`.
 
-    In `"auto"` mode, OpenClaw:
+    In `"auto"` mode, Alien:
     - Retries one early WebSocket failure before falling back to SSE
     - After a failure, marks WebSocket as degraded for ~60 seconds and uses SSE during cool-down
     - Attaches stable session and turn identity headers for retries and reconnects
@@ -813,7 +813,7 @@ the Server-side compaction accordion below.
   </Accordion>
 
   <Accordion title="WebSocket warm-up">
-    OpenClaw enables WebSocket warm-up by default for `openai/*` and `openai-codex/*` to reduce first-turn latency.
+    Alien enables WebSocket warm-up by default for `openai/*` and `openai-codex/*` to reduce first-turn latency.
 
     ```json5
     // Disable warm-up
@@ -833,12 +833,12 @@ the Server-side compaction accordion below.
   </Accordion>
 
   <Accordion title="Fast mode">
-    OpenClaw exposes a shared fast-mode toggle for `openai/*` and `openai-codex/*`:
+    Alien exposes a shared fast-mode toggle for `openai/*` and `openai-codex/*`:
 
     - **Chat/UI:** `/fast status|on|off`
     - **Config:** `agents.defaults.models["<provider>/<model>"].params.fastMode`
 
-    When enabled, OpenClaw maps fast mode to OpenAI priority processing (`service_tier = "priority"`). Existing `service_tier` values are preserved, and fast mode does not rewrite `reasoning` or `text.verbosity`.
+    When enabled, Alien maps fast mode to OpenAI priority processing (`service_tier = "priority"`). Existing `service_tier` values are preserved, and fast mode does not rewrite `reasoning` or `text.verbosity`.
 
     ```json5
     {
@@ -859,7 +859,7 @@ the Server-side compaction accordion below.
   </Accordion>
 
   <Accordion title="Priority processing (service_tier)">
-    OpenAI's API exposes priority processing via `service_tier`. Set it per model in OpenClaw:
+    OpenAI's API exposes priority processing via `service_tier`. Set it per model in Alien:
 
     ```json5
     {
@@ -876,7 +876,7 @@ the Server-side compaction accordion below.
     Supported values: `auto`, `default`, `flex`, `priority`.
 
     <Warning>
-    `serviceTier` is only forwarded to native OpenAI endpoints (`api.openai.com`) and native Codex endpoints (`chatgpt.com/backend-api`). If you route either provider through a proxy, OpenClaw leaves `service_tier` untouched.
+    `serviceTier` is only forwarded to native OpenAI endpoints (`api.openai.com`) and native Codex endpoints (`chatgpt.com/backend-api`). If you route either provider through a proxy, Alien leaves `service_tier` untouched.
     </Warning>
 
   </Accordion>
@@ -950,7 +950,7 @@ the Server-side compaction accordion below.
   </Accordion>
 
   <Accordion title="Strict-agentic GPT mode">
-    For GPT-5-family runs on `openai/*`, OpenClaw can use a stricter embedded execution contract:
+    For GPT-5-family runs on `openai/*`, Alien can use a stricter embedded execution contract:
 
     ```json5
     {
@@ -962,7 +962,7 @@ the Server-side compaction accordion below.
     }
     ```
 
-    With `strict-agentic`, OpenClaw:
+    With `strict-agentic`, Alien:
     - No longer treats a plan-only turn as successful progress when a tool action is available
     - Retries the turn with an act-now steer
     - Auto-enables `update_plan` for substantial work
@@ -975,7 +975,7 @@ the Server-side compaction accordion below.
   </Accordion>
 
   <Accordion title="Native vs OpenAI-compatible routes">
-    OpenClaw treats direct OpenAI, Codex, and Azure OpenAI endpoints differently from generic OpenAI-compatible `/v1` proxies:
+    Alien treats direct OpenAI, Codex, and Azure OpenAI endpoints differently from generic OpenAI-compatible `/v1` proxies:
 
     **Native routes** (`openai/*`, Azure OpenAI):
     - Keep `reasoning: { effort: "none" }` only for models that support the OpenAI `none` effort

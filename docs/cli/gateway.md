@@ -1,5 +1,5 @@
 ---
-summary: "OpenClaw Gateway CLI (`openclaw gateway`) — run, query, and discover gateways"
+summary: "Alien Gateway CLI (`alien gateway`) — run, query, and discover gateways"
 read_when:
   - Running the Gateway from the CLI (dev or servers)
   - Debugging Gateway auth, bind modes, and connectivity
@@ -8,14 +8,14 @@ title: "Gateway"
 sidebarTitle: "Gateway"
 ---
 
-The Gateway is OpenClaw's WebSocket server (channels, nodes, sessions, hooks). Subcommands in this page live under `openclaw gateway …`.
+The Gateway is Alien's WebSocket server (channels, nodes, sessions, hooks). Subcommands in this page live under `alien gateway …`.
 
 <CardGroup cols={3}>
   <Card title="Bonjour discovery" href="/gateway/bonjour">
     Local mDNS + wide-area DNS-SD setup.
   </Card>
   <Card title="Discovery overview" href="/gateway/discovery">
-    How OpenClaw advertises and finds gateways.
+    How Alien advertises and finds gateways.
   </Card>
   <Card title="Configuration" href="/gateway/configuration">
     Top-level gateway config keys.
@@ -27,19 +27,19 @@ The Gateway is OpenClaw's WebSocket server (channels, nodes, sessions, hooks). S
 Run a local Gateway process:
 
 ```bash
-openclaw gateway
+alien gateway
 ```
 
 Foreground alias:
 
 ```bash
-openclaw gateway run
+alien gateway run
 ```
 
 <AccordionGroup>
   <Accordion title="Startup behavior">
-    - By default, the Gateway refuses to start unless `gateway.mode=local` is set in `~/.openclaw/openclaw.json`. Use `--allow-unconfigured` for ad-hoc/dev runs.
-    - `openclaw onboard --mode local` and `openclaw setup` are expected to write `gateway.mode=local`. If the file exists but `gateway.mode` is missing, treat that as a broken or clobbered config and repair it instead of assuming local mode implicitly.
+    - By default, the Gateway refuses to start unless `gateway.mode=local` is set in `~/.alien/alien.json`. Use `--allow-unconfigured` for ad-hoc/dev runs.
+    - `alien onboard --mode local` and `alien setup` are expected to write `gateway.mode=local`. If the file exists but `gateway.mode` is missing, treat that as a broken or clobbered config and repair it instead of assuming local mode implicitly.
     - If the file exists and `gateway.mode` is missing, the Gateway treats that as suspicious config damage and refuses to "guess local" for you.
     - Binding beyond loopback without auth is blocked (safety guardrail).
     - `SIGUSR1` triggers an in-process restart when authorized (`commands.restart` is enabled by default; set `commands.restart: false` to block manual restart, while gateway tool/config apply/update remain allowed).
@@ -60,7 +60,7 @@ openclaw gateway run
   Auth mode override.
 </ParamField>
 <ParamField path="--token <token>" type="string">
-  Token override (also sets `OPENCLAW_GATEWAY_TOKEN` for the process).
+  Token override (also sets `ALIEN_GATEWAY_TOKEN` for the process).
 </ParamField>
 <ParamField path="--password <password>" type="string">
   Password override.
@@ -108,12 +108,12 @@ openclaw gateway run
 ## Restart the Gateway
 
 ```bash
-openclaw gateway restart
-openclaw gateway restart --safe
-openclaw gateway restart --force
+alien gateway restart
+alien gateway restart --safe
+alien gateway restart --force
 ```
 
-`openclaw gateway restart --safe` asks the running Gateway to preflight active OpenClaw work before restarting. If queued operations, reply delivery, embedded runs, or task runs are active, the Gateway reports the blockers, coalesces duplicate safe restart requests, and restarts once the active work drains. Plain `restart` keeps the existing service-manager behavior for compatibility. Use `--force` only when you explicitly want the immediate override path.
+`alien gateway restart --safe` asks the running Gateway to preflight active Alien work before restarting. If queued operations, reply delivery, embedded runs, or task runs are active, the Gateway reports the blockers, coalesces duplicate safe restart requests, and restarts once the active work drains. Plain `restart` keeps the existing service-manager behavior for compatibility. Use `--force` only when you explicitly want the immediate override path.
 
 <Warning>
 Inline `--password` can be exposed in local process listings. Prefer `--password-file`, env, or a SecretRef-backed `gateway.auth.password`.
@@ -121,8 +121,8 @@ Inline `--password` can be exposed in local process listings. Prefer `--password
 
 ### Startup profiling
 
-- Set `OPENCLAW_GATEWAY_STARTUP_TRACE=1` to log phase timings during Gateway startup, including per-phase `eventLoopMax` delay and plugin lookup-table timings for installed-index, manifest registry, startup planning, and owner-map work.
-- Set `OPENCLAW_DIAGNOSTICS=timeline` with `OPENCLAW_DIAGNOSTICS_TIMELINE_PATH=<path>` to write a best-effort JSONL startup diagnostics timeline for external QA harnesses. You can also enable the flag with `diagnostics.flags: ["timeline"]` in config; the path is still env-provided. Add `OPENCLAW_DIAGNOSTICS_EVENT_LOOP=1` to include event-loop samples.
+- Set `ALIEN_GATEWAY_STARTUP_TRACE=1` to log phase timings during Gateway startup, including per-phase `eventLoopMax` delay and plugin lookup-table timings for installed-index, manifest registry, startup planning, and owner-map work.
+- Set `ALIEN_DIAGNOSTICS=timeline` with `ALIEN_DIAGNOSTICS_TIMELINE_PATH=<path>` to write a best-effort JSONL startup diagnostics timeline for external QA harnesses. You can also enable the flag with `diagnostics.flags: ["timeline"]` in config; the path is still env-provided. Add `ALIEN_DIAGNOSTICS_EVENT_LOOP=1` to include event-loop samples.
 - Run `pnpm test:startup:gateway -- --runs 5 --warmup 1` to benchmark Gateway startup. The benchmark records first process output, `/healthz`, `/readyz`, startup trace timings, event-loop delay, and plugin lookup-table timing details.
 
 ## Query a running Gateway
@@ -153,7 +153,7 @@ When you set `--url`, the CLI does not fall back to config or environment creden
 ### `gateway health`
 
 ```bash
-openclaw gateway health --url ws://127.0.0.1:18789
+alien gateway health --url ws://127.0.0.1:18789
 ```
 
 The HTTP `/healthz` endpoint is a liveness probe: it returns once the server can answer HTTP. The HTTP `/readyz` endpoint is stricter and stays red while startup plugin sidecars, channels, or configured hooks are still settling. Local or authenticated detailed readiness responses include an `eventLoop` diagnostic block with event-loop delay, event-loop utilization, CPU core ratio, and a `degraded` flag.
@@ -163,9 +163,9 @@ The HTTP `/healthz` endpoint is a liveness probe: it returns once the server can
 Fetch usage-cost summaries from session logs.
 
 ```bash
-openclaw gateway usage-cost
-openclaw gateway usage-cost --days 7
-openclaw gateway usage-cost --json
+alien gateway usage-cost
+alien gateway usage-cost --days 7
+alien gateway usage-cost --json
 ```
 
 <ParamField path="--days <days>" type="number" default="30">
@@ -177,11 +177,11 @@ openclaw gateway usage-cost --json
 Fetch the recent diagnostic stability recorder from a running Gateway.
 
 ```bash
-openclaw gateway stability
-openclaw gateway stability --type payload.large
-openclaw gateway stability --bundle latest
-openclaw gateway stability --bundle latest --export
-openclaw gateway stability --json
+alien gateway stability
+alien gateway stability --type payload.large
+alien gateway stability --bundle latest
+alien gateway stability --bundle latest --export
+alien gateway stability --json
 ```
 
 <ParamField path="--limit <limit>" type="number" default="25">
@@ -206,7 +206,7 @@ openclaw gateway stability --json
 <AccordionGroup>
   <Accordion title="Privacy and bundle behavior">
     - Records keep operational metadata: event names, counts, byte sizes, memory readings, queue/session state, channel/plugin names, and redacted session summaries. They do not keep chat text, webhook bodies, tool outputs, raw request or response bodies, tokens, cookies, secret values, hostnames, or raw session ids. Set `diagnostics.enabled: false` to disable the recorder entirely.
-    - On fatal Gateway exits, shutdown timeouts, and restart startup failures, OpenClaw writes the same diagnostic snapshot to `~/.openclaw/logs/stability/openclaw-stability-*.json` when the recorder has events. Inspect the newest bundle with `openclaw gateway stability --bundle latest`; `--limit`, `--type`, and `--since-seq` also apply to bundle output.
+    - On fatal Gateway exits, shutdown timeouts, and restart startup failures, Alien writes the same diagnostic snapshot to `~/.alien/logs/stability/alien-stability-*.json` when the recorder has events. Inspect the newest bundle with `alien gateway stability --bundle latest`; `--limit`, `--type`, and `--since-seq` also apply to bundle output.
 
   </Accordion>
 </AccordionGroup>
@@ -216,9 +216,9 @@ openclaw gateway stability --json
 Write a local diagnostics zip that is designed to attach to bug reports. For the privacy model and bundle contents, see [Diagnostics Export](/gateway/diagnostics).
 
 ```bash
-openclaw gateway diagnostics export
-openclaw gateway diagnostics export --output openclaw-diagnostics.zip
-openclaw gateway diagnostics export --json
+alien gateway diagnostics export
+alien gateway diagnostics export --output alien-diagnostics.zip
+alien gateway diagnostics export --json
 ```
 
 <ParamField path="--output <path>" type="string">
@@ -251,16 +251,16 @@ openclaw gateway diagnostics export --json
 
 The export contains a manifest, a Markdown summary, config shape, sanitized config details, sanitized log summaries, sanitized Gateway status/health snapshots, and the newest stability bundle when one exists.
 
-It is meant to be shared. It keeps operational details that help debugging, such as safe OpenClaw log fields, subsystem names, status codes, durations, configured modes, ports, plugin ids, provider ids, non-secret feature settings, and redacted operational log messages. It omits or redacts chat text, webhook bodies, tool outputs, credentials, cookies, account/message identifiers, prompt/instruction text, hostnames, and secret values. When a LogTape-style message looks like user/chat/tool payload text, the export keeps only that a message was omitted plus its byte count.
+It is meant to be shared. It keeps operational details that help debugging, such as safe Alien log fields, subsystem names, status codes, durations, configured modes, ports, plugin ids, provider ids, non-secret feature settings, and redacted operational log messages. It omits or redacts chat text, webhook bodies, tool outputs, credentials, cookies, account/message identifiers, prompt/instruction text, hostnames, and secret values. When a LogTape-style message looks like user/chat/tool payload text, the export keeps only that a message was omitted plus its byte count.
 
 ### `gateway status`
 
 `gateway status` shows the Gateway service (launchd/systemd/schtasks) plus an optional probe of connectivity/auth capability.
 
 ```bash
-openclaw gateway status
-openclaw gateway status --json
-openclaw gateway status --require-rpc
+alien gateway status
+alien gateway status --json
+alien gateway status --require-rpc
 ```
 
 <ParamField path="--url <url>" type="string">
@@ -325,8 +325,8 @@ If multiple gateways are reachable, it prints all of them. Multiple gateways are
 </Note>
 
 ```bash
-openclaw gateway probe
-openclaw gateway probe --json
+alien gateway probe
+alien gateway probe --json
 ```
 
 <AccordionGroup>
@@ -380,7 +380,7 @@ The macOS app "Remote over SSH" mode uses a local port-forward so the remote gat
 CLI equivalent:
 
 ```bash
-openclaw gateway probe --ssh user@gateway-host
+alien gateway probe --ssh user@gateway-host
 ```
 
 <ParamField path="--ssh <target>" type="string">
@@ -403,8 +403,8 @@ Config (optional, used as defaults):
 Low-level RPC helper.
 
 ```bash
-openclaw gateway call status
-openclaw gateway call logs.tail --params '{"sinceMs": 60000}'
+alien gateway call status
+alien gateway call logs.tail --params '{"sinceMs": 60000}'
 ```
 
 <ParamField path="--params <json>" type="string" default="{}">
@@ -436,46 +436,46 @@ openclaw gateway call logs.tail --params '{"sinceMs": 60000}'
 ## Manage the Gateway service
 
 ```bash
-openclaw gateway install
-openclaw gateway start
-openclaw gateway stop
-openclaw gateway restart
-openclaw gateway uninstall
+alien gateway install
+alien gateway start
+alien gateway stop
+alien gateway restart
+alien gateway uninstall
 ```
 
 ### Install with a wrapper
 
 Use `--wrapper` when the managed service must start through another executable, for example a
 secrets manager shim or a run-as helper. The wrapper receives the normal Gateway args and is
-responsible for eventually exec'ing `openclaw` or Node with those args.
+responsible for eventually exec'ing `alien` or Node with those args.
 
 ```bash
-cat > ~/.local/bin/openclaw-doppler <<'EOF'
+cat > ~/.local/bin/alien-doppler <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-exec doppler run --project my-project --config production -- openclaw "$@"
+exec doppler run --project my-project --config production -- alien "$@"
 EOF
-chmod +x ~/.local/bin/openclaw-doppler
+chmod +x ~/.local/bin/alien-doppler
 
-openclaw gateway install --wrapper ~/.local/bin/openclaw-doppler --force
-openclaw gateway restart
+alien gateway install --wrapper ~/.local/bin/alien-doppler --force
+alien gateway restart
 ```
 
 You can also set the wrapper through the environment. `gateway install` validates that the path is
 an executable file, writes the wrapper into service `ProgramArguments`, and persists
-`OPENCLAW_WRAPPER` in the service environment for later forced reinstalls, updates, and doctor
+`ALIEN_WRAPPER` in the service environment for later forced reinstalls, updates, and doctor
 repairs.
 
 ```bash
-OPENCLAW_WRAPPER="$HOME/.local/bin/openclaw-doppler" openclaw gateway install --force
-openclaw doctor
+ALIEN_WRAPPER="$HOME/.local/bin/alien-doppler" alien gateway install --force
+alien doctor
 ```
 
-To remove a persisted wrapper, clear `OPENCLAW_WRAPPER` while reinstalling:
+To remove a persisted wrapper, clear `ALIEN_WRAPPER` while reinstalling:
 
 ```bash
-OPENCLAW_WRAPPER= openclaw gateway install --force
-openclaw gateway restart
+ALIEN_WRAPPER= alien gateway install --force
+alien gateway restart
 ```
 
 <AccordionGroup>
@@ -488,7 +488,7 @@ openclaw gateway restart
   </Accordion>
   <Accordion title="Lifecycle behavior">
     - Use `gateway restart` to restart a managed service. Do not chain `gateway stop` and `gateway start` as a restart substitute; on macOS, `gateway stop` intentionally disables the LaunchAgent before stopping it.
-    - `gateway restart --safe` asks the running Gateway to preflight active OpenClaw work and defer the restart until reply delivery, embedded runs, and task runs drain. `--safe` cannot be combined with `--force` or `--wait`.
+    - `gateway restart --safe` asks the running Gateway to preflight active Alien work and defer the restart until reply delivery, embedded runs, and task runs drain. `--safe` cannot be combined with `--force` or `--wait`.
     - `gateway restart --wait 30s` overrides the configured restart drain budget for that restart. Bare numbers are milliseconds; units such as `s`, `m`, and `h` are accepted. `--wait 0` waits indefinitely.
     - `gateway restart --force` skips the active-work drain and restarts immediately. Use it when an operator has already inspected the listed task blockers and wants the gateway back now.
     - Lifecycle commands accept `--json` for scripting.
@@ -497,8 +497,8 @@ openclaw gateway restart
   <Accordion title="Auth and SecretRefs at install time">
     - When token auth requires a token and `gateway.auth.token` is SecretRef-managed, `gateway install` validates that the SecretRef is resolvable but does not persist the resolved token into service environment metadata.
     - If token auth requires a token and the configured token SecretRef is unresolved, install fails closed instead of persisting fallback plaintext.
-    - For password auth on `gateway run`, prefer `OPENCLAW_GATEWAY_PASSWORD`, `--password-file`, or a SecretRef-backed `gateway.auth.password` over inline `--password`.
-    - In inferred auth mode, shell-only `OPENCLAW_GATEWAY_PASSWORD` does not relax install token requirements; use durable config (`gateway.auth.password` or config `env`) when installing a managed service.
+    - For password auth on `gateway run`, prefer `ALIEN_GATEWAY_PASSWORD`, `--password-file`, or a SecretRef-backed `gateway.auth.password` over inline `--password`.
+    - In inferred auth mode, shell-only `ALIEN_GATEWAY_PASSWORD` does not relax install token requirements; use durable config (`gateway.auth.password` or config `env`) when installing a managed service.
     - If both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, install is blocked until mode is set explicitly.
 
   </Accordion>
@@ -506,10 +506,10 @@ openclaw gateway restart
 
 ## Discover gateways (Bonjour)
 
-`gateway discover` scans for Gateway beacons (`_openclaw-gw._tcp`).
+`gateway discover` scans for Gateway beacons (`_alien-gw._tcp`).
 
 - Multicast DNS-SD: `local.`
-- Unicast DNS-SD (Wide-Area Bonjour): choose a domain (example: `openclaw.internal.`) and set up split DNS + a DNS server; see [Bonjour](/gateway/bonjour).
+- Unicast DNS-SD (Wide-Area Bonjour): choose a domain (example: `alien.internal.`) and set up split DNS + a DNS server; see [Bonjour](/gateway/bonjour).
 
 Only gateways with Bonjour discovery enabled (default) advertise the beacon.
 
@@ -526,7 +526,7 @@ Wide-Area discovery records include (TXT):
 ### `gateway discover`
 
 ```bash
-openclaw gateway discover
+alien gateway discover
 ```
 
 <ParamField path="--timeout <ms>" type="number" default="2000">
@@ -539,8 +539,8 @@ openclaw gateway discover
 Examples:
 
 ```bash
-openclaw gateway discover --timeout 4000
-openclaw gateway discover --json | jq '.beacons[].wsUrl'
+alien gateway discover --timeout 4000
+alien gateway discover --json | jq '.beacons[].wsUrl'
 ```
 
 <Note>

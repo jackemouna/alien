@@ -1,5 +1,5 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { registerSandboxBackend } from "openclaw/plugin-sdk/sandbox";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import { registerSandboxBackend } from "alien/plugin-sdk/sandbox";
 import {
   createOpenShellSandboxBackendFactory,
   createOpenShellSandboxBackendManager,

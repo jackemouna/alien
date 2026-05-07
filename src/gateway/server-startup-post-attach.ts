@@ -4,13 +4,13 @@ import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import type { CliDeps } from "../cli/deps.types.js";
 import type { GatewayTailscaleMode } from "../config/types.gateway.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { hasConfiguredInternalHooks } from "../hooks/configured.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import type { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import type { PluginHookGatewayCronService } from "../plugins/hook-types.js";
-import type { loadOpenClawPlugins } from "../plugins/loader.js";
+import type { loadAlienPlugins } from "../plugins/loader.js";
 import { getPluginModuleLoaderStats } from "../plugins/plugin-module-loader-cache.js";
 import type { PluginRegistry } from "../plugins/registry.js";
 import type { PluginServicesHandle } from "../plugins/services.js";
@@ -28,7 +28,7 @@ const ACP_BACKEND_READY_TIMEOUT_MS = 5_000;
 const ACP_BACKEND_READY_POLL_MS = 50;
 const PRIMARY_MODEL_PREWARM_TIMEOUT_MS = 5_000;
 const STARTUP_PROVIDER_DISCOVERY_TIMEOUT_MS = 5_000;
-const SKIP_STARTUP_MODEL_PREWARM_ENV = "OPENCLAW_SKIP_STARTUP_MODEL_PREWARM";
+const SKIP_STARTUP_MODEL_PREWARM_ENV = "ALIEN_SKIP_STARTUP_MODEL_PREWARM";
 const QMD_STARTUP_IDLE_DELAY_MS = 120_000;
 const RESTART_SENTINEL_FILENAME = "restart-sentinel.json";
 
@@ -62,7 +62,7 @@ function shouldSkipStartupModelPrewarm(env: NodeJS.ProcessEnv = process.env): bo
   return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
 }
 
-function resolveGatewayMemoryStartupPolicy(cfg: OpenClawConfig): GatewayMemoryStartupPolicy {
+function resolveGatewayMemoryStartupPolicy(cfg: AlienConfig): GatewayMemoryStartupPolicy {
   if (cfg.memory?.backend !== "qmd") {
     return { mode: "off" };
   }
@@ -85,7 +85,7 @@ function resolveGatewayMemoryStartupPolicy(cfg: OpenClawConfig): GatewayMemorySt
 }
 
 function scheduleGatewayMemoryBackend(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   log: { warn: (msg: string) => void };
   policy: GatewayMemoryStartupPolicy;
 }): void {
@@ -152,7 +152,7 @@ function resolveRestartSentinelPathFast(env: NodeJS.ProcessEnv = process.env): s
   const resolveRawOsHome = () => normalizePathEnv(env.HOME) ?? normalizePathEnv(env.USERPROFILE);
   const expandHomePrefix = (input: string, home: string) => input.replace(/^~(?=$|[\\/])/, home);
   const resolveHome = () => {
-    const explicitHome = normalizePathEnv(env.OPENCLAW_HOME);
+    const explicitHome = normalizePathEnv(env.ALIEN_HOME);
     if (explicitHome) {
       const osHome = resolveRawOsHome() ?? os.homedir();
       return path.resolve(expandHomePrefix(explicitHome, osHome));
@@ -166,13 +166,13 @@ function resolveRestartSentinelPathFast(env: NodeJS.ProcessEnv = process.env): s
     }
     return path.resolve(trimmed);
   };
-  const override = normalizePathEnv(env.OPENCLAW_STATE_DIR);
+  const override = normalizePathEnv(env.ALIEN_STATE_DIR);
   if (override) {
     return path.join(resolveUserPath(override), RESTART_SENTINEL_FILENAME);
   }
   const home = resolveHome();
-  const newStateDir = path.join(home, ".openclaw");
-  if (env.OPENCLAW_TEST_FAST === "1" || fs.existsSync(newStateDir)) {
+  const newStateDir = path.join(home, ".alien");
+  if (env.ALIEN_TEST_FAST === "1" || fs.existsSync(newStateDir)) {
     return path.join(newStateDir, RESTART_SENTINEL_FILENAME);
   }
   const legacyStateDir = path.join(home, ".clawdbot");
@@ -199,12 +199,12 @@ async function refreshLatestUpdateRestartSentinelIfPresent(): Promise<Awaited<
   return await (await import("./server-restart-sentinel.js")).refreshLatestUpdateRestartSentinel();
 }
 
-function hasGatewayStartHooks(pluginRegistry: ReturnType<typeof loadOpenClawPlugins>): boolean {
+function hasGatewayStartHooks(pluginRegistry: ReturnType<typeof loadAlienPlugins>): boolean {
   return pluginRegistry.typedHooks.some((hook) => hook.hookName === "gateway_start");
 }
 
 function isConfiguredCliBackendPrimary(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   explicitPrimary: string;
   normalizeProviderId: (provider: string) => string;
 }): boolean {
@@ -251,7 +251,7 @@ async function waitForAcpRuntimeBackendReady(params: {
 }
 
 async function prewarmConfiguredPrimaryModel(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   workspaceDir?: string;
   log: { warn: (msg: string) => void };
 }): Promise<void> {
@@ -294,12 +294,12 @@ async function prewarmConfiguredPrimaryModel(params: {
     return;
   }
   // Keep startup prewarm metadata-only; resolving models can import provider runtimes and block readiness.
-  const { ensureOpenClawModelsJson } = await import("../agents/models-config.js");
+  const { ensureAlienModelsJson } = await import("../agents/models-config.js");
   const agentDir = resolveDefaultAgentDir(params.cfg);
   const workspaceDir =
     params.workspaceDir ?? resolveAgentWorkspaceDir(params.cfg, resolveDefaultAgentId(params.cfg));
   try {
-    await ensureOpenClawModelsJson(params.cfg, agentDir, {
+    await ensureAlienModelsJson(params.cfg, agentDir, {
       workspaceDir,
       providerDiscoveryProviderIds: [provider],
       providerDiscoveryTimeoutMs: STARTUP_PROVIDER_DISCOVERY_TIMEOUT_MS,
@@ -312,7 +312,7 @@ async function prewarmConfiguredPrimaryModel(params: {
 
 async function prewarmConfiguredPrimaryModelWithTimeout(
   params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     workspaceDir?: string;
     log: { warn: (msg: string) => void };
     timeoutMs?: number;
@@ -341,7 +341,7 @@ async function prewarmConfiguredPrimaryModelWithTimeout(
 
 function schedulePrimaryModelPrewarm(
   params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     workspaceDir?: string;
     log: { warn: (msg: string) => void };
     startupTrace?: GatewayStartupTrace;
@@ -366,8 +366,8 @@ function schedulePrimaryModelPrewarm(
 }
 
 export async function startGatewaySidecars(params: {
-  cfg: OpenClawConfig;
-  pluginRegistry: ReturnType<typeof loadOpenClawPlugins>;
+  cfg: AlienConfig;
+  pluginRegistry: ReturnType<typeof loadAlienPlugins>;
   defaultWorkspaceDir: string;
   deps: CliDeps;
   startChannels: () => Promise<void>;
@@ -457,8 +457,8 @@ export async function startGatewaySidecars(params: {
   });
 
   const skipChannels =
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
+    isTruthyEnvValue(process.env.ALIEN_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ALIEN_SKIP_PROVIDERS);
   await measureStartup(params.startupTrace, "sidecars.channels", async () => {
     if (!skipChannels) {
       try {
@@ -479,7 +479,7 @@ export async function startGatewaySidecars(params: {
       }
     } else {
       params.logChannels.info(
-        "skipping channel start (OPENCLAW_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)",
+        "skipping channel start (ALIEN_SKIP_CHANNELS=1 or ALIEN_SKIP_PROVIDERS=1)",
       );
     }
   });
@@ -659,7 +659,7 @@ const defaultGatewayPostAttachRuntimeDeps: GatewayPostAttachRuntimeDeps = {
 export async function startGatewayPostAttachRuntime(
   params: {
     minimalTestGateway: boolean;
-    cfgAtStart: OpenClawConfig;
+    cfgAtStart: AlienConfig;
     bindHost: string;
     bindHosts: string[];
     port: number;
@@ -680,8 +680,8 @@ export async function startGatewayPostAttachRuntime(
       error: (msg: string) => void;
       debug?: (msg: string) => void;
     };
-    gatewayPluginConfigAtStart: OpenClawConfig;
-    pluginRegistry: ReturnType<typeof loadOpenClawPlugins>;
+    gatewayPluginConfigAtStart: AlienConfig;
+    pluginRegistry: ReturnType<typeof loadAlienPlugins>;
     defaultWorkspaceDir: string;
     deps: CliDeps;
     startChannels: () => Promise<void>;

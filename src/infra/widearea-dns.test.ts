@@ -12,9 +12,9 @@ import {
 } from "./widearea-dns.js";
 
 const baseZoneOpts: WideAreaGatewayZoneOpts = {
-  domain: "openclaw.internal.",
+  domain: "alien.internal.",
   gatewayPort: 18789,
-  displayName: "Mac Studio (OpenClaw)",
+  displayName: "Mac Studio (Alien)",
   tailnetIPv4: "100.123.224.76",
   hostLabel: "studio-london",
   instanceLabel: "studio-london",
@@ -44,9 +44,9 @@ afterEach(() => {
 
 describe("wide-area DNS discovery domain helpers", () => {
   it.each([
-    { value: "openclaw.internal", expected: "openclaw.internal." },
-    { value: "openclaw.internal.", expected: "openclaw.internal." },
-    { value: "  openclaw.internal  ", expected: "openclaw.internal." },
+    { value: "alien.internal", expected: "alien.internal." },
+    { value: "alien.internal.", expected: "alien.internal." },
+    { value: "  alien.internal  ", expected: "alien.internal." },
     { value: "", expected: null },
     { value: "   ", expected: null },
     { value: null, expected: null },
@@ -59,7 +59,7 @@ describe("wide-area DNS discovery domain helpers", () => {
     {
       name: "prefers config domain over env",
       params: {
-        env: { OPENCLAW_WIDE_AREA_DOMAIN: "env.internal" } as NodeJS.ProcessEnv,
+        env: { ALIEN_WIDE_AREA_DOMAIN: "env.internal" } as NodeJS.ProcessEnv,
         configDomain: "config.internal",
       },
       expected: "config.internal.",
@@ -67,14 +67,14 @@ describe("wide-area DNS discovery domain helpers", () => {
     {
       name: "falls back to env domain",
       params: {
-        env: { OPENCLAW_WIDE_AREA_DOMAIN: "env.internal" } as NodeJS.ProcessEnv,
+        env: { ALIEN_WIDE_AREA_DOMAIN: "env.internal" } as NodeJS.ProcessEnv,
       },
       expected: "env.internal.",
     },
     {
       name: "returns null when both sources are blank",
       params: {
-        env: { OPENCLAW_WIDE_AREA_DOMAIN: "   " } as NodeJS.ProcessEnv,
+        env: { ALIEN_WIDE_AREA_DOMAIN: "   " } as NodeJS.ProcessEnv,
         configDomain: " ",
       },
       expected: null,
@@ -84,8 +84,8 @@ describe("wide-area DNS discovery domain helpers", () => {
   });
 
   it("builds the default zone path from the normalized domain", () => {
-    expect(getWideAreaZonePath("openclaw.internal.")).toBe(
-      path.join(utils.CONFIG_DIR, "dns", "openclaw.internal.db"),
+    expect(getWideAreaZonePath("alien.internal.")).toBe(
+      path.join(utils.CONFIG_DIR, "dns", "alien.internal.db"),
     );
   });
 });
@@ -95,19 +95,19 @@ describe("wide-area DNS-SD zone rendering", () => {
     const txt = renderZoneText({
       tailnetIPv6: "fd7a:115c:a1e0::8801:e04c",
       sshPort: 22,
-      cliPath: "/opt/homebrew/bin/openclaw",
+      cliPath: "/opt/homebrew/bin/alien",
     });
 
     expectZoneRecords(txt, [
-      `$ORIGIN openclaw.internal.`,
+      `$ORIGIN alien.internal.`,
       `studio-london IN A 100.123.224.76`,
       `studio-london IN AAAA fd7a:115c:a1e0::8801:e04c`,
-      `_openclaw-gw._tcp IN PTR studio-london._openclaw-gw._tcp`,
-      `studio-london._openclaw-gw._tcp IN SRV 0 0 18789 studio-london`,
-      `displayName=Mac Studio (OpenClaw)`,
+      `_alien-gw._tcp IN PTR studio-london._alien-gw._tcp`,
+      `studio-london._alien-gw._tcp IN SRV 0 0 18789 studio-london`,
+      `displayName=Mac Studio (Alien)`,
       `gatewayPort=18789`,
       `sshPort=22`,
-      `cliPath=/opt/homebrew/bin/openclaw`,
+      `cliPath=/opt/homebrew/bin/alien`,
     ]);
   });
 
@@ -120,24 +120,24 @@ describe("wide-area DNS-SD zone rendering", () => {
     {
       name: "includes gateway TLS TXT fields and trims display metadata",
       overrides: {
-        domain: "openclaw.internal",
-        displayName: "  Mac Studio (OpenClaw)  ",
+        domain: "alien.internal",
+        displayName: "  Mac Studio (Alien)  ",
         hostLabel: " Studio London ",
         instanceLabel: " Studio London ",
         gatewayTlsEnabled: true,
         gatewayTlsFingerprintSha256: "abc123",
         tailnetDns: " tailnet.ts.net ",
-        cliPath: " /opt/homebrew/bin/openclaw ",
+        cliPath: " /opt/homebrew/bin/alien ",
       },
       records: [
-        `$ORIGIN openclaw.internal.`,
+        `$ORIGIN alien.internal.`,
         `studio-london IN A 100.123.224.76`,
-        `studio-london._openclaw-gw._tcp IN TXT`,
-        `displayName=Mac Studio (OpenClaw)`,
+        `studio-london._alien-gw._tcp IN TXT`,
+        `displayName=Mac Studio (Alien)`,
         `gatewayTls=1`,
         `gatewayTlsSha256=abc123`,
         `tailnetDns=tailnet.ts.net`,
-        `cliPath=/opt/homebrew/bin/openclaw`,
+        `cliPath=/opt/homebrew/bin/alien`,
       ],
     },
   ])("$name", ({ overrides, records }) => {
@@ -161,7 +161,7 @@ describe("wide-area DNS zone writes", () => {
     const result = await writeWideAreaGatewayZone(makeZoneOpts());
 
     expect(result).toEqual({
-      zonePath: getWideAreaZonePath("openclaw.internal."),
+      zonePath: getWideAreaZonePath("alien.internal."),
       changed: false,
     });
     expect(writeSpy).not.toHaveBeenCalled();
@@ -181,11 +181,11 @@ describe("wide-area DNS zone writes", () => {
     );
 
     expect(result).toEqual({
-      zonePath: getWideAreaZonePath("openclaw.internal."),
+      zonePath: getWideAreaZonePath("alien.internal."),
       changed: true,
     });
     expect(writeSpy).toHaveBeenCalledWith(
-      getWideAreaZonePath("openclaw.internal."),
+      getWideAreaZonePath("alien.internal."),
       expect.stringContaining("@ IN SOA ns1 hostmaster 2026031305 7200 3600 1209600 60"),
       "utf-8",
     );

@@ -207,15 +207,15 @@ push_prep_head_once() {
   local lease_sha="$2"
   local prep_head_sha="$3"
 
-  if [ -n "${PR_HEAD_OWNER:-}" ] && [ -n "${PR_HEAD_REPO_NAME:-}" ] && [ "${OPENCLAW_PR_PUSH_MODE:-graphql}" != "git" ]; then
+  if [ -n "${PR_HEAD_OWNER:-}" ] && [ -n "${PR_HEAD_REPO_NAME:-}" ] && [ "${ALIEN_PR_PUSH_MODE:-graphql}" != "git" ]; then
     echo "Pushing PR branch through GitHub createCommitOnBranch so the prepared commit is verified." >&2
     graphql_push_to_fork "${PR_HEAD_OWNER}/${PR_HEAD_REPO_NAME}" "$pr_head" "$lease_sha"
     return $?
   fi
 
-  if [ "${OPENCLAW_ALLOW_UNSIGNED_GIT_PUSH:-}" != "1" ]; then
+  if [ "${ALIEN_ALLOW_UNSIGNED_GIT_PUSH:-}" != "1" ]; then
     echo "Refusing git-protocol PR branch push because it can publish unsigned commits." >&2
-    echo "Use the default GitHub createCommitOnBranch path, or set OPENCLAW_ALLOW_UNSIGNED_GIT_PUSH=1 for an explicit manual override." >&2
+    echo "Use the default GitHub createCommitOnBranch path, or set ALIEN_ALLOW_UNSIGNED_GIT_PUSH=1 for an explicit manual override." >&2
     return 2
   fi
 

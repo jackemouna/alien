@@ -1,9 +1,9 @@
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   GatewayClient,
   startGatewayClientWhenEventLoopReady,
-} from "openclaw/plugin-sdk/gateway-runtime";
-import type { RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
+} from "alien/plugin-sdk/gateway-runtime";
+import type { RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
 import type { GoogleMeetConfig } from "./config.js";
 
 type VoiceCallGatewayClient = InstanceType<typeof GatewayClient>;

@@ -14,10 +14,10 @@ export function normalizeTranscriptForMatch(value: string): string {
 
 type ExpectedTranscriptMatch = RegExp | string;
 
-export const OPENCLAW_LIVE_TRANSCRIPT_MARKER_RE = /open(?:claw|cl|flaw|clar|core)/;
+export const ALIEN_LIVE_TRANSCRIPT_MARKER_RE = /open(?:claw|cl|flaw|clar|core)/;
 
-export function expectOpenClawLiveTranscriptMarker(value: string): void {
-  expect(normalizeTranscriptForMatch(value)).toMatch(OPENCLAW_LIVE_TRANSCRIPT_MARKER_RE);
+export function expectAlienLiveTranscriptMarker(value: string): void {
+  expect(normalizeTranscriptForMatch(value)).toMatch(ALIEN_LIVE_TRANSCRIPT_MARKER_RE);
 }
 
 export async function waitForLiveExpectation(expectation: () => void, timeoutMs = 30_000) {
@@ -103,7 +103,7 @@ export async function runRealtimeSttLiveTest(params: {
   const transcripts: string[] = [];
   const partials: string[] = [];
   const errors: Error[] = [];
-  const expected = params.expectedNormalizedText ?? OPENCLAW_LIVE_TRANSCRIPT_MARKER_RE;
+  const expected = params.expectedNormalizedText ?? ALIEN_LIVE_TRANSCRIPT_MARKER_RE;
   const session = params.provider.createSession({
     providerConfig: params.providerConfig,
     onPartial: (partial) => partials.push(partial),

@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/sglang-provider",
+  "name": "@alien/sglang-provider",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw SGLang provider plugin",
+  "description": "Alien SGLang provider plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ]

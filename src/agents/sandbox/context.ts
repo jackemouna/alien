@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   ensureBrowserControlAuth,
   resolveBrowserControlAuth,
@@ -25,7 +25,7 @@ async function ensureSandboxWorkspaceLayout(params: {
   cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
   agentId: string;
   rawSessionKey: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir?: string;
 }): Promise<{
   agentWorkspaceDir: string;
@@ -109,7 +109,7 @@ export async function resolveSandboxDockerUser(params: {
   }
 }
 
-function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: string }) {
+function resolveSandboxSession(params: { config?: AlienConfig; sessionKey?: string }) {
   const rawSessionKey = params.sessionKey?.trim();
   if (!rawSessionKey) {
     return null;
@@ -128,7 +128,7 @@ function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: s
 }
 
 export async function resolveSandboxContext(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   sessionKey?: string;
   workspaceDir?: string;
 }): Promise<SandboxContext | null> {
@@ -242,7 +242,7 @@ export async function resolveSandboxContext(params: {
 }
 
 export async function ensureSandboxWorkspaceForSession(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   sessionKey?: string;
   workspaceDir?: string;
 }): Promise<SandboxWorkspaceInfo | null> {

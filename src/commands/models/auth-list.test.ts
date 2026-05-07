@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { OutputRuntimeEnv } from "../../runtime.js";
 import { modelsAuthListCommand } from "./auth-list.js";
 
@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../../agents/agent-scope.js", () => ({
-  resolveAgentDir: (_cfg: OpenClawConfig, agentId: string) => `/tmp/openclaw/agents/${agentId}`,
+  resolveAgentDir: (_cfg: AlienConfig, agentId: string) => `/tmp/alien/agents/${agentId}`,
   resolveDefaultAgentId: () => "main",
 }));
 
@@ -54,7 +54,7 @@ function createRuntime(): OutputRuntimeEnv & { logs: string[]; jsonPayloads: unk
 
 describe("modelsAuthListCommand", () => {
   beforeEach(() => {
-    mocks.loadModelsConfig.mockReset().mockResolvedValue({} as OpenClawConfig);
+    mocks.loadModelsConfig.mockReset().mockResolvedValue({} as AlienConfig);
     mocks.ensureAuthProfileStore.mockReset();
     mocks.externalCliDiscoveryForProviderAuth.mockClear();
     mocks.resolveAuthProfileDisplayLabel.mockClear();
@@ -120,7 +120,7 @@ describe("modelsAuthListCommand", () => {
 
     expect(runtime.logs).toEqual([
       "Agent: main",
-      "Auth state file: /tmp/openclaw/agents/main/auth-state.json",
+      "Auth state file: /tmp/alien/agents/main/auth-state.json",
       "Profiles: (none)",
     ]);
   });

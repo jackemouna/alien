@@ -45,7 +45,7 @@ vi.mock("../plugins/cli.js", () => ({
 
 describe("completion-cli write-state", () => {
   const originalHome = process.env.HOME;
-  const originalStateDir = process.env.OPENCLAW_STATE_DIR;
+  const originalStateDir = process.env.ALIEN_STATE_DIR;
   let restoreStderrWriteSpy: (() => void) | null = null;
 
   beforeEach(() => {
@@ -73,29 +73,29 @@ describe("completion-cli write-state", () => {
       process.env.HOME = originalHome;
     }
     if (originalStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ALIEN_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = originalStateDir;
+      process.env.ALIEN_STATE_DIR = originalStateDir;
     }
   });
 
   it("keeps completion cache generation alive when a subcli fails to register", async () => {
     const { registerCompletionCli } = await import("./completion-cli.js");
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-completion-state-"));
-    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-completion-home-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-completion-state-"));
+    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-completion-home-"));
 
-    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.ALIEN_STATE_DIR = stateDir;
     process.env.HOME = homeDir;
 
     const program = new Command();
-    program.name("openclaw");
+    program.name("alien");
     registerCompletionCli(program);
 
     await program.parseAsync(["completion", "--write-state"], { from: "user" });
 
     const cacheDir = path.join(stateDir, "completions");
     expect(await fs.readdir(cacheDir)).toEqual(
-      expect.arrayContaining(["openclaw.bash", "openclaw.fish", "openclaw.ps1", "openclaw.zsh"]),
+      expect.arrayContaining(["alien.bash", "alien.fish", "alien.ps1", "alien.zsh"]),
     );
     expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa", expect.any(Array), {
       purpose: "completion",
@@ -114,16 +114,16 @@ describe("completion-cli write-state", () => {
       import("./completion-runtime.js"),
       import("./completion-cli.js"),
     ]);
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-completion-state-"));
-    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-completion-home-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-completion-state-"));
+    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-completion-home-"));
 
-    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.ALIEN_STATE_DIR = stateDir;
     process.env.HOME = homeDir;
     process.env[COMPLETION_SKIP_PLUGIN_COMMANDS_ENV] = "1";
 
     try {
       const program = new Command();
-      program.name("openclaw");
+      program.name("alien");
       registerCompletionCli(program);
 
       await program.parseAsync(["completion", "--write-state"], { from: "user" });
@@ -133,7 +133,7 @@ describe("completion-cli write-state", () => {
       });
       expect(registerPluginCliCommandsFromValidatedConfigMock).not.toHaveBeenCalled();
       expect(await fs.readdir(path.join(stateDir, "completions"))).toEqual(
-        expect.arrayContaining(["openclaw.bash", "openclaw.fish", "openclaw.ps1", "openclaw.zsh"]),
+        expect.arrayContaining(["alien.bash", "alien.fish", "alien.ps1", "alien.zsh"]),
       );
     } finally {
       delete process.env[COMPLETION_SKIP_PLUGIN_COMMANDS_ENV];

@@ -2,12 +2,12 @@ import {
   buildChannelOutboundSessionRoute,
   buildThreadAwareOutboundSessionRoute,
   createChatChannelPlugin,
-} from "openclaw/plugin-sdk/channel-core";
+} from "alien/plugin-sdk/channel-core";
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
-} from "openclaw/plugin-sdk/channel-message";
-import { getChatChannelMeta } from "openclaw/plugin-sdk/channel-plugin-common";
+} from "alien/plugin-sdk/channel-message";
+import { getChatChannelMeta } from "alien/plugin-sdk/channel-plugin-common";
 import {
   DEFAULT_ACCOUNT_ID,
   listQaChannelAccountIds,

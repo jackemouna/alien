@@ -30,7 +30,7 @@ env:
   NODE_VERSION: "24.x"
   PNPM_VERSION: "10.32.1"
   CLAWHUB_REGISTRY: "https://clawhub.ai"
-  CLAWHUB_REPOSITORY: "openclaw/clawhub"
+  CLAWHUB_REPOSITORY: "alien/clawhub"
   # Pinned to a reviewed ClawHub commit so release behavior stays reproducible.
   CLAWHUB_REF: "facf20ceb6cc459e2872d941e71335a784bbc55c"
 
@@ -168,7 +168,7 @@ jobs:
           echo "::error::One or more selected plugin versions already exist on ClawHub. Bump the version before running a real publish."
           exit 1
 
-      - name: Verify OpenClaw ClawHub package ownership
+      - name: Verify Alien ClawHub package ownership
         if: steps.plan.outputs.has_candidates == 'true'
         env:
           CLAWHUB_REGISTRY: ${{ env.CLAWHUB_REGISTRY }}

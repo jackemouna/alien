@@ -36,19 +36,19 @@ import type {
   ImageGenerationProviderPlugin,
   MediaUnderstandingProviderPlugin,
   MusicGenerationProviderPlugin,
-  OpenClawPluginChannelRegistration,
-  OpenClawPluginCliCommandDescriptor,
-  OpenClawPluginCliRegistrar,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginGatewayRuntimeScopeSurface,
-  OpenClawGatewayDiscoveryService,
-  OpenClawPluginHttpRouteAuth,
-  OpenClawPluginHttpRouteHandler,
-  OpenClawPluginHttpRouteMatch,
-  OpenClawPluginReloadRegistration,
-  OpenClawPluginSecurityAuditCollector,
-  OpenClawPluginService,
-  OpenClawPluginToolFactory,
+  AlienPluginChannelRegistration,
+  AlienPluginCliCommandDescriptor,
+  AlienPluginCliRegistrar,
+  AlienPluginCommandDefinition,
+  AlienPluginGatewayRuntimeScopeSurface,
+  AlienGatewayDiscoveryService,
+  AlienPluginHttpRouteAuth,
+  AlienPluginHttpRouteHandler,
+  AlienPluginHttpRouteMatch,
+  AlienPluginReloadRegistration,
+  AlienPluginSecurityAuditCollector,
+  AlienPluginService,
+  AlienPluginToolFactory,
   PluginConversationBindingResolvedEvent,
   PluginHookRegistration as TypedPluginHookRegistration,
   PluginLogger,
@@ -67,7 +67,7 @@ import type {
 export type PluginToolRegistration = {
   pluginId: string;
   pluginName?: string;
-  factory: OpenClawPluginToolFactory;
+  factory: AlienPluginToolFactory;
   names: string[];
   declaredNames?: string[];
   optional: boolean;
@@ -78,9 +78,9 @@ export type PluginToolRegistration = {
 export type PluginCliRegistration = {
   pluginId: string;
   pluginName?: string;
-  register: OpenClawPluginCliRegistrar;
+  register: AlienPluginCliRegistrar;
   commands: string[];
-  descriptors: OpenClawPluginCliCommandDescriptor[];
+  descriptors: AlienPluginCliCommandDescriptor[];
   source: string;
   rootDir?: string;
 };
@@ -88,10 +88,10 @@ export type PluginCliRegistration = {
 export type PluginHttpRouteRegistration = {
   pluginId?: string;
   path: string;
-  handler: OpenClawPluginHttpRouteHandler;
-  auth: OpenClawPluginHttpRouteAuth;
-  match: OpenClawPluginHttpRouteMatch;
-  gatewayRuntimeScopeSurface?: OpenClawPluginGatewayRuntimeScopeSurface;
+  handler: AlienPluginHttpRouteHandler;
+  auth: AlienPluginHttpRouteAuth;
+  match: AlienPluginHttpRouteMatch;
+  gatewayRuntimeScopeSurface?: AlienPluginGatewayRuntimeScopeSurface;
   source?: string;
 };
 
@@ -202,7 +202,7 @@ export type PluginHookRegistration = {
 export type PluginServiceRegistration = {
   pluginId: string;
   pluginName?: string;
-  service: OpenClawPluginService;
+  service: AlienPluginService;
   source: string;
   origin: PluginOrigin;
   trustedOfficialInstall?: boolean;
@@ -212,7 +212,7 @@ export type PluginServiceRegistration = {
 export type PluginGatewayDiscoveryServiceRegistration = {
   pluginId: string;
   pluginName?: string;
-  service: OpenClawGatewayDiscoveryService;
+  service: AlienGatewayDiscoveryService;
   source: string;
   rootDir?: string;
 };
@@ -220,7 +220,7 @@ export type PluginGatewayDiscoveryServiceRegistration = {
 export type PluginReloadRegistration = {
   pluginId: string;
   pluginName?: string;
-  registration: OpenClawPluginReloadRegistration;
+  registration: AlienPluginReloadRegistration;
   source: string;
   rootDir?: string;
 };
@@ -228,7 +228,7 @@ export type PluginReloadRegistration = {
 export type PluginNodeHostCommandRegistration = {
   pluginId: string;
   pluginName?: string;
-  command: import("./types.js").OpenClawPluginNodeHostCommand;
+  command: import("./types.js").AlienPluginNodeHostCommand;
   source: string;
   rootDir?: string;
 };
@@ -236,7 +236,7 @@ export type PluginNodeHostCommandRegistration = {
 export type PluginNodeInvokePolicyRegistration = {
   pluginId: string;
   pluginName?: string;
-  policy: import("./types.js").OpenClawPluginNodeInvokePolicy;
+  policy: import("./types.js").AlienPluginNodeInvokePolicy;
   pluginConfig?: Record<string, unknown>;
   source: string;
   rootDir?: string;
@@ -245,7 +245,7 @@ export type PluginNodeInvokePolicyRegistration = {
 export type PluginSecurityAuditCollectorRegistration = {
   pluginId: string;
   pluginName?: string;
-  collector: OpenClawPluginSecurityAuditCollector;
+  collector: AlienPluginSecurityAuditCollector;
   source: string;
   rootDir?: string;
 };
@@ -253,7 +253,7 @@ export type PluginSecurityAuditCollectorRegistration = {
 export type PluginCommandRegistration = {
   pluginId: string;
   pluginName?: string;
-  command: OpenClawPluginCommandDefinition;
+  command: AlienPluginCommandDefinition;
   source: string;
   rootDir?: string;
 };
@@ -440,11 +440,11 @@ export type PluginRegistryParams = {
 };
 
 export type PluginRegistrationMode = import("./types.js").PluginRegistrationMode;
-export type OpenClawPluginNodeHostCommand = import("./types.js").OpenClawPluginNodeHostCommand;
-export type OpenClawPluginToolContext = import("./types.js").OpenClawPluginToolContext;
-export type OpenClawPluginHttpRouteParams = import("./types.js").OpenClawPluginHttpRouteParams;
-export type OpenClawPluginHookOptions = import("./types.js").OpenClawPluginHookOptions;
+export type AlienPluginNodeHostCommand = import("./types.js").AlienPluginNodeHostCommand;
+export type AlienPluginToolContext = import("./types.js").AlienPluginToolContext;
+export type AlienPluginHttpRouteParams = import("./types.js").AlienPluginHttpRouteParams;
+export type AlienPluginHookOptions = import("./types.js").AlienPluginHookOptions;
 export type PluginHookHandlerMap = import("./types.js").PluginHookHandlerMap;
-export type OpenClawPluginApi = import("./types.js").OpenClawPluginApi;
+export type AlienPluginApi = import("./types.js").AlienPluginApi;
 export type TypedPluginHook = TypedPluginHookRegistration;
-export type OpenClawPluginChannelReg = OpenClawPluginChannelRegistration;
+export type AlienPluginChannelReg = AlienPluginChannelRegistration;

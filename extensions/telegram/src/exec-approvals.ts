@@ -1,23 +1,23 @@
-import { resolveApprovalApprovers } from "openclaw/plugin-sdk/approval-auth-runtime";
+import { resolveApprovalApprovers } from "alien/plugin-sdk/approval-auth-runtime";
 import {
   createChannelExecApprovalProfile,
   isChannelExecApprovalClientEnabledFromConfig,
   isChannelExecApprovalTargetRecipient,
   matchesApprovalRequestFilters,
-} from "openclaw/plugin-sdk/approval-client-runtime";
-import { resolveApprovalRequestChannelAccountId } from "openclaw/plugin-sdk/approval-native-runtime";
+} from "alien/plugin-sdk/approval-client-runtime";
+import { resolveApprovalRequestChannelAccountId } from "alien/plugin-sdk/approval-native-runtime";
 import type {
   ExecApprovalRequest,
   PluginApprovalRequest,
-} from "openclaw/plugin-sdk/approval-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { TelegramExecApprovalConfig } from "openclaw/plugin-sdk/config-types";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/approval-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { TelegramExecApprovalConfig } from "alien/plugin-sdk/config-types";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-runtime";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { listTelegramAccountIds, resolveTelegramAccount } from "./accounts.js";
 import { resolveTelegramInlineButtonsConfigScope } from "./inline-buttons.js";
 import { normalizeTelegramChatId, resolveTelegramTargetChatType } from "./targets.js";
@@ -35,13 +35,13 @@ function normalizeTelegramDirectApproverId(value: string | number): string | und
   return chatId;
 }
 
-function resolveTelegramOwnerApprovers(cfg: OpenClawConfig): Array<string | number> {
+function resolveTelegramOwnerApprovers(cfg: AlienConfig): Array<string | number> {
   const ownerAllowFrom = cfg.commands?.ownerAllowFrom;
   return Array.isArray(ownerAllowFrom) ? ownerAllowFrom : [];
 }
 
 export function resolveTelegramExecApprovalConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): TelegramExecApprovalConfig | undefined {
   const account = resolveTelegramAccount(params);
@@ -55,7 +55,7 @@ export function resolveTelegramExecApprovalConfig(params: {
 }
 
 export function getTelegramExecApprovalApprovers(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): string[] {
   return resolveApprovalApprovers({
@@ -66,7 +66,7 @@ export function getTelegramExecApprovalApprovers(params: {
 }
 
 export function isTelegramExecApprovalTargetRecipient(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   senderId?: string | null;
   accountId?: string | null;
 }): boolean {
@@ -84,7 +84,7 @@ export function isTelegramExecApprovalTargetRecipient(params: {
 }
 
 function countTelegramExecApprovalEligibleAccounts(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   request: ExecApprovalRequest | PluginApprovalRequest;
 }): number {
   return listTelegramAccountIds(params.cfg).filter((accountId) => {
@@ -122,7 +122,7 @@ function isTargetForwardingMode(mode?: string): boolean {
 }
 
 function matchesExplicitTelegramForwardTargetAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   request: ExecApprovalRequest | PluginApprovalRequest;
 }): boolean | undefined {
@@ -154,7 +154,7 @@ function matchesExplicitTelegramForwardTargetAccount(params: {
 }
 
 function matchesTelegramRequestAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   request: ExecApprovalRequest | PluginApprovalRequest;
 }): boolean {
@@ -204,7 +204,7 @@ export const shouldHandleTelegramExecApprovalRequest =
   telegramExecApprovalProfile.shouldHandleRequest;
 
 export function shouldInjectTelegramExecApprovalButtons(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   to: string;
 }): boolean {
@@ -223,7 +223,7 @@ export function shouldInjectTelegramExecApprovalButtons(params: {
 }
 
 function resolveExecApprovalButtonsExplicitlyDisabled(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): boolean {
   const capabilities = resolveTelegramAccount(params).config.capabilities;
@@ -231,7 +231,7 @@ function resolveExecApprovalButtonsExplicitlyDisabled(params: {
 }
 
 export function shouldEnableTelegramExecApprovalButtons(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   to: string;
 }): boolean {
@@ -242,7 +242,7 @@ export function shouldEnableTelegramExecApprovalButtons(params: {
 }
 
 export function shouldSuppressLocalTelegramExecApprovalPrompt(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   payload: ReplyPayload;
 }): boolean {
@@ -250,7 +250,7 @@ export function shouldSuppressLocalTelegramExecApprovalPrompt(params: {
 }
 
 export function isTelegramExecApprovalHandlerConfigured(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): boolean {
   return isChannelExecApprovalClientEnabledFromConfig({

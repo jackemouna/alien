@@ -23,7 +23,7 @@ import { isNixMode } from "../config/paths.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { applyConfigOverrides } from "../config/runtime-overrides.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   isDiagnosticsEnabled,
   setDiagnosticsEnabledForProcess,
@@ -33,7 +33,7 @@ import {
   isDiagnosticsTimelineEnabled,
 } from "../infra/diagnostics-timeline.js";
 import { isTruthyEnvValue, isVitestRuntimeEnv, logAcceptedEnvOption } from "../infra/env.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { ensureAlienCliOnPath } from "../infra/path-env.js";
 import { setGatewaySigusr1RestartPolicy, setPreRestartDeferralCheck } from "../infra/restart.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import type { VoiceWakeRoutingConfig } from "../infra/voicewake-routing.js";
@@ -98,7 +98,7 @@ export async function __resetModelCatalogCacheForTest(): Promise<void> {
   await resetModelCatalogCacheForTest();
 }
 
-ensureOpenClawCliOnPath();
+ensureAlienCliOnPath();
 
 const MAX_MEDIA_TTL_HOURS = 24 * 7;
 const POST_READY_MAINTENANCE_DELAY_MS = 250;
@@ -202,8 +202,8 @@ const gatewayRuntime = runtimeForLogger(log);
 const canvasRuntime = runtimeForLogger(logCanvas);
 
 function createGatewayStartupTrace() {
-  const logEnabled = isTruthyEnvValue(process.env.OPENCLAW_GATEWAY_STARTUP_TRACE);
-  let timelineConfig: OpenClawConfig | undefined;
+  const logEnabled = isTruthyEnvValue(process.env.ALIEN_GATEWAY_STARTUP_TRACE);
+  let timelineConfig: AlienConfig | undefined;
   let eventLoopDelay: ReturnType<typeof monitorEventLoopDelay> | undefined;
   const timelineOptions = () => ({
     ...(timelineConfig ? { config: timelineConfig } : {}),
@@ -211,7 +211,7 @@ function createGatewayStartupTrace() {
   });
   const eventLoopTimelineEnabled = () =>
     isDiagnosticsTimelineEnabled(timelineOptions()) &&
-    isTruthyEnvValue(process.env.OPENCLAW_DIAGNOSTICS_EVENT_LOOP);
+    isTruthyEnvValue(process.env.ALIEN_DIAGNOSTICS_EVENT_LOOP);
   const ensureEventLoopDelay = () => {
     if (eventLoopDelay || (!logEnabled && !eventLoopTimelineEnabled())) {
       return;
@@ -298,7 +298,7 @@ function createGatewayStartupTrace() {
     }
   };
   return {
-    setConfig(config: OpenClawConfig) {
+    setConfig(config: AlienConfig) {
       timelineConfig = config;
       ensureEventLoopDelay();
     },
@@ -401,12 +401,12 @@ function formatRuntimeGatewayAuthTokenWarning(): string {
   const base =
     "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token.";
   if (!isNixMode) {
-    return `${base} Persist one with \`openclaw config set gateway.auth.mode token\` and \`openclaw config set gateway.auth.token <token>\`.`;
+    return `${base} Persist one with \`alien config set gateway.auth.mode token\` and \`alien config set gateway.auth.token <token>\`.`;
   }
   return [
     base,
-    "In Nix mode, set gateway.auth.token in your Nix-managed OpenClaw config and rebuild.",
-    "For the first-party Nix flow, see https://github.com/openclaw/nix-openclaw#quick-start and https://docs.openclaw.ai/install/nix.",
+    "In Nix mode, set gateway.auth.token in your Nix-managed Alien config and rebuild.",
+    "For the first-party Nix flow, see https://github.com/alien/nix-alien#quick-start and https://docs.alien.ai/install/nix.",
   ].join(" ");
 }
 
@@ -506,7 +506,7 @@ export type GatewayServerOptions = {
   startupStartedAt?: number;
   /**
    * Config snapshot already read by the CLI gateway preflight. Passing it avoids
-   * reparsing openclaw.json during server startup.
+   * reparsing alien.json during server startup.
    */
   startupConfigSnapshotRead?: ReadConfigFileSnapshotWithPluginMetadataResult;
 };
@@ -526,16 +526,16 @@ export async function startGatewayServer(
   bootstrapGatewayNetworkRuntime();
 
   const minimalTestGateway =
-    isVitestRuntimeEnv() && process.env.OPENCLAW_TEST_MINIMAL_GATEWAY === "1";
+    isVitestRuntimeEnv() && process.env.ALIEN_TEST_MINIMAL_GATEWAY === "1";
 
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-  process.env.OPENCLAW_GATEWAY_PORT = String(port);
+  process.env.ALIEN_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM",
+    key: "ALIEN_RAW_STREAM",
     description: "raw stream logging enabled",
   });
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM_PATH",
+    key: "ALIEN_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
   const startupTrace = createGatewayStartupTrace();
@@ -563,7 +563,7 @@ export async function startGatewayServer(
   const emitSecretsStateEvent = (
     code: "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED",
     message: string,
-    cfg: OpenClawConfig,
+    cfg: AlienConfig,
   ) => {
     enqueueSystemEvent(`[${code}] ${message}`, {
       sessionKey: resolveMainSessionKey(cfg),
@@ -577,7 +577,7 @@ export async function startGatewayServer(
     emitStateEvent: emitSecretsStateEvent,
   });
 
-  let cfgAtStart: OpenClawConfig;
+  let cfgAtStart: AlienConfig;
   let startupInternalWriteHash: string | null = null;
   let startupLastGoodSnapshot = configSnapshot;
   const startupActivationSourceConfig = configSnapshot.sourceConfig;
@@ -725,7 +725,7 @@ export async function startGatewayServer(
       env: process.env,
       tailscaleMode,
     });
-  const resolveSharedGatewaySessionGenerationForConfig = (config: OpenClawConfig) =>
+  const resolveSharedGatewaySessionGenerationForConfig = (config: AlienConfig) =>
     resolveSharedGatewaySessionGeneration(
       resolveGatewayAuth({
         authConfig: config.gateway?.auth,
@@ -811,8 +811,8 @@ export async function startGatewayServer(
     getStartupPendingReason: () => startupPendingReason,
     getEventLoopHealth: readinessEventLoopHealth.snapshot,
     shouldSkipChannelReadiness: () =>
-      isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
-      isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS),
+      isTruthyEnvValue(process.env.ALIEN_SKIP_CHANNELS) ||
+      isTruthyEnvValue(process.env.ALIEN_SKIP_PROVIDERS),
   });
   log.info("starting HTTP server...");
   const {
@@ -1140,7 +1140,7 @@ export async function startGatewayServer(
         ]),
       );
     const reloadAttachedGatewayPlugins = async (params: {
-      nextConfig: OpenClawConfig;
+      nextConfig: AlienConfig;
       changedPaths: readonly string[];
       beforeReplace: (channels: ReadonlySet<ChannelId>) => Promise<void>;
     }): Promise<GatewayPluginReloadResult> => {
@@ -1264,7 +1264,7 @@ export async function startGatewayServer(
       nodeUnsubscribeAll,
       hasConnectedTalkNode: hasTalkNodeConnected,
       clients,
-      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: OpenClawConfig) => {
+      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: AlienConfig) => {
         enforceSharedGatewaySessionGenerationForConfigWrite({
           state: sharedGatewaySessionGenerationState,
           nextConfig,

@@ -10,11 +10,11 @@ import {
   splitSetupEntries,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-} from "openclaw/plugin-sdk/setup";
+} from "alien/plugin-sdk/setup";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { resolveDefaultGoogleChatAccountId, resolveGoogleChatAccount } from "./accounts.js";
 
 const channel = "googlechat" as const;

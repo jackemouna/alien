@@ -1,9 +1,9 @@
-import { readAcpSessionEntry, type AcpSessionStoreEntry } from "openclaw/plugin-sdk/acp-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { readAcpSessionEntry, type AcpSessionStoreEntry } from "alien/plugin-sdk/acp-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { parseDiscordTarget } from "../targets.js";
 import { resolveChannelIdForBinding } from "./thread-bindings.discord-api.js";
 import { getThreadBindingManager } from "./thread-bindings.manager.js";
@@ -37,7 +37,7 @@ export type AcpThreadBindingReconciliationResult = {
 export type AcpThreadBindingHealthStatus = "healthy" | "stale" | "uncertain";
 
 export type AcpThreadBindingHealthProbe = (params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
   sessionKey: string;
   binding: ThreadBindingRecord;
@@ -98,7 +98,7 @@ export function listThreadBindingsBySessionKey(params: {
 }
 
 export async function autoBindSpawnedDiscordSubagent(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
   channel?: string;
   to?: string;
@@ -233,7 +233,7 @@ function resolveStoredAcpBindingHealth(params: {
 }
 
 export async function reconcileAcpThreadBindingsOnStartup(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
   sendFarewell?: boolean;
   healthProbe?: AcpThreadBindingHealthProbe;

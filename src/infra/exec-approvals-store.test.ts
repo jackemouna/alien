@@ -28,7 +28,7 @@ let resolveExecApprovalsSocketPath: ExecApprovalsModule["resolveExecApprovalsSoc
 let saveExecApprovals: ExecApprovalsModule["saveExecApprovals"];
 
 const tempDirs: string[] = [];
-const originalOpenClawHome = process.env.OPENCLAW_HOME;
+const originalAlienHome = process.env.ALIEN_HOME;
 
 beforeAll(async () => {
   ({
@@ -54,10 +54,10 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
-  if (originalOpenClawHome === undefined) {
-    delete process.env.OPENCLAW_HOME;
+  if (originalAlienHome === undefined) {
+    delete process.env.ALIEN_HOME;
   } else {
-    process.env.OPENCLAW_HOME = originalOpenClawHome;
+    process.env.ALIEN_HOME = originalAlienHome;
   }
   for (const dir of tempDirs.splice(0)) {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -67,12 +67,12 @@ afterEach(() => {
 function createHomeDir(): string {
   const dir = makeTempDir();
   tempDirs.push(dir);
-  process.env.OPENCLAW_HOME = dir;
+  process.env.ALIEN_HOME = dir;
   return dir;
 }
 
 function approvalsFilePath(homeDir: string): string {
-  return path.join(homeDir, ".openclaw", "exec-approvals.json");
+  return path.join(homeDir, ".alien", "exec-approvals.json");
 }
 
 function readApprovalsFile(homeDir: string): ExecApprovalsFile {
@@ -92,10 +92,10 @@ describe("exec approvals store helpers", () => {
     const dir = createHomeDir();
 
     expect(path.normalize(resolveExecApprovalsPath())).toBe(
-      path.normalize(path.join(dir, ".openclaw", "exec-approvals.json")),
+      path.normalize(path.join(dir, ".alien", "exec-approvals.json")),
     );
     expect(path.normalize(resolveExecApprovalsSocketPath())).toBe(
-      path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+      path.normalize(path.join(dir, ".alien", "exec-approvals.sock")),
     );
   });
 
@@ -378,17 +378,17 @@ describe("exec approvals store helpers", () => {
     expect(fs.readFileSync(targetPath, "utf8")).toBe('{"sentinel":true}\n');
   });
 
-  it("accepts a symlinked OPENCLAW_HOME as the trusted approvals root", () => {
+  it("accepts a symlinked ALIEN_HOME as the trusted approvals root", () => {
     const realHome = makeTempDir();
     const linkedHome = `${realHome}-link`;
     tempDirs.push(realHome, linkedHome);
     fs.symlinkSync(realHome, linkedHome, "dir");
-    process.env.OPENCLAW_HOME = linkedHome;
+    process.env.ALIEN_HOME = linkedHome;
 
     saveExecApprovals({ version: 1, defaults: { security: "full" }, agents: {} });
 
     expect(
-      fs.readFileSync(path.join(realHome, ".openclaw", "exec-approvals.json"), "utf8"),
+      fs.readFileSync(path.join(realHome, ".alien", "exec-approvals.json"), "utf8"),
     ).toContain('"security": "full"');
   });
 
@@ -399,8 +399,8 @@ describe("exec approvals store helpers", () => {
     tempDirs.push(realHome, linkedHome);
     fs.mkdirSync(linkedStateTarget, { recursive: true });
     fs.symlinkSync(realHome, linkedHome, "dir");
-    fs.symlinkSync(linkedStateTarget, path.join(realHome, ".openclaw"), "dir");
-    process.env.OPENCLAW_HOME = linkedHome;
+    fs.symlinkSync(linkedStateTarget, path.join(realHome, ".alien"), "dir");
+    process.env.ALIEN_HOME = linkedHome;
 
     expect(() =>
       saveExecApprovals({ version: 1, defaults: { security: "full" }, agents: {} }),

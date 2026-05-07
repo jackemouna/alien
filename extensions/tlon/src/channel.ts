@@ -1,15 +1,15 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import { createHybridChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin, type ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-send-result";
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "openclaw/plugin-sdk/outbound-runtime";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+import { createHybridChannelConfigAdapter } from "alien/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin, type ChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createChannelMessageAdapterFromOutbound } from "alien/plugin-sdk/channel-message";
+import type { ChannelOutboundAdapter } from "alien/plugin-sdk/channel-send-result";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "alien/plugin-sdk/outbound-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/status-helpers";
 import { tlonChannelConfigSchema } from "./config-schema.js";
 import { tlonDoctor } from "./doctor.js";
 import { resolveTlonOutboundSessionRoute } from "./session-route.js";

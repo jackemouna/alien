@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
   AVATAR_MAX_BYTES,
@@ -32,7 +32,7 @@ const PUBLIC_AVATAR_SOURCE_MAX_CHARS = 256;
 const PUBLIC_DATA_AVATAR_HEADER_MAX_CHARS = 64;
 
 function resolveAvatarSource(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId: string,
   opts?: { includeUiOverride?: boolean },
 ): string | null {
@@ -134,7 +134,7 @@ export function resolvePublicAgentAvatarSource(
 }
 
 export function resolveAgentAvatar(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId: string,
   opts?: { includeUiOverride?: boolean },
 ): AgentAvatarResolution {

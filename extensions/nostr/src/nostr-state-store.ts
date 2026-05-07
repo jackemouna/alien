@@ -1,7 +1,7 @@
 import os from "node:os";
 import path from "node:path";
-import { safeParseJsonWithSchema } from "openclaw/plugin-sdk/extension-shared";
-import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+import { safeParseJsonWithSchema } from "alien/plugin-sdk/extension-shared";
+import { privateFileStore } from "alien/plugin-sdk/security-runtime";
 import { z } from "zod";
 import { getNostrRuntime } from "./runtime.js";
 

@@ -3,9 +3,9 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "openclaw/plugin-sdk/memory-host-markdown";
-import { root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/memory-host-markdown";
+import { root as fsRoot } from "alien/plugin-sdk/security-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   assessClaimFreshness,
   assessPageFreshness,
@@ -45,8 +45,8 @@ const COMPILE_PAGE_GROUPS: Array<{ kind: WikiPageKind; dir: string; heading: str
   { kind: "synthesis", dir: "syntheses", heading: "Syntheses" },
   { kind: "report", dir: "reports", heading: "Reports" },
 ];
-const AGENT_DIGEST_PATH = ".openclaw-wiki/cache/agent-digest.json";
-const CLAIMS_DIGEST_PATH = ".openclaw-wiki/cache/claims.jsonl";
+const AGENT_DIGEST_PATH = ".alien-wiki/cache/agent-digest.json";
+const CLAIMS_DIGEST_PATH = ".alien-wiki/cache/claims.jsonl";
 const MAX_RELATED_PAGES_PER_SECTION = 12;
 const MAX_SHARED_SOURCE_FANOUT = 24;
 
@@ -871,8 +871,8 @@ async function writeDashboardPage(params: {
   const updatedBody = replaceManagedMarkdownBlock({
     original: originalBody,
     heading: "## Generated",
-    startMarker: `<!-- openclaw:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
-    endMarker: `<!-- openclaw:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
+    startMarker: `<!-- alien:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
+    endMarker: `<!-- alien:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
     body: params.definition.buildBody({
       config: params.config,
       pages: params.pages,
@@ -1315,8 +1315,8 @@ export async function compileMemoryWikiVault(
       rootDir,
       relativePath: "index.md",
       title: "Wiki Index",
-      startMarker: "<!-- openclaw:wiki:index:start -->",
-      endMarker: "<!-- openclaw:wiki:index:end -->",
+      startMarker: "<!-- alien:wiki:index:start -->",
+      endMarker: "<!-- alien:wiki:index:end -->",
       body: buildRootIndexBody({ config, pages, counts }),
     })
   ) {
@@ -1331,8 +1331,8 @@ export async function compileMemoryWikiVault(
         rootDir,
         relativePath,
         title: group.heading,
-        startMarker: `<!-- openclaw:wiki:${group.dir}:index:start -->`,
-        endMarker: `<!-- openclaw:wiki:${group.dir}:index:end -->`,
+        startMarker: `<!-- alien:wiki:${group.dir}:index:start -->`,
+        endMarker: `<!-- alien:wiki:${group.dir}:index:end -->`,
         body: buildDirectoryIndexBody({ config, pages, group }),
       })
     ) {

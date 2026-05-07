@@ -14,9 +14,9 @@ export type {
   ChannelResolveKind,
   ChannelResolveResult,
   ChannelStatusAdapter,
-} from "openclaw/plugin-sdk/channel-contract";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-export type { OutboundDeliveryResult } from "openclaw/plugin-sdk/channel-send-result";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-export type { WizardPrompter } from "openclaw/plugin-sdk/setup";
+} from "alien/plugin-sdk/channel-contract";
+export type { ChannelPlugin } from "alien/plugin-sdk/channel-core";
+export type { OutboundDeliveryResult } from "alien/plugin-sdk/channel-send-result";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime";
+export type { WizardPrompter } from "alien/plugin-sdk/setup";

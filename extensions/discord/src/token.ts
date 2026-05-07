@@ -1,11 +1,11 @@
-import type { BaseTokenResolution } from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/routing";
-import { resolveAccountEntry } from "openclaw/plugin-sdk/routing";
+import type { BaseTokenResolution } from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/routing";
+import { resolveAccountEntry } from "alien/plugin-sdk/routing";
 import {
   normalizeResolvedSecretInputString,
   resolveSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
+} from "alien/plugin-sdk/secret-input";
 import { selectDiscordRuntimeConfig } from "./runtime-config.js";
 
 type DiscordTokenSource = "env" | "config" | "none";
@@ -34,7 +34,7 @@ export function normalizeDiscordToken(raw: unknown, path: string): string | unde
 }
 
 function resolveDiscordTokenValue(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   value: unknown;
   path: string;
 }): DiscordTokenValueResolution {
@@ -57,7 +57,7 @@ function resolveDiscordTokenValue(params: {
 }
 
 export function resolveDiscordToken(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   opts: { accountId?: string | null; envToken?: string | null } = {},
 ): DiscordTokenResolution {
   const selectedCfg = selectDiscordRuntimeConfig(cfg);

@@ -8,14 +8,14 @@ import { createOllamaEmbeddingProvider } from "./src/embedding-provider.js";
 import { createOllamaStreamFn } from "./src/stream.js";
 import { createOllamaWebSearchProvider } from "./src/web-search-provider.js";
 
-const LIVE = process.env.OPENCLAW_LIVE_TEST === "1" && process.env.OPENCLAW_LIVE_OLLAMA === "1";
+const LIVE = process.env.ALIEN_LIVE_TEST === "1" && process.env.ALIEN_LIVE_OLLAMA === "1";
 const OLLAMA_BASE_URL =
-  process.env.OPENCLAW_LIVE_OLLAMA_BASE_URL?.trim() || "http://127.0.0.1:11434";
-const CHAT_MODEL = process.env.OPENCLAW_LIVE_OLLAMA_MODEL?.trim() || "llama3.2:latest";
+  process.env.ALIEN_LIVE_OLLAMA_BASE_URL?.trim() || "http://127.0.0.1:11434";
+const CHAT_MODEL = process.env.ALIEN_LIVE_OLLAMA_MODEL?.trim() || "llama3.2:latest";
 const EMBEDDING_MODEL =
-  process.env.OPENCLAW_LIVE_OLLAMA_EMBED_MODEL?.trim() || "embeddinggemma:latest";
-const PROVIDER_ID = process.env.OPENCLAW_LIVE_OLLAMA_PROVIDER_ID?.trim() || "ollama-live-custom";
-const RUN_WEB_SEARCH = process.env.OPENCLAW_LIVE_OLLAMA_WEB_SEARCH !== "0";
+  process.env.ALIEN_LIVE_OLLAMA_EMBED_MODEL?.trim() || "embeddinggemma:latest";
+const PROVIDER_ID = process.env.ALIEN_LIVE_OLLAMA_PROVIDER_ID?.trim() || "ollama-live-custom";
+const RUN_WEB_SEARCH = process.env.ALIEN_LIVE_OLLAMA_WEB_SEARCH !== "0";
 
 async function collectStreamEvents<T>(stream: AsyncIterable<T>): Promise<T[]> {
   const events: T[] = [];
@@ -25,11 +25,11 @@ async function collectStreamEvents<T>(stream: AsyncIterable<T>): Promise<T[]> {
   return events;
 }
 
-async function withTempOpenClawState<T>(run: (paths: { root: string }) => Promise<T>): Promise<T> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ollama-cli-live-"));
+async function withTempAlienState<T>(run: (paths: { root: string }) => Promise<T>): Promise<T> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "alien-ollama-cli-live-"));
   try {
     await fs.writeFile(
-      path.join(root, "openclaw.json"),
+      path.join(root, "alien.json"),
       JSON.stringify(
         {
           models: {
@@ -53,8 +53,8 @@ async function withTempOpenClawState<T>(run: (paths: { root: string }) => Promis
   }
 }
 
-async function runOpenClawCli(args: string[], env: NodeJS.ProcessEnv) {
-  const outputRoot = fsSync.mkdtempSync(path.join(os.tmpdir(), "openclaw-ollama-cli-output-"));
+async function runAlienCli(args: string[], env: NodeJS.ProcessEnv) {
+  const outputRoot = fsSync.mkdtempSync(path.join(os.tmpdir(), "alien-ollama-cli-output-"));
   const stdoutPath = path.join(outputRoot, "stdout.txt");
   const stderrPath = path.join(outputRoot, "stderr.txt");
   const stdoutFd = fsSync.openSync(stdoutPath, "w");
@@ -62,7 +62,7 @@ async function runOpenClawCli(args: string[], env: NodeJS.ProcessEnv) {
   let stdoutClosed = false;
   let stderrClosed = false;
   try {
-    const result = spawnSync(process.execPath, ["openclaw.mjs", ...args], {
+    const result = spawnSync(process.execPath, ["alien.mjs", ...args], {
       cwd: process.cwd(),
       env,
       timeout: 90_000,
@@ -103,21 +103,21 @@ function buildCliEnv(root: string): NodeJS.ProcessEnv {
     TMPDIR: process.env.TMPDIR,
     NODE_PATH: process.env.NODE_PATH,
     NODE_OPTIONS: process.env.NODE_OPTIONS,
-    OPENCLAW_LIVE_TEST: "1",
-    OPENCLAW_LIVE_OLLAMA: "1",
-    OPENCLAW_LIVE_OLLAMA_WEB_SEARCH: "0",
-    OPENCLAW_STATE_DIR: path.join(root, "state"),
-    OPENCLAW_CONFIG_PATH: path.join(root, "openclaw.json"),
-    OPENCLAW_NO_RESPAWN: "1",
-    OPENCLAW_TEST_FAST: "1",
+    ALIEN_LIVE_TEST: "1",
+    ALIEN_LIVE_OLLAMA: "1",
+    ALIEN_LIVE_OLLAMA_WEB_SEARCH: "0",
+    ALIEN_STATE_DIR: path.join(root, "state"),
+    ALIEN_CONFIG_PATH: path.join(root, "alien.json"),
+    ALIEN_NO_RESPAWN: "1",
+    ALIEN_TEST_FAST: "1",
     OLLAMA_API_KEY: "ollama-local",
   };
 }
 
 describe.skipIf(!LIVE)("ollama live", () => {
   it("runs infer model run through the local CLI path without PI model discovery", async () => {
-    await withTempOpenClawState(async ({ root }) => {
-      const result = await runOpenClawCli(
+    await withTempAlienState(async ({ root }) => {
+      const result = await runAlienCli(
         [
           "infer",
           "model",
@@ -273,7 +273,7 @@ describe.skipIf(!LIVE)("ollama live", () => {
       }
 
       const result = (await tool.execute({
-        query: "OpenClaw documentation",
+        query: "Alien documentation",
         count: 1,
       })) as {
         provider?: string;

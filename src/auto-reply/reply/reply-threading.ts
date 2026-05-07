@@ -2,7 +2,7 @@ import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelThreadingAdapter } from "../../channels/plugins/types.core.js";
 import { normalizeAnyChannelId } from "../../channels/registry.js";
 import type { ReplyToMode } from "../../config/types.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
 import { copyReplyPayloadMetadata } from "../reply-payload.js";
 import type { OriginatingChannelType } from "../templating.js";
@@ -26,7 +26,7 @@ function normalizeReplyToModeChatType(
 }
 
 export function resolveConfiguredReplyToMode(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   channel?: OriginatingChannelType,
   chatType?: string | null,
 ): ReplyToMode {
@@ -54,7 +54,7 @@ export function resolveConfiguredReplyToMode(
 }
 
 export function resolveReplyToModeWithThreading(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   threading: ChannelThreadingAdapter | undefined,
   params: {
     channel?: OriginatingChannelType;
@@ -71,7 +71,7 @@ export function resolveReplyToModeWithThreading(
 }
 
 export function resolveReplyToMode(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   channel?: OriginatingChannelType,
   accountId?: string | null,
   chatType?: string | null,

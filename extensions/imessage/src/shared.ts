@@ -1,11 +1,11 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   formatTrimmedAllowFromEntries,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createRestrictSendersChannelSecurity } from "openclaw/plugin-sdk/channel-policy";
-import { createChannelPluginBase } from "openclaw/plugin-sdk/core";
+} from "alien/plugin-sdk/channel-config-helpers";
+import { createRestrictSendersChannelSecurity } from "alien/plugin-sdk/channel-policy";
+import { createChannelPluginBase } from "alien/plugin-sdk/core";
 import {
   listIMessageAccountIds,
   resolveDefaultIMessageAccountId,

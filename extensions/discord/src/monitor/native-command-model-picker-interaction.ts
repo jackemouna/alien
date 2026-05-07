@@ -4,8 +4,8 @@ import {
   listChatCommands,
   type ChatCommandDefinition,
   type CommandArgs,
-} from "openclaw/plugin-sdk/command-auth";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/command-auth";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   Button,
   StringSelectMenu,

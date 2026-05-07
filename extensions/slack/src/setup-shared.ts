@@ -1,18 +1,18 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input";
-import { patchChannelConfigForAccount } from "openclaw/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "openclaw/plugin-sdk/setup-tools";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { hasConfiguredSecretInput } from "alien/plugin-sdk/secret-input";
+import { patchChannelConfigForAccount } from "alien/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "alien/plugin-sdk/setup-tools";
 import type { ResolvedSlackAccount } from "./accounts.js";
-import type { OpenClawConfig } from "./channel-api.js";
+import type { AlienConfig } from "./channel-api.js";
 
 export const SLACK_CHANNEL = "slack" as const;
 
-export function buildSlackManifest(botName = "OpenClaw") {
-  const safeName = botName.trim() || "OpenClaw";
+export function buildSlackManifest(botName = "Alien") {
+  const safeName = botName.trim() || "Alien";
   const manifest = {
     display_information: {
       name: safeName,
-      description: `${safeName} connector for OpenClaw`,
+      description: `${safeName} connector for Alien`,
     },
     features: {
       bot_user: {
@@ -26,8 +26,8 @@ export function buildSlackManifest(botName = "OpenClaw") {
       },
       slash_commands: [
         {
-          command: "/openclaw",
-          description: "Send a message to OpenClaw",
+          command: "/alien",
+          description: "Send a message to Alien",
           should_escape: false,
         },
       ],
@@ -99,10 +99,10 @@ export function buildSlackSetupLines(): string[] {
 }
 
 export function setSlackChannelAllowlist(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   channelKeys: string[],
-): OpenClawConfig {
+): AlienConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { enabled: true }]));
   return patchChannelConfigForAccount({
     cfg,

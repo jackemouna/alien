@@ -1,4 +1,4 @@
-import { verifyDurableFinalCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+import { verifyDurableFinalCapabilityProofs } from "alien/plugin-sdk/channel-message";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendMessageTelegramMock = vi.fn();

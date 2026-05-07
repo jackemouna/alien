@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { OpenClawConfig } from "../../../src/config/config.js";
+import type { AlienConfig } from "../../../src/config/config.js";
 import type { ImageGenerationProvider } from "../../../src/image-generation/types.js";
 import type { MusicGenerationProvider } from "../../../src/music-generation/types.js";
 import type { VideoGenerationProvider } from "../../../src/video-generation/types.js";
@@ -28,23 +28,23 @@ const mediaRuntimeMocks = vi.hoisted(() => {
     createSubsystemLogger: vi.fn(() => ({ debug, warn })),
     describeFailoverError: vi.fn(),
     getImageGenerationProvider: vi.fn<
-      (providerId: string, config?: OpenClawConfig) => ImageGenerationProvider | undefined
+      (providerId: string, config?: AlienConfig) => ImageGenerationProvider | undefined
     >(() => undefined),
     getMusicGenerationProvider: vi.fn<
-      (providerId: string, config?: OpenClawConfig) => MusicGenerationProvider | undefined
+      (providerId: string, config?: AlienConfig) => MusicGenerationProvider | undefined
     >(() => undefined),
     getProviderEnvVars: vi.fn<(providerId: string) => string[]>(() => []),
     getVideoGenerationProvider: vi.fn<
-      (providerId: string, config?: OpenClawConfig) => VideoGenerationProvider | undefined
+      (providerId: string, config?: AlienConfig) => VideoGenerationProvider | undefined
     >(() => undefined),
     isFailoverError: vi.fn<(err: unknown) => boolean>(() => false),
-    listImageGenerationProviders: vi.fn<(config?: OpenClawConfig) => ImageGenerationProvider[]>(
+    listImageGenerationProviders: vi.fn<(config?: AlienConfig) => ImageGenerationProvider[]>(
       () => [],
     ),
-    listMusicGenerationProviders: vi.fn<(config?: OpenClawConfig) => MusicGenerationProvider[]>(
+    listMusicGenerationProviders: vi.fn<(config?: AlienConfig) => MusicGenerationProvider[]>(
       () => [],
     ),
-    listVideoGenerationProviders: vi.fn<(config?: OpenClawConfig) => VideoGenerationProvider[]>(
+    listVideoGenerationProviders: vi.fn<(config?: AlienConfig) => VideoGenerationProvider[]>(
       () => [],
     ),
     parseImageGenerationModelRef:

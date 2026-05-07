@@ -1,4 +1,4 @@
-import { expectProvidedCfgSkipsRuntimeLoad } from "openclaw/plugin-sdk/channel-test-helpers";
+import { expectProvidedCfgSkipsRuntimeLoad } from "alien/plugin-sdk/channel-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let parseMattermostTarget: typeof import("./send.js").parseMattermostTarget;
@@ -42,7 +42,7 @@ vi.mock("./runtime-api.js", () => ({
   loadOutboundMediaFromUrl: mockState.loadOutboundMediaFromUrl,
 }));
 
-vi.mock("openclaw/plugin-sdk/plugin-config-runtime", () => ({
+vi.mock("alien/plugin-sdk/plugin-config-runtime", () => ({
   requireRuntimeConfig: (cfg: unknown) => {
     if (cfg) {
       return cfg;
@@ -52,7 +52,7 @@ vi.mock("openclaw/plugin-sdk/plugin-config-runtime", () => ({
   resolveMarkdownTableMode: vi.fn(() => "off"),
 }));
 
-vi.mock("openclaw/plugin-sdk/text-runtime", () => ({
+vi.mock("alien/plugin-sdk/text-runtime", () => ({
   convertMarkdownTables: vi.fn((text: string) => text),
   normalizeLowercaseStringOrEmpty: vi.fn((value: string | null | undefined) => {
     if (typeof value !== "string") {

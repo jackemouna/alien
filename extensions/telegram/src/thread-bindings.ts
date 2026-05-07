@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { readAcpSessionEntry } from "openclaw/plugin-sdk/acp-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { readAcpSessionEntry } from "alien/plugin-sdk/acp-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   formatThreadBindingDurationLabel,
   registerSessionBindingAdapter,
@@ -12,13 +12,13 @@ import {
   type BindingTargetKind,
   type SessionBindingAdapter,
   type SessionBindingRecord,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
-import { normalizeAccountId, isAcpSessionKey } from "openclaw/plugin-sdk/routing";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { resolveStateDir } from "openclaw/plugin-sdk/state-paths";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { writeJsonFileAtomically } from "alien/plugin-sdk/json-store";
+import { normalizeAccountId, isAcpSessionKey } from "alien/plugin-sdk/routing";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { resolveStateDir } from "alien/plugin-sdk/state-paths";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveTelegramToken } from "./token.js";
 
 const DEFAULT_THREAD_BINDING_IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
@@ -87,7 +87,7 @@ type TelegramThreadBindingsState = {
  * Keep Telegram thread binding state shared across bundled chunks so routing,
  * binding lookups, and binding mutations all observe the same live registry.
  */
-const TELEGRAM_THREAD_BINDINGS_STATE_KEY = Symbol.for("openclaw.telegramThreadBindingsState");
+const TELEGRAM_THREAD_BINDINGS_STATE_KEY = Symbol.for("alien.telegramThreadBindingsState");
 let threadBindingsState: TelegramThreadBindingsState | undefined;
 
 function getThreadBindingsState(): TelegramThreadBindingsState {
@@ -408,7 +408,7 @@ function shouldExpireByMaxAge(params: {
 }
 
 export function createTelegramThreadBindingManager(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
   persist?: boolean;
   idleTimeoutMs?: number;

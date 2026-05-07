@@ -1,26 +1,26 @@
-import type { ChannelRuntimeSurface } from "openclaw/plugin-sdk/channel-contract";
+import type { ChannelRuntimeSurface } from "alien/plugin-sdk/channel-contract";
 import {
   listNativeCommandSpecsForConfig,
   listSkillCommandsForAgents,
-} from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig, ReplyToMode } from "openclaw/plugin-sdk/config-types";
-import { createConnectedChannelStatusPatch } from "openclaw/plugin-sdk/gateway-runtime";
+} from "alien/plugin-sdk/command-auth";
+import type { AlienConfig, ReplyToMode } from "alien/plugin-sdk/config-types";
+import { createConnectedChannelStatusPatch } from "alien/plugin-sdk/gateway-runtime";
 import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "openclaw/plugin-sdk/native-command-config-runtime";
-import { resolveTextChunkLimit } from "openclaw/plugin-sdk/reply-chunking";
-import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
-import { isVerbose, logVerbose, shouldLogVerbose, warn } from "openclaw/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { createNonExitingRuntime, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/native-command-config-runtime";
+import { resolveTextChunkLimit } from "alien/plugin-sdk/reply-chunking";
+import { getRuntimeConfig } from "alien/plugin-sdk/runtime-config-snapshot";
+import { isVerbose, logVerbose, shouldLogVerbose, warn } from "alien/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
+import { createNonExitingRuntime, type RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import {
   GROUP_POLICY_BLOCKED_LABEL,
   resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/runtime-group-policy";
+import { formatErrorMessage } from "alien/plugin-sdk/ssrf-runtime";
 import {
   resolveDiscordAccount,
   resolveDiscordAccountAllowFrom,
@@ -66,7 +66,7 @@ import type { DiscordMonitorStatusSink } from "./status.js";
 export type MonitorDiscordOpts = {
   token?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   runtime?: RuntimeEnv;
   channelRuntime?: ChannelRuntimeSurface;
   abortSignal?: AbortSignal;
@@ -477,7 +477,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     const logger = createSubsystemLogger("discord/monitor");
     const guildHistories = new Map<
       string,
-      import("openclaw/plugin-sdk/reply-history").HistoryEntry[]
+      import("alien/plugin-sdk/reply-history").HistoryEntry[]
     >();
     let { botUserId, botUserName } = await fetchDiscordBotIdentity({
       client,

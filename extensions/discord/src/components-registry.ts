@@ -1,4 +1,4 @@
-import { resolveGlobalMap } from "openclaw/plugin-sdk/global-singleton";
+import { resolveGlobalMap } from "alien/plugin-sdk/global-singleton";
 import type { DiscordComponentEntry, DiscordModalEntry } from "./components.js";
 import { getOptionalDiscordRuntime } from "./runtime.js";
 
@@ -7,8 +7,8 @@ const PERSISTENT_COMPONENT_NAMESPACE = "discord.components";
 const PERSISTENT_MODAL_NAMESPACE = "discord.modals";
 const PERSISTENT_COMPONENT_MAX_ENTRIES = 500;
 const PERSISTENT_MODAL_MAX_ENTRIES = 500;
-const DISCORD_COMPONENT_ENTRIES_KEY = Symbol.for("openclaw.discord.componentEntries");
-const DISCORD_MODAL_ENTRIES_KEY = Symbol.for("openclaw.discord.modalEntries");
+const DISCORD_COMPONENT_ENTRIES_KEY = Symbol.for("alien.discord.componentEntries");
+const DISCORD_MODAL_ENTRIES_KEY = Symbol.for("alien.discord.modalEntries");
 
 type PersistedDiscordRegistryEntry<T extends { id: string }> = {
   version: 1;

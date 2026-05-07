@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SkillStatusEntry, SkillStatusReport } from "../agents/skills-status.js";
 import { createEmptyInstallChecks } from "../cli/requirements-test-fixtures.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   collectUnavailableAgentSkills,
   disableUnavailableSkillsInConfig,
@@ -84,11 +84,11 @@ describe("doctor skills", () => {
 
     expect(lines.join("\n")).toContain("places: bins: goplaces; env: GOOGLE_MAPS_API_KEY");
     expect(lines.join("\n")).toContain("install option: Install goplaces (brew)");
-    expect(lines.join("\n")).toContain("openclaw doctor --fix");
+    expect(lines.join("\n")).toContain("alien doctor --fix");
   });
 
   it("disables unavailable skills through skills.entries without dropping existing config", () => {
-    const config: OpenClawConfig = {
+    const config: AlienConfig = {
       skills: {
         entries: {
           gog: { env: { EXISTING: "1" } },

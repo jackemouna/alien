@@ -2,7 +2,7 @@ import type { ChildProcess } from "node:child_process";
 import { EventEmitter } from "node:events";
 import process from "node:process";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPENCLAW_CLI_ENV_VALUE } from "../infra/openclaw-exec-env.js";
+import { ALIEN_CLI_ENV_VALUE } from "../infra/alien-exec-env.js";
 
 const spawnMock = vi.hoisted(() => vi.fn());
 
@@ -104,18 +104,18 @@ describe("runCommandWithTimeout", () => {
     const resolved = resolveCommandEnv({
       argv: ["node", "script.js"],
       baseEnv: {
-        OPENCLAW_BASE_ENV: "base",
-        OPENCLAW_TO_REMOVE: undefined,
+        ALIEN_BASE_ENV: "base",
+        ALIEN_TO_REMOVE: undefined,
       },
       env: {
-        OPENCLAW_TEST_ENV: "ok",
+        ALIEN_TEST_ENV: "ok",
       },
     });
 
-    expect(resolved.OPENCLAW_BASE_ENV).toBe("base");
-    expect(resolved.OPENCLAW_TEST_ENV).toBe("ok");
-    expect(resolved.OPENCLAW_TO_REMOVE).toBeUndefined();
-    expect(resolved.OPENCLAW_CLI).toBe(OPENCLAW_CLI_ENV_VALUE);
+    expect(resolved.ALIEN_BASE_ENV).toBe("base");
+    expect(resolved.ALIEN_TEST_ENV).toBe("ok");
+    expect(resolved.ALIEN_TO_REMOVE).toBeUndefined();
+    expect(resolved.ALIEN_CLI).toBe(ALIEN_CLI_ENV_VALUE);
   });
 
   it("suppresses npm fund prompts for npm argv", async () => {

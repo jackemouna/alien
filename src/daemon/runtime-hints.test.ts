@@ -7,16 +7,16 @@ describe("buildPlatformRuntimeLogHints", () => {
       buildPlatformRuntimeLogHints({
         platform: "darwin",
         env: {
-          OPENCLAW_STATE_DIR: "/tmp/openclaw-state",
-          OPENCLAW_LOG_PREFIX: "gateway",
+          ALIEN_STATE_DIR: "/tmp/alien-state",
+          ALIEN_LOG_PREFIX: "gateway",
         },
-        systemdServiceName: "openclaw-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        systemdServiceName: "alien-gateway",
+        windowsTaskName: "Alien Gateway",
       }),
     ).toEqual([
-      "Launchd stdout (if installed): /tmp/openclaw-state/logs/gateway.log",
-      "Launchd stderr (if installed): /tmp/openclaw-state/logs/gateway.err.log",
-      "Restart attempts: /tmp/openclaw-state/logs/gateway-restart.log",
+      "Launchd stdout (if installed): /tmp/alien-state/logs/gateway.log",
+      "Launchd stderr (if installed): /tmp/alien-state/logs/gateway.err.log",
+      "Restart attempts: /tmp/alien-state/logs/gateway-restart.log",
     ]);
   });
 
@@ -25,27 +25,27 @@ describe("buildPlatformRuntimeLogHints", () => {
       buildPlatformRuntimeLogHints({
         platform: "linux",
         env: {
-          OPENCLAW_STATE_DIR: "/tmp/openclaw-state",
+          ALIEN_STATE_DIR: "/tmp/alien-state",
         },
-        systemdServiceName: "openclaw-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        systemdServiceName: "alien-gateway",
+        windowsTaskName: "Alien Gateway",
       }),
     ).toEqual([
-      "Logs: journalctl --user -u openclaw-gateway.service -n 200 --no-pager",
-      "Restart attempts: /tmp/openclaw-state/logs/gateway-restart.log",
+      "Logs: journalctl --user -u alien-gateway.service -n 200 --no-pager",
+      "Restart attempts: /tmp/alien-state/logs/gateway-restart.log",
     ]);
     expect(
       buildPlatformRuntimeLogHints({
         platform: "win32",
         env: {
-          OPENCLAW_STATE_DIR: "/tmp/openclaw-state",
+          ALIEN_STATE_DIR: "/tmp/alien-state",
         },
-        systemdServiceName: "openclaw-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        systemdServiceName: "alien-gateway",
+        windowsTaskName: "Alien Gateway",
       }),
     ).toEqual([
-      'Logs: schtasks /Query /TN "OpenClaw Gateway" /V /FO LIST',
-      "Restart attempts: /tmp/openclaw-state/logs/gateway-restart.log",
+      'Logs: schtasks /Query /TN "Alien Gateway" /V /FO LIST',
+      "Restart attempts: /tmp/alien-state/logs/gateway-restart.log",
     ]);
   });
 });
@@ -55,30 +55,30 @@ describe("buildPlatformServiceStartHints", () => {
     expect(
       buildPlatformServiceStartHints({
         platform: "darwin",
-        installCommand: "openclaw gateway install",
-        startCommand: "openclaw gateway",
-        launchAgentPlistPath: "~/Library/LaunchAgents/com.openclaw.gateway.plist",
-        systemdServiceName: "openclaw-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        installCommand: "alien gateway install",
+        startCommand: "alien gateway",
+        launchAgentPlistPath: "~/Library/LaunchAgents/com.alien.gateway.plist",
+        systemdServiceName: "alien-gateway",
+        windowsTaskName: "Alien Gateway",
       }),
     ).toEqual([
-      "openclaw gateway install",
-      "openclaw gateway",
-      "launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.openclaw.gateway.plist",
+      "alien gateway install",
+      "alien gateway",
+      "launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.alien.gateway.plist",
     ]);
     expect(
       buildPlatformServiceStartHints({
         platform: "linux",
-        installCommand: "openclaw gateway install",
-        startCommand: "openclaw gateway",
-        launchAgentPlistPath: "~/Library/LaunchAgents/com.openclaw.gateway.plist",
-        systemdServiceName: "openclaw-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        installCommand: "alien gateway install",
+        startCommand: "alien gateway",
+        launchAgentPlistPath: "~/Library/LaunchAgents/com.alien.gateway.plist",
+        systemdServiceName: "alien-gateway",
+        windowsTaskName: "Alien Gateway",
       }),
     ).toEqual([
-      "openclaw gateway install",
-      "openclaw gateway",
-      "systemctl --user start openclaw-gateway.service",
+      "alien gateway install",
+      "alien gateway",
+      "systemctl --user start alien-gateway.service",
     ]);
   });
 });

@@ -1,5 +1,5 @@
 import { ChannelType } from "discord-api-types/v10";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   auditDiscordChannelPermissionsWithFetcher,
@@ -9,7 +9,7 @@ import {
 
 const fetchChannelPermissionsDiscordMock = vi.fn();
 
-function readDiscordGuilds(cfg: OpenClawConfig) {
+function readDiscordGuilds(cfg: AlienConfig) {
   const guilds = cfg.channels?.discord?.guilds;
   expect(guilds).toBeDefined();
   return guilds ?? {};
@@ -38,7 +38,7 @@ describe("discord audit", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const collected = collectDiscordAuditChannelIdsForGuilds(readDiscordGuilds(cfg));
     expect(collected.channelIds).toEqual(["111", "222"]);
@@ -88,7 +88,7 @@ describe("discord audit", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const collected = collectDiscordAuditChannelIdsForGuilds(readDiscordGuilds(cfg));
     expect(collected.channelIds).toEqual(["111"]);
@@ -111,7 +111,7 @@ describe("discord audit", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const collected = collectDiscordAuditChannelIdsForGuilds(readDiscordGuilds(cfg));
     expect(collected.channelIds).toEqual([]);
@@ -138,7 +138,7 @@ describe("discord audit", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const collected = collectDiscordAuditChannelIdsForGuilds(readDiscordGuilds(cfg));
     expect(collected.channelIds).toEqual(["111"]);
@@ -176,7 +176,7 @@ describe("discord audit", () => {
             token: "t",
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       fetchChannelPermissionsDiscordMock.mockResolvedValueOnce({
         channelId: "222",

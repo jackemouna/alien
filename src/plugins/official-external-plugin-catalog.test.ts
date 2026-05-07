@@ -9,31 +9,31 @@ import {
 describe("official external plugin catalog", () => {
   it("resolves third-party channel lookup aliases to published plugin ids", () => {
     const wecomByChannel = getOfficialExternalPluginCatalogEntry("wecom");
-    const wecomByPlugin = getOfficialExternalPluginCatalogEntry("wecom-openclaw-plugin");
+    const wecomByPlugin = getOfficialExternalPluginCatalogEntry("wecom-alien-plugin");
     const yuanbaoByChannel = getOfficialExternalPluginCatalogEntry("yuanbao");
 
-    expect(resolveOfficialExternalPluginId(wecomByChannel!)).toBe("wecom-openclaw-plugin");
-    expect(resolveOfficialExternalPluginId(wecomByPlugin!)).toBe("wecom-openclaw-plugin");
+    expect(resolveOfficialExternalPluginId(wecomByChannel!)).toBe("wecom-alien-plugin");
+    expect(resolveOfficialExternalPluginId(wecomByPlugin!)).toBe("wecom-alien-plugin");
     expect(resolveOfficialExternalPluginInstall(wecomByChannel!)?.npmSpec).toBe(
-      "@wecom/wecom-openclaw-plugin@2026.4.23",
+      "@wecom/wecom-alien-plugin@2026.4.23",
     );
-    expect(resolveOfficialExternalPluginId(yuanbaoByChannel!)).toBe("openclaw-plugin-yuanbao");
+    expect(resolveOfficialExternalPluginId(yuanbaoByChannel!)).toBe("alien-plugin-yuanbao");
     expect(resolveOfficialExternalPluginInstall(yuanbaoByChannel!)?.npmSpec).toBe(
-      "openclaw-plugin-yuanbao@2.11.0",
+      "alien-plugin-yuanbao@2.11.0",
     );
   });
 
   it("keeps official launch package specs on the production package names", () => {
     expect(
       resolveOfficialExternalPluginInstall(getOfficialExternalPluginCatalogEntry("acpx")!)?.npmSpec,
-    ).toBe("@openclaw/acpx");
+    ).toBe("@alien/acpx");
     expect(
       resolveOfficialExternalPluginInstall(getOfficialExternalPluginCatalogEntry("googlechat")!)
         ?.npmSpec,
-    ).toBe("@openclaw/googlechat");
+    ).toBe("@alien/googlechat");
     expect(
       resolveOfficialExternalPluginInstall(getOfficialExternalPluginCatalogEntry("line")!)?.npmSpec,
-    ).toBe("@openclaw/line");
+    ).toBe("@alien/line");
   });
 
   it("keeps Matrix and Mattermost out of the external catalog until cutover", () => {

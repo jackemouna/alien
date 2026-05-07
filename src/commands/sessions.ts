@@ -4,7 +4,7 @@ import { selectAgentHarness } from "../agents/harness/selection.js";
 import { getRuntimeConfig } from "../config/config.js";
 import { loadSessionStore, resolveSessionTotalTokens } from "../config/sessions.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { info } from "../globals.js";
 import { parseAgentSessionKey } from "../routing/session-key.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
@@ -170,7 +170,7 @@ const formatKindCell = (kind: SessionRow["kind"], rich: boolean) => {
 };
 
 function resolveSessionRuntimeLabel(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   entry: SessionEntry;
   agentRuntime: ReturnType<typeof resolveAgentRuntimeMetadata>;
   modelProvider: string;

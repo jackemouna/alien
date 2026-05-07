@@ -33,7 +33,7 @@ describe("plugin gateway gauntlet helpers", () => {
   it("discovers bundled plugin manifests into lifecycle matrix rows", async () => {
     await writeManifest(
       "alpha",
-      "openclaw.plugin.json",
+      "alien.plugin.json",
       JSON.stringify({
         id: "alpha",
         enabledByDefault: true,
@@ -53,7 +53,7 @@ describe("plugin gateway gauntlet helpers", () => {
     );
     await writeManifest(
       "beta",
-      "openclaw.plugin.json",
+      "alien.plugin.json",
       JSON.stringify({ id: "beta", commandAliases: ["dreaming"], onboardingScopes: ["memory"] }),
     );
 
@@ -63,7 +63,7 @@ describe("plugin gateway gauntlet helpers", () => {
     expect(matrix[0]).toMatchObject({
       id: "alpha",
       dir: path.join("extensions", "alpha"),
-      manifestPath: path.join("extensions", "alpha", "openclaw.plugin.json"),
+      manifestPath: path.join("extensions", "alpha", "alien.plugin.json"),
       enabledByDefault: true,
       providers: ["openai"],
       authMethods: ["oauth"],
@@ -78,8 +78,8 @@ describe("plugin gateway gauntlet helpers", () => {
   });
 
   it("skips source-only plugin dirs that are excluded from the built runtime", async () => {
-    await writeManifest("qqbot", "openclaw.plugin.json", JSON.stringify({ id: "qqbot" }));
-    await writeManifest("telegram", "openclaw.plugin.json", JSON.stringify({ id: "telegram" }));
+    await writeManifest("qqbot", "alien.plugin.json", JSON.stringify({ id: "qqbot" }));
+    await writeManifest("telegram", "alien.plugin.json", JSON.stringify({ id: "telegram" }));
 
     const matrix = discoverBundledPluginManifests(repoRoot);
 
@@ -231,8 +231,8 @@ describe("plugin gateway gauntlet helpers", () => {
   it("prebuilds private QA dist when QA chunks are enabled", () => {
     expect(buildGauntletPrebuildEnv({ EXISTING: "1" }, { includePrivateQa: true })).toEqual({
       EXISTING: "1",
-      OPENCLAW_BUILD_PRIVATE_QA: "1",
-      OPENCLAW_ENABLE_PRIVATE_QA_CLI: "1",
+      ALIEN_BUILD_PRIVATE_QA: "1",
+      ALIEN_ENABLE_PRIVATE_QA_CLI: "1",
     });
     const env = { EXISTING: "1" };
     expect(buildGauntletPrebuildEnv(env, { includePrivateQa: false })).toBe(env);

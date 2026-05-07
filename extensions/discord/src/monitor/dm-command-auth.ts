@@ -1,11 +1,11 @@
-import { expandAllowFromWithAccessGroups } from "openclaw/plugin-sdk/command-auth";
-import { resolveCommandAuthorizedFromAuthorizers } from "openclaw/plugin-sdk/command-auth-native";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { expandAllowFromWithAccessGroups } from "alien/plugin-sdk/command-auth";
+import { resolveCommandAuthorizedFromAuthorizers } from "alien/plugin-sdk/command-auth-native";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
   type DmGroupAccessDecision,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import type { RequestClient } from "../internal/discord.js";
 import { createDiscordAccessGroupMembershipResolver } from "./access-groups.js";
 import { normalizeDiscordAllowList, resolveDiscordAllowListMatch } from "./allow-list.js";
@@ -44,7 +44,7 @@ function resolveDmPolicyCommandAuthorization(params: {
 }
 
 async function expandAllowFromWithDiscordAccessGroups(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   allowFrom: string[];
   sender: { id: string };
   accountId: string;
@@ -78,7 +78,7 @@ export async function resolveDiscordDmCommandAccess(params: {
   sender: { id: string; name?: string; tag?: string };
   allowNameMatching: boolean;
   useAccessGroups: boolean;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   token?: string;
   rest?: RequestClient;
   readStoreAllowFrom?: () => Promise<string[]>;

@@ -1,14 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { Agent as HttpsAgent } from "node:https";
 import * as httpsProxyAgent from "https-proxy-agent";
-import type { DiscordAccountConfig } from "openclaw/plugin-sdk/config-types";
+import type { DiscordAccountConfig } from "alien/plugin-sdk/config-types";
 import {
   captureWsEvent,
   resolveEffectiveDebugProxyUrl,
   resolveDebugProxySettings,
-} from "openclaw/plugin-sdk/proxy-capture";
-import { danger } from "openclaw/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/proxy-capture";
+import { danger } from "alien/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import * as ws from "ws";
 import * as discordGateway from "../internal/gateway.js";
 import { createDiscordDnsLookup } from "../network-config.js";
@@ -70,7 +70,7 @@ function hasGatewaySocketStarted(plugin: discordGateway.GatewayPlugin): boolean 
 }
 
 type ResolveDiscordGatewayIntentsParams = {
-  intentsConfig?: import("openclaw/plugin-sdk/config-types").DiscordIntentsConfig;
+  intentsConfig?: import("alien/plugin-sdk/config-types").DiscordIntentsConfig;
   voiceEnabled?: boolean;
 };
 
@@ -110,7 +110,7 @@ function createGatewayPlugin(params: {
   runtime?: RuntimeEnv;
   testing?: GatewayPluginTestingOptions;
 }): discordGateway.GatewayPlugin {
-  class OpenClawGatewayPlugin extends discordGateway.GatewayPlugin {
+  class AlienGatewayPlugin extends discordGateway.GatewayPlugin {
     private gatewayInfoUsedFallback = false;
 
     constructor() {
@@ -227,7 +227,7 @@ function createGatewayPlugin(params: {
     }
   }
 
-  return new OpenClawGatewayPlugin();
+  return new AlienGatewayPlugin();
 }
 
 function createDiscordGatewayMetadataFetch(debugCaptureEnabled: boolean): DiscordGatewayFetch {
@@ -290,7 +290,7 @@ export function createDiscordGatewayPlugin(params: {
     options: {
       reconnect: { maxAttempts: 50 },
       intents,
-      // OpenClaw registers its own async interaction listener.
+      // Alien registers its own async interaction listener.
       autoInteractions: false,
     },
     gatewayInfoTimeoutMs,

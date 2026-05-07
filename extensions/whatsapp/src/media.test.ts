@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { resolveStateDir } from "openclaw/plugin-sdk/state-paths";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
-import { captureEnv } from "openclaw/plugin-sdk/test-env";
-import { mockPinnedHostnameResolution } from "openclaw/plugin-sdk/test-env";
-import { optimizeImageToPng } from "openclaw/plugin-sdk/web-media";
+import { resolveStateDir } from "alien/plugin-sdk/state-paths";
+import { resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
+import { captureEnv } from "alien/plugin-sdk/test-env";
+import { mockPinnedHostnameResolution } from "alien/plugin-sdk/test-env";
+import { optimizeImageToPng } from "alien/plugin-sdk/web-media";
 import sharp from "sharp";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
@@ -55,7 +55,7 @@ function cloneStatWithDev<T extends { dev: number | bigint }>(stat: T, dev: numb
 
 beforeAll(async () => {
   fixtureRoot = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-media-test-"),
+    path.join(resolvePreferredAlienTmpDir(), "alien-media-test-"),
   );
   largeJpegBuffer = await sharp({
     create: {
@@ -113,14 +113,14 @@ afterEach(() => {
 
 describe("web media loading", () => {
   beforeAll(() => {
-    // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
-    // Also keep it outside the OpenClaw temp root so default localRoots doesn't accidentally make all state readable.
-    stateDirSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
-    process.env.OPENCLAW_STATE_DIR = path.join(
+    // Ensure state dir is stable and not influenced by other tests that stub ALIEN_STATE_DIR.
+    // Also keep it outside the Alien temp root so default localRoots doesn't accidentally make all state readable.
+    stateDirSnapshot = captureEnv(["ALIEN_STATE_DIR"]);
+    process.env.ALIEN_STATE_DIR = path.join(
       path.parse(os.tmpdir()).root,
       "var",
       "lib",
-      "openclaw-media-state-test",
+      "alien-media-state-test",
     );
   });
 
@@ -328,7 +328,7 @@ describe("local media root guard", () => {
 
   it("allows local paths under an explicit root", async () => {
     const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
-      localRoots: [resolvePreferredOpenClawTmpDir()],
+      localRoots: [resolvePreferredAlienTmpDir()],
     });
     expect(result.kind).toBe("image");
   });
@@ -339,7 +339,7 @@ describe("local media root guard", () => {
     try {
       await expect(
         loadWebMedia("file://attacker/share/evil.png", 1024 * 1024, {
-          localRoots: [resolvePreferredOpenClawTmpDir()],
+          localRoots: [resolvePreferredAlienTmpDir()],
         }),
       ).rejects.toMatchObject({ code: "invalid-file-url" });
       expect(realpathSpy).not.toHaveBeenCalled();
@@ -353,9 +353,9 @@ describe("local media root guard", () => {
     const actualStat = await fs.stat(tinyPngFile);
     const zeroDev = typeof actualLstat.dev === "bigint" ? 0n : 0;
     // Resolve before mocking platform: under `win32` the helper returns the
-    // os.tmpdir() fallback rather than the POSIX `/tmp/openclaw` root that
+    // os.tmpdir() fallback rather than the POSIX `/tmp/alien` root that
     // actually holds `tinyPngFile` on this Linux test runner (#60713).
-    const realTmpRoot = resolvePreferredOpenClawTmpDir();
+    const realTmpRoot = resolvePreferredAlienTmpDir();
 
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
     const lstatSpy = vi
@@ -383,7 +383,7 @@ describe("local media root guard", () => {
     try {
       await expect(
         loadWebMedia("\\\\attacker\\share\\evil.png", 1024 * 1024, {
-          localRoots: [resolvePreferredOpenClawTmpDir()],
+          localRoots: [resolvePreferredAlienTmpDir()],
         }),
       ).rejects.toMatchObject({ code: "network-path-not-allowed" });
       expect(realpathSpy).not.toHaveBeenCalled();
@@ -425,7 +425,7 @@ describe("local media root guard", () => {
     ).rejects.toMatchObject({ code: "invalid-root" });
   });
 
-  it("allows default OpenClaw state workspace and sandbox roots", async () => {
+  it("allows default Alien state workspace and sandbox roots", async () => {
     const stateDir = resolveStateDir();
     const readFile = vi.fn(async () => Buffer.from("generated-media"));
 
@@ -452,7 +452,7 @@ describe("local media root guard", () => {
     );
   });
 
-  it("rejects default OpenClaw state per-agent workspace-* roots without explicit local roots", async () => {
+  it("rejects default Alien state per-agent workspace-* roots without explicit local roots", async () => {
     const stateDir = resolveStateDir();
     const readFile = vi.fn(async () => Buffer.from("generated-media"));
 

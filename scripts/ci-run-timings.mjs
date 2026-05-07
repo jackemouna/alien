@@ -2,7 +2,7 @@
 
 import { execFileSync } from "node:child_process";
 
-const DEFAULT_REPOSITORY = "openclaw/openclaw";
+const DEFAULT_REPOSITORY = "alien/alien";
 const CI_WORKFLOW_ID = "ci.yml";
 const GH_MAX_BUFFER = 32 * 1024 * 1024;
 

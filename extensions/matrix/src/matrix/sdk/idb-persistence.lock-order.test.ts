@@ -15,9 +15,9 @@ const { withFileLockMock } = vi.hoisted(() => ({
   ),
 }));
 
-vi.mock("openclaw/plugin-sdk/file-lock", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/file-lock")>(
-    "openclaw/plugin-sdk/file-lock",
+vi.mock("alien/plugin-sdk/file-lock", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/file-lock")>(
+    "alien/plugin-sdk/file-lock",
   );
   return {
     ...actual,
@@ -29,7 +29,7 @@ let persistIdbToDisk: typeof import("./idb-persistence.js").persistIdbToDisk;
 let restoreIdbFromDisk: typeof import("./idb-persistence.js").restoreIdbFromDisk;
 type CapturedLockOptions =
   typeof import("./idb-persistence-lock.js").MATRIX_IDB_SNAPSHOT_LOCK_OPTIONS;
-const DATABASE_PREFIX = "openclaw-matrix-lock-order-test";
+const DATABASE_PREFIX = "alien-matrix-lock-order-test";
 const cryptoDatabaseName = `${DATABASE_PREFIX}::matrix-sdk-crypto`;
 
 beforeAll(async () => {

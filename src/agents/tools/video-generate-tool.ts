@@ -1,6 +1,6 @@
 import { Type } from "typebox";
 import { getRuntimeConfig } from "../../config/config.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import type { SsrFPolicy } from "../../infra/net/ssrf.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -153,7 +153,7 @@ const VideoGenerateToolSchema = Type.Object({
   filename: Type.Optional(
     Type.String({
       description:
-        "Optional output filename hint. OpenClaw preserves the basename and saves under its managed media directory.",
+        "Optional output filename hint. Alien preserves the basename and saves under its managed media directory.",
     }),
   ),
   size: Type.Optional(
@@ -164,19 +164,19 @@ const VideoGenerateToolSchema = Type.Object({
   aspectRatio: Type.Optional(
     Type.String({
       description:
-        'Optional aspect ratio hint such as 1:1, 16:9, 9:16, "adaptive", or a provider-specific value. OpenClaw normalizes or ignores unsupported values per provider.',
+        'Optional aspect ratio hint such as 1:1, 16:9, 9:16, "adaptive", or a provider-specific value. Alien normalizes or ignores unsupported values per provider.',
     }),
   ),
   resolution: Type.Optional(
     Type.String({
       description:
-        "Optional resolution hint such as 480P, 720P, 768P, 1080P, 4K, or a provider-specific value. OpenClaw normalizes or ignores unsupported values per provider.",
+        "Optional resolution hint such as 480P, 720P, 768P, 1080P, 4K, or a provider-specific value. Alien normalizes or ignores unsupported values per provider.",
     }),
   ),
   durationSeconds: Type.Optional(
     Type.Number({
       description:
-        "Optional target duration in seconds. OpenClaw may round this to the nearest provider-supported duration.",
+        "Optional target duration in seconds. Alien may round this to the nearest provider-supported duration.",
       minimum: 1,
     }),
   ),
@@ -209,7 +209,7 @@ const VideoGenerateToolSchema = Type.Object({
 });
 
 export function resolveVideoGenerationModelConfigForTool(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   authStore?: AuthProfileStore;
 }): ToolModelConfig | null {
@@ -222,7 +222,7 @@ export function resolveVideoGenerationModelConfigForTool(params: {
   });
 }
 
-function hasExplicitVideoGenerationModelConfig(cfg?: OpenClawConfig): boolean {
+function hasExplicitVideoGenerationModelConfig(cfg?: AlienConfig): boolean {
   return hasToolModelConfig(coerceToolModelConfig(cfg?.agents?.defaults?.videoGenerationModel));
 }
 
@@ -300,7 +300,7 @@ function normalizeReferenceInputs(params: {
 }
 
 function resolveSelectedVideoGenerationProvider(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   videoGenerationModelConfig: ToolModelConfig;
   modelOverride?: string;
 }): VideoGenerationProvider | undefined {
@@ -550,7 +550,7 @@ function isGeneratedMediaSizeLimitError(error: unknown): boolean {
 }
 
 async function executeVideoGenerationJob(params: {
-  effectiveCfg: OpenClawConfig;
+  effectiveCfg: AlienConfig;
   prompt: string;
   agentDir?: string;
   model?: string;
@@ -778,7 +778,7 @@ async function executeVideoGenerationJob(params: {
 }
 
 export function createVideoGenerateTool(options?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   agentDir?: string;
   authProfileStore?: AuthProfileStore;
   agentSessionKey?: string;
@@ -788,7 +788,7 @@ export function createVideoGenerateTool(options?: {
   fsPolicy?: ToolFsPolicy;
   scheduleBackgroundWork?: VideoGenerateBackgroundScheduler;
 }): AnyAgentTool | null {
-  const cfg: OpenClawConfig = options?.config ?? getRuntimeConfig();
+  const cfg: AlienConfig = options?.config ?? getRuntimeConfig();
   if (
     !hasGenerationToolAvailability({
       cfg,
@@ -817,7 +817,7 @@ export function createVideoGenerateTool(options?: {
     name: "video_generate",
     displaySummary: "Generate videos",
     description:
-      "Generate videos using configured providers. Generated videos are saved under OpenClaw-managed media storage and delivered automatically as attachments. Duration requests may be rounded to the nearest provider-supported value.",
+      "Generate videos using configured providers. Generated videos are saved under Alien-managed media storage and delivered automatically as attachments. Duration requests may be rounded to the nearest provider-supported value.",
     parameters: VideoGenerateToolSchema,
     execute: async (_toolCallId, rawArgs) => {
       const args = rawArgs as Record<string, unknown>;

@@ -1,11 +1,11 @@
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createAccountStatusSink } from "openclaw/plugin-sdk/channel-lifecycle";
-import { buildPassiveProbedChannelStatusSummary } from "openclaw/plugin-sdk/extension-shared";
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createAccountStatusSink } from "alien/plugin-sdk/channel-lifecycle";
+import { buildPassiveProbedChannelStatusSummary } from "alien/plugin-sdk/extension-shared";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
 import {
   createAsyncComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/status-helpers";
 import {
   checkZcaAuthenticated,
   resolveZalouserAccountSync,

@@ -1,11 +1,11 @@
-import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+import { normalizeAccountId } from "alien/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
 import {
   listConfiguredAccountIds,
   resolveMergedAccountConfig,
   resolveNormalizedAccountEntry,
-} from "openclaw/plugin-sdk/account-resolution-runtime";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input-runtime";
+} from "alien/plugin-sdk/account-resolution-runtime";
+import { hasConfiguredSecretInput } from "alien/plugin-sdk/secret-input-runtime";
 import type { CoreConfig, MatrixAccountConfig, MatrixConfig } from "../types.js";
 
 type MatrixRoomEntries = Record<string, NonNullable<MatrixConfig["groups"]>[string]>;

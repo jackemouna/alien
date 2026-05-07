@@ -1,4 +1,4 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
 import { buildGradiumSpeechProvider } from "./speech-provider.js";
 
 export default definePluginEntry({

@@ -1,11 +1,11 @@
-import type { ChannelGroupContext } from "openclaw/plugin-sdk/channel-contract";
+import type { ChannelGroupContext } from "alien/plugin-sdk/channel-contract";
 import {
   resolveToolsBySender,
   type GroupToolPolicyBySenderConfig,
   type GroupToolPolicyConfig,
-} from "openclaw/plugin-sdk/channel-policy";
-import { normalizeAtHashSlug } from "openclaw/plugin-sdk/string-normalization-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-policy";
+import { normalizeAtHashSlug } from "alien/plugin-sdk/string-normalization-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type { DiscordConfig } from "./runtime-api.js";
 
 function normalizeDiscordSlug(value?: string | null) {

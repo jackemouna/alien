@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { NormalizedModelCatalogRow } from "../../model-catalog/index.js";
 
 export type ModelListSourcePlanKind =
@@ -46,7 +46,7 @@ export async function planAllModelListSources(params: {
   all?: boolean;
   enableCascade?: boolean;
   providerFilter?: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): Promise<ModelListSourcePlan> {
   const enableCascade = params.enableCascade ?? params.all;
   if (!enableCascade) {

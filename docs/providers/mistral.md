@@ -1,13 +1,13 @@
 ---
-summary: "Use Mistral models and Voxtral transcription with OpenClaw"
+summary: "Use Mistral models and Voxtral transcription with Alien"
 read_when:
-  - You want to use Mistral models in OpenClaw
+  - You want to use Mistral models in Alien
   - You want Voxtral realtime transcription for Voice Call
   - You need Mistral API key onboarding and model refs
 title: "Mistral"
 ---
 
-OpenClaw includes a bundled Mistral plugin that registers four contracts: chat completions, media understanding (Voxtral batch transcription), realtime STT for Voice Call (Voxtral Realtime), and memory embeddings (`mistral-embed`).
+Alien includes a bundled Mistral plugin that registers four contracts: chat completions, media understanding (Voxtral batch transcription), realtime STT for Voice Call (Voxtral Realtime), and memory embeddings (`mistral-embed`).
 
 | Property         | Value                                       |
 | ---------------- | ------------------------------------------- |
@@ -31,13 +31,13 @@ OpenClaw includes a bundled Mistral plugin that registers four contracts: chat c
   </Step>
   <Step title="Run onboarding">
     ```bash
-    openclaw onboard --auth-choice mistral-api-key
+    alien onboard --auth-choice mistral-api-key
     ```
 
     Or pass the key directly:
 
     ```bash
-    openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
+    alien onboard --mistral-api-key "$MISTRAL_API_KEY"
     ```
 
   </Step>
@@ -51,14 +51,14 @@ OpenClaw includes a bundled Mistral plugin that registers four contracts: chat c
   </Step>
   <Step title="Verify the model is available">
     ```bash
-    openclaw models list --provider mistral
+    alien models list --provider mistral
     ```
   </Step>
 </Steps>
 
 ## Built-in LLM catalog
 
-OpenClaw currently ships this bundled Mistral catalog:
+Alien currently ships this bundled Mistral catalog:
 
 | Model ref                        | Input       | Context | Max output | Notes                                                            |
 | -------------------------------- | ----------- | ------- | ---------- | ---------------------------------------------------------------- |
@@ -129,7 +129,7 @@ streaming STT provider.
 ```
 
 <Note>
-OpenClaw defaults Mistral realtime STT to `pcm_mulaw` at 8 kHz so Voice Call
+Alien defaults Mistral realtime STT to `pcm_mulaw` at 8 kHz so Voice Call
 can forward Twilio media frames directly. Use `encoding: "pcm_s16le"` and a
 matching `sampleRate` only if your upstream stream is already raw PCM.
 </Note>
@@ -140,9 +140,9 @@ matching `sampleRate` only if your upstream stream is already raw PCM.
   <Accordion title="Adjustable reasoning (mistral-small-latest)">
     `mistral/mistral-small-latest` maps to Mistral Small 4 and supports [adjustable reasoning](https://docs.mistral.ai/capabilities/reasoning/adjustable) on the Chat Completions API via `reasoning_effort` (`none` minimizes extra thinking in the output; `high` surfaces full thinking traces before the final answer).
 
-    OpenClaw maps the session **thinking** level to Mistral's API:
+    Alien maps the session **thinking** level to Mistral's API:
 
-    | OpenClaw thinking level                          | Mistral `reasoning_effort` |
+    | Alien thinking level                          | Mistral `reasoning_effort` |
     | ------------------------------------------------ | -------------------------- |
     | **off** / **minimal**                            | `none`                     |
     | **low** / **medium** / **high** / **xhigh** / **adaptive** / **max** | `high`     |

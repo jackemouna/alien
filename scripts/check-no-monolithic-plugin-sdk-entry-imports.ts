@@ -1,24 +1,24 @@
 import fs from "node:fs";
 import path from "node:path";
-import { discoverOpenClawPlugins } from "../src/plugins/discovery.js";
+import { discoverAlienPlugins } from "../src/plugins/discovery.js";
 import { collectFilesSync, isCodeFile, relativeToCwd } from "./check-file-utils.js";
 
 // Match exact monolithic-root specifier in any code path:
 // imports/exports, require/dynamic import, and test mocks (vi.mock/jest.mock).
-const ROOT_IMPORT_PATTERN = /["']openclaw\/plugin-sdk["']/;
-const LEGACY_COMPAT_IMPORT_PATTERN = /["']openclaw\/plugin-sdk\/compat["']/;
+const ROOT_IMPORT_PATTERN = /["']alien\/plugin-sdk["']/;
+const LEGACY_COMPAT_IMPORT_PATTERN = /["']alien\/plugin-sdk\/compat["']/;
 const LEGACY_BROAD_SUBPATH_PATTERNS = [
   {
-    pattern: /["']openclaw\/plugin-sdk\/channel-runtime["']/,
-    label: "openclaw/plugin-sdk/channel-runtime",
+    pattern: /["']alien\/plugin-sdk\/channel-runtime["']/,
+    label: "alien/plugin-sdk/channel-runtime",
   },
   {
-    pattern: /["']openclaw\/plugin-sdk\/config-runtime["']/,
-    label: "openclaw/plugin-sdk/config-runtime",
+    pattern: /["']alien\/plugin-sdk\/config-runtime["']/,
+    label: "alien/plugin-sdk/config-runtime",
   },
   {
-    pattern: /["']openclaw\/plugin-sdk\/infra-runtime["']/,
-    label: "openclaw/plugin-sdk/infra-runtime",
+    pattern: /["']alien\/plugin-sdk\/infra-runtime["']/,
+    label: "alien/plugin-sdk/infra-runtime",
   },
 ] as const;
 
@@ -73,7 +73,7 @@ function collectBundledExtensionSourceFiles(): string[] {
 }
 
 function main() {
-  const discovery = discoverOpenClawPlugins({});
+  const discovery = discoverAlienPlugins({});
   const bundledCandidates = discovery.candidates.filter((c) => c.origin === "bundled");
   const filesToCheck = new Set<string>();
   for (const candidate of bundledCandidates) {
@@ -117,14 +117,14 @@ function main() {
     legacyBroadSubpathOffenders.size > 0
   ) {
     if (monolithicOffenders.length > 0) {
-      console.error("Bundled plugin source files must not import monolithic openclaw/plugin-sdk.");
+      console.error("Bundled plugin source files must not import monolithic alien/plugin-sdk.");
       for (const file of monolithicOffenders.toSorted()) {
         console.error(`- ${relativeToCwd(file)}`);
       }
     }
     if (legacyCompatOffenders.length > 0) {
       console.error(
-        "Bundled plugin source files must not import legacy openclaw/plugin-sdk/compat.",
+        "Bundled plugin source files must not import legacy alien/plugin-sdk/compat.",
       );
       for (const file of legacyCompatOffenders.toSorted()) {
         console.error(`- ${relativeToCwd(file)}`);
@@ -146,7 +146,7 @@ function main() {
       legacyBroadSubpathOffenders.size > 0
     ) {
       console.error(
-        "Use focused openclaw/plugin-sdk/<domain> subpaths for bundled plugins; root, compat, and broad runtime barrels are legacy surfaces only.",
+        "Use focused alien/plugin-sdk/<domain> subpaths for bundled plugins; root, compat, and broad runtime barrels are legacy surfaces only.",
       );
     }
     process.exit(1);

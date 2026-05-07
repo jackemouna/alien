@@ -87,7 +87,7 @@ function createDirectApnsSendFixture(params: {
       nodeId: params.nodeId,
       transport: "direct" as const,
       token: "ABCD1234ABCD1234ABCD1234ABCD1234",
-      topic: "ai.openclaw.ios",
+      topic: "ai.alien.ios",
       environment: params.environment,
       updatedAtMs: 1,
     },
@@ -120,14 +120,14 @@ function createRelayApnsSendFixture(params: {
       relayHandle: params.relayHandle ?? "relay-handle-12345678",
       sendGrant: "send-grant-123",
       installationId: "install-123",
-      topic: "ai.openclaw.ios",
+      topic: "ai.alien.ios",
       environment: "production" as const,
       distribution: "official" as const,
       updatedAtMs: 1,
       tokenDebugSuffix: params.tokenDebugSuffix,
     },
     relayConfig: {
-      baseUrl: "https://relay.openclaw.test",
+      baseUrl: "https://relay.alien.test",
       timeoutMs: 2_500,
     },
     gatewayIdentity: {
@@ -274,7 +274,7 @@ describe("push APNs send semantics", () => {
         alert: { title: "Wake", body: "Ping" },
         sound: "default",
       },
-      openclaw: {
+      alien: {
         kind: "push.test",
         nodeId: "ios-node-alert",
       },
@@ -323,7 +323,7 @@ describe("push APNs send semantics", () => {
       const request = apnsServer.requests[0];
       expect(request?.headers[":method"]).toBe("POST");
       expect(request?.headers[":path"]).toBe("/3/device/abcd1234abcd1234abcd1234abcd1234");
-      expect(request?.headers["apns-topic"]).toBe("ai.openclaw.ios");
+      expect(request?.headers["apns-topic"]).toBe("ai.alien.ios");
       expect(request?.headers["apns-push-type"]).toBe("alert");
       expect(request?.body).toContain('"nodeId":"ios-node-proxied-alert"');
     } finally {
@@ -365,7 +365,7 @@ describe("push APNs send semantics", () => {
       aps: {
         "content-available": 1,
       },
-      openclaw: {
+      alien: {
         kind: "node.wake",
         reason: "node.invoke",
         nodeId: "ios-node-wake",
@@ -406,19 +406,19 @@ describe("push APNs send semantics", () => {
       aps: {
         alert: {
           title: "Exec approval required",
-          body: "Open OpenClaw to review this request.",
+          body: "Open Alien to review this request.",
         },
         sound: "default",
-        category: "openclaw.exec-approval",
+        category: "alien.exec-approval",
         "content-available": 1,
       },
-      openclaw: {
+      alien: {
         kind: "exec.approval.requested",
         approvalId: "approval-123",
       },
     });
     expect(sent?.payload).not.toMatchObject({
-      openclaw: {
+      alien: {
         host: expect.anything(),
         nodeId: expect.anything(),
         agentId: expect.anything(),
@@ -457,7 +457,7 @@ describe("push APNs send semantics", () => {
       aps: {
         "content-available": 1,
       },
-      openclaw: {
+      alien: {
         kind: "exec.approval.resolved",
         approvalId: "approval-123",
       },
@@ -543,7 +543,7 @@ describe("push APNs send semantics", () => {
 
     const sent = send.mock.calls[0]?.[0];
     expect(sent?.payload).toMatchObject({
-      openclaw: {
+      alien: {
         kind: "node.wake",
         reason: "node.invoke",
         nodeId: "ios-node-wake-default-reason",
@@ -632,7 +632,7 @@ describe("push APNs send semantics", () => {
       priority: "5",
       payload: {
         aps: { "content-available": 1 },
-        openclaw: {
+        alien: {
           kind: "node.wake",
           reason: "queue.retry",
           nodeId: "ios-node-relay-wake",
@@ -674,18 +674,18 @@ describe("push APNs send semantics", () => {
       aps: {
         alert: {
           title: "Exec approval required",
-          body: "Open OpenClaw to review this request.",
+          body: "Open Alien to review this request.",
         },
-        category: "openclaw.exec-approval",
+        category: "alien.exec-approval",
         "content-available": 1,
       },
-      openclaw: {
+      alien: {
         kind: "exec.approval.requested",
         approvalId: "approval-relay-1",
       },
     });
     expect(sent?.payload).not.toMatchObject({
-      openclaw: {
+      alien: {
         commandText: expect.anything(),
         host: expect.anything(),
         nodeId: expect.anything(),

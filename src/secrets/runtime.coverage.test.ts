@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import type {
   PluginOrigin,
   PluginWebFetchProviderEntry,
@@ -22,7 +22,7 @@ function createCoverageWebSearchProvider(params: {
   order: number;
 }): PluginWebSearchProviderEntry {
   const credentialPath = `plugins.entries.${params.pluginId}.config.webSearch.apiKey`;
-  const readConfiguredCredential = (config?: OpenClawConfig): unknown =>
+  const readConfiguredCredential = (config?: AlienConfig): unknown =>
     (config?.plugins?.entries?.[params.pluginId]?.config as { webSearch?: { apiKey?: unknown } })
       ?.webSearch?.apiKey;
   return {
@@ -56,7 +56,7 @@ function createCoverageWebFetchProvider(params: {
   envVar: string;
 }): PluginWebFetchProviderEntry {
   const credentialPath = `plugins.entries.${params.pluginId}.config.webFetch.apiKey`;
-  const readConfiguredCredential = (config?: OpenClawConfig): unknown =>
+  const readConfiguredCredential = (config?: AlienConfig): unknown =>
     (config?.plugins?.entries?.[params.pluginId]?.config as { webFetch?: { apiKey?: unknown } })
       ?.webFetch?.apiKey;
   return {
@@ -182,7 +182,7 @@ vi.mock("../plugins/web-provider-public-artifacts.explicit.js", () => ({
 
 type SecretRegistryEntry = {
   id: string;
-  configFile: "openclaw.json" | "auth-profiles.json";
+  configFile: "alien.json" | "auth-profiles.json";
   pathPattern: string;
   refPathPattern?: string;
   secretShape: "secret_input" | "sibling_ref";
@@ -193,7 +193,7 @@ type SecretRegistryEntry = {
 type SecretRefCredentialMatrix = {
   entries: Array<{
     id: string;
-    configFile: "openclaw.json" | "auth-profiles.json";
+    configFile: "alien.json" | "auth-profiles.json";
     path: string;
     refPath?: string;
     secretShape: SecretRegistryEntry["secretShape"];
@@ -222,11 +222,11 @@ function loadCoverageRegistryEntries(): SecretRegistryEntry[] {
 }
 
 const COVERAGE_REGISTRY_ENTRIES = loadCoverageRegistryEntries();
-const DEBUG_COVERAGE_BATCHES = process.env.OPENCLAW_DEBUG_RUNTIME_COVERAGE === "1";
+const DEBUG_COVERAGE_BATCHES = process.env.ALIEN_DEBUG_RUNTIME_COVERAGE === "1";
 const RUNTIME_COVERAGE_TEST_TIMEOUT_MS = 240_000;
 const COVERAGE_LOADABLE_PLUGIN_ORIGINS =
   buildCoverageLoadablePluginOrigins(COVERAGE_REGISTRY_ENTRIES);
-const PLUGIN_OWNED_OPENCLAW_COVERAGE_EXCLUSIONS = new Set([
+const PLUGIN_OWNED_ALIEN_COVERAGE_EXCLUSIONS = new Set([
   "channels.googlechat.accounts.*.serviceAccount",
   // Doctor migrates legacy web search config into plugin-owned webSearch config.
   "tools.web.search.apiKey",
@@ -239,22 +239,22 @@ let collectConfigAssignments: typeof import("./runtime-config-collectors.js").co
 let createResolverContext: typeof import("./runtime-shared.js").createResolverContext;
 let resolveSecretRefValues: typeof import("./resolve.js").resolveSecretRefValues;
 let resolveRuntimeWebTools: typeof import("./runtime-web-tools.js").resolveRuntimeWebTools;
-const previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-const previousTrustBundledPluginsDir = process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+const previousBundledPluginsDir = process.env.ALIEN_BUNDLED_PLUGINS_DIR;
+const previousTrustBundledPluginsDir = process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR;
 
-process.env.OPENCLAW_BUNDLED_PLUGINS_DIR ??= "extensions";
-process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR ??= "1";
+process.env.ALIEN_BUNDLED_PLUGINS_DIR ??= "extensions";
+process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR ??= "1";
 
 afterAll(() => {
   if (previousBundledPluginsDir === undefined) {
-    delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+    delete process.env.ALIEN_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+    process.env.ALIEN_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
   }
   if (previousTrustBundledPluginsDir === undefined) {
-    delete process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+    delete process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
+    process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
   }
 });
 
@@ -444,19 +444,19 @@ function batchUsesRuntimeWebToolsOnly(batch: readonly SecretRegistryEntry[]): bo
   );
 }
 
-function collectOpenClawCoverageEntries(options: {
+function collectAlienCoverageEntries(options: {
   includePluginEntries: boolean;
 }): SecretRegistryEntry[] {
   return COVERAGE_REGISTRY_ENTRIES.filter(
     (entry) =>
-      entry.configFile === "openclaw.json" &&
+      entry.configFile === "alien.json" &&
       entry.id.startsWith("plugins.entries.") === options.includePluginEntries &&
-      !PLUGIN_OWNED_OPENCLAW_COVERAGE_EXCLUSIONS.has(entry.id),
+      !PLUGIN_OWNED_ALIEN_COVERAGE_EXCLUSIONS.has(entry.id),
   );
 }
 
-function applyConfigForOpenClawTarget(
-  config: OpenClawConfig,
+function applyConfigForAlienTarget(
+  config: AlienConfig,
   entry: SecretRegistryEntry,
   envId: string,
   wildcardToken: string,
@@ -640,7 +640,7 @@ function applyAuthStoreTarget(
 }
 
 async function prepareConfigCoverageSnapshot(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   env: NodeJS.ProcessEnv;
   loadablePluginOrigins?: ReadonlyMap<string, PluginOrigin>;
   includeRuntimeWebTools?: boolean;
@@ -693,7 +693,7 @@ async function prepareConfigCoverageSnapshot(params: {
 }
 
 async function prepareAuthCoverageSnapshot(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   env: NodeJS.ProcessEnv;
   agentDirs: string[];
   loadAuthStore: (agentDir?: string) => AuthProfileStore;
@@ -736,21 +736,21 @@ async function prepareAuthCoverageSnapshot(params: {
   };
 }
 
-async function expectOpenClawCoverageEntriesResolved(
+async function expectAlienCoverageEntriesResolved(
   label: string,
   entries: readonly SecretRegistryEntry[],
 ): Promise<void> {
   for (const batch of buildCoverageBatches(entries)) {
     logCoverageBatch(label, batch);
-    const config = {} as OpenClawConfig;
+    const config = {} as AlienConfig;
     const env: Record<string, string> = {};
     for (const [index, entry] of batch.entries()) {
-      const envId = `OPENCLAW_SECRET_TARGET_${entry.id}`;
+      const envId = `ALIEN_SECRET_TARGET_${entry.id}`;
       const runtimeEnvId = resolveCoverageEnvId(entry, envId);
       const expectedValue = `resolved-${entry.id}`;
       const wildcardToken = resolveCoverageWildcardToken(index);
       env[runtimeEnvId] = expectedValue;
-      applyConfigForOpenClawTarget(config, entry, envId, wildcardToken);
+      applyConfigForAlienTarget(config, entry, envId, wildcardToken);
     }
     const snapshot = await prepareConfigCoverageSnapshot({
       config,
@@ -780,22 +780,22 @@ describe("secrets runtime target coverage", () => {
   });
 
   it(
-    "handles every core and channel openclaw.json registry target when configured as active",
+    "handles every core and channel alien.json registry target when configured as active",
     async () => {
-      await expectOpenClawCoverageEntriesResolved(
-        "openclaw.json core",
-        collectOpenClawCoverageEntries({ includePluginEntries: false }),
+      await expectAlienCoverageEntriesResolved(
+        "alien.json core",
+        collectAlienCoverageEntries({ includePluginEntries: false }),
       );
     },
     RUNTIME_COVERAGE_TEST_TIMEOUT_MS,
   );
 
   it(
-    "handles every plugin openclaw.json registry target when configured as active",
+    "handles every plugin alien.json registry target when configured as active",
     async () => {
-      await expectOpenClawCoverageEntriesResolved(
-        "openclaw.json plugins",
-        collectOpenClawCoverageEntries({ includePluginEntries: true }),
+      await expectAlienCoverageEntriesResolved(
+        "alien.json plugins",
+        collectAlienCoverageEntries({ includePluginEntries: true }),
       );
     },
     RUNTIME_COVERAGE_TEST_TIMEOUT_MS,
@@ -813,14 +813,14 @@ describe("secrets runtime target coverage", () => {
         profiles: {},
       };
       for (const [index, entry] of batch.entries()) {
-        const envId = `OPENCLAW_AUTH_SECRET_TARGET_${entry.id}`;
+        const envId = `ALIEN_AUTH_SECRET_TARGET_${entry.id}`;
         env[envId] = `resolved-${entry.id}`;
         applyAuthStoreTarget(authStore, entry, envId, resolveCoverageWildcardToken(index));
       }
       const snapshot = await prepareAuthCoverageSnapshot({
-        config: {} as OpenClawConfig,
+        config: {} as AlienConfig,
         env,
-        agentDirs: ["/tmp/openclaw-agent-main"],
+        agentDirs: ["/tmp/alien-agent-main"],
         loadAuthStore: () => authStore,
       });
       const resolvedStore = snapshot.authStores[0]?.store;

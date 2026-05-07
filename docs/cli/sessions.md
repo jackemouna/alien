@@ -1,22 +1,22 @@
 ---
-summary: "CLI reference for `openclaw sessions` (list stored sessions + usage)"
+summary: "CLI reference for `alien sessions` (list stored sessions + usage)"
 read_when:
   - You want to list stored sessions and see recent activity
 title: "Sessions"
 ---
 
-# `openclaw sessions`
+# `alien sessions`
 
 List stored conversation sessions.
 
 Session lists are not channel/provider liveness checks. They show persisted
 conversation rows from session stores. A quiet Discord, Slack, Telegram, or
 other channel can reconnect successfully without creating a new session row
-until a message is processed. Use `openclaw channels status --probe`,
-`openclaw status --deep`, or `openclaw health --verbose` when you need live
+until a message is processed. Use `alien channels status --probe`,
+`alien status --deep`, or `alien health --verbose` when you need live
 channel connectivity.
 
-`openclaw sessions` and Gateway `sessions.list` responses are bounded by
+`alien sessions` and Gateway `sessions.list` responses are bounded by
 default so large long-lived stores cannot monopolize the CLI process or Gateway
 event loop. The CLI returns the newest 100 sessions by default; pass
 `--limit <n>` for a smaller/larger window or `--limit all` when you intentionally
@@ -24,13 +24,13 @@ need the full store. JSON responses include `totalCount`, `limitApplied`, and
 `hasMore` when callers need to show that more rows exist.
 
 ```bash
-openclaw sessions
-openclaw sessions --agent work
-openclaw sessions --all-agents
-openclaw sessions --active 120
-openclaw sessions --limit 25
-openclaw sessions --verbose
-openclaw sessions --json
+alien sessions
+alien sessions --agent work
+alien sessions --all-agents
+alien sessions --active 120
+alien sessions --limit 25
+alien sessions --verbose
+alien sessions --json
 ```
 
 Scope selection:
@@ -45,15 +45,15 @@ Scope selection:
 Export a trajectory bundle for a stored session:
 
 ```bash
-openclaw sessions export-trajectory --session-key "agent:main:telegram:direct:123" --workspace .
-openclaw sessions export-trajectory --session-key "agent:main:telegram:direct:123" --output bug-123 --json
+alien sessions export-trajectory --session-key "agent:main:telegram:direct:123" --workspace .
+alien sessions export-trajectory --session-key "agent:main:telegram:direct:123" --output bug-123 --json
 ```
 
 This is the command path used by the `/export-trajectory` slash command after
 the owner approves the exec request. The output directory is always resolved
-inside `.openclaw/trajectory-exports/` under the selected workspace.
+inside `.alien/trajectory-exports/` under the selected workspace.
 
-`openclaw sessions --all-agents` reads configured agent stores. Gateway and ACP
+`alien sessions --all-agents` reads configured agent stores. Gateway and ACP
 session discovery are broader: they also include disk-only stores found under
 the default `agents/` root or a templated `session.store` root. Those
 discovered stores must resolve to regular `sessions.json` files inside the
@@ -61,14 +61,14 @@ agent root; symlinks and out-of-root paths are skipped.
 
 JSON examples:
 
-`openclaw sessions --all-agents --json`:
+`alien sessions --all-agents --json`:
 
 ```json
 {
   "path": null,
   "stores": [
-    { "agentId": "main", "path": "/home/user/.openclaw/agents/main/sessions/sessions.json" },
-    { "agentId": "work", "path": "/home/user/.openclaw/agents/work/sessions/sessions.json" }
+    { "agentId": "main", "path": "/home/user/.alien/agents/main/sessions/sessions.json" },
+    { "agentId": "work", "path": "/home/user/.alien/agents/work/sessions/sessions.json" }
   ],
   "allAgents": true,
   "count": 2,
@@ -88,17 +88,17 @@ JSON examples:
 Run maintenance now (instead of waiting for the next write cycle):
 
 ```bash
-openclaw sessions cleanup --dry-run
-openclaw sessions cleanup --agent work --dry-run
-openclaw sessions cleanup --all-agents --dry-run
-openclaw sessions cleanup --enforce
-openclaw sessions cleanup --enforce --active-key "agent:main:telegram:direct:123"
-openclaw sessions cleanup --json
+alien sessions cleanup --dry-run
+alien sessions cleanup --agent work --dry-run
+alien sessions cleanup --all-agents --dry-run
+alien sessions cleanup --enforce
+alien sessions cleanup --enforce --active-key "agent:main:telegram:direct:123"
+alien sessions cleanup --json
 ```
 
-`openclaw sessions cleanup` uses `session.maintenance` settings from config:
+`alien sessions cleanup` uses `session.maintenance` settings from config:
 
-- Scope note: `openclaw sessions cleanup` maintains session stores, transcripts, and trajectory sidecars. It does not prune cron run logs (`cron/runs/<jobId>.jsonl`), which are managed by `cron.runLog.maxBytes` and `cron.runLog.keepLines` in [Cron configuration](/automation/cron-jobs#configuration) and explained in [Cron maintenance](/automation/cron-jobs#maintenance).
+- Scope note: `alien sessions cleanup` maintains session stores, transcripts, and trajectory sidecars. It does not prune cron run logs (`cron/runs/<jobId>.jsonl`), which are managed by `cron.runLog.maxBytes` and `cron.runLog.keepLines` in [Cron configuration](/automation/cron-jobs#configuration) and explained in [Cron maintenance](/automation/cron-jobs#maintenance).
 - Cleanup also prunes unreferenced primary transcripts, compaction checkpoints, and trajectory sidecars older than `session.maintenance.pruneAfter`; files still referenced by `sessions.json` are preserved.
 
 - `--dry-run`: preview how many entries would be pruned/capped without writing.
@@ -115,7 +115,7 @@ When a Gateway is reachable, non-dry-run cleanup for configured agent stores is
 sent through the Gateway so it shares the same session-store writer as runtime
 traffic. Use `--store <path>` for explicit offline repair of a store file.
 
-`openclaw sessions cleanup --all-agents --dry-run --json`:
+`alien sessions cleanup --all-agents --dry-run --json`:
 
 ```json
 {
@@ -125,7 +125,7 @@ traffic. Use `--store <path>` for explicit offline repair of a store file.
   "stores": [
     {
       "agentId": "main",
-      "storePath": "/home/user/.openclaw/agents/main/sessions/sessions.json",
+      "storePath": "/home/user/.alien/agents/main/sessions/sessions.json",
       "beforeCount": 120,
       "afterCount": 80,
       "pruned": 40,
@@ -133,7 +133,7 @@ traffic. Use `--store <path>` for explicit offline repair of a store file.
     },
     {
       "agentId": "work",
-      "storePath": "/home/user/.openclaw/agents/work/sessions/sessions.json",
+      "storePath": "/home/user/.alien/agents/work/sessions/sessions.json",
       "beforeCount": 18,
       "afterCount": 18,
       "pruned": 0,

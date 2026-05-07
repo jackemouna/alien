@@ -23,7 +23,7 @@ export function parseDockerPluginKeepList(value) {
 export function pruneDockerPluginDist(params = {}) {
   const repoRoot = params.cwd ?? params.repoRoot ?? process.cwd();
   const env = params.env ?? process.env;
-  const keepPluginIds = parseDockerPluginKeepList(env.OPENCLAW_EXTENSIONS);
+  const keepPluginIds = parseDockerPluginKeepList(env.ALIEN_EXTENSIONS);
   const excludedPluginIds = collectRootPackageExcludedExtensionDirs({ cwd: repoRoot });
   const removed = [];
 

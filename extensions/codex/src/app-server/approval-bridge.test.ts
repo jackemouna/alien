@@ -1,12 +1,12 @@
 import {
   callGatewayTool,
   type EmbeddedRunAttemptParams,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buildApprovalResponse, handleCodexAppServerApprovalRequest } from "./approval-bridge.js";
 
-vi.mock("openclaw/plugin-sdk/agent-harness-runtime", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("openclaw/plugin-sdk/agent-harness-runtime")>()),
+vi.mock("alien/plugin-sdk/agent-harness-runtime", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("alien/plugin-sdk/agent-harness-runtime")>()),
   callGatewayTool: vi.fn(),
 }));
 
@@ -57,7 +57,7 @@ describe("Codex app-server approval bridge", () => {
       "plugin.approval.request",
       expect.any(Object),
       expect.objectContaining({
-        pluginId: "openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
         title: "Codex app-server command approval",
         twoPhase: true,
         turnSourceChannel: "telegram",
@@ -622,7 +622,7 @@ describe("Codex app-server approval bridge", () => {
 
     expect(result).toEqual({
       decision: "decline",
-      reason: "OpenClaw codex app-server bridge does not grant native approvals yet.",
+      reason: "Alien codex app-server bridge does not grant native approvals yet.",
     });
     expect(mockCallGatewayTool).not.toHaveBeenCalled();
     expect(params.onAgentEvent).not.toHaveBeenCalled();
@@ -1000,7 +1000,7 @@ describe("Codex app-server approval bridge", () => {
     });
     expect(buildApprovalResponse("future/requestApproval", undefined, "approved-once")).toEqual({
       decision: "decline",
-      reason: "OpenClaw codex app-server bridge does not grant native approvals yet.",
+      reason: "Alien codex app-server bridge does not grant native approvals yet.",
     });
   });
 });

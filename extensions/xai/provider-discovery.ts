@@ -1,5 +1,5 @@
-import type { ProviderPlugin } from "openclaw/plugin-sdk/provider-model-shared";
-import { readProviderEnvValue } from "openclaw/plugin-sdk/provider-web-search";
+import type { ProviderPlugin } from "alien/plugin-sdk/provider-model-shared";
+import { readProviderEnvValue } from "alien/plugin-sdk/provider-web-search";
 import { resolveFallbackXaiAuth } from "./src/tool-auth-shared.js";
 
 const PROVIDER_ID = "xai";

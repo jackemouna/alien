@@ -1,26 +1,26 @@
 {
-  "name": "@openclaw/qa-matrix",
+  "name": "@alien/qa-matrix",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw Matrix QA runner plugin",
+  "description": "Alien Matrix QA runner plugin",
   "type": "module",
   "dependencies": {
     "undici": "8.2.0"
   },
   "devDependencies": {
-    "@openclaw/matrix": "workspace:*",
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@alien/matrix": "workspace:*",
+    "@alien/plugin-sdk": "workspace:*",
+    "alien": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.5.6"
+    "alien": ">=2026.5.6"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "alien": {
       "optional": true
     }
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ],

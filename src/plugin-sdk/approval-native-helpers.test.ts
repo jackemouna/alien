@@ -5,13 +5,13 @@ import {
   type NativeApprovalTarget,
   nativeApprovalTargetsMatch,
 } from "./approval-native-helpers.js";
-import type { OpenClawConfig } from "./config-runtime.js";
+import type { AlienConfig } from "./config-runtime.js";
 
 const EMPTY_SESSION_CFG = {
   session: {
     store: ".artifacts/test/approval-native-helpers-empty-sessions.json",
   },
-} satisfies OpenClawConfig;
+} satisfies AlienConfig;
 
 describe("createChannelNativeOriginTargetResolver", () => {
   it("reuses shared turn-source routing and respects shouldHandle gating", () => {

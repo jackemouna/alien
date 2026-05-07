@@ -3,7 +3,7 @@ import type {
   RealtimeVoiceBridge,
   RealtimeVoiceProviderPlugin,
   RealtimeVoiceToolCallEvent,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import { describe, expect, it, vi } from "vitest";
 import { WebSocket } from "ws";
 import type { VoiceCallRealtimeConfig } from "../config.js";
@@ -654,7 +654,7 @@ describe("RealtimeCallHandler path routing", () => {
       },
       realtimeProvider: makeRealtimeProvider(createBridge),
     });
-    handler.registerToolHandler("openclaw_agent_consult", (_args, _callId, context) => {
+    handler.registerToolHandler("alien_agent_consult", (_args, _callId, context) => {
       receivedPartialTranscript = context.partialUserTranscript;
       return new Promise((resolve) => {
         resolveConsult = resolve;
@@ -680,7 +680,7 @@ describe("RealtimeCallHandler path routing", () => {
         callbacks?.onToolCall?.({
           itemId: "item-1",
           callId: "consult-call",
-          name: "openclaw_agent_consult",
+          name: "alien_agent_consult",
           args: { question: "Are the basement lights on?" },
         });
         await vi.waitFor(() => {
@@ -692,7 +692,7 @@ describe("RealtimeCallHandler path routing", () => {
             "consult-call",
             expect.objectContaining({
               status: "working",
-              tool: "openclaw_agent_consult",
+              tool: "alien_agent_consult",
             }),
             { willContinue: true },
           );
@@ -773,7 +773,7 @@ describe("RealtimeCallHandler path routing", () => {
       },
     );
     const consult = vi.fn(async () => ({ text: "I created the smoke test file." }));
-    handler.registerToolHandler("openclaw_agent_consult", consult);
+    handler.registerToolHandler("alien_agent_consult", consult);
     const server = await startRealtimeServer(handler);
 
     try {
@@ -934,7 +934,7 @@ describe("RealtimeCallHandler path routing", () => {
       realtimeProvider: makeRealtimeProvider(createBridge),
     });
     const consult = vi.fn(async () => ({ text: "I sent it." }));
-    handler.registerToolHandler("openclaw_agent_consult", consult);
+    handler.registerToolHandler("alien_agent_consult", consult);
     const server = await startRealtimeServer(handler);
 
     try {
@@ -954,7 +954,7 @@ describe("RealtimeCallHandler path routing", () => {
         callbacks?.onToolCall?.({
           itemId: "item-1",
           callId: "consult-call",
-          name: "openclaw_agent_consult",
+          name: "alien_agent_consult",
           args: { question: "message" },
         });
         await new Promise((resolve) => setTimeout(resolve, 50));
@@ -1032,7 +1032,7 @@ describe("RealtimeCallHandler path routing", () => {
       },
     );
     const consult = vi.fn(async () => ({ text: "Native consult result." }));
-    handler.registerToolHandler("openclaw_agent_consult", consult);
+    handler.registerToolHandler("alien_agent_consult", consult);
     const server = await startRealtimeServer(handler);
 
     try {
@@ -1052,7 +1052,7 @@ describe("RealtimeCallHandler path routing", () => {
         callbacks?.onToolCall?.({
           itemId: "item-1",
           callId: "consult-call",
-          name: "openclaw_agent_consult",
+          name: "alien_agent_consult",
           args: { question: "Send me a Discord message." },
         });
 
@@ -1123,7 +1123,7 @@ describe("RealtimeCallHandler path routing", () => {
         realtimeProvider: makeRealtimeProvider(createBridge),
       },
     );
-    handler.registerToolHandler("openclaw_agent_consult", async () => ({ text: "Fast context." }));
+    handler.registerToolHandler("alien_agent_consult", async () => ({ text: "Fast context." }));
     const server = await startRealtimeServer(handler);
 
     try {
@@ -1142,7 +1142,7 @@ describe("RealtimeCallHandler path routing", () => {
         callbacks?.onToolCall?.({
           itemId: "item-1",
           callId: "consult-call",
-          name: "openclaw_agent_consult",
+          name: "alien_agent_consult",
           args: { question: "What do you remember?" },
         });
 

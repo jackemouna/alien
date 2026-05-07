@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   DEFAULT_CACHE_TTL_MINUTES,
   DEFAULT_SEARCH_COUNT,
@@ -13,14 +13,14 @@ import {
   withTrustedWebSearchEndpoint,
   wrapWebContent,
   writeCache,
-} from "openclaw/plugin-sdk/provider-web-search";
+} from "alien/plugin-sdk/provider-web-search";
 import {
   assertHttpUrlTargetsPrivateNetwork,
   isBlockedHostnameOrIp,
   isPrivateIpAddress,
   resolvePinnedHostnameWithPolicy,
   type LookupFn,
-} from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
 import {
   resolveSearxngBaseUrl,
   resolveSearxngCategories,
@@ -229,7 +229,7 @@ async function fetchSearxngResults(params: {
 }
 
 export async function runSearxngSearch(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   query: string;
   count?: number;
   categories?: string;

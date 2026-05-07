@@ -1,5 +1,5 @@
 ---
-summary: "Adds the Slack channel surface for sending and receiving OpenClaw messages."
+summary: "Adds the Slack channel surface for sending and receiving Alien messages."
 read_when:
   - You are installing, configuring, or auditing the slack plugin
 title: "Slack plugin"
@@ -7,12 +7,12 @@ title: "Slack plugin"
 
 # Slack plugin
 
-Adds the Slack channel surface for sending and receiving OpenClaw messages.
+Adds the Slack channel surface for sending and receiving Alien messages.
 
 ## Distribution
 
-- Package: `@openclaw/slack`
-- Install route: included in OpenClaw
+- Package: `@alien/slack`
+- Install route: included in Alien
 
 ## Surface
 

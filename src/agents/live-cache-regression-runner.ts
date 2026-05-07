@@ -610,13 +610,13 @@ export async function runLiveCacheRegression(): Promise<LiveCacheRegressionResul
   const openai = await resolveLiveDirectModel({
     provider: "openai",
     api: "openai-responses",
-    envVar: "OPENCLAW_LIVE_OPENAI_CACHE_MODEL",
+    envVar: "ALIEN_LIVE_OPENAI_CACHE_MODEL",
     preferredModelIds: ["gpt-4.1", "gpt-5.2", "gpt-5.4-mini", "gpt-5.4", "gpt-5.5"],
   });
   const anthropic = await resolveLiveDirectModel({
     provider: "anthropic",
     api: "anthropic-messages",
-    envVar: "OPENCLAW_LIVE_ANTHROPIC_CACHE_MODEL",
+    envVar: "ALIEN_LIVE_ANTHROPIC_CACHE_MODEL",
     preferredModelIds: ["claude-sonnet-4-6", "claude-sonnet-4-5", "claude-haiku-3-5"],
   });
 

@@ -1,5 +1,5 @@
-import type { TelegramGroupConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { TelegramGroupConfig } from "alien/plugin-sdk/config-types";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 export type {
   AuditTelegramGroupMembershipParams,
   TelegramGroupMembershipAudit,

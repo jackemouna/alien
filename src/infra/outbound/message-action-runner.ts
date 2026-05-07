@@ -15,7 +15,7 @@ import type {
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   hasInteractiveReplyBlocks,
   hasMessagePresentationBlocks,
@@ -98,7 +98,7 @@ function loadMessageActionGatewayRuntime() {
 }
 
 export type RunMessageActionParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   action: ChannelMessageActionName;
   params: Record<string, unknown>;
   defaultAccountId?: string;
@@ -248,7 +248,7 @@ function applyCrossContextMessageDecoration({
 }
 
 async function maybeApplyCrossContextMarker(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   target: string;
@@ -280,7 +280,7 @@ async function maybeApplyCrossContextMarker(params: {
 }
 
 async function resolveChannel(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   params: Record<string, unknown>,
   toolContext?: { currentChannelProvider?: string },
 ) {
@@ -334,7 +334,7 @@ function inferPeerKindForAccountBinding(channel: ChannelId, target: string): Cha
 }
 
 function resolveTargetBoundAccountId(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   args: Record<string, unknown>;
   agentId?: string;
@@ -370,7 +370,7 @@ function resolveTargetBoundAccountId(params: {
 }
 
 async function resolveActionTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   args: Record<string, unknown>;
@@ -411,7 +411,7 @@ function sanitizeGroupTargetId(target: string): string {
 }
 
 async function resolveResolvedTargetOrThrow(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   input: string;
   accountId?: string;
@@ -436,7 +436,7 @@ async function resolveResolvedTargetOrThrow(params: {
 }
 
 type ResolvedActionContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   params: Record<string, unknown>;
   channel: ChannelId;
   mediaAccess: OutboundMediaAccess;
@@ -450,7 +450,7 @@ type ResolvedActionContext = {
 };
 
 async function runGatewayPluginMessageActionOrNull(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   params: Record<string, unknown>;
   channel: ChannelId;
   action: ChannelMessageActionName;

@@ -1,1 +1,1 @@
-export { resolvePreferredOpenClawTmpDir, withTempWorkspace } from "openclaw/plugin-sdk/temp-path";
+export { resolvePreferredAlienTmpDir, withTempWorkspace } from "alien/plugin-sdk/temp-path";

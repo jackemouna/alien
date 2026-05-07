@@ -136,6 +136,6 @@ describe("resolveNpmRunner", () => {
         existsSync: () => false,
         platform: "win32",
       }),
-    ).toThrow("OpenClaw refuses to shell out to bare npm on Windows");
+    ).toThrow("Alien refuses to shell out to bare npm on Windows");
   });
 });

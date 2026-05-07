@@ -1,11 +1,11 @@
 import {
   defineBundledChannelEntry,
   loadBundledEntryExportSync,
-} from "openclaw/plugin-sdk/channel-entry-contract";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/channel-entry-contract";
+} from "alien/plugin-sdk/channel-entry-contract";
+import type { AlienPluginApi } from "alien/plugin-sdk/channel-entry-contract";
 
-function registerSlashCommandRoute(api: OpenClawPluginApi): void {
-  const register = loadBundledEntryExportSync<(api: OpenClawPluginApi) => void>(import.meta.url, {
+function registerSlashCommandRoute(api: AlienPluginApi): void {
+  const register = loadBundledEntryExportSync<(api: AlienPluginApi) => void>(import.meta.url, {
     specifier: "./slash-route-api.js",
     exportName: "registerSlashCommandRoute",
   });

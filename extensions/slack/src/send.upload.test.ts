@@ -25,14 +25,14 @@ const fetchWithSsrFGuard = vi.fn(
     }) as const,
 );
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: (...args: unknown[]) =>
     fetchWithSsrFGuard(...(args as [params: { url: string; init?: RequestInit }])),
 }));
 
-vi.mock("openclaw/plugin-sdk/fetch-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/fetch-runtime")>(
-    "openclaw/plugin-sdk/fetch-runtime",
+vi.mock("alien/plugin-sdk/fetch-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/fetch-runtime")>(
+    "alien/plugin-sdk/fetch-runtime",
   );
   return {
     ...actual,

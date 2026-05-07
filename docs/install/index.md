@@ -1,5 +1,5 @@
 ---
-summary: "Install OpenClaw - installer script, npm/pnpm/bun, from source, Docker, and more"
+summary: "Install Alien - installer script, npm/pnpm/bun, from source, Docker, and more"
 read_when:
   - You need an install method other than the Getting Started quickstart
   - You want to deploy to a cloud platform
@@ -15,17 +15,17 @@ title: "Install"
 
 ## Recommended: installer script
 
-The fastest way to install. It detects your OS, installs Node if needed, installs OpenClaw, and launches onboarding.
+The fastest way to install. It detects your OS, installs Node if needed, installs Alien, and launches onboarding.
 
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
     ```bash
-    curl -fsSL https://openclaw.ai/install.sh | bash
+    curl -fsSL https://alien.ai/install.sh | bash
     ```
   </Tab>
   <Tab title="Windows (PowerShell)">
     ```powershell
-    iwr -useb https://openclaw.ai/install.ps1 | iex
+    iwr -useb https://alien.ai/install.ps1 | iex
     ```
   </Tab>
 </Tabs>
@@ -35,12 +35,12 @@ To install without running onboarding:
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
     ```bash
-    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
+    curl -fsSL https://alien.ai/install.sh | bash -s -- --no-onboard
     ```
   </Tab>
   <Tab title="Windows (PowerShell)">
     ```powershell
-    & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -NoOnboard
+    & ([scriptblock]::Create((iwr -useb https://alien.ai/install.ps1))) -NoOnboard
     ```
   </Tab>
 </Tabs>
@@ -51,18 +51,18 @@ For all flags and CI/automation options, see [Installer internals](/install/inst
 
 ### Local prefix installer (`install-cli.sh`)
 
-Use this when you want OpenClaw and Node kept under a local prefix such as
-`~/.openclaw`, without depending on a system-wide Node install:
+Use this when you want Alien and Node kept under a local prefix such as
+`~/.alien`, without depending on a system-wide Node install:
 
 ```bash
-curl -fsSL https://openclaw.ai/install-cli.sh | bash
+curl -fsSL https://alien.ai/install-cli.sh | bash
 ```
 
 It supports npm installs by default, plus git-checkout installs under the same
 prefix flow. Full reference: [Installer internals](/install/installer#install-clish).
 
 Already installed? Switch between package and git installs with
-`openclaw update --channel dev` and `openclaw update --channel stable`. See
+`alien update --channel dev` and `alien update --channel stable`. See
 [Updating](/install/updating#switch-between-npm-and-git-installs).
 
 ### npm, pnpm, or bun
@@ -72,15 +72,15 @@ If you already manage Node yourself:
 <Tabs>
   <Tab title="npm">
     ```bash
-    npm install -g openclaw@latest
-    openclaw onboard --install-daemon
+    npm install -g alien@latest
+    alien onboard --install-daemon
     ```
   </Tab>
   <Tab title="pnpm">
     ```bash
-    pnpm add -g openclaw@latest
+    pnpm add -g alien@latest
     pnpm approve-builds -g
-    openclaw onboard --install-daemon
+    alien onboard --install-daemon
     ```
 
     <Note>
@@ -90,8 +90,8 @@ If you already manage Node yourself:
   </Tab>
   <Tab title="bun">
     ```bash
-    bun add -g openclaw@latest
-    openclaw onboard --install-daemon
+    bun add -g alien@latest
+    alien onboard --install-daemon
     ```
 
     <Note>
@@ -105,7 +105,7 @@ If you already manage Node yourself:
   If `sharp` fails due to a globally installed libvips:
 
 ```bash
-SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g alien@latest
 ```
 
 </Accordion>
@@ -115,19 +115,19 @@ SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
 For contributors or anyone who wants to run from a local checkout:
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone https://github.com/alien/alien.git
+cd alien
 pnpm install && pnpm build && pnpm ui:build
 pnpm link --global
-openclaw onboard --install-daemon
+alien onboard --install-daemon
 ```
 
-Or skip the link and use `pnpm openclaw ...` from inside the repo. See [Setup](/start/setup) for full development workflows.
+Or skip the link and use `pnpm alien ...` from inside the repo. See [Setup](/start/setup) for full development workflows.
 
 ### Install from GitHub main
 
 ```bash
-npm install -g github:openclaw/openclaw#main
+npm install -g github:alien/alien#main
 ```
 
 ### Containers and package managers
@@ -153,20 +153,20 @@ npm install -g github:openclaw/openclaw#main
 ## Verify the install
 
 ```bash
-openclaw --version      # confirm the CLI is available
-openclaw doctor         # check for config issues
-openclaw gateway status # verify the Gateway is running
+alien --version      # confirm the CLI is available
+alien doctor         # check for config issues
+alien gateway status # verify the Gateway is running
 ```
 
 If you want managed startup after install:
 
-- macOS: LaunchAgent via `openclaw onboard --install-daemon` or `openclaw gateway install`
+- macOS: LaunchAgent via `alien onboard --install-daemon` or `alien gateway install`
 - Linux/WSL2: systemd user service via the same commands
 - Native Windows: Scheduled Task first, with a per-user Startup-folder login item fallback if task creation is denied
 
 ## Hosting and deployment
 
-Deploy OpenClaw on a cloud server or VPS:
+Deploy Alien on a cloud server or VPS:
 
 <CardGroup cols={3}>
   <Card title="VPS" href="/vps">Any Linux VPS</Card>
@@ -185,19 +185,19 @@ Deploy OpenClaw on a cloud server or VPS:
 
 <CardGroup cols={3}>
   <Card title="Updating" href="/install/updating" icon="refresh-cw">
-    Keep OpenClaw up to date.
+    Keep Alien up to date.
   </Card>
   <Card title="Migrating" href="/install/migrating" icon="arrow-right">
     Move to a new machine.
   </Card>
   <Card title="Uninstall" href="/install/uninstall" icon="trash-2">
-    Remove OpenClaw completely.
+    Remove Alien completely.
   </Card>
 </CardGroup>
 
-## Troubleshooting: `openclaw` not found
+## Troubleshooting: `alien` not found
 
-If the install succeeded but `openclaw` is not found in your terminal:
+If the install succeeded but `alien` is not found in your terminal:
 
 ```bash
 node -v           # Node installed?

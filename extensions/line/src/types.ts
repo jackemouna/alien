@@ -1,5 +1,5 @@
-import type { BaseProbeResult } from "openclaw/plugin-sdk/channel-contract";
-import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
+import type { BaseProbeResult } from "alien/plugin-sdk/channel-contract";
+import type { MessageReceipt } from "alien/plugin-sdk/channel-message";
 
 export type LineTokenSource = "config" | "env" | "file" | "none";
 

@@ -3,15 +3,15 @@ import type { Command } from "commander";
 const parentDefaultHelpCommands = new WeakSet<Command>();
 
 function outputParentHelpWithoutStartupBanner(parent: Command): void {
-  const previous = process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
-  process.env.OPENCLAW_SUPPRESS_HELP_BANNER = "1";
+  const previous = process.env.ALIEN_SUPPRESS_HELP_BANNER;
+  process.env.ALIEN_SUPPRESS_HELP_BANNER = "1";
   try {
     parent.outputHelp();
   } finally {
     if (previous === undefined) {
-      delete process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
+      delete process.env.ALIEN_SUPPRESS_HELP_BANNER;
     } else {
-      process.env.OPENCLAW_SUPPRESS_HELP_BANNER = previous;
+      process.env.ALIEN_SUPPRESS_HELP_BANNER = previous;
     }
   }
 }

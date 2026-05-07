@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/imessage",
+  "name": "@alien/imessage",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw iMessage channel plugin",
+  "description": "Alien iMessage channel plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ],

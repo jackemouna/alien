@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { playwrightCore } from "./playwright-core.runtime.js";
 import { ensurePageState, getPageForTargetId } from "./pw-session.js";
 import { withPageScopedCdpClient } from "./pw-session.page-cdp.js";

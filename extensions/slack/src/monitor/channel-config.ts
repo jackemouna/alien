@@ -3,8 +3,8 @@ import {
   buildChannelKeyCandidates,
   resolveChannelEntryMatchWithFallback,
   type ChannelMatchSource,
-} from "openclaw/plugin-sdk/channel-targets";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-targets";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { normalizeSlackSlug } from "./allow-list.js";
 
 export type SlackChannelConfigResolved = {

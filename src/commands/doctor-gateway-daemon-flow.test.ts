@@ -35,8 +35,8 @@ vi.mock("../config/config.js", async () => {
 });
 
 vi.mock("../daemon/constants.js", () => ({
-  resolveGatewayLaunchAgentLabel: vi.fn(() => "ai.openclaw.gateway"),
-  resolveNodeLaunchAgentLabel: vi.fn(() => "ai.openclaw.node"),
+  resolveGatewayLaunchAgentLabel: vi.fn(() => "ai.alien.gateway"),
+  resolveNodeLaunchAgentLabel: vi.fn(() => "ai.alien.node"),
 }));
 
 vi.mock("../daemon/diagnostics.js", () => ({
@@ -137,7 +137,7 @@ vi.mock("./health.js", () => ({
 describe("maybeRepairGatewayDaemon", () => {
   let maybeRepairGatewayDaemon: typeof import("./doctor-gateway-daemon-flow.js").maybeRepairGatewayDaemon;
   const originalPlatformDescriptor = Object.getOwnPropertyDescriptor(process, "platform");
-  const originalUpdateInProgress = process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+  const originalUpdateInProgress = process.env.ALIEN_UPDATE_IN_PROGRESS;
 
   beforeAll(async () => {
     ({ maybeRepairGatewayDaemon } = await import("./doctor-gateway-daemon-flow.js"));
@@ -164,9 +164,9 @@ describe("maybeRepairGatewayDaemon", () => {
       Object.defineProperty(process, "platform", originalPlatformDescriptor);
     }
     if (originalUpdateInProgress === undefined) {
-      delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+      delete process.env.ALIEN_UPDATE_IN_PROGRESS;
     } else {
-      process.env.OPENCLAW_UPDATE_IN_PROGRESS = originalUpdateInProgress;
+      process.env.ALIEN_UPDATE_IN_PROGRESS = originalUpdateInProgress;
     }
   });
 
@@ -200,7 +200,7 @@ describe("maybeRepairGatewayDaemon", () => {
   }
 
   async function runNonInteractiveUpdateRepair() {
-    process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
+    process.env.ALIEN_UPDATE_IN_PROGRESS = "1";
     await runNonInteractiveRepair();
   }
 
@@ -266,8 +266,8 @@ describe("maybeRepairGatewayDaemon", () => {
     service.readCommand.mockResolvedValueOnce({
       programArguments: ["/bin/node", "cli", "gateway"],
       environment: {
-        OPENCLAW_STATE_DIR: "/tmp/openclaw-service",
-        OPENCLAW_CONFIG_PATH: "/tmp/openclaw-service/openclaw.json",
+        ALIEN_STATE_DIR: "/tmp/alien-service",
+        ALIEN_CONFIG_PATH: "/tmp/alien-service/alien.json",
       },
     });
     readGatewayRestartHandoffSync.mockReturnValueOnce({
@@ -297,8 +297,8 @@ describe("maybeRepairGatewayDaemon", () => {
 
     expect(readGatewayRestartHandoffSync).toHaveBeenCalledWith(
       expect.objectContaining({
-        OPENCLAW_STATE_DIR: "/tmp/openclaw-service",
-        OPENCLAW_CONFIG_PATH: "/tmp/openclaw-service/openclaw.json",
+        ALIEN_STATE_DIR: "/tmp/alien-service",
+        ALIEN_CONFIG_PATH: "/tmp/alien-service/alien.json",
       }),
     );
     expect(note).toHaveBeenCalledWith(
@@ -343,7 +343,7 @@ describe("maybeRepairGatewayDaemon", () => {
     expect(service.install).not.toHaveBeenCalled();
     expect(service.restart).not.toHaveBeenCalled();
     expect(note).toHaveBeenCalledWith(
-      expect.stringContaining("openclaw gateway install"),
+      expect.stringContaining("alien gateway install"),
       "Gateway",
     );
   });
@@ -360,7 +360,7 @@ describe("maybeRepairGatewayDaemon", () => {
     setPlatform("linux");
     service.isLoaded.mockResolvedValue(false);
 
-    await withEnvAsync({ OPENCLAW_SERVICE_REPAIR_POLICY: "external" }, async () => {
+    await withEnvAsync({ ALIEN_SERVICE_REPAIR_POLICY: "external" }, async () => {
       await runAutoRepair();
     });
 
@@ -369,16 +369,16 @@ describe("maybeRepairGatewayDaemon", () => {
     expect(note).toHaveBeenCalledWith(EXTERNAL_SERVICE_REPAIR_NOTE, "Gateway");
   });
 
-  it("skips gateway service install when a system OpenClaw gateway service exists", async () => {
+  it("skips gateway service install when a system Alien gateway service exists", async () => {
     setPlatform("linux");
     service.isLoaded.mockResolvedValue(false);
     findSystemGatewayServices.mockResolvedValue([
       {
         platform: "linux",
-        label: "openclaw-gateway.service",
-        detail: "unit: /etc/systemd/system/openclaw-gateway.service",
+        label: "alien-gateway.service",
+        detail: "unit: /etc/systemd/system/alien-gateway.service",
         scope: "system",
-        marker: "openclaw",
+        marker: "alien",
         legacy: false,
       },
     ]);
@@ -389,7 +389,7 @@ describe("maybeRepairGatewayDaemon", () => {
     expect(service.install).not.toHaveBeenCalled();
     expect(service.restart).not.toHaveBeenCalled();
     expect(note).toHaveBeenCalledWith(
-      expect.stringContaining("System-level OpenClaw gateway service detected"),
+      expect.stringContaining("System-level Alien gateway service detected"),
       "Gateway",
     );
   });
@@ -398,7 +398,7 @@ describe("maybeRepairGatewayDaemon", () => {
     setPlatform("linux");
     service.readRuntime.mockResolvedValue({ status: "stopped" });
 
-    await withEnvAsync({ OPENCLAW_SERVICE_REPAIR_POLICY: "external" }, async () => {
+    await withEnvAsync({ ALIEN_SERVICE_REPAIR_POLICY: "external" }, async () => {
       await runAutoRepair();
     });
 
@@ -409,7 +409,7 @@ describe("maybeRepairGatewayDaemon", () => {
   it("skips gateway service restart when service repair policy is external", async () => {
     setPlatform("linux");
 
-    await withEnvAsync({ OPENCLAW_SERVICE_REPAIR_POLICY: "external" }, async () => {
+    await withEnvAsync({ ALIEN_SERVICE_REPAIR_POLICY: "external" }, async () => {
       await runAutoRepair();
     });
 
@@ -423,7 +423,7 @@ describe("maybeRepairGatewayDaemon", () => {
     vi.mocked(launchd.isLaunchAgentLoaded).mockResolvedValue(false);
     vi.mocked(launchd.launchAgentPlistExists).mockResolvedValue(true);
 
-    await withEnvAsync({ OPENCLAW_SERVICE_REPAIR_POLICY: "external" }, async () => {
+    await withEnvAsync({ ALIEN_SERVICE_REPAIR_POLICY: "external" }, async () => {
       await runAutoRepair();
     });
 

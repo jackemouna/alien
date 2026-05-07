@@ -1,11 +1,11 @@
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-config-helpers";
+import { createPairingPrefixStripper } from "alien/plugin-sdk/channel-pairing";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -45,7 +45,7 @@ export const nextcloudTalkSecurityAdapter = {
 
 export const nextcloudTalkPairingTextAdapter = {
   idLabel: "nextcloudUserId",
-  message: "OpenClaw: your access has been approved.",
+  message: "Alien: your access has been approved.",
   normalizeAllowEntry: createPairingPrefixStripper(/^(nextcloud-talk|nc-talk|nc):/i, (entry) =>
     normalizeLowercaseStringOrEmpty(entry),
   ),

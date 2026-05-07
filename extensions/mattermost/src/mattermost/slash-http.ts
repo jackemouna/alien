@@ -6,8 +6,8 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { safeEqualSecret } from "openclaw/plugin-sdk/security-runtime";
-import { isPrivateNetworkOptInEnabled } from "openclaw/plugin-sdk/ssrf-runtime";
+import { safeEqualSecret } from "alien/plugin-sdk/security-runtime";
+import { isPrivateNetworkOptInEnabled } from "alien/plugin-sdk/ssrf-runtime";
 import type { ResolvedMattermostAccount } from "../mattermost/accounts.js";
 import { getMattermostRuntime } from "../runtime.js";
 import {
@@ -34,7 +34,7 @@ import {
   isRequestBodyLimitError,
   logTypingFailure,
   readRequestBodyWithLimit,
-  type OpenClawConfig,
+  type AlienConfig,
   type ReplyPayload,
   type RuntimeEnv,
 } from "./runtime-api.js";
@@ -54,7 +54,7 @@ import {
 
 type SlashHttpHandlerParams = {
   account: ResolvedMattermostAccount;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   runtime: RuntimeEnv;
   /** Commands registered or reconciled during monitor startup. */
   registeredCommands: readonly MattermostRegisteredCommand[];
@@ -429,7 +429,7 @@ type SlashInvocationAuth = {
 
 async function authorizeSlashInvocation(params: {
   account: ResolvedMattermostAccount;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   client: ReturnType<typeof createMattermostClient>;
   commandText: string;
   channelId: string;
@@ -697,7 +697,7 @@ export function createSlashCommandHttpHandler(params: SlashHttpHandlerParams) {
 
 async function handleSlashCommandAsync(params: {
   account: ResolvedMattermostAccount;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   runtime: RuntimeEnv;
   client: ReturnType<typeof createMattermostClient>;
   commandText: string;

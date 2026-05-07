@@ -4,9 +4,9 @@ import {
   type RealtimeTranscriptionProviderPlugin,
   type RealtimeTranscriptionSession,
   type RealtimeTranscriptionSessionCreateRequest,
-} from "openclaw/plugin-sdk/realtime-transcription";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/realtime-transcription";
+import { normalizeResolvedSecretInputString } from "alien/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { DEFAULT_DEEPGRAM_AUDIO_BASE_URL, DEFAULT_DEEPGRAM_AUDIO_MODEL } from "./audio.js";
 
 type DeepgramRealtimeTranscriptionEncoding = "linear16" | "mulaw" | "alaw";

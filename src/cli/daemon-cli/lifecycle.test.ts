@@ -154,8 +154,8 @@ describe("runDaemonRestart health checks", () => {
   });
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["OPENCLAW_CONTAINER_HINT", "OPENCLAW_PROFILE"]);
-    delete process.env.OPENCLAW_CONTAINER_HINT;
+    envSnapshot = captureEnv(["ALIEN_CONTAINER_HINT", "ALIEN_PROFILE"]);
+    delete process.env.ALIEN_CONTAINER_HINT;
     service.readCommand.mockReset();
     service.restart.mockReset();
     runServiceStart.mockReset();
@@ -178,7 +178,7 @@ describe("runDaemonRestart health checks", () => {
     repairLoadedGatewayServiceForStart.mockReset();
 
     service.readCommand.mockResolvedValue({
-      programArguments: ["openclaw", "gateway", "--port", "18789"],
+      programArguments: ["alien", "gateway", "--port", "18789"],
       environment: {},
     });
     service.restart.mockResolvedValue({ outcome: "completed" });
@@ -301,7 +301,7 @@ describe("runDaemonRestart health checks", () => {
         await params.repairLoadedService?.({
           json: true,
           stdout: process.stdout,
-          state: { command: { environment: { OPENCLAW_SERVICE_VERSION: "2026.4.24" } } },
+          state: { command: { environment: { ALIEN_SERVICE_VERSION: "2026.4.24" } } },
           issues: [{ code: "version-mismatch", message: "old service" }],
         });
       },
@@ -315,7 +315,7 @@ describe("runDaemonRestart health checks", () => {
         json: true,
         state: expect.objectContaining({
           command: expect.objectContaining({
-            environment: { OPENCLAW_SERVICE_VERSION: "2026.4.24" },
+            environment: { ALIEN_SERVICE_VERSION: "2026.4.24" },
           }),
         }),
         issues: [expect.objectContaining({ code: "version-mismatch" })],
@@ -381,8 +381,8 @@ describe("runDaemonRestart health checks", () => {
     await expect(runDaemonRestart({ json: true })).rejects.toMatchObject({
       message: "Gateway restart timed out after 60s waiting for health checks.",
       hints: [
-        formatCliCommand("openclaw gateway status --deep"),
-        formatCliCommand("openclaw doctor"),
+        formatCliCommand("alien gateway status --deep"),
+        formatCliCommand("alien doctor"),
       ],
     });
     expect(terminateStaleGatewayPids).not.toHaveBeenCalled();
@@ -426,8 +426,8 @@ describe("runDaemonRestart health checks", () => {
       message:
         "Gateway restart failed after 13s: service stayed stopped and health checks never came up.",
       hints: [
-        formatCliCommand("openclaw gateway status --deep"),
-        formatCliCommand("openclaw doctor"),
+        formatCliCommand("alien gateway status --deep"),
+        formatCliCommand("alien doctor"),
       ],
     });
     expect(terminateStaleGatewayPids).not.toHaveBeenCalled();

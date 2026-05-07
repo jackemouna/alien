@@ -3,11 +3,11 @@ summary: "Pairing overview: approve who can DM you + which nodes can join"
 read_when:
   - Setting up DM access control
   - Pairing a new iOS/Android node
-  - Reviewing OpenClaw security posture
+  - Reviewing Alien security posture
 title: "Pairing"
 ---
 
-"Pairing" is OpenClaw's explicit access approval step.
+"Pairing" is Alien's explicit access approval step.
 It is used in two places:
 
 1. **DM pairing** (who is allowed to talk to the bot)
@@ -35,8 +35,8 @@ Pairing codes:
 ### Approve a sender
 
 ```bash
-openclaw pairing list telegram
-openclaw pairing approve telegram <CODE>
+alien pairing list telegram
+alien pairing approve telegram <CODE>
 ```
 
 If no command owner is configured yet, approving a DM pairing code also bootstraps
@@ -45,7 +45,7 @@ That gives first-time setups an explicit owner for privileged commands and exec
 approval prompts. After an owner exists, later pairing approvals only grant DM
 access; they do not add more owners.
 
-Supported channels: `bluebubbles`, `discord`, `feishu`, `googlechat`, `imessage`, `irc`, `line`, `matrix`, `mattermost`, `msteams`, `nextcloud-talk`, `nostr`, `openclaw-weixin`, `signal`, `slack`, `synology-chat`, `telegram`, `twitch`, `whatsapp`, `zalo`, `zalouser`.
+Supported channels: `bluebubbles`, `discord`, `feishu`, `googlechat`, `imessage`, `irc`, `line`, `matrix`, `mattermost`, `msteams`, `nextcloud-talk`, `nostr`, `alien-weixin`, `signal`, `slack`, `synology-chat`, `telegram`, `twitch`, `whatsapp`, `zalo`, `zalouser`.
 
 ### Reusable sender groups
 
@@ -78,7 +78,7 @@ Access groups are documented in detail here: [Access groups](/channels/access-gr
 
 ### Where the state lives
 
-Stored under `~/.openclaw/credentials/`:
+Stored under `~/.alien/credentials/`:
 
 - Pending requests: `<channel>-pairing.json`
 - Approved allowlist store:
@@ -112,7 +112,7 @@ If you use the `device-pair` plugin, you can do first-time device pairing entire
 
 1. In Telegram, message your bot: `/pair`
 2. The bot replies with two messages: an instruction message and a separate **setup code** message (easy to copy/paste in Telegram).
-3. On your phone, open the OpenClaw iOS app → Settings → Gateway.
+3. On your phone, open the Alien iOS app → Settings → Gateway.
 4. Scan the QR code or paste the setup code and connect.
 5. Back in Telegram: `/pair pending` (review request IDs, role, and scopes), then approve.
 
@@ -143,9 +143,9 @@ fail closed before QR/setup-code issuance.
 ### Approve a node device
 
 ```bash
-openclaw devices list
-openclaw devices approve <requestId>
-openclaw devices reject <requestId>
+alien devices list
+alien devices approve <requestId>
+alien devices reject <requestId>
 ```
 
 When an explicit approval is denied because the approving paired-device session
@@ -160,7 +160,7 @@ role/scopes/public key), the previous pending request is superseded and a new
 `requestId` is created.
 
 <Note>
-An already paired device does not get broader access silently. If it reconnects asking for more scopes or a broader role, OpenClaw keeps the existing approval as-is and creates a fresh pending upgrade request. Use `openclaw devices list` to compare the currently approved access with the newly requested access before you approve.
+An already paired device does not get broader access silently. If it reconnects asking for more scopes or a broader role, Alien keeps the existing approval as-is and creates a fresh pending upgrade request. Use `alien devices list` to compare the currently approved access with the newly requested access before you approve.
 </Note>
 
 ### Optional trusted-CIDR node auto-approve
@@ -187,14 +187,14 @@ approval.
 
 ### Node pairing state storage
 
-Stored under `~/.openclaw/devices/`:
+Stored under `~/.alien/devices/`:
 
 - `pending.json` (short-lived; pending requests expire)
 - `paired.json` (paired devices + tokens)
 
 ### Notes
 
-- The legacy `node.pair.*` API (CLI: `openclaw nodes pending|approve|reject|remove|rename`) is a
+- The legacy `node.pair.*` API (CLI: `alien nodes pending|approve|reject|remove|rename`) is a
   separate gateway-owned pairing store. WS nodes still require device pairing.
 - The pairing record is the durable source of truth for approved roles. Active
   device tokens stay bounded to that approved role set; a stray token entry

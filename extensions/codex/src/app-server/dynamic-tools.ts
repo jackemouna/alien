@@ -16,7 +16,7 @@ import {
   type HeartbeatToolResponse,
   type MessagingToolSend,
   wrapToolWithBeforeToolCallHook,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import {
   type CodexDynamicToolCallOutputContentItem,
   type CodexDynamicToolCallParams,
@@ -91,7 +91,7 @@ export function createCodexDynamicToolBridge(params: {
       const tool = toolMap.get(call.tool);
       if (!tool) {
         return {
-          contentItems: [{ type: "inputText", text: `Unknown OpenClaw tool: ${call.tool}` }],
+          contentItems: [{ type: "inputText", text: `Unknown Alien tool: ${call.tool}` }],
           success: false,
         };
       }

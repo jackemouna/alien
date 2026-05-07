@@ -1,10 +1,10 @@
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
 export {
   definePluginEntry,
   type AnyAgentTool,
-  type OpenClawPluginApi,
-  type OpenClawPluginConfigSchema,
-  type OpenClawPluginToolContext,
+  type AlienPluginApi,
+  type AlienPluginConfigSchema,
+  type AlienPluginToolContext,
   type PluginLogger,
-} from "openclaw/plugin-sdk/plugin-entry";
-export { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+} from "alien/plugin-sdk/plugin-entry";
+export { resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";

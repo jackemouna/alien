@@ -35,8 +35,8 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
-    resolveAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
-    resolveAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/openclaw-agent/workspace"),
+    resolveAgentDir: vi.fn().mockReturnValue("/tmp/alien-agent"),
+    resolveAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/alien-agent/workspace"),
     resolveDefaultAgentId: vi.fn().mockReturnValue("main"),
     resolveAgentExplicitModelPrimary: vi.fn().mockReturnValue(undefined),
     resolveAgentEffectiveModelPrimary: vi.fn().mockReturnValue(undefined),
@@ -51,7 +51,7 @@ const mocks = vi.hoisted(() => {
     loadPersistedAuthProfileStore: vi.fn().mockReturnValue(store),
     resolveAuthProfileDisplayLabel: vi.fn(({ profileId }: { profileId: string }) => profileId),
     resolveAuthStorePathForDisplay: vi.fn(
-      (agentDir?: string) => `${agentDir ?? "/tmp/openclaw-agent"}/auth-profiles.json`,
+      (agentDir?: string) => `${agentDir ?? "/tmp/alien-agent"}/auth-profiles.json`,
     ),
     resolveProfileUnusableUntilForDisplay: vi.fn().mockReturnValue(undefined),
     resolveEnvApiKey: vi.fn((provider: string) => {
@@ -120,7 +120,7 @@ const mocks = vi.hoisted(() => {
     getShellEnvAppliedKeys: vi.fn().mockReturnValue(["OPENAI_API_KEY", "ANTHROPIC_OAUTH_TOKEN"]),
     shouldEnableShellEnvFallback: vi.fn().mockReturnValue(true),
     createConfigIO: vi.fn().mockReturnValue({
-      configPath: "/tmp/openclaw-dev/openclaw.json",
+      configPath: "/tmp/alien-dev/alien.json",
     }),
     loadConfig: vi.fn().mockReturnValue({
       agents: {
@@ -148,7 +148,7 @@ vi.mock("../../agents/agent-scope.js", () => ({
   listAgentIds: mocks.listAgentIds,
 }));
 vi.mock("../../agents/workspace.js", () => ({
-  resolveDefaultAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/openclaw-agent/workspace"),
+  resolveDefaultAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/alien-agent/workspace"),
 }));
 vi.mock("../../agents/auth-profiles/display.js", () => ({
   resolveAuthProfileDisplayLabel: mocks.resolveAuthProfileDisplayLabel,
@@ -296,7 +296,7 @@ async function withAgentScopeOverrides<T>(
     if (originalAgentDir) {
       mocks.resolveAgentDir.mockImplementation(originalAgentDir);
     } else {
-      mocks.resolveAgentDir.mockReturnValue("/tmp/openclaw-agent");
+      mocks.resolveAgentDir.mockReturnValue("/tmp/alien-agent");
     }
   }
 }
@@ -309,8 +309,8 @@ describe("modelsStatusCommand auth overview", () => {
     expect(mocks.resolveAgentDir).toHaveBeenCalledWith(expect.anything(), "main");
     expect(mocks.ensureAuthProfileStore).toHaveBeenCalled();
     expect(payload.defaultModel).toBe("anthropic/claude-opus-4-6");
-    expect(payload.configPath).toBe("/tmp/openclaw-dev/openclaw.json");
-    expect(payload.auth.storePath).toBe("/tmp/openclaw-agent/auth-profiles.json");
+    expect(payload.configPath).toBe("/tmp/alien-dev/alien.json");
+    expect(payload.auth.storePath).toBe("/tmp/alien-agent/auth-profiles.json");
     expect(payload.auth.shellEnvFallback.enabled).toBe(true);
     expect(payload.auth.shellEnvFallback.appliedKeys).toContain("OPENAI_API_KEY");
     expect(payload.auth.missingProvidersInUse).toEqual([]);
@@ -358,26 +358,26 @@ describe("modelsStatusCommand auth overview", () => {
     ).toBe(true);
   });
 
-  it("honors OPENCLAW_AGENT_DIR when no --agent override is provided", async () => {
+  it("honors ALIEN_AGENT_DIR when no --agent override is provided", async () => {
     const localRuntime = createRuntime();
-    const previous = process.env.OPENCLAW_AGENT_DIR;
-    process.env.OPENCLAW_AGENT_DIR = "/tmp/openclaw-isolated-agent";
+    const previous = process.env.ALIEN_AGENT_DIR;
+    process.env.ALIEN_AGENT_DIR = "/tmp/alien-isolated-agent";
     mocks.resolveAgentDir.mockClear();
     try {
       await modelsStatusCommand({ json: true }, localRuntime as never);
     } finally {
       if (previous === undefined) {
-        delete process.env.OPENCLAW_AGENT_DIR;
+        delete process.env.ALIEN_AGENT_DIR;
       } else {
-        process.env.OPENCLAW_AGENT_DIR = previous;
+        process.env.ALIEN_AGENT_DIR = previous;
       }
     }
 
     expect(mocks.resolveAgentDir).not.toHaveBeenCalled();
-    expect(mocks.ensureAuthProfileStore).toHaveBeenCalledWith("/tmp/openclaw-isolated-agent");
+    expect(mocks.ensureAuthProfileStore).toHaveBeenCalledWith("/tmp/alien-isolated-agent");
     const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
-    expect(payload.agentDir).toBe("/tmp/openclaw-isolated-agent");
-    expect(payload.auth.storePath).toBe("/tmp/openclaw-isolated-agent/auth-profiles.json");
+    expect(payload.agentDir).toBe("/tmp/alien-isolated-agent");
+    expect(payload.auth.storePath).toBe("/tmp/alien-isolated-agent/auth-profiles.json");
   });
 
   it("uses agent overrides and reports sources", async () => {
@@ -386,14 +386,14 @@ describe("modelsStatusCommand auth overview", () => {
       {
         primary: "openai/gpt-4",
         fallbacks: ["openai/gpt-3.5"],
-        agentDir: "/tmp/openclaw-agent-custom",
+        agentDir: "/tmp/alien-agent-custom",
       },
       async () => {
         await modelsStatusCommand({ json: true, agent: "Jeremiah" }, localRuntime as never);
         expect(mocks.resolveAgentDir).toHaveBeenCalledWith(expect.anything(), "jeremiah");
         const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
         expect(payload.agentId).toBe("jeremiah");
-        expect(payload.agentDir).toBe("/tmp/openclaw-agent-custom");
+        expect(payload.agentDir).toBe("/tmp/alien-agent-custom");
         expect(payload.defaultModel).toBe("openai/gpt-4");
         expect(payload.fallbacks).toEqual(["openai/gpt-3.5"]);
         expect(payload.modelConfig).toEqual({
@@ -408,7 +408,7 @@ describe("modelsStatusCommand auth overview", () => {
         ).find((provider) => provider.provider === "openai-codex");
         expect(openAiCodex?.effective).toEqual({
           kind: "profiles",
-          detail: "/tmp/openclaw-agent-custom/auth-profiles.json",
+          detail: "/tmp/alien-agent-custom/auth-profiles.json",
         });
       },
     );
@@ -604,7 +604,7 @@ describe("modelsStatusCommand auth overview", () => {
     });
     mocks.resolveEnvApiKey.mockImplementation(
       (provider: string, _env?: NodeJS.ProcessEnv, options?: { workspaceDir?: string }) =>
-        provider === "workspace-cloud" && options?.workspaceDir === "/tmp/openclaw-agent/workspace"
+        provider === "workspace-cloud" && options?.workspaceDir === "/tmp/alien-agent/workspace"
           ? {
               apiKey: "workspace-cloud-local-credentials",
               source: "workspace cloud credentials",

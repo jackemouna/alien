@@ -1,12 +1,12 @@
-import { resolveApprovalOverGateway } from "openclaw/plugin-sdk/approval-gateway-runtime";
-import type { ExecApprovalReplyDecision } from "openclaw/plugin-sdk/approval-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { isApprovalNotFoundError } from "openclaw/plugin-sdk/error-runtime";
+import { resolveApprovalOverGateway } from "alien/plugin-sdk/approval-gateway-runtime";
+import type { ExecApprovalReplyDecision } from "alien/plugin-sdk/approval-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { isApprovalNotFoundError } from "alien/plugin-sdk/error-runtime";
 
 export { isApprovalNotFoundError };
 
 export async function resolveMatrixApproval(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   approvalId: string;
   decision: ExecApprovalReplyDecision;
   senderId?: string | null;

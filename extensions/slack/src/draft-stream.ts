@@ -1,7 +1,7 @@
 import type { Block, KnownBlock } from "@slack/web-api";
-import { createDraftStreamLoop } from "openclaw/plugin-sdk/channel-lifecycle";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { createDraftStreamLoop } from "alien/plugin-sdk/channel-lifecycle";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import { deleteSlackMessage, editSlackMessage } from "./actions.js";
 import { SLACK_TEXT_LIMIT } from "./limits.js";
 import { sendMessageSlack } from "./send.js";
@@ -29,7 +29,7 @@ export type SlackDraftStreamUpdate =
 
 export function createSlackDraftStream(params: {
   target: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   token: string;
   accountId?: string;
   maxChars?: number;

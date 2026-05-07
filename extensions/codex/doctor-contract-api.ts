@@ -1,4 +1,4 @@
-import type { DoctorSessionRouteStateOwner } from "openclaw/plugin-sdk/runtime-doctor";
+import type { DoctorSessionRouteStateOwner } from "alien/plugin-sdk/runtime-doctor";
 
 export const sessionRouteStateOwners: DoctorSessionRouteStateOwner[] = [
   {

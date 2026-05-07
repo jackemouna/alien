@@ -6,9 +6,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-image.sh"
 
-IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-commitments-safety-e2e" OPENCLAW_COMMITMENTS_SAFETY_E2E_IMAGE)"
-CONTAINER_NAME="openclaw-commitments-safety-e2e-$$"
-RUN_LOG="$(mktemp -t openclaw-commitments-safety-log.XXXXXX)"
+IMAGE_NAME="$(docker_e2e_resolve_image "alien-commitments-safety-e2e" ALIEN_COMMITMENTS_SAFETY_E2E_IMAGE)"
+CONTAINER_NAME="alien-commitments-safety-e2e-$$"
+RUN_LOG="$(mktemp -t alien-commitments-safety-log.XXXXXX)"
 
 cleanup() {
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true

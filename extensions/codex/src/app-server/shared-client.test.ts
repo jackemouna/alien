@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   ),
   resolveManagedCodexAppServerStartOptions: vi.fn(async (startOptions) => startOptions),
   embeddedAgentLog: { debug: vi.fn(), warn: vi.fn() },
-  resolveDefaultAgentDir: vi.fn(() => "/tmp/openclaw-agent"),
+  resolveDefaultAgentDir: vi.fn(() => "/tmp/alien-agent"),
 }));
 
 vi.mock("./auth-bridge.js", () => ({
@@ -24,12 +24,12 @@ vi.mock("./managed-binary.js", () => ({
   resolveManagedCodexAppServerStartOptions: mocks.resolveManagedCodexAppServerStartOptions,
 }));
 
-vi.mock("openclaw/plugin-sdk/agent-harness-runtime", () => ({
+vi.mock("alien/plugin-sdk/agent-harness-runtime", () => ({
   embeddedAgentLog: mocks.embeddedAgentLog,
-  OPENCLAW_VERSION: "test",
+  ALIEN_VERSION: "test",
 }));
 
-vi.mock("openclaw/plugin-sdk/agent-runtime", () => ({
+vi.mock("alien/plugin-sdk/agent-runtime", () => ({
   resolveDefaultAgentDir: mocks.resolveDefaultAgentDir,
 }));
 
@@ -91,7 +91,7 @@ describe("shared Codex app-server client", () => {
     // Model discovery uses the shared-client path, which owns child teardown
     // when initialize discovers an unsupported app-server.
     const listPromise = listCodexAppServerModels({ timeoutMs: 1000 });
-    await sendInitializeResult(harness, "openclaw/0.117.9 (macOS; test)");
+    await sendInitializeResult(harness, "alien/0.117.9 (macOS; test)");
 
     await expect(listPromise).rejects.toThrow(
       `Codex app-server ${MIN_CODEX_APP_SERVER_VERSION} or newer is required`,
@@ -114,7 +114,7 @@ describe("shared Codex app-server client", () => {
     expect(first.process.kill).toHaveBeenCalledTimes(1);
 
     const secondList = listCodexAppServerModels({ timeoutMs: 1000 });
-    await sendInitializeResult(second, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(second, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(second);
 
     await expect(secondList).resolves.toEqual({ models: [] });
@@ -139,7 +139,7 @@ describe("shared Codex app-server client", () => {
       timeoutMs: 1000,
       authProfileId: "openai-codex:work",
     });
-    await sendInitializeResult(harness, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(harness, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(harness);
 
     await expect(listPromise).resolves.toEqual({ models: [] });
@@ -165,7 +165,7 @@ describe("shared Codex app-server client", () => {
       timeoutMs: 1000,
       config,
     });
-    await sendInitializeResult(harness, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(harness, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(harness);
 
     await expect(listPromise).resolves.toEqual({ models: [] });
@@ -193,21 +193,21 @@ describe("shared Codex app-server client", () => {
     const listPromise = listCodexAppServerModels({
       timeoutMs: 1000,
       authProfileId: "openai-codex:work",
-      agentDir: "/tmp/openclaw-agent-nova",
+      agentDir: "/tmp/alien-agent-nova",
     });
-    await sendInitializeResult(harness, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(harness, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(harness);
 
     await expect(listPromise).resolves.toEqual({ models: [] });
     expect(mocks.bridgeCodexAppServerStartOptions).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw-agent-nova",
+        agentDir: "/tmp/alien-agent-nova",
         authProfileId: "openai-codex:work",
       }),
     );
     expect(mocks.applyCodexAppServerAuthProfile).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw-agent-nova",
+        agentDir: "/tmp/alien-agent-nova",
         authProfileId: "openai-codex:work",
       }),
     );
@@ -218,12 +218,12 @@ describe("shared Codex app-server client", () => {
     const startSpy = vi.spyOn(CodexAppServerClient, "start").mockReturnValue(harness.client);
     mocks.resolveManagedCodexAppServerStartOptions.mockImplementationOnce(async (startOptions) => ({
       ...startOptions,
-      command: "/cache/openclaw/codex",
+      command: "/cache/alien/codex",
       commandSource: "resolved-managed",
     }));
 
     const listPromise = listCodexAppServerModels({ timeoutMs: 1000 });
-    await sendInitializeResult(harness, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(harness, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(harness);
 
     await expect(listPromise).resolves.toEqual({ models: [] });
@@ -236,14 +236,14 @@ describe("shared Codex app-server client", () => {
     expect(mocks.bridgeCodexAppServerStartOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         startOptions: expect.objectContaining({
-          command: "/cache/openclaw/codex",
+          command: "/cache/alien/codex",
           commandSource: "resolved-managed",
         }),
       }),
     );
     expect(startSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        command: "/cache/openclaw/codex",
+        command: "/cache/alien/codex",
         commandSource: "resolved-managed",
       }),
     );
@@ -268,7 +268,7 @@ describe("shared Codex app-server client", () => {
         headers: {},
       },
     });
-    await sendInitializeResult(first, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(first, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(first);
     await expect(firstList).resolves.toEqual({ models: [] });
 
@@ -283,7 +283,7 @@ describe("shared Codex app-server client", () => {
         headers: {},
       },
     });
-    await sendInitializeResult(second, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(second, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(second);
     await expect(secondList).resolves.toEqual({ models: [] });
 
@@ -327,7 +327,7 @@ describe("shared Codex app-server client", () => {
 
     await expect(firstFailure).resolves.toBeInstanceOf(Error);
 
-    await sendInitializeResult(second, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(second, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(second);
     await expect(secondList).resolves.toEqual({ models: [] });
 
@@ -342,7 +342,7 @@ describe("shared Codex app-server client", () => {
       .mockReturnValueOnce(second.client);
 
     const firstList = listCodexAppServerModels({ timeoutMs: 1000 });
-    await sendInitializeResult(first, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(first, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(first);
     await expect(firstList).resolves.toEqual({ models: [] });
 
@@ -350,7 +350,7 @@ describe("shared Codex app-server client", () => {
     expect(first.process.kill).toHaveBeenCalledWith("SIGTERM");
 
     const secondList = listCodexAppServerModels({ timeoutMs: 1000 });
-    await sendInitializeResult(second, "openclaw/0.125.0 (macOS; test)");
+    await sendInitializeResult(second, "alien/0.125.0 (macOS; test)");
     await sendEmptyModelList(second);
     await expect(secondList).resolves.toEqual({ models: [] });
 
@@ -369,7 +369,7 @@ describe("shared Codex app-server client", () => {
         const message = JSON.parse(rawDataToText(data)) as { id?: number; method?: string };
         if (message.method === "initialize") {
           socket.send(
-            JSON.stringify({ id: message.id, result: { userAgent: "openclaw/0.125.0" } }),
+            JSON.stringify({ id: message.id, result: { userAgent: "alien/0.125.0" } }),
           );
           return;
         }

@@ -4,8 +4,8 @@ import path from "node:path";
 import {
   clearRuntimeAuthProfileStoreSnapshots,
   ensureAuthProfileStore,
-} from "openclaw/plugin-sdk/agent-runtime";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+} from "alien/plugin-sdk/agent-runtime";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -31,7 +31,7 @@ afterEach(async () => {
 });
 
 async function createAgentDir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-github-copilot-test-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-github-copilot-test-"));
   tempDirs.push(dir);
   return dir;
 }

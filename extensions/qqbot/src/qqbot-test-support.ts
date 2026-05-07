@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
-export function makeQqbotSecretRefConfig(): OpenClawConfig {
+export function makeQqbotSecretRefConfig(): AlienConfig {
   return {
     channels: {
       qqbot: {
@@ -12,10 +12,10 @@ export function makeQqbotSecretRefConfig(): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
-export function makeQqbotDefaultAccountConfig(): OpenClawConfig {
+export function makeQqbotDefaultAccountConfig(): AlienConfig {
   return {
     channels: {
       qqbot: {
@@ -25,5 +25,5 @@ export function makeQqbotDefaultAccountConfig(): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }

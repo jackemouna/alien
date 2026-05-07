@@ -6,8 +6,8 @@ read_when:
 title: Yuanbao
 ---
 
-Tencent Yuanbao is Tencent's AI assistant platform. The OpenClaw channel plugin
-connects Yuanbao bots to OpenClaw over WebSocket so they can interact with users
+Tencent Yuanbao is Tencent's AI assistant platform. The Alien channel plugin
+connects Yuanbao bots to Alien over WebSocket so they can interact with users
 through direct messages and group chats.
 
 **Status:** production-ready for bot DMs + group chats. WebSocket is the only supported connection mode.
@@ -16,19 +16,19 @@ through direct messages and group chats.
 
 ## Quick start
 
-> **Requires OpenClaw 2026.4.10 or above.** Run `openclaw --version` to check. Upgrade with `openclaw update`.
+> **Requires Alien 2026.4.10 or above.** Run `alien --version` to check. Upgrade with `alien update`.
 
 <Steps>
   <Step title="Add the Yuanbao channel with your credentials">
   ```bash
-  openclaw channels add --channel yuanbao --token "appKey:appSecret"
+  alien channels add --channel yuanbao --token "appKey:appSecret"
   ```
   The `--token` value uses colon-separated `appKey:appSecret` format. You can obtain these from the Yuanbao app by creating a robot in your application settings.
   </Step>
 
   <Step title="After setup completes, restart the gateway to apply the changes">
   ```bash
-  openclaw gateway restart
+  alien gateway restart
   ```
   </Step>
 </Steps>
@@ -38,7 +38,7 @@ through direct messages and group chats.
 You can also use the interactive wizard:
 
 ```bash
-openclaw channels login --channel yuanbao
+alien channels login --channel yuanbao
 ```
 
 Follow the prompts to enter your App ID and App Secret.
@@ -59,8 +59,8 @@ Configure `dmPolicy` to control who can DM the bot:
 **Approve a pairing request:**
 
 ```bash
-openclaw pairing list yuanbao
-openclaw pairing approve yuanbao <CODE>
+alien pairing list yuanbao
+alien pairing approve yuanbao <CODE>
 ```
 
 ### Group chats
@@ -159,7 +159,7 @@ Replying to the bot's message in a group chat is treated as an implicit mention.
 | `/status`  | Show bot status             |
 | `/new`     | Start a new session         |
 | `/stop`    | Stop the current run        |
-| `/restart` | Restart OpenClaw            |
+| `/restart` | Restart Alien            |
 | `/compact` | Compact the session context |
 
 > Yuanbao supports native slash-command menus. Commands are synced to the platform automatically when the gateway starts.
@@ -172,14 +172,14 @@ Replying to the bot's message in a group chat is treated as an implicit mention.
 
 1. Ensure the bot is added to the group
 2. Ensure you @mention the bot (required by default)
-3. Check logs: `openclaw logs --follow`
+3. Check logs: `alien logs --follow`
 
 ### Bot does not receive messages
 
 1. Ensure the bot is created and approved in the Yuanbao app
 2. Ensure `appKey` and `appSecret` are correctly configured
-3. Ensure the gateway is running: `openclaw gateway status`
-4. Check logs: `openclaw logs --follow`
+3. Ensure the gateway is running: `alien gateway status`
+4. Check logs: `alien logs --follow`
 
 ### Bot sends empty or fallback replies
 
@@ -191,7 +191,7 @@ Replying to the bot's message in a group chat is treated as an implicit mention.
 
 1. Reset the App Secret in YuanBao APP
 2. Update the value in your config
-3. Restart the gateway: `openclaw gateway restart`
+3. Restart the gateway: `alien gateway restart`
 
 ---
 

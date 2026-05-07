@@ -1,5 +1,5 @@
-import type { MessagePresentation } from "openclaw/plugin-sdk/interactive-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { MessagePresentation } from "alien/plugin-sdk/interactive-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 export function buildMSTeamsPresentationCard(params: {
   presentation: MessagePresentation;

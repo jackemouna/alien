@@ -1,8 +1,8 @@
-import { resolveChannelGroupRequireMention } from "openclaw/plugin-sdk/channel-policy";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/core";
+import { resolveChannelGroupRequireMention } from "alien/plugin-sdk/channel-policy";
+import type { AlienConfig } from "alien/plugin-sdk/core";
 
 type GoogleChatGroupContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   groupId?: string | null;
 };

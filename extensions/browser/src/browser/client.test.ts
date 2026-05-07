@@ -231,7 +231,7 @@ describe("browser client", () => {
             ok: true,
             json: async () => ({
               ok: true,
-              profile: "openclaw",
+              profile: "alien",
               transport: "cdp",
               checks: [],
               status: {
@@ -268,13 +268,13 @@ describe("browser client", () => {
     });
     await expect(browserDoctor("http://127.0.0.1:18791")).resolves.toMatchObject({
       ok: true,
-      profile: "openclaw",
+      profile: "alien",
     });
     await expect(
-      browserDoctor("http://127.0.0.1:18791", { profile: "openclaw", deep: true }),
+      browserDoctor("http://127.0.0.1:18791", { profile: "alien", deep: true }),
     ).resolves.toMatchObject({
       ok: true,
-      profile: "openclaw",
+      profile: "alien",
     });
 
     await expect(browserTabs("http://127.0.0.1:18791")).resolves.toHaveLength(1);
@@ -316,7 +316,7 @@ describe("browser client", () => {
 
     expect(calls.some((c) => c.url.endsWith("/tabs"))).toBe(true);
     expect(calls.some((c) => c.url.endsWith("/doctor"))).toBe(true);
-    expect(calls.some((c) => c.url.endsWith("/doctor?profile=openclaw&deep=true"))).toBe(true);
+    expect(calls.some((c) => c.url.endsWith("/doctor?profile=alien&deep=true"))).toBe(true);
     const open = calls.find((c) => c.url.endsWith("/tabs/open"));
     expect(open?.init?.method).toBe("POST");
 

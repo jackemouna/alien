@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { inspectDiscordAccount } from "./account-inspect.js";
 
 const DEFAULT_DISCORD_ACCENT_COLOR = "#5865F2";
 
 type ResolveDiscordAccentColorParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 };
 

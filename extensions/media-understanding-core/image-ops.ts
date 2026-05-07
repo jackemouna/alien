@@ -1,4 +1,4 @@
-import type { ImageMetadata } from "openclaw/plugin-sdk/media-runtime";
+import type { ImageMetadata } from "alien/plugin-sdk/media-runtime";
 import type sharpImport from "sharp";
 
 type SharpFactory = typeof sharpImport;

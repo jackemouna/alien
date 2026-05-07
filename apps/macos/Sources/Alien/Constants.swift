@@ -1,0 +1,51 @@
+import Foundation
+
+// Stable identifier used for both the macOS LaunchAgent label and Nix-managed defaults suite.
+// nix-alien writes app defaults into this suite to survive app bundle identifier churn.
+let launchdLabel = "ai.alien.mac"
+let gatewayLaunchdLabel = "ai.alien.gateway"
+let onboardingVersionKey = "alien.onboardingVersion"
+let onboardingSeenKey = "alien.onboardingSeen"
+let currentOnboardingVersion = 7
+let pauseDefaultsKey = "alien.pauseEnabled"
+let iconAnimationsEnabledKey = "alien.iconAnimationsEnabled"
+let swabbleEnabledKey = "alien.swabbleEnabled"
+let swabbleTriggersKey = "alien.swabbleTriggers"
+let voiceWakeTriggerChimeKey = "alien.voiceWakeTriggerChime"
+let voiceWakeSendChimeKey = "alien.voiceWakeSendChime"
+let showDockIconKey = "alien.showDockIcon"
+let defaultVoiceWakeTriggers = ["alien"]
+let voiceWakeMaxWords = 32
+let voiceWakeMaxWordLength = 64
+let voiceWakeMicKey = "alien.voiceWakeMicID"
+let voiceWakeMicNameKey = "alien.voiceWakeMicName"
+let voiceWakeLocaleKey = "alien.voiceWakeLocaleID"
+let voiceWakeAdditionalLocalesKey = "alien.voiceWakeAdditionalLocaleIDs"
+let voicePushToTalkEnabledKey = "alien.voicePushToTalkEnabled"
+let voiceWakeTriggersTalkModeKey = "alien.voiceWakeTriggersTalkMode"
+let talkEnabledKey = "alien.talkEnabled"
+let talkPhaseSoundsEnabledKey = "alien.talkPhaseSoundsEnabled"
+let talkShiftToStopEnabledKey = "alien.talkShiftToStopEnabled"
+let iconOverrideKey = "alien.iconOverride"
+let connectionModeKey = "alien.connectionMode"
+let remoteTargetKey = "alien.remoteTarget"
+let remoteIdentityKey = "alien.remoteIdentity"
+let remoteProjectRootKey = "alien.remoteProjectRoot"
+let remoteCliPathKey = "alien.remoteCliPath"
+let canvasEnabledKey = "alien.canvasEnabled"
+let cameraEnabledKey = "alien.cameraEnabled"
+let systemRunPolicyKey = "alien.systemRunPolicy"
+let systemRunAllowlistKey = "alien.systemRunAllowlist"
+let systemRunEnabledKey = "alien.systemRunEnabled"
+let locationModeKey = "alien.locationMode"
+let locationPreciseKey = "alien.locationPreciseEnabled"
+let peekabooBridgeEnabledKey = "alien.peekabooBridgeEnabled"
+let deepLinkKeyKey = "alien.deepLinkKey"
+let modelCatalogPathKey = "alien.modelCatalogPath"
+let modelCatalogReloadKey = "alien.modelCatalogReload"
+let cliInstallPromptedVersionKey = "alien.cliInstallPromptedVersion"
+let heartbeatsEnabledKey = "alien.heartbeatsEnabled"
+let debugPaneEnabledKey = "alien.debugPaneEnabled"
+let debugFileLogEnabledKey = "alien.debug.fileLogEnabled"
+let appLogLevelKey = "alien.debug.appLogLevel"
+let voiceWakeSupported: Bool = ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 26

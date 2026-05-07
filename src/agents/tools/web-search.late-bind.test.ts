@@ -52,7 +52,7 @@ describe("web_search late-bound runtime fallback", () => {
       },
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.runWebSearch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -71,7 +71,7 @@ describe("web_search late-bound runtime fallback", () => {
       lateBindRuntimeConfig: true,
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.runWebSearch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -90,7 +90,7 @@ describe("web_search late-bound runtime fallback", () => {
       lateBindRuntimeConfig: true,
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.resolveManifestContractOwnerPluginId).toHaveBeenCalledWith(
       expect.objectContaining({ value: "brave" }),
@@ -107,7 +107,7 @@ describe("web_search late-bound runtime fallback", () => {
       lateBindRuntimeConfig: true,
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.resolveManifestContractOwnerPluginId).not.toHaveBeenCalled();
     expect(mocks.runWebSearch).toHaveBeenCalledWith(
@@ -116,7 +116,7 @@ describe("web_search late-bound runtime fallback", () => {
   });
 
   it("does not prefer runtime providers when the configured provider is a bundled manifest owner", async () => {
-    mocks.resolveManifestContractOwnerPluginId.mockReturnValue("openclaw-bundled-brave");
+    mocks.resolveManifestContractOwnerPluginId.mockReturnValue("alien-bundled-brave");
     const { createWebSearchTool } = await import("./web-search.js");
     const config = {
       tools: { web: { search: { provider: "brave" } } },
@@ -126,7 +126,7 @@ describe("web_search late-bound runtime fallback", () => {
       lateBindRuntimeConfig: true,
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.runWebSearch).toHaveBeenCalledWith(
       expect.objectContaining({ preferRuntimeProviders: false }),
@@ -154,7 +154,7 @@ describe("web_search late-bound runtime fallback", () => {
       },
     });
 
-    await tool?.execute("call-search", { query: "openclaw" }, undefined);
+    await tool?.execute("call-search", { query: "alien" }, undefined);
 
     expect(mocks.runWebSearch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -173,7 +173,7 @@ describe("web_search late-bound runtime fallback", () => {
       lateBindRuntimeConfig: true,
     });
 
-    await expect(tool?.execute("call-search", { query: "openclaw" }, undefined)).rejects.toThrow(
+    await expect(tool?.execute("call-search", { query: "alien" }, undefined)).rejects.toThrow(
       "web_search is disabled.",
     );
     expect(mocks.runWebSearch).not.toHaveBeenCalled();

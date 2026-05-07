@@ -1,12 +1,12 @@
 ---
-summary: "GLM model family overview and how to use it in OpenClaw"
+summary: "GLM model family overview and how to use it in Alien"
 read_when:
-  - You want GLM models in OpenClaw
+  - You want GLM models in Alien
   - You need the model naming convention and setup
 title: "GLM (Zhipu)"
 ---
 
-GLM is a model family (not a company) available through the [Z.AI](https://z.ai) platform. In OpenClaw, GLM models are accessed through the bundled `zai` provider with refs like `zai/glm-5.1`.
+GLM is a model family (not a company) available through the [Z.AI](https://z.ai) platform. In Alien, GLM models are accessed through the bundled `zai` provider with refs like `zai/glm-5.1`.
 
 | Property            | Value                                                                       |
 | ------------------- | --------------------------------------------------------------------------- |
@@ -36,23 +36,23 @@ GLM is a model family (not a company) available through the [Z.AI](https://z.ai)
     <CodeGroup>
 
 ```bash Auto-detect
-openclaw onboard --auth-choice zai-api-key
+alien onboard --auth-choice zai-api-key
 ```
 
 ```bash Coding Plan (global)
-openclaw onboard --auth-choice zai-coding-global
+alien onboard --auth-choice zai-coding-global
 ```
 
 ```bash Coding Plan (China)
-openclaw onboard --auth-choice zai-coding-cn
+alien onboard --auth-choice zai-coding-cn
 ```
 
 ```bash General API (global)
-openclaw onboard --auth-choice zai-global
+alien onboard --auth-choice zai-global
 ```
 
 ```bash General API (China)
-openclaw onboard --auth-choice zai-cn
+alien onboard --auth-choice zai-cn
 ```
 
     </CodeGroup>
@@ -60,12 +60,12 @@ openclaw onboard --auth-choice zai-cn
   </Step>
   <Step title="Set GLM as the default model">
     ```bash
-    openclaw config set agents.defaults.model.primary "zai/glm-5.1"
+    alien config set agents.defaults.model.primary "zai/glm-5.1"
     ```
   </Step>
   <Step title="Verify models are available">
     ```bash
-    openclaw models list --provider zai
+    alien models list --provider zai
     ```
   </Step>
 </Steps>
@@ -80,7 +80,7 @@ openclaw onboard --auth-choice zai-cn
 ```
 
 <Tip>
-  `zai-api-key` lets OpenClaw detect the matching Z.AI endpoint from the key shape and apply the correct base URL automatically. Use the explicit regional choices when you want to pin a specific Coding Plan or general API surface.
+  `zai-api-key` lets Alien detect the matching Z.AI endpoint from the key shape and apply the correct base URL automatically. Use the explicit regional choices when you want to pin a specific Coding Plan or general API surface.
 </Tip>
 
 ## Built-in catalog
@@ -104,14 +104,14 @@ The bundled `zai` provider seeds 13 GLM model refs. All entries support reasonin
 | `zai/glm-4.5v`       | Reasoning, text + image.                           |
 
 <Note>
-  GLM versions and availability can change. Run `openclaw models list --provider zai` to see the catalog rows known to your installed version, and check Z.AI's docs for newly added or deprecated models.
+  GLM versions and availability can change. Run `alien models list --provider zai` to see the catalog rows known to your installed version, and check Z.AI's docs for newly added or deprecated models.
 </Note>
 
 ## Advanced configuration
 
 <AccordionGroup>
   <Accordion title="Endpoint auto-detection">
-    When you use the `zai-api-key` auth choice, OpenClaw inspects the key shape to determine the correct Z.AI base URL. Explicit regional choices (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) override auto-detection and pin the endpoint directly.
+    When you use the `zai-api-key` auth choice, Alien inspects the key shape to determine the correct Z.AI base URL. Explicit regional choices (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) override auto-detection and pin the endpoint directly.
   </Accordion>
 
   <Accordion title="Provider details">

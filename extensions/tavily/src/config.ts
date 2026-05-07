@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   normalizeResolvedSecretInputString,
   normalizeSecretInput,
-} from "openclaw/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 export const DEFAULT_TAVILY_BASE_URL = "https://api.tavily.com";
 export const DEFAULT_TAVILY_SEARCH_TIMEOUT_SECONDS = 30;
@@ -23,7 +23,7 @@ type PluginEntryConfig = {
   };
 };
 
-export function resolveTavilySearchConfig(cfg?: OpenClawConfig): TavilySearchConfig {
+export function resolveTavilySearchConfig(cfg?: AlienConfig): TavilySearchConfig {
   const pluginConfig = cfg?.plugins?.entries?.tavily?.config as PluginEntryConfig;
   const pluginWebSearch = pluginConfig?.webSearch;
   if (pluginWebSearch && typeof pluginWebSearch === "object" && !Array.isArray(pluginWebSearch)) {
@@ -41,7 +41,7 @@ function normalizeConfiguredSecret(value: unknown, path: string): string | undef
   );
 }
 
-export function resolveTavilyApiKey(cfg?: OpenClawConfig): string | undefined {
+export function resolveTavilyApiKey(cfg?: AlienConfig): string | undefined {
   const search = resolveTavilySearchConfig(cfg);
   return (
     normalizeConfiguredSecret(search?.apiKey, "plugins.entries.tavily.config.webSearch.apiKey") ||
@@ -50,7 +50,7 @@ export function resolveTavilyApiKey(cfg?: OpenClawConfig): string | undefined {
   );
 }
 
-export function resolveTavilyBaseUrl(cfg?: OpenClawConfig): string {
+export function resolveTavilyBaseUrl(cfg?: AlienConfig): string {
   const search = resolveTavilySearchConfig(cfg);
   const configured =
     (normalizeOptionalString(search?.baseUrl) ?? "") ||

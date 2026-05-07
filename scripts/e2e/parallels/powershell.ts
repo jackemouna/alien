@@ -63,11 +63,11 @@ export function windowsModelProviderTimeoutScript(modelId: string): string {
       },
     },
   ]);
-  return `$providerTimeoutBatchPath = Join-Path ([System.IO.Path]::GetTempPath()) 'openclaw-provider-timeout.batch.json'
+  return `$providerTimeoutBatchPath = Join-Path ([System.IO.Path]::GetTempPath()) 'alien-provider-timeout.batch.json'
 @'
 ${batchJson}
 '@ | Set-Content -Path $providerTimeoutBatchPath -Encoding UTF8
-Invoke-OpenClaw config set --batch-file $providerTimeoutBatchPath --strict-json
+Invoke-Alien config set --batch-file $providerTimeoutBatchPath --strict-json
 $providerTimeoutExit = $LASTEXITCODE
 Remove-Item $providerTimeoutBatchPath -Force -ErrorAction SilentlyContinue
 if ($providerTimeoutExit -ne 0) { throw "model provider timeout config set failed" }`;
@@ -79,18 +79,18 @@ export function windowsAgentTurnConfigPatchScript(modelId: string): string {
     modelId,
     operations: batchJson ? (JSON.parse(batchJson) as unknown) : [],
   });
-  return `$agentTurnConfigPatchPath = $env:OPENCLAW_CONFIG_PATH
-if (-not $agentTurnConfigPatchPath) { $agentTurnConfigPatchPath = Join-Path $env:USERPROFILE '.openclaw\\openclaw.json' }
-$env:OPENCLAW_PARALLELS_AGENT_CONFIG_PATCH = @'
+  return `$agentTurnConfigPatchPath = $env:ALIEN_CONFIG_PATH
+if (-not $agentTurnConfigPatchPath) { $agentTurnConfigPatchPath = Join-Path $env:USERPROFILE '.alien\\alien.json' }
+$env:ALIEN_PARALLELS_AGENT_CONFIG_PATCH = @'
 ${payloadJson}
 '@
-$env:OPENCLAW_PARALLELS_AGENT_CONFIG_PATH = $agentTurnConfigPatchPath
-$agentTurnConfigPatchScriptPath = Join-Path ([System.IO.Path]::GetTempPath()) 'openclaw-agent-turn-config-patch.cjs'
+$env:ALIEN_PARALLELS_AGENT_CONFIG_PATH = $agentTurnConfigPatchPath
+$agentTurnConfigPatchScriptPath = Join-Path ([System.IO.Path]::GetTempPath()) 'alien-agent-turn-config-patch.cjs'
 @'
 const fs = require("node:fs");
 const path = require("node:path");
-const configPath = process.env.OPENCLAW_PARALLELS_AGENT_CONFIG_PATH;
-const payload = JSON.parse(process.env.OPENCLAW_PARALLELS_AGENT_CONFIG_PATCH || "{}");
+const configPath = process.env.ALIEN_PARALLELS_AGENT_CONFIG_PATH;
+const payload = JSON.parse(process.env.ALIEN_PARALLELS_AGENT_CONFIG_PATCH || "{}");
 function readJsonFile(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8").replace(/^\\uFEFF/u, ""));
 }
@@ -124,19 +124,19 @@ fs.writeFileSync(configPath, JSON.stringify(cfg, null, 2) + "\\n", { mode: 0o600
 node.exe $agentTurnConfigPatchScriptPath
 $agentTurnConfigPatchExit = $LASTEXITCODE
 Remove-Item $agentTurnConfigPatchScriptPath -Force -ErrorAction SilentlyContinue
-Remove-Item Env:OPENCLAW_PARALLELS_AGENT_CONFIG_PATCH -Force -ErrorAction SilentlyContinue
-Remove-Item Env:OPENCLAW_PARALLELS_AGENT_CONFIG_PATH -Force -ErrorAction SilentlyContinue
+Remove-Item Env:ALIEN_PARALLELS_AGENT_CONFIG_PATCH -Force -ErrorAction SilentlyContinue
+Remove-Item Env:ALIEN_PARALLELS_AGENT_CONFIG_PATH -Force -ErrorAction SilentlyContinue
 if ($agentTurnConfigPatchExit -ne 0) { throw "agent turn config patch failed" }`;
 }
 
-export const windowsOpenClawResolver = String.raw`function Resolve-OpenClawCommand {
-  if ($script:OpenClawResolvedCommand) { return $script:OpenClawResolvedCommand }
+export const windowsAlienResolver = String.raw`function Resolve-AlienCommand {
+  if ($script:AlienResolvedCommand) { return $script:AlienResolvedCommand }
   $shimCandidates = @()
   if ($env:APPDATA) {
-    $shimCandidates += Join-Path $env:APPDATA 'npm\openclaw.cmd'
-    $shimCandidates += Join-Path $env:APPDATA 'npm\openclaw.ps1'
+    $shimCandidates += Join-Path $env:APPDATA 'npm\alien.cmd'
+    $shimCandidates += Join-Path $env:APPDATA 'npm\alien.ps1'
   }
-  foreach ($name in @('openclaw.cmd', 'openclaw.ps1', 'openclaw')) {
+  foreach ($name in @('alien.cmd', 'alien.ps1', 'alien')) {
     $command = Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($command -and $command.Source) { $shimCandidates += $command.Source }
   }
@@ -145,42 +145,42 @@ export const windowsOpenClawResolver = String.raw`function Resolve-OpenClawComma
     $npmPrefix = (& npm.cmd prefix -g 2>$null | Select-Object -First 1)
   } catch {}
   if ($npmPrefix) {
-    $shimCandidates += Join-Path $npmPrefix 'openclaw.cmd'
-    $shimCandidates += Join-Path $npmPrefix 'openclaw.ps1'
+    $shimCandidates += Join-Path $npmPrefix 'alien.cmd'
+    $shimCandidates += Join-Path $npmPrefix 'alien.ps1'
   }
   foreach ($candidate in $shimCandidates) {
     if ($candidate -and (Test-Path $candidate)) {
-      $script:OpenClawResolvedCommand = @{ Kind = 'shim'; Path = $candidate }
-      return $script:OpenClawResolvedCommand
+      $script:AlienResolvedCommand = @{ Kind = 'shim'; Path = $candidate }
+      return $script:AlienResolvedCommand
     }
   }
   $entryCandidates = @()
   if ($env:APPDATA) {
-    $entryCandidates += Join-Path $env:APPDATA 'npm\node_modules\openclaw\openclaw.mjs'
+    $entryCandidates += Join-Path $env:APPDATA 'npm\node_modules\alien\alien.mjs'
   }
   if ($npmPrefix) {
-    $entryCandidates += Join-Path $npmPrefix 'node_modules\openclaw\openclaw.mjs'
+    $entryCandidates += Join-Path $npmPrefix 'node_modules\alien\alien.mjs'
   }
   foreach ($candidate in $entryCandidates) {
     if ($candidate -and (Test-Path $candidate)) {
-      $script:OpenClawResolvedCommand = @{ Kind = 'node'; Path = $candidate }
-      return $script:OpenClawResolvedCommand
+      $script:AlienResolvedCommand = @{ Kind = 'node'; Path = $candidate }
+      return $script:AlienResolvedCommand
     }
   }
-  throw 'openclaw command not found in PATH, APPDATA npm, or npm global prefix'
+  throw 'alien command not found in PATH, APPDATA npm, or npm global prefix'
 }
-function Invoke-OpenClaw {
-  param([Parameter(ValueFromRemainingArguments = $true)][string[]] $OpenClawArgs)
-  $command = Resolve-OpenClawCommand
+function Invoke-Alien {
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]] $AlienArgs)
+  $command = Resolve-AlienCommand
   $previousErrorActionPreference = $ErrorActionPreference
   $previousNativeErrorActionPreference = $PSNativeCommandUseErrorActionPreference
   $ErrorActionPreference = 'Continue'
   $PSNativeCommandUseErrorActionPreference = $false
   try {
     if ($command.Kind -eq 'node') {
-      & node.exe $command.Path @OpenClawArgs
+      & node.exe $command.Path @AlienArgs
     } else {
-      & $command.Path @OpenClawArgs
+      & $command.Path @AlienArgs
     }
   } finally {
     $ErrorActionPreference = $previousErrorActionPreference

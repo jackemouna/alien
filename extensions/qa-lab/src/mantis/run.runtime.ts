@@ -1,7 +1,7 @@
 import { spawn, type SpawnOptions } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import { ensureRepoBoundDirectory, resolveRepoRelativeOutputDir } from "../cli-paths.js";
 
 export type MantisBeforeAfterOptions = {
@@ -431,7 +431,7 @@ async function runLane(params: {
     args: [
       "--dir",
       worktreeDir,
-      "openclaw",
+      "alien",
       "qa",
       "discord",
       "--repo-root",

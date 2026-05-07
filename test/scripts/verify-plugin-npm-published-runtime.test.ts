@@ -5,18 +5,18 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
   it("flags published plugin packages with TypeScript entries and no compiled runtime output", () => {
     expect(
       collectPluginNpmPublishedRuntimeErrors({
-        spec: "@openclaw/discord@2026.5.2",
+        spec: "@alien/discord@2026.5.2",
         packageJson: {
-          name: "@openclaw/discord",
+          name: "@alien/discord",
           version: "2026.5.2",
-          openclaw: {
+          alien: {
             extensions: ["./index.ts"],
           },
         },
         files: ["package.json", "index.ts"],
       }),
     ).toEqual([
-      "@openclaw/discord@2026.5.2 requires compiled runtime output for TypeScript entry ./index.ts: expected ./dist/index.js, ./dist/index.mjs, ./dist/index.cjs, ./index.js, ./index.mjs, ./index.cjs",
+      "@alien/discord@2026.5.2 requires compiled runtime output for TypeScript entry ./index.ts: expected ./dist/index.js, ./dist/index.mjs, ./dist/index.cjs, ./index.js, ./index.mjs, ./index.cjs",
     ]);
   });
 
@@ -24,9 +24,9 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
     expect(
       collectPluginNpmPublishedRuntimeErrors({
         packageJson: {
-          name: "@openclaw/zalo",
+          name: "@alien/zalo",
           version: "2026.5.3",
-          openclaw: {
+          alien: {
             extensions: ["./index.ts"],
             runtimeExtensions: ["./dist/index.js"],
           },
@@ -40,25 +40,25 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
     expect(
       collectPluginNpmPublishedRuntimeErrors({
         packageJson: {
-          name: "@openclaw/line",
+          name: "@alien/line",
           version: "2026.5.3",
-          openclaw: {
+          alien: {
             extensions: ["./src/index.ts"],
             runtimeExtensions: ["./dist/index.js"],
           },
         },
         files: ["package.json", "src/index.ts"],
       }),
-    ).toEqual(["@openclaw/line@2026.5.3 runtime extension entry not found: ./dist/index.js"]);
+    ).toEqual(["@alien/line@2026.5.3 runtime extension entry not found: ./dist/index.js"]);
   });
 
   it("flags runtimeExtensions length mismatches", () => {
     expect(
       collectPluginNpmPublishedRuntimeErrors({
         packageJson: {
-          name: "@openclaw/acpx",
+          name: "@alien/acpx",
           version: "2026.5.3",
-          openclaw: {
+          alien: {
             extensions: ["./index.ts", "./tools.ts"],
             runtimeExtensions: ["./dist/index.js"],
           },
@@ -66,7 +66,7 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
         files: ["package.json", "dist/index.js"],
       }),
     ).toEqual([
-      "@openclaw/acpx@2026.5.3 package.json openclaw.runtimeExtensions length (1) must match openclaw.extensions length (2)",
+      "@alien/acpx@2026.5.3 package.json alien.runtimeExtensions length (1) must match alien.extensions length (2)",
     ]);
   });
 
@@ -74,9 +74,9 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
     expect(
       collectPluginNpmPublishedRuntimeErrors({
         packageJson: {
-          name: "@openclaw/whatsapp",
+          name: "@alien/whatsapp",
           version: "2026.5.3",
-          openclaw: {
+          alien: {
             extensions: ["./src/index.ts"],
             runtimeExtensions: [" "],
           },
@@ -84,7 +84,7 @@ describe("collectPluginNpmPublishedRuntimeErrors", () => {
         files: ["package.json", "src/index.ts", "dist/index.js"],
       }),
     ).toEqual([
-      "@openclaw/whatsapp@2026.5.3 package.json openclaw.runtimeExtensions[0] must be a non-empty string",
+      "@alien/whatsapp@2026.5.3 package.json alien.runtimeExtensions[0] must be a non-empty string",
     ]);
   });
 });

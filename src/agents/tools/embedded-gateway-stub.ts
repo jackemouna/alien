@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { CallGatewayOptions } from "../../gateway/call.js";
 import type { SessionsListParams, SessionsResolveParams } from "../../gateway/protocol/index.js";
 import type { ReadSessionMessagesAsyncOptions } from "../../gateway/session-utils.fs.js";
@@ -8,8 +8,8 @@ import type { SessionsResolveResult } from "../../gateway/sessions-resolve.js";
 type EmbeddedCallGateway = <T = Record<string, unknown>>(opts: CallGatewayOptions) => Promise<T>;
 
 interface EmbeddedGatewayRuntime {
-  resolveSessionAgentId: (opts: { sessionKey: string; config: OpenClawConfig }) => string;
-  getRuntimeConfig: () => OpenClawConfig;
+  resolveSessionAgentId: (opts: { sessionKey: string; config: AlienConfig }) => string;
+  getRuntimeConfig: () => AlienConfig;
   augmentChatHistoryWithCliSessionImports: (opts: {
     entry: unknown;
     provider: string | undefined;
@@ -25,28 +25,28 @@ interface EmbeddedGatewayRuntime {
     messages: unknown[];
     maxSingleMessageBytes: number;
   }) => { messages: unknown[] };
-  resolveEffectiveChatHistoryMaxChars: (cfg: OpenClawConfig) => number;
+  resolveEffectiveChatHistoryMaxChars: (cfg: AlienConfig) => number;
   projectRecentChatDisplayMessages: (
     msgs: unknown[],
     opts?: { maxChars?: number; maxMessages?: number },
   ) => unknown[];
   capArrayByJsonBytes: (items: unknown[], maxBytes: number) => { items: unknown[] };
   listSessionsFromStoreAsync: (opts: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     storePath: string;
     store: unknown;
     opts: SessionsListParams;
   }) => Promise<SessionsListResult>;
-  loadCombinedSessionStoreForGateway: (cfg: OpenClawConfig) => {
+  loadCombinedSessionStoreForGateway: (cfg: AlienConfig) => {
     storePath: string;
     store: unknown;
   };
   resolveSessionKeyFromResolveParams: (opts: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     p: SessionsResolveParams;
   }) => Promise<SessionsResolveResult>;
   loadSessionEntry: (sessionKey: string) => {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     storePath: string | undefined;
     entry: Record<string, unknown> | undefined;
   };
@@ -57,7 +57,7 @@ interface EmbeddedGatewayRuntime {
     opts: ReadSessionMessagesAsyncOptions,
   ) => Promise<unknown[]>;
   resolveSessionModelRef: (
-    cfg: OpenClawConfig,
+    cfg: AlienConfig,
     entry: unknown,
     sessionAgentId: string,
   ) => { provider: string | undefined };

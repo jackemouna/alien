@@ -1,6 +1,6 @@
-import { createChannelPairingChallengeIssuer } from "openclaw/plugin-sdk/channel-pairing";
-import { isDangerousNameMatchingEnabled } from "openclaw/plugin-sdk/dangerous-name-runtime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import { createChannelPairingChallengeIssuer } from "alien/plugin-sdk/channel-pairing";
+import { isDangerousNameMatchingEnabled } from "alien/plugin-sdk/dangerous-name-runtime";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import { resolveDiscordDmAccessGroupEntries } from "./access-groups.js";
 import {
   resolveComponentInteractionContext,

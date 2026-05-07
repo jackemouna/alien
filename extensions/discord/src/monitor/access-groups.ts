@@ -1,9 +1,9 @@
 import {
   resolveAccessGroupAllowFromMatches,
   type AccessGroupMembershipResolver,
-} from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import type { RequestClient } from "../internal/discord.js";
 import { canViewDiscordGuildChannel } from "../send.permissions.js";
 
@@ -32,7 +32,7 @@ export function createDiscordAccessGroupMembershipResolver(params: {
 }
 
 export async function resolveDiscordDmAccessGroupEntries(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   allowFrom: string[];
   sender: { id: string };
   accountId: string;

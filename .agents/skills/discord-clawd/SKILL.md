@@ -1,6 +1,6 @@
 ---
 name: discord-clawd
-description: Use to talk to the Discord-backed OpenClaw agent/session; not for archive search.
+description: Use to talk to the Discord-backed Alien agent/session; not for archive search.
 ---
 
 # Discord Clawd
@@ -11,18 +11,18 @@ For Discord archive/history/search, use `$discrawl` instead.
 
 ## Transport
 
-Use the OpenClaw relay helper:
+Use the Alien relay helper:
 
 ```bash
 cd ~/Projects/agent-scripts
-python3 skills/openclaw-relay/scripts/openclaw_relay.py targets
-python3 skills/openclaw-relay/scripts/openclaw_relay.py resolve --target maintainers
+python3 skills/alien-relay/scripts/alien_relay.py targets
+python3 skills/alien-relay/scripts/alien_relay.py resolve --target maintainers
 ```
 
 If the target alias exists, prefer a private ask first:
 
 ```bash
-python3 skills/openclaw-relay/scripts/openclaw_relay.py ask \
+python3 skills/alien-relay/scripts/alien_relay.py ask \
   --target maintainers \
   --message "Reply with exactly OK."
 ```

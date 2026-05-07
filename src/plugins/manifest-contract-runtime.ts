@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   hasManifestContractValue,
   listAvailableManifestContractPlugins,
@@ -16,7 +16,7 @@ const DEMAND_ONLY_CONTRACT_LOOKUP_OPTIONS = {
 } as const;
 
 export function resolveManifestContractRuntimePluginResolution(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   contract: PluginManifestContractListKey;
   value?: string;
 }): ManifestContractRuntimePluginResolution {

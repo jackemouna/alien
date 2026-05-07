@@ -1,5 +1,5 @@
-import { isProviderApiKeyConfigured } from "openclaw/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
+import { isProviderApiKeyConfigured } from "alien/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "alien/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -8,13 +8,13 @@ import {
   postJsonRequest,
   resolveProviderOperationTimeoutMs,
   resolveProviderHttpRequestConfig,
-} from "openclaw/plugin-sdk/provider-http";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/provider-http";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
-} from "openclaw/plugin-sdk/video-generation";
+} from "alien/plugin-sdk/video-generation";
 import { resolveConfiguredOpenAIBaseUrl, toOpenAIDataUrl } from "./shared.js";
 
 const DEFAULT_OPENAI_VIDEO_BASE_URL = "https://api.openai.com/v1";

@@ -1,7 +1,7 @@
 import { createCodingTools, createReadTool } from "@mariozechner/pi-coding-agent";
 import { HEARTBEAT_RESPONSE_TOOL_NAME } from "../auto-reply/heartbeat-tool-response.js";
 import type { ModelCompatConfig } from "../config/types.models.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { DiagnosticTraceContext } from "../infra/diagnostic-trace-context.js";
 import { resolveMergedSafeBinProfileFixtures } from "../infra/exec-safe-bin-runtime-policy.js";
 import { logWarn } from "../logger.js";
@@ -23,8 +23,8 @@ import { listChannelAgentTools } from "./channel-tools.js";
 import { shouldSuppressManagedWebSearchTool } from "./codex-native-web-search.js";
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 import type { ModelAuthMode } from "./model-auth.js";
-import { resolveOpenClawPluginToolsForOptions } from "./openclaw-plugin-tools.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
+import { resolveAlienPluginToolsForOptions } from "./alien-plugin-tools.js";
+import { createAlienTools } from "./alien-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import {
   type ToolOutcomeObserver,
@@ -42,7 +42,7 @@ import {
   assertRequiredParams,
   createHostWorkspaceEditTool,
   createHostWorkspaceWriteTool,
-  createOpenClawReadTool,
+  createAlienReadTool,
   createSandboxedEditTool,
   createSandboxedReadTool,
   createSandboxedWriteTool,
@@ -146,7 +146,7 @@ function createLazyProcessTool(defaults?: ProcessToolDefaults): AnyAgentTool {
 function applyModelProviderToolPolicy(
   tools: AnyAgentTool[],
   params?: {
-    config?: OpenClawConfig;
+    config?: AlienConfig;
     modelProvider?: string;
     modelApi?: string;
     modelId?: string;
@@ -203,7 +203,7 @@ function isApplyPatchAllowedForModel(params: {
   });
 }
 
-function resolveExecConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
+function resolveExecConfig(params: { cfg?: AlienConfig; agentId?: string }) {
   const cfg = params.cfg;
   const globalExec = cfg?.tools?.exec;
   const agentExec =
@@ -243,15 +243,15 @@ export const __testing = {
   applyModelProviderToolPolicy,
 } as const;
 
-export type OpenClawCodingToolConstructionPlan = {
+export type AlienCodingToolConstructionPlan = {
   includeBaseCodingTools: boolean;
   includeShellTools: boolean;
   includeChannelTools: boolean;
-  includeOpenClawTools: boolean;
+  includeAlienTools: boolean;
   includePluginTools: boolean;
 };
 
-export function createOpenClawCodingTools(options?: {
+export function createAlienCodingTools(options?: {
   agentId?: string;
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
@@ -287,7 +287,7 @@ export function createOpenClawCodingTools(options?: {
    * Defaults to workspaceDir when not set.
    */
   spawnWorkspaceDir?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   abortSignal?: AbortSignal;
   /**
    * Provider of the currently selected model (used for provider-specific tool quirks).
@@ -302,7 +302,7 @@ export function createOpenClawCodingTools(options?: {
   modelContextWindowTokens?: number;
   /** Resolved runtime model compatibility hints. */
   modelCompat?: ModelCompatConfig;
-  /** If false, keep OpenClaw web_search even when a provider-native search tool is active. */
+  /** If false, keep Alien web_search even when a provider-native search tool is active. */
   suppressManagedWebSearch?: boolean;
   /**
    * Auth mode for the current provider. We only need this for Anthropic OAuth
@@ -352,7 +352,7 @@ export function createOpenClawCodingTools(options?: {
   /** If false, build plugin tools only while preserving the shared policy pipeline. */
   includeCoreTools?: boolean;
   /** Limits which tool families are materialized before the shared policy pipeline runs. */
-  toolConstructionPlan?: OpenClawCodingToolConstructionPlan;
+  toolConstructionPlan?: AlienCodingToolConstructionPlan;
   /** Whether the sender is an owner (required for owner-only tools). */
   senderIsOwner?: boolean;
   /**
@@ -480,12 +480,12 @@ export function createOpenClawCodingTools(options?: {
     includeBaseCodingTools: includeCoreTools,
     includeShellTools: includeCoreTools,
     includeChannelTools: includeCoreTools,
-    includeOpenClawTools: includeCoreTools,
+    includeAlienTools: includeCoreTools,
     includePluginTools: true,
   };
   const includeBaseCodingTools = includeCoreTools && toolConstructionPlan.includeBaseCodingTools;
   const includeShellTools = includeCoreTools && toolConstructionPlan.includeShellTools;
-  const includeOpenClawTools = includeCoreTools && toolConstructionPlan.includeOpenClawTools;
+  const includeAlienTools = includeCoreTools && toolConstructionPlan.includeAlienTools;
   const includeChannelTools = toolConstructionPlan.includeChannelTools;
   const includePluginTools = toolConstructionPlan.includePluginTools;
   const workspaceOnly = fsPolicy.workspaceOnly;
@@ -527,7 +527,7 @@ export function createOpenClawCodingTools(options?: {
             ];
           }
           const freshReadTool = createReadTool(workspaceRoot);
-          const wrapped = createOpenClawReadTool(freshReadTool, {
+          const wrapped = createAlienReadTool(freshReadTool, {
             modelContextWindowTokens: options?.modelContextWindowTokens,
             imageSanitization,
           });
@@ -638,9 +638,9 @@ export function createOpenClawCodingTools(options?: {
     subagentPolicy,
   ]);
   const pluginToolsOnly =
-    includeOpenClawTools || !includePluginTools
+    includeAlienTools || !includePluginTools
       ? []
-      : resolveOpenClawPluginToolsForOptions({
+      : resolveAlienPluginToolsForOptions({
           options: {
             agentSessionKey: options?.sessionKey,
             agentChannel: resolveGatewayMessageChannel(options?.messageProvider),
@@ -702,8 +702,8 @@ export function createOpenClawCodingTools(options?: {
     ...(processTool ? [processTool as unknown as AnyAgentTool] : []),
     // Channel docking: include channel-defined agent tools (login, etc.).
     ...(includeChannelTools ? listChannelAgentTools({ cfg: options?.config }) : []),
-    ...(includeOpenClawTools
-      ? createOpenClawTools({
+    ...(includeAlienTools
+      ? createAlienTools({
           sandboxBrowserBridgeUrl: sandbox?.browser?.bridgeUrl,
           allowHostBrowserControl: sandbox ? sandbox.browserAllowHostControl : true,
           agentSessionKey: options?.sessionKey,
@@ -753,7 +753,7 @@ export function createOpenClawCodingTools(options?: {
         })
       : pluginToolsOnly),
   ];
-  options?.recordToolPrepStage?.("openclaw-tools");
+  options?.recordToolPrepStage?.("alien-tools");
   const toolsForMemoryFlush =
     isMemoryFlushRun && memoryFlushWritePath
       ? tools.flatMap((tool) => {

@@ -7,12 +7,12 @@ import { appendRegularFile } from "../infra/fs-safe.js";
 let rawStreamReady = false;
 
 function isRawStreamEnabled(): boolean {
-  return isTruthyEnvValue(process.env.OPENCLAW_RAW_STREAM);
+  return isTruthyEnvValue(process.env.ALIEN_RAW_STREAM);
 }
 
 function resolveRawStreamPath(): string {
   return (
-    process.env.OPENCLAW_RAW_STREAM_PATH?.trim() ||
+    process.env.ALIEN_RAW_STREAM_PATH?.trim() ||
     path.join(resolveStateDir(), "logs", "raw-stream.jsonl")
   );
 }

@@ -10,20 +10,20 @@ import {
   resolveAgentEffectiveModelPrimary,
   resolveAgentWorkspaceDir,
   resolveDefaultModelForAgent,
-} from "openclaw/plugin-sdk/agent-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/agent-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveLivePluginConfigObject,
   resolvePluginConfigObject,
-} from "openclaw/plugin-sdk/plugin-config-runtime";
-import { definePluginEntry, type OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
-import { parseAgentSessionKey, parseThreadSessionSuffix } from "openclaw/plugin-sdk/routing";
-import { isPathInside, replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/plugin-config-runtime";
+import { definePluginEntry, type AlienPluginApi } from "alien/plugin-sdk/plugin-entry";
+import { parseAgentSessionKey, parseThreadSessionSuffix } from "alien/plugin-sdk/routing";
+import { isPathInside, replaceFileAtomic } from "alien/plugin-sdk/security-runtime";
 import {
   resolveSessionStoreEntry,
   updateSessionStore,
-} from "openclaw/plugin-sdk/session-store-runtime";
-import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+} from "alien/plugin-sdk/session-store-runtime";
+import { tempWorkspace, resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_AGENT_ID = "main";
@@ -434,7 +434,7 @@ function toSafeTranscriptAgentDirName(agentId: string): string {
   return encoded ? encoded : "unknown-agent";
 }
 
-function resolvePersistentTranscriptBaseDir(api: OpenClawPluginApi, agentId: string): string {
+function resolvePersistentTranscriptBaseDir(api: AlienPluginApi, agentId: string): string {
   return path.join(
     api.runtime.state.resolveStateDir(),
     "plugins",
@@ -446,7 +446,7 @@ function resolvePersistentTranscriptBaseDir(api: OpenClawPluginApi, agentId: str
 }
 
 function resolveCanonicalSessionKeyFromSessionId(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   agentId: string;
   sessionId?: string;
 }): string | undefined {
@@ -530,7 +530,7 @@ function isMissingRegisteredMemoryToolsError(error: unknown): boolean {
 }
 
 function resolveRecallRunChannelContext(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   agentId: string;
   sessionKey?: string;
   sessionId?: string;
@@ -621,7 +621,7 @@ function resolveRecallRunChannelContext(params: {
   }
 }
 
-function resolveToggleStatePath(api: OpenClawPluginApi): string {
+function resolveToggleStatePath(api: AlienPluginApi): string {
   return path.join(
     api.runtime.state.resolveStateDir(),
     "plugins",
@@ -673,7 +673,7 @@ async function writeToggleStore(statePath: string, store: ActiveMemoryToggleStor
 }
 
 async function isSessionActiveMemoryDisabled(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   sessionKey?: string;
 }): Promise<boolean> {
   const sessionKey = params.sessionKey?.trim();
@@ -692,7 +692,7 @@ async function isSessionActiveMemoryDisabled(params: {
 }
 
 async function setSessionActiveMemoryDisabled(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   sessionKey: string;
   disabled: boolean;
 }): Promise<void> {
@@ -710,7 +710,7 @@ async function setSessionActiveMemoryDisabled(params: {
 }
 
 function resolveCommandSessionKey(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   sessionKey?: string;
   sessionId?: string;
@@ -748,7 +748,7 @@ function formatActiveMemoryCommandHelp(): string {
   ].join("\n");
 }
 
-function isActiveMemoryGloballyEnabled(cfg: OpenClawConfig): boolean {
+function isActiveMemoryGloballyEnabled(cfg: AlienConfig): boolean {
   const entry = asRecord(cfg.plugins?.entries?.["active-memory"]);
   if (entry?.enabled === false) {
     return false;
@@ -758,9 +758,9 @@ function isActiveMemoryGloballyEnabled(cfg: OpenClawConfig): boolean {
 }
 
 function updateActiveMemoryGlobalEnabledInConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   enabled: boolean,
-): OpenClawConfig {
+): AlienConfig {
   const entries = { ...cfg.plugins?.entries };
   const existingEntry = asRecord(entries["active-memory"]) ?? {};
   const existingConfig = asRecord(existingEntry.config) ?? {};
@@ -856,9 +856,9 @@ function normalizePluginConfig(pluginConfig: unknown): ResolvedActiveRecallPlugi
 }
 
 function applyActiveMemoryRuntimeConfigSnapshot(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   pluginConfig: ResolvedActiveRecallPluginConfig,
-): OpenClawConfig {
+): AlienConfig {
   const existingEntry = asRecord(cfg.plugins?.entries?.["active-memory"]);
   const existingPluginConfig = asRecord(existingEntry?.config);
   return {
@@ -1436,7 +1436,7 @@ function sanitizeDebugText(text: string): string {
 }
 
 async function persistPluginStatusLines(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   agentId: string;
   sessionKey?: string;
   statusLine?: string;
@@ -2301,7 +2301,7 @@ function parseModelCandidate(modelRef: string | undefined, defaultProvider = DEF
 }
 
 function getModelRef(
-  api: OpenClawPluginApi,
+  api: AlienPluginApi,
   agentId: string,
   config: ResolvedActiveRecallPluginConfig,
   ctx?: {
@@ -2333,7 +2333,7 @@ function getModelRef(
 }
 
 async function runRecallSubagent(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   agentId: string;
   sessionKey?: string;
@@ -2379,8 +2379,8 @@ async function runRecallSubagent(params: {
   const transientWorkspace = params.config.persistTranscripts
     ? undefined
     : await tempWorkspace({
-        rootDir: resolvePreferredOpenClawTmpDir(),
-        prefix: "openclaw-active-memory-",
+        rootDir: resolvePreferredAlienTmpDir(),
+        prefix: "alien-active-memory-",
       });
   const tempDir = transientWorkspace?.dir;
   const persistedDir = params.config.persistTranscripts
@@ -2486,7 +2486,7 @@ async function runRecallSubagent(params: {
 }
 
 async function maybeResolveActiveRecall(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   agentId: string;
   sessionKey?: string;
@@ -2767,7 +2767,7 @@ export default definePluginEntry({
   id: "active-memory",
   name: "Active Memory",
   description: "Proactively surfaces relevant memory before eligible conversational replies.",
-  register(api: OpenClawPluginApi) {
+  register(api: AlienPluginApi) {
     let config = normalizePluginConfig(api.pluginConfig);
     const warnDeprecatedModelFallbackPolicy = (pluginConfig: unknown) => {
       if (hasDeprecatedModelFallbackPolicy(pluginConfig)) {
@@ -2791,7 +2791,7 @@ export default definePluginEntry({
     const refreshLiveConfigFromRuntime = () => {
       const livePluginConfig = resolveLivePluginConfigObject(
         api.runtime.config?.current
-          ? () => api.runtime.config.current() as OpenClawConfig
+          ? () => api.runtime.config.current() as AlienConfig
           : undefined,
         "active-memory",
         api.pluginConfig as Record<string, unknown>,
@@ -2813,7 +2813,7 @@ export default definePluginEntry({
           return { text: formatActiveMemoryCommandHelp() };
         }
         if (isGlobal) {
-          const currentConfig = api.runtime.config.current() as OpenClawConfig;
+          const currentConfig = api.runtime.config.current() as AlienConfig;
           if (action === "status") {
             return {
               text: `Active Memory: ${isActiveMemoryGloballyEnabled(currentConfig) ? "on" : "off"} globally.`,

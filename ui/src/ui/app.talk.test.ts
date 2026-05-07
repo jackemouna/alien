@@ -8,7 +8,7 @@ const { realtimeTalkCtor, startMock, stopMock } = vi.hoisted(() => ({
   stopMock: vi.fn(),
 }));
 
-describe("OpenClawApp Talk controls", () => {
+describe("AlienApp Talk controls", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.doMock("./chat/realtime-talk.ts", () => ({
@@ -27,8 +27,8 @@ describe("OpenClawApp Talk controls", () => {
   });
 
   it("retries Talk immediately when the previous session is already in error state", async () => {
-    const { OpenClawApp } = await import("./app.ts");
-    const app = Object.create(OpenClawApp.prototype) as {
+    const { AlienApp } = await import("./app.ts");
+    const app = Object.create(AlienApp.prototype) as {
       client: unknown;
       connected: boolean;
       lastError: string | null;
@@ -52,7 +52,7 @@ describe("OpenClawApp Talk controls", () => {
       sessionKey: { value: "main", writable: true },
     });
 
-    await OpenClawApp.prototype.toggleRealtimeTalk.call(app as never);
+    await AlienApp.prototype.toggleRealtimeTalk.call(app as never);
 
     expect(staleStop).toHaveBeenCalledOnce();
     expect(realtimeTalkCtor).toHaveBeenCalledOnce();

@@ -16,7 +16,7 @@ import {
   type ProviderBatchOutputLine,
   uploadBatchJsonlFile,
   withRemoteHttpResponse,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
 import type { OpenAiEmbeddingClient } from "./embedding-provider.js";
 
 type EmbeddingBatchExecutionParams = {
@@ -66,7 +66,7 @@ async function submitOpenAiBatch(params: {
       endpoint: OPENAI_BATCH_ENDPOINT,
       completion_window: OPENAI_BATCH_COMPLETION_WINDOW,
       metadata: {
-        source: "openclaw-memory",
+        source: "alien-memory",
         agent: params.agentId,
       },
     },

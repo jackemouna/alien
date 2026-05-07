@@ -1,4 +1,4 @@
-import { createRuntimeEnv } from "openclaw/plugin-sdk/plugin-test-runtime";
+import { createRuntimeEnv } from "alien/plugin-sdk/plugin-test-runtime";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
   createImageLifecycleCore,

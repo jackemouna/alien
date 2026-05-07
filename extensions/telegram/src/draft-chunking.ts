@@ -1,15 +1,15 @@
-import { resolveChannelStreamingPreviewChunk } from "openclaw/plugin-sdk/channel-streaming";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveTextChunkLimit } from "openclaw/plugin-sdk/reply-chunking";
-import { resolveAccountEntry } from "openclaw/plugin-sdk/routing";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
+import { resolveChannelStreamingPreviewChunk } from "alien/plugin-sdk/channel-streaming";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveTextChunkLimit } from "alien/plugin-sdk/reply-chunking";
+import { resolveAccountEntry } from "alien/plugin-sdk/routing";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
 import { TELEGRAM_TEXT_CHUNK_LIMIT } from "./outbound-adapter.js";
 
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 200;
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MAX = 800;
 
 export function resolveTelegramDraftStreamingChunking(
-  cfg: OpenClawConfig | undefined,
+  cfg: AlienConfig | undefined,
   accountId?: string | null,
 ): {
   minChars: number;

@@ -1,11 +1,11 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   applySetupAccountConfigPatch,
   createStandardChannelSetupStatus,
   formatDocsLink,
   type ChannelSetupWizard,
-} from "openclaw/plugin-sdk/setup";
+} from "alien/plugin-sdk/setup";
 import {
   applyMattermostSetupConfigPatch,
   isMattermostConfigured,
@@ -124,7 +124,7 @@ export const mattermostSetupWizard: ChannelSetupWizard = {
         }),
     },
   ],
-  disable: (cfg: OpenClawConfig) => ({
+  disable: (cfg: AlienConfig) => ({
     ...cfg,
     channels: {
       ...cfg.channels,

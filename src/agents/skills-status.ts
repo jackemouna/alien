@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import { CONFIG_DIR } from "../utils.js";
@@ -199,7 +199,7 @@ function isSkillUserInvocable(entry: SkillEntry): boolean {
 
 function buildSkillStatus(
   entry: SkillEntry,
-  config?: OpenClawConfig,
+  config?: AlienConfig,
   prefs?: SkillsInstallPreferences,
   eligibility?: SkillEligibilityContext,
   bundledNames?: Set<string>,
@@ -222,7 +222,7 @@ function buildSkillStatus(
   const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(config, pathStr);
   const skillSource = resolveSkillSource(entry.skill);
   const bundled =
-    skillSource === "openclaw-bundled" ||
+    skillSource === "alien-bundled" ||
     (skillSource === "unknown" && bundledNames?.has(entry.skill.name) === true);
 
   const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
@@ -267,7 +267,7 @@ function buildSkillStatus(
 export function buildWorkspaceSkillStatus(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: AlienConfig;
     managedSkillsDir?: string;
     entries?: SkillEntry[];
     eligibility?: SkillEligibilityContext;

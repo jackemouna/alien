@@ -31,7 +31,7 @@ import type { PluginConfigUiHint } from "./manifest-types.js";
 import { createPluginCacheKey, PluginLruCache } from "./plugin-cache-primitives.js";
 import type { PluginKind } from "./plugin-kind.types.js";
 
-export const PLUGIN_MANIFEST_FILENAME = "openclaw.plugin.json";
+export const PLUGIN_MANIFEST_FILENAME = "alien.plugin.json";
 export const PLUGIN_MANIFEST_FILENAMES = [PLUGIN_MANIFEST_FILENAME] as const;
 export const MAX_PLUGIN_MANIFEST_BYTES = 256 * 1024;
 const MAX_PLUGIN_MANIFEST_LOAD_CACHE_ENTRIES = 512;
@@ -231,7 +231,7 @@ export type PluginManifestSetup = {
 };
 
 export type PluginManifestQaRunner = {
-  /** Subcommand mounted beneath `openclaw qa`, for example `matrix`. */
+  /** Subcommand mounted beneath `alien qa`, for example `matrix`. */
   commandName: string;
   /** Optional user-facing help text for fallback host stubs. */
   description?: string;
@@ -1688,7 +1688,7 @@ export function loadPluginManifest(
   });
 }
 
-// package.json "openclaw" metadata (used for setup/catalog)
+// package.json "alien" metadata (used for setup/catalog)
 export type PluginPackageChannel = {
   id?: string;
   label?: string;
@@ -1755,7 +1755,7 @@ export type PluginPackageInstall = {
   allowInvalidConfigRecovery?: boolean;
 };
 
-export type OpenClawPackageStartup = {
+export type AlienPackageStartup = {
   /**
    * Opt-in for channel plugins whose `setupEntry` fully covers the gateway
    * startup surface needed before the server starts listening.
@@ -1763,25 +1763,25 @@ export type OpenClawPackageStartup = {
   deferConfiguredChannelFullLoadUntilAfterListen?: boolean;
 };
 
-export type OpenClawPackageSetupFeatures = {
+export type AlienPackageSetupFeatures = {
   configPromotion?: boolean;
   legacyStateMigrations?: boolean;
   legacySessionSurfaces?: boolean;
 };
 
-export type OpenClawPackageManifest = {
+export type AlienPackageManifest = {
   extensions?: string[];
   runtimeExtensions?: string[];
   setupEntry?: string;
   runtimeSetupEntry?: string;
-  setupFeatures?: OpenClawPackageSetupFeatures;
+  setupFeatures?: AlienPackageSetupFeatures;
   plugin?: {
     id?: string;
     label?: string;
   };
   channel?: PluginPackageChannel;
   install?: PluginPackageInstall;
-  startup?: OpenClawPackageStartup;
+  startup?: AlienPackageStartup;
 };
 
 export const DEFAULT_PLUGIN_ENTRY_CANDIDATES = [
@@ -1804,11 +1804,11 @@ export type PackageManifest = {
   description?: string;
   dependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
-} & Partial<Record<ManifestKey, OpenClawPackageManifest>>;
+} & Partial<Record<ManifestKey, AlienPackageManifest>>;
 
 export function getPackageManifestMetadata(
   manifest: PackageManifest | undefined,
-): OpenClawPackageManifest | undefined {
+): AlienPackageManifest | undefined {
   if (!manifest) {
     return undefined;
   }

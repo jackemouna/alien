@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import type { Readable } from "node:stream";
-import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
-import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+import { logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "alien/plugin-sdk/ssrf-runtime";
+import { tempWorkspace, resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
 
 const require = createRequire(import.meta.url);
 
@@ -152,7 +152,7 @@ export async function writeVoiceWavFile(
   pcm: Buffer,
 ): Promise<{ path: string; durationSeconds: number }> {
   const workspace = await tempWorkspace({
-    rootDir: resolvePreferredOpenClawTmpDir(),
+    rootDir: resolvePreferredAlienTmpDir(),
     prefix: "discord-voice-",
   });
   const wav = buildWavBuffer(pcm);

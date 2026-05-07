@@ -9,7 +9,7 @@ import {
   sendSingleTextMessageMatrix,
   sendTypingMatrix,
 } from "./send.js";
-import { MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY } from "./send/types.js";
+import { MATRIX_ALIEN_FINALIZED_PREVIEW_KEY } from "./send/types.js";
 
 const loadOutboundMediaFromUrlMock = vi.hoisted(() => vi.fn());
 const loadWebMediaMock = vi.fn().mockResolvedValue({
@@ -33,9 +33,9 @@ const resolveMarkdownTableModeMock = vi.fn(() => "code");
 const convertMarkdownTablesMock = vi.fn((text: string) => text);
 const chunkMarkdownTextWithModeMock = vi.fn((text: string) => (text ? [text] : []));
 
-vi.mock("openclaw/plugin-sdk/plugin-config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/plugin-config-runtime")>(
-    "openclaw/plugin-sdk/plugin-config-runtime",
+vi.mock("alien/plugin-sdk/plugin-config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/plugin-config-runtime")>(
+    "alien/plugin-sdk/plugin-config-runtime",
   );
   return {
     ...actual,
@@ -419,14 +419,14 @@ describe("sendMessageMatrix media", () => {
       client,
       cfg: {} as never,
       mediaUrl: "file:///tmp/photo.png",
-      mediaLocalRoots: ["/tmp/openclaw-matrix-test"],
+      mediaLocalRoots: ["/tmp/alien-matrix-test"],
     });
 
     expect(loadWebMediaMock).toHaveBeenCalledWith(
       "file:///tmp/photo.png",
       expect.objectContaining({
         maxBytes: undefined,
-        localRoots: ["/tmp/openclaw-matrix-test"],
+        localRoots: ["/tmp/alien-matrix-test"],
       }),
     );
   });
@@ -647,18 +647,18 @@ describe("sendMessageMatrix threads", () => {
     await sendMessageMatrix("room:!room:example", "ignored", {
       client,
       cfg: {} as never,
-      extraContent: { "com.openclaw.approval": { id: "req-1" } },
+      extraContent: { "com.alien.approval": { id: "req-1" } },
     });
 
     expect(sendMessage).toHaveBeenCalledTimes(3);
     expect(sendMessage.mock.calls[0]?.[1]).toMatchObject({
       body: "first",
-      "com.openclaw.approval": { id: "req-1" },
+      "com.alien.approval": { id: "req-1" },
     });
     expect(sendMessage.mock.calls[1]?.[1]).toMatchObject({ body: "second" });
-    expect(sendMessage.mock.calls[1]?.[1]).not.toHaveProperty("com.openclaw.approval");
+    expect(sendMessage.mock.calls[1]?.[1]).not.toHaveProperty("com.alien.approval");
     expect(sendMessage.mock.calls[2]?.[1]).toMatchObject({ body: "third" });
-    expect(sendMessage.mock.calls[2]?.[1]).not.toHaveProperty("com.openclaw.approval");
+    expect(sendMessage.mock.calls[2]?.[1]).not.toHaveProperty("com.alien.approval");
   });
 });
 
@@ -731,12 +731,12 @@ describe("sendSingleTextMessageMatrix", () => {
     const result = await sendSingleTextMessageMatrix("room:!room:example", "done", {
       client,
       cfg: {} as never,
-      extraContent: { [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true },
+      extraContent: { [MATRIX_ALIEN_FINALIZED_PREVIEW_KEY]: true },
     });
 
     expect(sendMessage.mock.calls[0]?.[1]).toMatchObject({
       body: "done",
-      [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true,
+      [MATRIX_ALIEN_FINALIZED_PREVIEW_KEY]: true,
     });
     expect(result.receipt).toMatchObject({
       primaryPlatformMessageId: "evt1",
@@ -865,13 +865,13 @@ describe("editMessageMatrix mentions", () => {
     await editMessageMatrix("room:!room:example", "$original", "done", {
       client,
       cfg: {} as never,
-      extraContent: { [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true },
+      extraContent: { [MATRIX_ALIEN_FINALIZED_PREVIEW_KEY]: true },
     });
 
     expect(sendMessage.mock.calls[0]?.[1]).toMatchObject({
-      [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true,
+      [MATRIX_ALIEN_FINALIZED_PREVIEW_KEY]: true,
       "m.new_content": {
-        [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true,
+        [MATRIX_ALIEN_FINALIZED_PREVIEW_KEY]: true,
       },
     });
   });

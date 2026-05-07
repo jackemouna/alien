@@ -444,7 +444,7 @@ describe("bootstrap prompt warnings", () => {
     const contextFiles = [{ path: "AGENTS.md", content: "Follow AGENTS guidance." }];
     const warningLines = ["AGENTS.md: 200 raw -> 0 injected"];
     const stableSystemPrompt = buildAgentSystemPrompt({
-      workspaceDir: "/tmp/openclaw",
+      workspaceDir: "/tmp/alien",
       contextFiles,
     });
     const optimizedTurns = [stableSystemPrompt, stableSystemPrompt, stableSystemPrompt];

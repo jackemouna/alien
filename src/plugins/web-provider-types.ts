@@ -1,5 +1,5 @@
 import type { TSchema } from "typebox";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type {
   RuntimeWebFetchMetadata,
@@ -27,7 +27,7 @@ export type WebFetchProviderToolDefinition = {
 };
 
 export type WebSearchProviderContext = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   searchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebSearchMetadata;
 };
@@ -37,7 +37,7 @@ export type WebSearchProviderToolExecutionContext = {
 };
 
 export type WebFetchProviderContext = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   fetchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebFetchMetadata;
 };
@@ -50,7 +50,7 @@ export type WebSearchProviderConfiguredCredentialFallback = {
 };
 
 export type WebSearchRuntimeMetadataContext = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   searchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebSearchMetadata;
   resolvedCredential?: {
@@ -61,7 +61,7 @@ export type WebSearchRuntimeMetadataContext = {
 };
 
 export type WebSearchProviderSetupContext = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   runtime: RuntimeEnv;
   prompter: WizardPrompter;
   quickstartDefaults?: boolean;
@@ -71,7 +71,7 @@ export type WebSearchProviderSetupContext = {
 export type WebFetchCredentialResolutionSource = "config" | "secretRef" | "env" | "missing";
 
 export type WebFetchRuntimeMetadataContext = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   fetchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebFetchMetadata;
   resolvedCredential?: {
@@ -99,13 +99,13 @@ export type WebSearchProviderPlugin = {
   inactiveSecretPaths?: string[];
   getCredentialValue: (searchConfig?: Record<string, unknown>) => unknown;
   setCredentialValue: (searchConfigTarget: Record<string, unknown>, value: unknown) => void;
-  getConfiguredCredentialValue?: (config?: OpenClawConfig) => unknown;
-  setConfiguredCredentialValue?: (configTarget: OpenClawConfig, value: unknown) => void;
+  getConfiguredCredentialValue?: (config?: AlienConfig) => unknown;
+  setConfiguredCredentialValue?: (configTarget: AlienConfig, value: unknown) => void;
   getConfiguredCredentialFallback?: (
-    config?: OpenClawConfig,
+    config?: AlienConfig,
   ) => WebSearchProviderConfiguredCredentialFallback | undefined;
-  applySelectionConfig?: (config: OpenClawConfig) => OpenClawConfig;
-  runSetup?: (ctx: WebSearchProviderSetupContext) => OpenClawConfig | Promise<OpenClawConfig>;
+  applySelectionConfig?: (config: AlienConfig) => AlienConfig;
+  runSetup?: (ctx: WebSearchProviderSetupContext) => AlienConfig | Promise<AlienConfig>;
   resolveRuntimeMetadata?: (
     ctx: WebSearchRuntimeMetadataContext,
   ) => Partial<RuntimeWebSearchMetadata> | Promise<Partial<RuntimeWebSearchMetadata>>;
@@ -131,9 +131,9 @@ export type WebFetchProviderPlugin = {
   inactiveSecretPaths?: string[];
   getCredentialValue: (fetchConfig?: Record<string, unknown>) => unknown;
   setCredentialValue: (fetchConfigTarget: Record<string, unknown>, value: unknown) => void;
-  getConfiguredCredentialValue?: (config?: OpenClawConfig) => unknown;
-  setConfiguredCredentialValue?: (configTarget: OpenClawConfig, value: unknown) => void;
-  applySelectionConfig?: (config: OpenClawConfig) => OpenClawConfig;
+  getConfiguredCredentialValue?: (config?: AlienConfig) => unknown;
+  setConfiguredCredentialValue?: (configTarget: AlienConfig, value: unknown) => void;
+  applySelectionConfig?: (config: AlienConfig) => AlienConfig;
   resolveRuntimeMetadata?: (
     ctx: WebFetchRuntimeMetadataContext,
   ) => Partial<RuntimeWebFetchMetadata> | Promise<Partial<RuntimeWebFetchMetadata>>;

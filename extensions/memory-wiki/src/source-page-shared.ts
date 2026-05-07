@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { FsSafeError, root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
+import { FsSafeError, root as fsRoot } from "alien/plugin-sdk/security-runtime";
 import {
   setImportedSourceEntry,
   shouldSkipImportedSourceWrite,

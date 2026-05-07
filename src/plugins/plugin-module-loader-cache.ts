@@ -49,9 +49,9 @@ export type PluginModuleLoaderStatsSnapshot = {
 
 const DEFAULT_PLUGIN_MODULE_LOADER_CACHE_ENTRIES = 128;
 const MAX_TRACKED_SOURCE_TRANSFORM_TARGETS = 24;
-const JITI_FACTORY_OVERRIDE_KEY = Symbol.for("openclaw.pluginModuleLoaderJitiFactoryOverride");
+const JITI_FACTORY_OVERRIDE_KEY = Symbol.for("alien.pluginModuleLoaderJitiFactoryOverride");
 const PLUGIN_SDK_IMPORT_SPECIFIER_PATTERN =
-  /(?:\bfrom\s*["']|\bimport\s*\(\s*["']|\brequire\s*\(\s*["'])(?:openclaw|@openclaw)\/plugin-sdk(?:\/[^"']*)?["']/u;
+  /(?:\bfrom\s*["']|\bimport\s*\(\s*["']|\brequire\s*\(\s*["'])(?:alien|@alien)\/plugin-sdk(?:\/[^"']*)?["']/u;
 const requireForJiti = createRequire(import.meta.url);
 let createJitiLoaderFactory: PluginModuleLoaderFactory | undefined;
 const pluginModuleLoaderStats = {
@@ -230,10 +230,10 @@ function shouldForceSourceTransformForPluginSdkAlias(params: {
   aliasMap: Record<string, string>;
 }): boolean {
   if (
-    !params.aliasMap["openclaw/plugin-sdk"] &&
-    !params.aliasMap["@openclaw/plugin-sdk"] &&
+    !params.aliasMap["alien/plugin-sdk"] &&
+    !params.aliasMap["@alien/plugin-sdk"] &&
     !Object.keys(params.aliasMap).some(
-      (key) => key.startsWith("openclaw/plugin-sdk/") || key.startsWith("@openclaw/plugin-sdk/"),
+      (key) => key.startsWith("alien/plugin-sdk/") || key.startsWith("@alien/plugin-sdk/"),
     )
   ) {
     return false;

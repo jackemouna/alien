@@ -3,7 +3,7 @@ import path from "node:path";
 import { formatCliCommand } from "../cli/command-format.js";
 import {
   getRuntimeConfig,
-  type OpenClawConfig,
+  type AlienConfig,
   CONFIG_PATH,
   readConfigFileSnapshot,
   replaceConfigFile,
@@ -234,7 +234,7 @@ export async function runGmailSetup(opts: GmailSetupOptions) {
     true,
   );
 
-  const nextConfig: OpenClawConfig = {
+  const nextConfig: AlienConfig = {
     ...baseConfig,
     hooks: {
       ...baseConfig.hooks,
@@ -305,7 +305,7 @@ export async function runGmailSetup(opts: GmailSetupOptions) {
   defaultRuntime.log(`- push endpoint: ${pushEndpoint}`);
   defaultRuntime.log(`- hook url: ${hookUrl}`);
   defaultRuntime.log(`- config: ${displayPath(CONFIG_PATH)}`);
-  defaultRuntime.log(`Next: ${formatCliCommand("openclaw webhooks gmail run")}`);
+  defaultRuntime.log(`Next: ${formatCliCommand("alien webhooks gmail run")}`);
 }
 
 export async function runGmailService(opts: GmailRunOptions) {

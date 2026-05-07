@@ -1,4 +1,4 @@
-import { resolveDefaultAgentDir } from "openclaw/plugin-sdk/agent-runtime";
+import { resolveDefaultAgentDir } from "alien/plugin-sdk/agent-runtime";
 import {
   applyCodexAppServerAuthProfile,
   bridgeCodexAppServerStartOptions,
@@ -19,7 +19,7 @@ type SharedCodexAppServerClientState = {
   key?: string;
 };
 
-const SHARED_CODEX_APP_SERVER_CLIENT_STATE = Symbol.for("openclaw.codexAppServerClientState");
+const SHARED_CODEX_APP_SERVER_CLIENT_STATE = Symbol.for("alien.codexAppServerClientState");
 
 function getSharedCodexAppServerClientState(): SharedCodexAppServerClientState {
   const globalState = globalThis as typeof globalThis & {

@@ -2,7 +2,7 @@ import {
   verifyChannelMessageAdapterCapabilityProofs,
   verifyChannelMessageLiveCapabilityAdapterProofs,
   verifyChannelMessageLiveFinalizerProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendMessageMattermostMock = vi.hoisted(() => vi.fn());

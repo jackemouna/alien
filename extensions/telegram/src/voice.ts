@@ -1,4 +1,4 @@
-import { isVoiceCompatibleAudio } from "openclaw/plugin-sdk/media-runtime";
+import { isVoiceCompatibleAudio } from "alien/plugin-sdk/media-runtime";
 
 function resolveTelegramVoiceDecision(opts: {
   wantsVoice: boolean;

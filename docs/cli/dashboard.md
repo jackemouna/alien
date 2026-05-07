@@ -1,18 +1,18 @@
 ---
-summary: "CLI reference for `openclaw dashboard` (open the Control UI)"
+summary: "CLI reference for `alien dashboard` (open the Control UI)"
 read_when:
   - You want to open the Control UI with your current token
   - You want to print the URL without launching a browser
 title: "Dashboard"
 ---
 
-# `openclaw dashboard`
+# `alien dashboard`
 
 Open the Control UI using your current auth.
 
 ```bash
-openclaw dashboard
-openclaw dashboard --no-open
+alien dashboard
+alien dashboard --no-open
 ```
 
 Notes:
@@ -21,7 +21,7 @@ Notes:
 - `dashboard` follows `gateway.tls.enabled`: TLS-enabled gateways print/open
   `https://` Control UI URLs and connect over `wss://`.
 - If clipboard/browser delivery fails for a token-authenticated dashboard URL,
-  `dashboard` logs a safe manual-auth hint naming `OPENCLAW_GATEWAY_TOKEN`,
+  `dashboard` logs a safe manual-auth hint naming `ALIEN_GATEWAY_TOKEN`,
   `gateway.auth.token`, and fragment key `token` without printing the token
   value.
 - For SecretRef-managed tokens (resolved or unresolved), `dashboard` prints/copies/opens a non-tokenized URL to avoid exposing external secrets in terminal output, clipboard history, or browser-launch arguments.

@@ -11,7 +11,7 @@ Typed workflow tool with resumable approvals.
 
 ## Distribution
 
-- Package: `@openclaw/lobster`
+- Package: `@alien/lobster`
 - Install route: npm; ClawHub
 
 ## Surface

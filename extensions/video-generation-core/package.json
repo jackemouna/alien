@@ -1,10 +1,10 @@
 {
-  "name": "@openclaw/video-generation-core",
+  "name": "@alien/video-generation-core",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw video generation runtime package",
+  "description": "Alien video generation runtime package",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   }
 }

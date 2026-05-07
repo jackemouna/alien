@@ -1,6 +1,6 @@
 import os from "node:os";
 import { resolveGatewayPort } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import { normalizeSecretInputString, resolveSecretInputRef } from "../config/types.secrets.js";
 import { materializeGatewayAuthSecretRefs } from "../gateway/auth-config-utils.js";
 import { assertExplicitGatewayAuthModeWhenBothConfigured } from "../gateway/auth-mode-policy.js";
@@ -198,7 +198,7 @@ function parseNormalizedGatewayUrl(raw: string): string | null {
 }
 
 function resolveScheme(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   opts?: {
     forceSecure?: boolean;
   },
@@ -242,7 +242,7 @@ function pickTailnetIPv4(
 }
 
 function resolvePairingSetupAuthLabel(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv,
 ): ResolveAuthLabelResult {
   const mode = cfg.gateway?.auth?.mode;
@@ -255,8 +255,8 @@ function resolvePairingSetupAuthLabel(
     value: cfg.gateway?.auth?.password,
     defaults,
   }).ref;
-  const envToken = normalizeOptionalString(env.OPENCLAW_GATEWAY_TOKEN);
-  const envPassword = normalizeOptionalString(env.OPENCLAW_GATEWAY_PASSWORD);
+  const envToken = normalizeOptionalString(env.ALIEN_GATEWAY_TOKEN);
+  const envPassword = normalizeOptionalString(env.ALIEN_GATEWAY_PASSWORD);
   const token =
     envToken || (tokenRef ? undefined : normalizeSecretInputString(cfg.gateway?.auth?.token));
   const password =
@@ -285,7 +285,7 @@ function resolvePairingSetupAuthLabel(
 }
 
 async function resolveGatewayUrl(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   opts: {
     env: NodeJS.ProcessEnv;
     publicUrl?: string;
@@ -354,7 +354,7 @@ export function encodePairingSetupCode(payload: PairingSetupPayload): string {
 }
 
 export async function resolvePairingSetupFromConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   options: ResolvePairingSetupOptions = {},
 ): Promise<PairingSetupResolution> {
   assertExplicitGatewayAuthModeWhenBothConfigured(cfg);
@@ -363,8 +363,8 @@ export async function resolvePairingSetupFromConfig(
     cfg,
     env,
     mode: cfg.gateway?.auth?.mode,
-    hasTokenCandidate: Boolean(normalizeOptionalString(env.OPENCLAW_GATEWAY_TOKEN)),
-    hasPasswordCandidate: Boolean(normalizeOptionalString(env.OPENCLAW_GATEWAY_PASSWORD)),
+    hasTokenCandidate: Boolean(normalizeOptionalString(env.ALIEN_GATEWAY_TOKEN)),
+    hasPasswordCandidate: Boolean(normalizeOptionalString(env.ALIEN_GATEWAY_PASSWORD)),
   });
   const authLabel = resolvePairingSetupAuthLabel(cfgForAuth, env);
   if (authLabel.error) {

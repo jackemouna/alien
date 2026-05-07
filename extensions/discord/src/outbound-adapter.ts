@@ -1,14 +1,14 @@
 import {
   type ChannelOutboundAdapter,
   createAttachedChannelResultAdapter,
-} from "openclaw/plugin-sdk/channel-send-result";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { OutboundIdentity } from "openclaw/plugin-sdk/outbound-runtime";
-import { resolveOutboundSendDep } from "openclaw/plugin-sdk/outbound-send-deps";
+} from "alien/plugin-sdk/channel-send-result";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { OutboundIdentity } from "alien/plugin-sdk/outbound-runtime";
+import { resolveOutboundSendDep } from "alien/plugin-sdk/outbound-send-deps";
 import {
   normalizeOptionalString,
   normalizeOptionalStringifiedId,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { chunkDiscordTextWithMode } from "./chunk.js";
 import { withDiscordDeliveryRetry } from "./delivery-retry.js";
 import { isLikelyDiscordVideoMedia } from "./media-detection.js";
@@ -61,7 +61,7 @@ function resolveDiscordWebhookIdentity(params: {
 }
 
 async function maybeSendDiscordWebhookText(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   text: string;
   threadId?: string | number | null;
   accountId?: string | null;

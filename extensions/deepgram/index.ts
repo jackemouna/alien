@@ -1,4 +1,4 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
 import { deepgramMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import { buildDeepgramRealtimeTranscriptionProvider } from "./realtime-transcription-provider.js";
 

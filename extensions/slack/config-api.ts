@@ -1,4 +1,4 @@
 export {
   buildChannelConfigSchema,
   SlackConfigSchema,
-} from "openclaw/plugin-sdk/bundled-channel-config-schema";
+} from "alien/plugin-sdk/bundled-channel-config-schema";

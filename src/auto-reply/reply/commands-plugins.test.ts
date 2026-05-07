@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import { handlePluginsCommand } from "./commands-plugins.js";
 import { buildPluginsCommandParams } from "./commands.test-harness.js";
 
@@ -68,7 +68,7 @@ vi.mock("../../plugins/status.js", () => ({
 }));
 
 vi.mock("../../plugins/toggle-config.js", () => ({
-  setPluginEnabledInConfig: vi.fn((config: OpenClawConfig, id: string, enabled: boolean) => ({
+  setPluginEnabledInConfig: vi.fn((config: AlienConfig, id: string, enabled: boolean) => ({
     ...config,
     plugins: {
       ...config.plugins,
@@ -88,14 +88,14 @@ vi.mock("../../utils.js", async () => {
   };
 });
 
-function buildCfg(): OpenClawConfig {
+function buildCfg(): AlienConfig {
   return {
     plugins: { enabled: true },
     commands: { text: true, plugins: true },
   };
 }
 
-function buildPluginsParams(commandBodyNormalized: string, cfg: OpenClawConfig) {
+function buildPluginsParams(commandBodyNormalized: string, cfg: AlienConfig) {
   return buildPluginsCommandParams({
     commandBodyNormalized,
     cfg,
@@ -107,7 +107,7 @@ describe("handlePluginsCommand", () => {
     vi.clearAllMocks();
     readConfigFileSnapshotMock.mockResolvedValue({
       valid: true,
-      path: "/tmp/openclaw.json",
+      path: "/tmp/alien.json",
       sourceConfig: buildCfg(),
       resolved: buildCfg(),
       hash: "config-1",
@@ -124,7 +124,7 @@ describe("handlePluginsCommand", () => {
           id: "superpowers",
           name: "superpowers",
           status: "disabled",
-          format: "openclaw",
+          format: "alien",
           bundleFormat: "claude",
         },
       ],
@@ -136,7 +136,7 @@ describe("handlePluginsCommand", () => {
           id: "superpowers",
           name: "superpowers",
           status: "disabled",
-          format: "openclaw",
+          format: "alien",
           bundleFormat: "claude",
         },
       ],
@@ -263,23 +263,23 @@ describe("handlePluginsCommand", () => {
   });
 
   it("refuses plugin enablement in Nix mode before reading or replacing config", async () => {
-    const previousNixMode = process.env.OPENCLAW_NIX_MODE;
-    process.env.OPENCLAW_NIX_MODE = "1";
+    const previousNixMode = process.env.ALIEN_NIX_MODE;
+    process.env.ALIEN_NIX_MODE = "1";
     try {
       const params = buildPluginsParams("/plugins enable superpowers", buildCfg());
       params.command.senderIsOwner = true;
 
       const result = await handlePluginsCommand(params, true);
-      expect(result?.reply?.text).toContain("OPENCLAW_NIX_MODE=1");
-      expect(result?.reply?.text).toContain("nix-openclaw#quick-start");
+      expect(result?.reply?.text).toContain("ALIEN_NIX_MODE=1");
+      expect(result?.reply?.text).toContain("nix-alien#quick-start");
       expect(readConfigFileSnapshotMock).not.toHaveBeenCalled();
       expect(replaceConfigFileMock).not.toHaveBeenCalled();
       expect(refreshPluginRegistryAfterConfigMutationMock).not.toHaveBeenCalled();
     } finally {
       if (previousNixMode === undefined) {
-        delete process.env.OPENCLAW_NIX_MODE;
+        delete process.env.ALIEN_NIX_MODE;
       } else {
-        process.env.OPENCLAW_NIX_MODE = previousNixMode;
+        process.env.ALIEN_NIX_MODE = previousNixMode;
       }
     }
   });
@@ -292,7 +292,7 @@ describe("handlePluginsCommand", () => {
           id: "superpowers",
           name: "Super Powers",
           status: "disabled",
-          format: "openclaw",
+          format: "alien",
           bundleFormat: "claude",
         },
       ],

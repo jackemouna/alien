@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { pathExists } from "openclaw/plugin-sdk/security-runtime";
+import { pathExists } from "alien/plugin-sdk/security-runtime";
 import { compileMemoryWikiVault } from "./compile.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import { appendMemoryWikiLog } from "./log.js";
@@ -74,8 +74,8 @@ export async function ingestMemoryWikiSource(params: {
       renderMarkdownFence(content, "text"),
       "",
       "## Notes",
-      "<!-- openclaw:human:start -->",
-      "<!-- openclaw:human:end -->",
+      "<!-- alien:human:start -->",
+      "<!-- alien:human:end -->",
       "",
     ].join("\n"),
   });

@@ -5,12 +5,12 @@ import {
   readConfigFileSnapshot,
   readSourceConfigBestEffort,
 } from "./config.js";
-import { withTempHome, writeOpenClawConfig } from "./test-helpers.js";
+import { withTempHome, writeAlienConfig } from "./test-helpers.js";
 
 describe("readBestEffortConfig", () => {
   it("does not restore suspicious direct edits from .bak during ordinary reads", async () => {
     await withTempHome(async (home) => {
-      const configPath = await writeOpenClawConfig(home, {
+      const configPath = await writeAlienConfig(home, {
         meta: { lastTouchedAt: "2026-04-22T00:00:00.000Z" },
         update: { channel: "beta" },
         gateway: { mode: "local" },
@@ -23,14 +23,14 @@ describe("readBestEffortConfig", () => {
 
       expect(snapshot.sourceConfig).toEqual({ update: { channel: "beta" } });
       expect(await fs.readFile(configPath, "utf-8")).toBe(directEditRaw);
-      const entries = await fs.readdir(`${home}/.openclaw`);
-      expect(entries.some((entry) => entry.startsWith("openclaw.json.clobbered."))).toBe(false);
+      const entries = await fs.readdir(`${home}/.alien`);
+      expect(entries.some((entry) => entry.startsWith("alien.json.clobbered."))).toBe(false);
     });
   });
 
   it("reuses valid snapshots while preserving load-time defaults", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeAlienConfig(home, {
         auth: {
           profiles: {
             "anthropic:api": { provider: "anthropic", mode: "api_key" },
@@ -62,7 +62,7 @@ describe("readBestEffortConfig", () => {
 describe("readSourceConfigBestEffort", () => {
   it("preserves the authored source config without load-time defaults", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeAlienConfig(home, {
         auth: {
           profiles: {
             "anthropic:api": { provider: "anthropic", mode: "api_key" },

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionEntry } from "../../../config/sessions/types.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 
 const mocks = vi.hoisted(() => ({
   ensureAuthProfileStore: vi.fn(),
@@ -61,7 +61,7 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai-codex/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(warnings).toEqual([expect.stringContaining("Legacy `openai-codex/*`")]);
@@ -83,14 +83,14 @@ describe("collectCodexRouteWarnings", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(warnings).toEqual([expect.stringContaining("openai/gpt-5.5")]);
     expect(warnings[0]).toContain('runtime is "codex"');
   });
 
-  it("still warns when OPENCLAW_AGENT_RUNTIME selects native Codex with a legacy model ref", () => {
+  it("still warns when ALIEN_AGENT_RUNTIME selects native Codex with a legacy model ref", () => {
     const warnings = collectCodexRouteWarnings({
       cfg: {
         agents: {
@@ -98,9 +98,9 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai-codex/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       env: {
-        OPENCLAW_AGENT_RUNTIME: "codex",
+        ALIEN_AGENT_RUNTIME: "codex",
       },
     });
 
@@ -115,7 +115,7 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(warnings).toEqual([]);
@@ -187,7 +187,7 @@ describe("collectCodexRouteWarnings", () => {
             summaryModel: "openai-codex/gpt-5.4-mini",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       shouldRepair: true,
       codexRuntimeReady: true,
     });
@@ -232,7 +232,7 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai-codex/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       shouldRepair: true,
     });
 
@@ -370,7 +370,7 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai-codex/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       shouldRepair: true,
     });
 
@@ -421,7 +421,7 @@ describe("collectCodexRouteWarnings", () => {
             model: "openai-codex/gpt-5.5",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       shouldRepair: true,
     });
 

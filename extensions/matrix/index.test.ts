@@ -1,4 +1,4 @@
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { describe, expect, it, vi } from "vitest";
 import { registerMatrixCliMetadata } from "./cli-metadata.js";
 import entry, { registerMatrixFullRuntime } from "./index.js";

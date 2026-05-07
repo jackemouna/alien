@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 import { createWebFetchTool } from "./web-fetch.js";
 
@@ -70,7 +70,7 @@ describe("web_fetch provider fallback normalization", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       sandboxed: false,
     });
 
@@ -123,7 +123,7 @@ describe("web_fetch provider fallback normalization", () => {
     });
 
     const tool = createWebFetchTool({
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       sandboxed: false,
     });
 
@@ -154,7 +154,7 @@ describe("web_fetch provider fallback normalization", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     runtimeState.activeSecretsRuntimeSnapshot = { config: runtimeConfig };
     runtimeState.activeRuntimeWebToolsMetadata = {
       fetch: {
@@ -187,7 +187,7 @@ describe("web_fetch provider fallback normalization", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       sandboxed: false,
       runtimeWebFetch: {
         providerConfigured: "stale",
@@ -267,7 +267,7 @@ describe("web_fetch provider fallback normalization", () => {
         diagnostics: [],
       };
       const tool = createWebFetchTool({
-        config: {} as OpenClawConfig,
+        config: {} as AlienConfig,
         sandboxed: false,
         lateBindRuntimeConfig: true,
       });

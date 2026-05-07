@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../../config/types.js";
+import type { AlienConfig } from "../../../config/types.js";
 import { LEGACY_CONFIG_MIGRATIONS } from "./legacy-config-migrations.js";
 
 function migrateLegacyConfigForTest(raw: unknown): {
-  config: OpenClawConfig | null;
+  config: AlienConfig | null;
   changes: string[];
 } {
   if (!raw || typeof raw !== "object") {
@@ -16,7 +16,7 @@ function migrateLegacyConfigForTest(raw: unknown): {
   }
   return changes.length === 0
     ? { config: null, changes }
-    : { config: next as OpenClawConfig, changes };
+    : { config: next as AlienConfig, changes };
 }
 
 describe("legacy session maintenance migrate", () => {
@@ -189,7 +189,7 @@ describe("legacy migrate mention routing", () => {
         groupChat: {
           requireMention: false,
           historyLimit: 12,
-          mentionPatterns: ["@openclaw"],
+          mentionPatterns: ["@alien"],
         },
       },
       channels: {
@@ -217,7 +217,7 @@ describe("legacy migrate mention routing", () => {
     });
     expect(res.config?.messages?.groupChat).toEqual({
       historyLimit: 12,
-      mentionPatterns: ["@openclaw"],
+      mentionPatterns: ["@alien"],
     });
     expect(res.changes).toEqual(
       expect.arrayContaining([
@@ -436,7 +436,7 @@ describe("legacy migrate sandbox scope aliases", () => {
 });
 
 describe("legacy migrate MCP server type aliases", () => {
-  it("moves CLI-native http type to OpenClaw streamable HTTP transport", () => {
+  it("moves CLI-native http type to Alien streamable HTTP transport", () => {
     const res = migrateLegacyConfigForTest({
       mcp: {
         servers: {

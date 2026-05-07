@@ -133,8 +133,8 @@ export async function probeApnsHttp2ReachabilityViaProxy(
       const request = session.request({
         ":method": "POST",
         ":path": `/3/device/${"0".repeat(64)}`,
-        authorization: "bearer intentionally.invalid.openclaw.proxy.validation",
-        "apns-topic": "ai.openclaw.ios",
+        authorization: "bearer intentionally.invalid.alien.proxy.validation",
+        "apns-topic": "ai.alien.ios",
         "apns-push-type": "alert",
         "apns-priority": "10",
       });
@@ -166,7 +166,7 @@ export async function probeApnsHttp2ReachabilityViaProxy(
         }
         resolve({ status, body, responseHeaders });
       });
-      request.end(JSON.stringify({ aps: { alert: "OpenClaw APNs proxy validation" } }));
+      request.end(JSON.stringify({ aps: { alert: "Alien APNs proxy validation" } }));
     });
   } finally {
     if (!session.closed && !session.destroyed) {

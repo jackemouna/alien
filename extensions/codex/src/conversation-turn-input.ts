@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { PluginHookInboundClaimEvent } from "openclaw/plugin-sdk/plugin-entry";
+import type { PluginHookInboundClaimEvent } from "alien/plugin-sdk/plugin-entry";
 import type { CodexUserInput } from "./app-server/protocol.js";
 
 type InboundMedia = {
@@ -25,7 +25,7 @@ export function buildCodexConversationTurnInput(params: {
 
 function extractInboundMedia(event: PluginHookInboundClaimEvent): InboundMedia[] {
   const metadata = event.metadata ?? {};
-  // OpenClaw channels expose either local staged files or remote URLs. Keep
+  // Alien channels expose either local staged files or remote URLs. Keep
   // them separate so Codex can receive the cheaper localImage input when a file
   // is already present, while still supporting remote-only transports.
   const paths = readStringArray(metadata.mediaPaths).concat(readStringArray(metadata.mediaPath));

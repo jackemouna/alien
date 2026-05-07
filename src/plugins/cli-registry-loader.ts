@@ -1,10 +1,10 @@
 import { collectUniqueCommandDescriptors } from "../cli/program/command-descriptor-utils.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { resolveManifestActivationPluginIds } from "./activation-planner.js";
 import { createPluginCliGatewayNodesRuntime } from "./cli-gateway-nodes-runtime.js";
 import type { PluginLoadOptions } from "./loader.js";
-import { loadOpenClawPluginCliRegistry, loadOpenClawPlugins } from "./loader.js";
+import { loadAlienPluginCliRegistry, loadAlienPlugins } from "./loader.js";
 import { createEmptyPluginRegistry } from "./registry-empty.js";
 import type { PluginRegistry } from "./registry.js";
 import {
@@ -14,15 +14,15 @@ import {
   type PluginRuntimeLoadContext,
 } from "./runtime/load-context.js";
 import type {
-  OpenClawPluginCliCommandDescriptor,
-  OpenClawPluginCliContext,
+  AlienPluginCliCommandDescriptor,
+  AlienPluginCliContext,
   PluginLogger,
 } from "./types.js";
 
 export type PluginCliLoaderOptions = Pick<PluginLoadOptions, "pluginSdkResolution">;
 
 export type PluginCliPublicLoadParams = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   loaderOptions?: PluginCliLoaderOptions;
   logger?: PluginLogger;
@@ -37,9 +37,9 @@ export type PluginCliRegistryLoadResult = PluginCliLoadContext & {
 
 export type PluginCliCommandGroupEntry = {
   pluginId: string;
-  placeholders: readonly OpenClawPluginCliCommandDescriptor[];
+  placeholders: readonly AlienPluginCliCommandDescriptor[];
   names: readonly string[];
-  register: (program: OpenClawPluginCliContext["program"]) => Promise<void>;
+  register: (program: AlienPluginCliContext["program"]) => Promise<void>;
 };
 
 export function createPluginCliLogger(): PluginLogger {
@@ -127,7 +127,7 @@ async function resolvePrimaryCommandPluginIds(
 }
 
 export function resolvePluginCliLoadContext(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   logger: PluginLogger;
 }): PluginCliLoadContext {
@@ -145,7 +145,7 @@ export async function loadPluginCliMetadataRegistryWithContext(
 ): Promise<PluginCliRegistryLoadResult> {
   return {
     ...context,
-    registry: await loadOpenClawPluginCliRegistry(
+    registry: await loadAlienPluginCliRegistry(
       buildPluginCliLoaderParams(context, params, loaderOptions),
     ),
   };
@@ -174,7 +174,7 @@ export async function loadPluginCliCommandRegistryWithContext(params: {
   }
   return {
     ...params.context,
-    registry: loadOpenClawPlugins(
+    registry: loadAlienPlugins(
       buildPluginRuntimeLoadOptions(params.context, {
         ...params.loaderOptions,
         ...(onlyPluginIds && onlyPluginIds.length > 0 ? { onlyPluginIds } : {}),
@@ -190,7 +190,7 @@ export async function loadPluginCliCommandRegistryWithContext(params: {
 
 function buildPluginCliCommandGroupEntries(params: {
   registry: PluginRegistry;
-  config: OpenClawConfig;
+  config: AlienConfig;
   workspaceDir: string | undefined;
   logger: PluginLogger;
 }): PluginCliCommandGroupEntry[] {
@@ -211,7 +211,7 @@ function buildPluginCliCommandGroupEntries(params: {
 
 export async function loadPluginCliDescriptors(
   params: PluginCliPublicLoadParams,
-): Promise<OpenClawPluginCliCommandDescriptor[]> {
+): Promise<AlienPluginCliCommandDescriptor[]> {
   try {
     const logger = resolvePluginCliLogger(params.logger);
     const context = resolvePluginCliLoadContext({
@@ -233,7 +233,7 @@ export async function loadPluginCliDescriptors(
 }
 
 export async function loadPluginCliRegistrationEntries(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   loaderOptions?: PluginCliLoaderOptions;
   logger?: PluginLogger;

@@ -2,9 +2,9 @@ import {
   AllowFromListSchema,
   DmPolicySchema,
   MarkdownConfigSchema,
-} from "openclaw/plugin-sdk/channel-config-primitives";
-import { buildSecretInputSchema } from "openclaw/plugin-sdk/secret-input";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "alien/plugin-sdk/channel-config-primitives";
+import { buildSecretInputSchema } from "alien/plugin-sdk/secret-input";
+import { z } from "alien/plugin-sdk/zod";
 
 /**
  * Validates https:// URLs only (no javascript:, data:, file:, etc.)

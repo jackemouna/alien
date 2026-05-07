@@ -9,31 +9,31 @@ sidebarTitle: "Agent workspace"
 
 The workspace is the agent's home. It is the only working directory used for file tools and for workspace context. Keep it private and treat it as memory.
 
-This is separate from `~/.openclaw/`, which stores config, credentials, and sessions.
+This is separate from `~/.alien/`, which stores config, credentials, and sessions.
 
 <Warning>
 The workspace is the **default cwd**, not a hard sandbox. Tools resolve relative paths against the workspace, but absolute paths can still reach elsewhere on the host unless sandboxing is enabled. If you need isolation, use [`agents.defaults.sandbox`](/gateway/sandboxing) (and/or per-agent sandbox config).
 
-When sandboxing is enabled and `workspaceAccess` is not `"rw"`, tools operate inside a sandbox workspace under `~/.openclaw/sandboxes`, not your host workspace.
+When sandboxing is enabled and `workspaceAccess` is not `"rw"`, tools operate inside a sandbox workspace under `~/.alien/sandboxes`, not your host workspace.
 </Warning>
 
 ## Default location
 
-- Default: `~/.openclaw/workspace`
-- If `OPENCLAW_PROFILE` is set and not `"default"`, the default becomes `~/.openclaw/workspace-<profile>`.
-- Override in `~/.openclaw/openclaw.json`:
+- Default: `~/.alien/workspace`
+- If `ALIEN_PROFILE` is set and not `"default"`, the default becomes `~/.alien/workspace-<profile>`.
+- Override in `~/.alien/alien.json`:
 
 ```json5
 {
   agents: {
     defaults: {
-      workspace: "~/.openclaw/workspace",
+      workspace: "~/.alien/workspace",
     },
   },
 }
 ```
 
-`openclaw onboard`, `openclaw configure`, or `openclaw setup` will create the workspace and seed the bootstrap files if they are missing.
+`alien onboard`, `alien configure`, or `alien setup` will create the workspace and seed the bootstrap files if they are missing.
 
 <Note>
 Sandbox seed copies only accept regular in-workspace files; symlink/hardlink aliases that resolve outside the source workspace are ignored.
@@ -47,17 +47,17 @@ If you already manage the workspace files yourself, you can disable bootstrap fi
 
 ## Extra workspace folders
 
-Older installs may have created `~/openclaw`. Keeping multiple workspace directories around can cause confusing auth or state drift, because only one workspace is active at a time.
+Older installs may have created `~/alien`. Keeping multiple workspace directories around can cause confusing auth or state drift, because only one workspace is active at a time.
 
 <Note>
-**Recommendation:** keep a single active workspace. If you no longer use the extra folders, archive or move them to Trash (for example `trash ~/openclaw`). If you intentionally keep multiple workspaces, make sure `agents.defaults.workspace` points to the active one.
+**Recommendation:** keep a single active workspace. If you no longer use the extra folders, archive or move them to Trash (for example `trash ~/alien`). If you intentionally keep multiple workspaces, make sure `agents.defaults.workspace` points to the active one.
 
-`openclaw doctor` warns when it detects extra workspace directories.
+`alien doctor` warns when it detects extra workspace directories.
 </Note>
 
 ## Workspace file map
 
-These are the standard files OpenClaw expects inside the workspace:
+These are the standard files Alien expects inside the workspace:
 
 <AccordionGroup>
   <Accordion title="AGENTS.md - operating instructions">
@@ -99,19 +99,19 @@ These are the standard files OpenClaw expects inside the workspace:
 </AccordionGroup>
 
 <Note>
-If any bootstrap file is missing, OpenClaw injects a "missing file" marker into the session and continues. Large bootstrap files are truncated when injected; adjust limits with `agents.defaults.bootstrapMaxChars` (default: 12000) and `agents.defaults.bootstrapTotalMaxChars` (default: 60000). `openclaw setup` can recreate missing defaults without overwriting existing files.
+If any bootstrap file is missing, Alien injects a "missing file" marker into the session and continues. Large bootstrap files are truncated when injected; adjust limits with `agents.defaults.bootstrapMaxChars` (default: 12000) and `agents.defaults.bootstrapTotalMaxChars` (default: 60000). `alien setup` can recreate missing defaults without overwriting existing files.
 </Note>
 
 ## What is NOT in the workspace
 
-These live under `~/.openclaw/` and should NOT be committed to the workspace repo:
+These live under `~/.alien/` and should NOT be committed to the workspace repo:
 
-- `~/.openclaw/openclaw.json` (config)
-- `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` (model auth profiles: OAuth + API keys)
-- `~/.openclaw/agents/<agentId>/agent/codex-home/` (per-agent Codex runtime account, config, skills, plugins, and native thread state)
-- `~/.openclaw/credentials/` (channel/provider state plus legacy OAuth import data)
-- `~/.openclaw/agents/<agentId>/sessions/` (session transcripts + metadata)
-- `~/.openclaw/skills/` (managed skills)
+- `~/.alien/alien.json` (config)
+- `~/.alien/agents/<agentId>/agent/auth-profiles.json` (model auth profiles: OAuth + API keys)
+- `~/.alien/agents/<agentId>/agent/codex-home/` (per-agent Codex runtime account, config, skills, plugins, and native thread state)
+- `~/.alien/credentials/` (channel/provider state plus legacy OAuth import data)
+- `~/.alien/agents/<agentId>/sessions/` (session transcripts + metadata)
+- `~/.alien/skills/` (managed skills)
 
 If you need to migrate sessions or config, copy them separately and keep them out of version control.
 
@@ -126,7 +126,7 @@ Run these steps on the machine where the Gateway runs (that is where the workspa
     If git is installed, brand-new workspaces are initialized automatically. If this workspace is not already a repo, run:
 
     ```bash
-    cd ~/.openclaw/workspace
+    cd ~/.alien/workspace
     git init
     git add AGENTS.md SOUL.md TOOLS.md IDENTITY.md USER.md HEARTBEAT.md memory/
     git commit -m "Add agent workspace"
@@ -150,7 +150,7 @@ Run these steps on the machine where the Gateway runs (that is where the workspa
       <Tab title="GitHub CLI (gh)">
         ```bash
         gh auth login
-        gh repo create openclaw-workspace --private --source . --remote origin --push
+        gh repo create alien-workspace --private --source . --remote origin --push
         ```
       </Tab>
       <Tab title="GitLab web UI">
@@ -184,10 +184,10 @@ Run these steps on the machine where the Gateway runs (that is where the workspa
 Even in a private repo, avoid storing secrets in the workspace:
 
 - API keys, OAuth tokens, passwords, or private credentials.
-- Anything under `~/.openclaw/`.
+- Anything under `~/.alien/`.
 - Raw dumps of chats or sensitive attachments.
 
-If you must store sensitive references, use placeholders and keep the real secret elsewhere (password manager, environment variables, or `~/.openclaw/`).
+If you must store sensitive references, use placeholders and keep the real secret elsewhere (password manager, environment variables, or `~/.alien/`).
 </Warning>
 
 Suggested `.gitignore` starter:
@@ -204,16 +204,16 @@ Suggested `.gitignore` starter:
 
 <Steps>
   <Step title="Clone the repo">
-    Clone the repo to the desired path (default `~/.openclaw/workspace`).
+    Clone the repo to the desired path (default `~/.alien/workspace`).
   </Step>
   <Step title="Update config">
-    Set `agents.defaults.workspace` to that path in `~/.openclaw/openclaw.json`.
+    Set `agents.defaults.workspace` to that path in `~/.alien/alien.json`.
   </Step>
   <Step title="Seed missing files">
-    Run `openclaw setup --workspace <path>` to seed any missing files.
+    Run `alien setup --workspace <path>` to seed any missing files.
   </Step>
   <Step title="Copy sessions (optional)">
-    If you need sessions, copy `~/.openclaw/agents/<agentId>/sessions/` from the old machine separately.
+    If you need sessions, copy `~/.alien/agents/<agentId>/sessions/` from the old machine separately.
   </Step>
 </Steps>
 

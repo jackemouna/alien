@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { handleCrestodianCommand } from "../../dist/auto-reply/reply/commands-crestodian.js";
 import { clearConfigCache } from "../../dist/config/config.js";
-import type { OpenClawConfig } from "../../dist/config/types.openclaw.js";
+import type { AlienConfig } from "../../dist/config/types.alien.js";
 import { runCrestodianRescueMessage } from "../../dist/crestodian/rescue-message.js";
 
 type CommandResult = Awaited<ReturnType<typeof handleCrestodianCommand>>;
@@ -17,7 +17,7 @@ function assert(condition: unknown, message: string): asserts condition {
   }
 }
 
-function makeParams(commandBody: string, cfg: OpenClawConfig, isGroup = false) {
+function makeParams(commandBody: string, cfg: AlienConfig, isGroup = false) {
   return {
     cfg,
     command: {
@@ -38,7 +38,7 @@ function makeParams(commandBody: string, cfg: OpenClawConfig, isGroup = false) {
   } as Parameters<typeof handleCrestodianCommand>[0];
 }
 
-async function invoke(commandBody: string, cfg: OpenClawConfig, isGroup = false): Promise<string> {
+async function invoke(commandBody: string, cfg: AlienConfig, isGroup = false): Promise<string> {
   const result: CommandResult = await handleCrestodianCommand(
     makeParams(commandBody, cfg, isGroup),
     true,
@@ -52,11 +52,11 @@ async function invoke(commandBody: string, cfg: OpenClawConfig, isGroup = false)
 
 async function main() {
   const stateDir =
-    process.env.OPENCLAW_STATE_DIR ??
-    (await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-crestodian-")));
-  const configPath = process.env.OPENCLAW_CONFIG_PATH ?? path.join(stateDir, "openclaw.json");
-  process.env.OPENCLAW_STATE_DIR = stateDir;
-  process.env.OPENCLAW_CONFIG_PATH = configPath;
+    process.env.ALIEN_STATE_DIR ??
+    (await fs.mkdtemp(path.join(os.tmpdir(), "alien-crestodian-")));
+  const configPath = process.env.ALIEN_CONFIG_PATH ?? path.join(stateDir, "alien.json");
+  process.env.ALIEN_STATE_DIR = stateDir;
+  process.env.ALIEN_CONFIG_PATH = configPath;
   await fs.mkdir(stateDir, { recursive: true });
   await fs.writeFile(
     configPath,
@@ -77,7 +77,7 @@ async function main() {
   });
   assert(denied.includes("sandboxing is active"), "sandboxed rescue was not denied");
 
-  const cfg: OpenClawConfig = {};
+  const cfg: AlienConfig = {};
   const refusedTui = await invoke("/crestodian talk to agent", cfg);
   assert(
     refusedTui.includes("cannot open the local TUI"),
@@ -104,7 +104,7 @@ async function main() {
   assert(configSetApplied.includes("[crestodian] done: config.set"), "generic config set failed");
 
   const refPlan = await invoke(
-    "/crestodian config set-ref gateway.auth.token env OPENCLAW_GATEWAY_TOKEN",
+    "/crestodian config set-ref gateway.auth.token env ALIEN_GATEWAY_TOKEN",
     cfg,
   );
   assert(
@@ -114,7 +114,7 @@ async function main() {
   const refApplied = await invoke("/crestodian yes", cfg);
   assert(refApplied.includes("[crestodian] done: config.setRef"), "SecretRef set failed");
 
-  const agentPlan = await invoke("/crestodian create agent work workspace /tmp/openclaw-work", cfg);
+  const agentPlan = await invoke("/crestodian create agent work workspace /tmp/alien-work", cfg);
   assert(
     agentPlan.includes("Reply /crestodian yes to apply"),
     "agent creation did not require approval",
@@ -123,7 +123,7 @@ async function main() {
   assert(agentApplied.includes("[crestodian] done: agents.create"), "agent creation did not apply");
 
   const setupPlan = await invoke(
-    "/crestodian setup workspace /tmp/openclaw-setup model openai/gpt-5.2",
+    "/crestodian setup workspace /tmp/alien-setup model openai/gpt-5.2",
     cfg,
   );
   assert(setupPlan.includes("Reply /crestodian yes to apply"), "setup did not require approval");
@@ -199,7 +199,7 @@ async function main() {
   assert(doctorApplied?.includes("[crestodian] done: doctor.fix"), "doctor fix did not apply");
   assert(doctorRuns.join(",") === "repair", "doctor repair dependency was not invoked once");
 
-  const updatedConfig = JSON.parse(await fs.readFile(configPath, "utf8")) as OpenClawConfig;
+  const updatedConfig = JSON.parse(await fs.readFile(configPath, "utf8")) as AlienConfig;
   assert(
     updatedConfig.agents?.defaults?.model &&
       typeof updatedConfig.agents.defaults.model === "object" &&
@@ -212,16 +212,16 @@ async function main() {
     updatedConfig.gateway?.auth?.token &&
       typeof updatedConfig.gateway.auth.token === "object" &&
       "id" in updatedConfig.gateway.auth.token &&
-      updatedConfig.gateway.auth.token.id === "OPENCLAW_GATEWAY_TOKEN",
+      updatedConfig.gateway.auth.token.id === "ALIEN_GATEWAY_TOKEN",
     "SecretRef set did not update gateway.auth.token",
   );
   assert(
-    updatedConfig.agents?.defaults?.workspace === "/tmp/openclaw-setup",
+    updatedConfig.agents?.defaults?.workspace === "/tmp/alien-setup",
     "setup did not update default workspace",
   );
   assert(
     updatedConfig.agents?.list?.some(
-      (agent) => agent.id === "work" && agent.workspace === "/tmp/openclaw-work",
+      (agent) => agent.id === "work" && agent.workspace === "/tmp/alien-work",
     ),
     "agent config was not updated",
   );

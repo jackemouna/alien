@@ -1,6 +1,6 @@
 import { resolveChannelGroupRequireMention } from "../../config/group-policy.js";
 import type { GroupKeyResolution, SessionEntry } from "../../config/sessions.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { createLazyImportLoader } from "../../shared/lazy-promise.js";
 import type { SilentReplyPolicy } from "../../shared/silent-reply-policy.js";
 import {
@@ -62,7 +62,7 @@ function normalizeDiscordSlug(value?: string | null) {
 }
 
 function resolveDiscordGuilds(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId?: string | null,
 ): Record<string, DiscordGroupConfig> | undefined {
   const discord = cfg.channels?.discord as DiscordConfigWithGuilds | undefined;
@@ -119,7 +119,7 @@ function resolveDiscordChannelEntry(
 }
 
 function resolveDiscordRequireMentionFallback(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: string;
   groupId?: string | null;
   groupChannel?: string | null;
@@ -144,7 +144,7 @@ function resolveDiscordRequireMentionFallback(params: {
 }
 
 export async function resolveGroupRequireMention(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ctx: TemplateContext;
   groupResolution?: GroupKeyResolution;
 }): Promise<boolean> {
@@ -264,12 +264,12 @@ export function buildGroupChatContext(params: {
   if (canUseSilentReply) {
     if (params.silentReplyPolicy === "allow") {
       lines.push(
-        `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so OpenClaw stays silent.`,
+        `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Alien stays silent.`,
       );
       lines.push("Be extremely selective: reply only when directly addressed or clearly helpful.");
     } else {
       lines.push(
-        `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so OpenClaw can send a short fallback reply.`,
+        `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Alien can send a short fallback reply.`,
       );
     }
     lines.push(
@@ -308,11 +308,11 @@ export function buildDirectChatContext(params: {
   lines.push("Your replies are automatically sent to this conversation.");
   if (params.silentReplyPolicy === "allow") {
     lines.push(
-      `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so OpenClaw stays silent.`,
+      `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Alien stays silent.`,
     );
   } else if (params.silentReplyRewrite === true) {
     lines.push(
-      `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so OpenClaw can send a short fallback reply.`,
+      `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Alien can send a short fallback reply.`,
     );
   } else {
     lines.push(`Do not use "${params.silentToken}" as your final answer in this conversation.`);
@@ -342,7 +342,7 @@ export function resolveGroupSilentReplyBehavior(params: {
 }
 
 export function buildGroupIntro(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionCtx: TemplateContext;
   sessionEntry?: SessionEntry;
   defaultActivation: "always" | "mention";

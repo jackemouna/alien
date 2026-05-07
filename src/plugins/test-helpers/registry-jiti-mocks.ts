@@ -2,12 +2,12 @@ import { vi } from "vitest";
 
 const registryJitiMocks = vi.hoisted(() => ({
   createJiti: vi.fn(),
-  discoverOpenClawPlugins: vi.fn(),
+  discoverAlienPlugins: vi.fn(),
   loadPluginManifestRegistry: vi.fn(),
   loadPluginRegistrySnapshot: vi.fn(),
 }));
 const pluginModuleLoaderJitiFactoryOverrideKey = Symbol.for(
-  "openclaw.pluginModuleLoaderJitiFactoryOverride",
+  "alien.pluginModuleLoaderJitiFactoryOverride",
 );
 
 vi.mock("jiti", () => ({
@@ -16,9 +16,9 @@ vi.mock("jiti", () => ({
 }));
 
 vi.mock("../discovery.js", () => ({
-  discoverOpenClawPlugins: (
-    ...args: Parameters<typeof registryJitiMocks.discoverOpenClawPlugins>
-  ) => registryJitiMocks.discoverOpenClawPlugins(...args),
+  discoverAlienPlugins: (
+    ...args: Parameters<typeof registryJitiMocks.discoverAlienPlugins>
+  ) => registryJitiMocks.discoverAlienPlugins(...args),
 }));
 
 vi.mock("../manifest-registry.js", () => ({
@@ -52,10 +52,10 @@ export function resetRegistryJitiMocks(): void {
     }
   )[pluginModuleLoaderJitiFactoryOverrideKey] = registryJitiMocks.createJiti;
   registryJitiMocks.createJiti.mockReset();
-  registryJitiMocks.discoverOpenClawPlugins.mockReset();
+  registryJitiMocks.discoverAlienPlugins.mockReset();
   registryJitiMocks.loadPluginManifestRegistry.mockReset();
   registryJitiMocks.loadPluginRegistrySnapshot.mockReset();
-  registryJitiMocks.discoverOpenClawPlugins.mockReturnValue({
+  registryJitiMocks.discoverAlienPlugins.mockReturnValue({
     candidates: [],
     diagnostics: [],
   });

@@ -8,11 +8,11 @@ export {
 export { DELIVERY_NO_REPLY_RUNTIME_CONTRACT } from "./test-helpers/agents/delivery-no-reply-runtime-contract.js";
 export {
   installCodexToolResultMiddleware,
-  installOpenClawOwnedToolHooks,
+  installAlienOwnedToolHooks,
   mediaToolResult,
-  resetOpenClawOwnedToolHooks,
+  resetAlienOwnedToolHooks,
   textToolResult,
-} from "./test-helpers/agents/openclaw-owned-tool-runtime-contract.js";
+} from "./test-helpers/agents/alien-owned-tool-runtime-contract.js";
 export {
   createContractFallbackConfig,
   createContractRunResult,

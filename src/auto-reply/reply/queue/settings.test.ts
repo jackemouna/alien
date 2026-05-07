@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import { resolveQueueSettings } from "./settings.js";
 
 describe("resolveQueueSettings", () => {
   it("defaults inbound channels to steer with a short followup debounce", () => {
-    expect(resolveQueueSettings({ cfg: {} as OpenClawConfig })).toEqual({
+    expect(resolveQueueSettings({ cfg: {} as AlienConfig })).toEqual({
       mode: "steer",
       debounceMs: 500,
       cap: 20,
@@ -21,7 +21,7 @@ describe("resolveQueueSettings", () => {
               mode: "collect",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       }),
     ).toEqual({
       mode: "collect",
@@ -44,7 +44,7 @@ describe("resolveQueueSettings", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         channel: "discord",
       }),
     ).toEqual({
@@ -64,7 +64,7 @@ describe("resolveQueueSettings", () => {
               mode: "queue",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       }),
     ).toMatchObject({
       mode: "queue",

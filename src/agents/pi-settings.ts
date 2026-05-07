@@ -1,5 +1,5 @@
 import type { AgentCompactionMode } from "../config/types.agent-defaults.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { ContextEngineInfo } from "../context-engine/types.js";
 import { MIN_PROMPT_BUDGET_RATIO, MIN_PROMPT_BUDGET_TOKENS } from "./pi-compaction-constants.js";
 import { resolveProviderEndpoint } from "./provider-attribution.js";
@@ -43,7 +43,7 @@ export function ensurePiCompactionReserveTokens(params: {
   return { didOverride: true, reserveTokens: minReserveTokens };
 }
 
-export function resolveCompactionReserveTokensFloor(cfg?: OpenClawConfig): number {
+export function resolveCompactionReserveTokensFloor(cfg?: AlienConfig): number {
   const raw = cfg?.agents?.defaults?.compaction?.reserveTokensFloor;
   if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) {
     return Math.floor(raw);
@@ -67,7 +67,7 @@ function toPositiveInt(value: unknown): number | undefined {
 
 export function applyPiCompactionSettingsFromConfig(params: {
   settingsManager: PiSettingsManagerLike;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   /** When known, the resolved context window budget for the current model. */
   contextTokenBudget?: number;
 }): {
@@ -126,7 +126,7 @@ export function applyPiCompactionSettingsFromConfig(params: {
 }
 
 /** Resolve the compaction mode after provider-backed safeguard promotion. */
-export function resolveEffectiveCompactionMode(cfg?: OpenClawConfig): AgentCompactionMode {
+export function resolveEffectiveCompactionMode(cfg?: AlienConfig): AgentCompactionMode {
   const compaction = cfg?.agents?.defaults?.compaction;
   if (compaction?.provider) {
     return "safeguard";
@@ -138,7 +138,7 @@ export function resolveEffectiveCompactionMode(cfg?: OpenClawConfig): AgentCompa
  * Detect providers whose pi-ai `isContextOverflow` Case 2 (silent overflow)
  * fires on a successful turn and triggers Pi's `_runAutoCompaction` from
  * inside `Session.prompt()`, collapsing `agent.state.messages` before the
- * provider call (openclaw#75799).
+ * provider call (alien#75799).
  *
  * True on any of: `zai-native` endpoint class, normalized provider id `zai`,
  * a `z-ai/` / `openrouter/z-ai/` model-id namespace prefix, or a bare `glm-`
@@ -180,9 +180,9 @@ export function isSilentOverflowProneModel(model: {
 /**
  * Disable Pi's `_checkCompaction → _runAutoCompaction` (which would otherwise
  * fire from inside `Session.prompt()` and reassign `agent.state.messages`
- * before the provider call) when OpenClaw or a plugin owns compaction:
+ * before the provider call) when Alien or a plugin owns compaction:
  * `contextEngineInfo.ownsCompaction === true`, effective safeguard compaction,
- * or an active model that is silent-overflow-prone (openclaw#75799).
+ * or an active model that is silent-overflow-prone (alien#75799).
  * Default-mode runs against ordinary providers keep Pi's auto-compaction as
  * the existing baseline.
  */

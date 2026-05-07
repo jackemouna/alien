@@ -20,18 +20,18 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "openclaw-codex-app-server": createNpmInstall({
-            spec: "openclaw-codex-app-server",
-            installPath: "/tmp/openclaw-codex-app-server",
-            resolvedName: "openclaw-codex-app-server",
+          "alien-codex-app-server": createNpmInstall({
+            spec: "alien-codex-app-server",
+            installPath: "/tmp/alien-codex-app-server",
+            resolvedName: "alien-codex-app-server",
           }),
         },
-        rawId: "openclaw-codex-app-server@beta",
+        rawId: "alien-codex-app-server@beta",
       }),
     ).toEqual({
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       specOverrides: {
-        "openclaw-codex-app-server": "openclaw-codex-app-server@beta",
+        "alien-codex-app-server": "alien-codex-app-server@beta",
       },
     });
   });
@@ -41,17 +41,17 @@ describe("resolvePluginUpdateSelection", () => {
       resolvePluginUpdateSelection({
         installs: {
           "voice-call": createNpmInstall({
-            spec: "@openclaw/voice-call",
+            spec: "@alien/voice-call",
             installPath: "/tmp/voice-call",
-            resolvedName: "@openclaw/voice-call",
+            resolvedName: "@alien/voice-call",
           }),
         },
-        rawId: "@openclaw/voice-call@beta",
+        rawId: "@alien/voice-call@beta",
       }),
     ).toEqual({
       pluginIds: ["voice-call"],
       specOverrides: {
-        "voice-call": "@openclaw/voice-call@beta",
+        "voice-call": "@alien/voice-call@beta",
       },
     });
   });
@@ -60,18 +60,18 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "openclaw-codex-app-server": createNpmInstall({
-            spec: "openclaw-codex-app-server",
-            installPath: "/tmp/openclaw-codex-app-server",
-            resolvedName: "openclaw-codex-app-server",
+          "alien-codex-app-server": createNpmInstall({
+            spec: "alien-codex-app-server",
+            installPath: "/tmp/alien-codex-app-server",
+            resolvedName: "alien-codex-app-server",
           }),
         },
-        rawId: "openclaw-codex-app-server@0.2.0-beta.4",
+        rawId: "alien-codex-app-server@0.2.0-beta.4",
       }),
     ).toEqual({
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       specOverrides: {
-        "openclaw-codex-app-server": "openclaw-codex-app-server@0.2.0-beta.4",
+        "alien-codex-app-server": "alien-codex-app-server@0.2.0-beta.4",
       },
     });
   });
@@ -80,16 +80,16 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "openclaw-codex-app-server": createNpmInstall({
-            spec: "openclaw-codex-app-server@beta",
-            installPath: "/tmp/openclaw-codex-app-server",
-            resolvedName: "openclaw-codex-app-server",
+          "alien-codex-app-server": createNpmInstall({
+            spec: "alien-codex-app-server@beta",
+            installPath: "/tmp/alien-codex-app-server",
+            resolvedName: "alien-codex-app-server",
           }),
         },
-        rawId: "openclaw-codex-app-server",
+        rawId: "alien-codex-app-server",
       }),
     ).toEqual({
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
     });
   });
 

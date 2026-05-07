@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { normalizeProviderId } from "../provider-id.js";
 import { resolveProviderRequestHeaders } from "../provider-request-config.js";
 import { logAuthProfileFailureStateChange } from "./state-observation.js";
@@ -401,7 +401,7 @@ const DISABLED_FAILURE_BACKOFF_POLICIES = {
 } as const satisfies Record<DisabledFailureReason, DisabledFailureBackoffPolicy>;
 
 function resolveAuthCooldownConfig(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   providerId: string;
 }): ResolvedAuthCooldownConfig {
   const defaults = {
@@ -650,7 +650,7 @@ export async function markAuthProfileFailure(params: {
   store: AuthProfileStore;
   profileId: string;
   reason: AuthProfileFailureReason;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runId?: string;
   modelId?: string;

@@ -1,23 +1,23 @@
 // Private runtime barrel for the bundled Microsoft Teams extension.
 // Keep this barrel thin and aligned with the local extension surface.
 
-export { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-export type { AllowlistMatch } from "openclaw/plugin-sdk/allow-from";
+export { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+export type { AllowlistMatch } from "alien/plugin-sdk/allow-from";
 export {
   mergeAllowlist,
   resolveAllowlistMatchSimple,
   summarizeMapping,
-} from "openclaw/plugin-sdk/allow-from";
+} from "alien/plugin-sdk/allow-from";
 export type {
   BaseProbeResult,
   ChannelDirectoryEntry,
   ChannelGroupContext,
   ChannelMessageActionName,
   ChannelOutboundAdapter,
-} from "openclaw/plugin-sdk/channel-contract";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-export { logTypingFailure } from "openclaw/plugin-sdk/channel-logging";
-export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+} from "alien/plugin-sdk/channel-contract";
+export type { ChannelPlugin } from "alien/plugin-sdk/channel-core";
+export { logTypingFailure } from "alien/plugin-sdk/channel-logging";
+export { createChannelPairingController } from "alien/plugin-sdk/channel-pairing";
 export {
   evaluateSenderGroupAccessForPolicy,
   readStoreAllowFromForDmPolicy,
@@ -25,19 +25,19 @@ export {
   resolveEffectiveAllowFromLists,
   resolveSenderScopedGroupPolicy,
   resolveToolsBySender,
-} from "openclaw/plugin-sdk/channel-policy";
-export { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-policy";
+export { createChannelMessageReplyPipeline } from "alien/plugin-sdk/channel-message";
 export {
   PAIRING_APPROVED_MESSAGE,
   buildProbeChannelStatusSummary,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/channel-status";
+} from "alien/plugin-sdk/channel-status";
 export {
   buildChannelKeyCandidates,
   normalizeChannelSlug,
   resolveChannelEntryMatchWithFallback,
   resolveNestedAllowlistDecision,
-} from "openclaw/plugin-sdk/channel-targets";
+} from "alien/plugin-sdk/channel-targets";
 export type {
   GroupPolicy,
   GroupToolPolicyConfig,
@@ -46,28 +46,28 @@ export type {
   MSTeamsReplyStyle,
   MSTeamsTeamConfig,
   MarkdownTableMode,
-  OpenClawConfig,
-} from "openclaw/plugin-sdk/config-types";
-export { isDangerousNameMatchingEnabled } from "openclaw/plugin-sdk/dangerous-name-runtime";
-export { resolveDefaultGroupPolicy } from "openclaw/plugin-sdk/runtime-group-policy";
-export { withFileLock } from "openclaw/plugin-sdk/file-lock";
-export { keepHttpServerTaskAlive } from "openclaw/plugin-sdk/channel-lifecycle";
+  AlienConfig,
+} from "alien/plugin-sdk/config-types";
+export { isDangerousNameMatchingEnabled } from "alien/plugin-sdk/dangerous-name-runtime";
+export { resolveDefaultGroupPolicy } from "alien/plugin-sdk/runtime-group-policy";
+export { withFileLock } from "alien/plugin-sdk/file-lock";
+export { keepHttpServerTaskAlive } from "alien/plugin-sdk/channel-lifecycle";
 export {
   detectMime,
   extensionForMime,
   extractOriginalFilename,
   getFileExtension,
   resolveChannelMediaMaxBytes,
-} from "openclaw/plugin-sdk/media-runtime";
-export { dispatchReplyFromConfigWithSettledDispatcher } from "openclaw/plugin-sdk/inbound-reply-dispatch";
-export { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
-export { buildMediaPayload } from "openclaw/plugin-sdk/reply-payload";
-export type { ReplyPayload } from "openclaw/plugin-sdk/reply-payload";
-export type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-export type { SsrFPolicy } from "openclaw/plugin-sdk/ssrf-runtime";
-export { fetchWithSsrFGuard } from "openclaw/plugin-sdk/ssrf-runtime";
-export { normalizeStringEntries } from "openclaw/plugin-sdk/string-normalization-runtime";
-export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
-export { DEFAULT_WEBHOOK_MAX_BODY_BYTES } from "openclaw/plugin-sdk/webhook-ingress";
+} from "alien/plugin-sdk/media-runtime";
+export { dispatchReplyFromConfigWithSettledDispatcher } from "alien/plugin-sdk/inbound-reply-dispatch";
+export { loadOutboundMediaFromUrl } from "alien/plugin-sdk/outbound-media";
+export { buildMediaPayload } from "alien/plugin-sdk/reply-payload";
+export type { ReplyPayload } from "alien/plugin-sdk/reply-payload";
+export type { PluginRuntime } from "alien/plugin-sdk/runtime-store";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime";
+export type { SsrFPolicy } from "alien/plugin-sdk/ssrf-runtime";
+export { fetchWithSsrFGuard } from "alien/plugin-sdk/ssrf-runtime";
+export { normalizeStringEntries } from "alien/plugin-sdk/string-normalization-runtime";
+export { chunkTextForOutbound } from "alien/plugin-sdk/text-chunking";
+export { DEFAULT_WEBHOOK_MAX_BODY_BYTES } from "alien/plugin-sdk/webhook-ingress";
 export { setMSTeamsRuntime } from "./src/runtime.js";

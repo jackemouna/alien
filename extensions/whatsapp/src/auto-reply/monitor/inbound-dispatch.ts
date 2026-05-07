@@ -1,6 +1,6 @@
-import { deliverInboundReplyWithMessageSendContext } from "openclaw/plugin-sdk/channel-message";
-import { hasVisibleInboundReplyDispatch } from "openclaw/plugin-sdk/inbound-reply-dispatch";
-import type { FinalizedMsgContext } from "openclaw/plugin-sdk/reply-runtime";
+import { deliverInboundReplyWithMessageSendContext } from "alien/plugin-sdk/channel-message";
+import { hasVisibleInboundReplyDispatch } from "alien/plugin-sdk/inbound-reply-dispatch";
+import type { FinalizedMsgContext } from "alien/plugin-sdk/reply-runtime";
 import {
   type DeliverableWhatsAppOutboundPayload,
   normalizeWhatsAppOutboundPayload,

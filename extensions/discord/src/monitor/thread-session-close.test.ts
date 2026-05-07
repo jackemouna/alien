@@ -2,13 +2,13 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => {
   const updateSessionStore = vi.fn();
-  const resolveStorePath = vi.fn(() => "/tmp/openclaw-sessions.json");
+  const resolveStorePath = vi.fn(() => "/tmp/alien-sessions.json");
   return { updateSessionStore, resolveStorePath };
 });
 
-vi.mock("openclaw/plugin-sdk/session-store-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/session-store-runtime")>(
-    "openclaw/plugin-sdk/session-store-runtime",
+vi.mock("alien/plugin-sdk/session-store-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/session-store-runtime")>(
+    "alien/plugin-sdk/session-store-runtime",
   );
   return {
     ...actual,
@@ -39,7 +39,7 @@ describe("closeDiscordThreadSessions", () => {
   beforeEach(() => {
     hoisted.updateSessionStore.mockClear();
     hoisted.resolveStorePath.mockClear();
-    hoisted.resolveStorePath.mockReturnValue("/tmp/openclaw-sessions.json");
+    hoisted.resolveStorePath.mockReturnValue("/tmp/alien-sessions.json");
   });
 
   it("resets updatedAt to 0 for sessions whose key contains the threadId", async () => {

@@ -1,13 +1,13 @@
 import {
   attachChannelToResult,
   type ChannelOutboundAdapter,
-} from "openclaw/plugin-sdk/channel-send-result";
+} from "alien/plugin-sdk/channel-send-result";
 import {
   resolvePayloadMediaUrls,
   sendPayloadMediaSequenceOrFallback,
   sendTextMediaPayload,
-} from "openclaw/plugin-sdk/reply-payload";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/reply-payload";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { normalizeDiscordApprovalPayload } from "./outbound-approval.js";
 import {
   resolveDiscordComponentSpec,

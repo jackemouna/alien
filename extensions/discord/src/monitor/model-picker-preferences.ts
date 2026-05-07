@@ -1,11 +1,11 @@
 import os from "node:os";
 import path from "node:path";
-import { normalizeAccountId as normalizeSharedAccountId } from "openclaw/plugin-sdk/account-id";
-import { withFileLock } from "openclaw/plugin-sdk/file-lock";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
-import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
-import { resolveStateDir } from "openclaw/plugin-sdk/state-paths";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeAccountId as normalizeSharedAccountId } from "alien/plugin-sdk/account-id";
+import { withFileLock } from "alien/plugin-sdk/file-lock";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "alien/plugin-sdk/json-store";
+import { normalizeProviderId } from "alien/plugin-sdk/provider-model-shared";
+import { resolveStateDir } from "alien/plugin-sdk/state-paths";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 const MODEL_PICKER_PREFERENCES_LOCK_OPTIONS = {
   retries: {

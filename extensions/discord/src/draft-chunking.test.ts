@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { resolveDiscordDraftStreamingChunking } from "./draft-chunking.js";
 import { EMPTY_DISCORD_TEST_CONFIG } from "./test-support/config.js";
@@ -24,7 +24,7 @@ describe("resolveDiscordDraftStreamingChunking", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveDiscordDraftStreamingChunking(cfg)).toEqual({
       minChars: 500,
@@ -53,7 +53,7 @@ describe("resolveDiscordDraftStreamingChunking", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(resolveDiscordDraftStreamingChunking(cfg, "ops")).toEqual({
       minChars: 25,

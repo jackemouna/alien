@@ -1,15 +1,15 @@
 ---
-summary: "CLI reference for `openclaw browser` (lifecycle, profiles, tabs, actions, state, and debugging)"
+summary: "CLI reference for `alien browser` (lifecycle, profiles, tabs, actions, state, and debugging)"
 read_when:
-  - You use `openclaw browser` and want examples for common tasks
+  - You use `alien browser` and want examples for common tasks
   - You want to control a browser running on another machine via a node host
   - You want to attach to your local signed-in Chrome via Chrome MCP
 title: "Browser"
 ---
 
-# `openclaw browser`
+# `alien browser`
 
-Manage OpenClaw's browser control surface and run browser actions (lifecycle, profiles, tabs, snapshots, screenshots, navigation, input, state emulation, and debugging).
+Manage Alien's browser control surface and run browser actions (lifecycle, profiles, tabs, snapshots, screenshots, navigation, input, state emulation, and debugging).
 
 Related:
 
@@ -27,10 +27,10 @@ Related:
 ## Quick start (local)
 
 ```bash
-openclaw browser profiles
-openclaw browser --browser-profile openclaw start
-openclaw browser --browser-profile openclaw open https://example.com
-openclaw browser --browser-profile openclaw snapshot
+alien browser profiles
+alien browser --browser-profile alien start
+alien browser --browser-profile alien open https://example.com
+alien browser --browser-profile alien snapshot
 ```
 
 Agents can run the same readiness check with `browser({ action: "doctor" })`.
@@ -42,10 +42,10 @@ If `start` fails with `not reachable after start`, troubleshoot CDP readiness fi
 Minimal sequence:
 
 ```bash
-openclaw browser --browser-profile openclaw doctor
-openclaw browser --browser-profile openclaw start
-openclaw browser --browser-profile openclaw tabs
-openclaw browser --browser-profile openclaw open https://example.com
+alien browser --browser-profile alien doctor
+alien browser --browser-profile alien start
+alien browser --browser-profile alien tabs
+alien browser --browser-profile alien open https://example.com
 ```
 
 Detailed guidance: [Browser troubleshooting](/tools/browser#cdp-startup-failure-vs-navigation-ssrf-block)
@@ -53,37 +53,37 @@ Detailed guidance: [Browser troubleshooting](/tools/browser#cdp-startup-failure-
 ## Lifecycle
 
 ```bash
-openclaw browser status
-openclaw browser doctor
-openclaw browser doctor --deep
-openclaw browser start
-openclaw browser start --headless
-openclaw browser stop
-openclaw browser --browser-profile openclaw reset-profile
+alien browser status
+alien browser doctor
+alien browser doctor --deep
+alien browser start
+alien browser start --headless
+alien browser stop
+alien browser --browser-profile alien reset-profile
 ```
 
 Notes:
 
 - `doctor --deep` adds a live snapshot probe. It is useful when basic CDP
   readiness is green but you want proof that the current tab can be inspected.
-- For `attachOnly` and remote CDP profiles, `openclaw browser stop` closes the
+- For `attachOnly` and remote CDP profiles, `alien browser stop` closes the
   active control session and clears temporary emulation overrides even when
-  OpenClaw did not launch the browser process itself.
-- For local managed profiles, `openclaw browser stop` stops the spawned browser
+  Alien did not launch the browser process itself.
+- For local managed profiles, `alien browser stop` stops the spawned browser
   process.
-- `openclaw browser start --headless` applies only to that start request and
-  only when OpenClaw launches a local managed browser. It does not rewrite
+- `alien browser start --headless` applies only to that start request and
+  only when Alien launches a local managed browser. It does not rewrite
   `browser.headless` or profile config, and it is a no-op for an already-running
   browser.
 - On Linux hosts without `DISPLAY` or `WAYLAND_DISPLAY`, local managed profiles
-  run headless automatically unless `OPENCLAW_BROWSER_HEADLESS=0`,
+  run headless automatically unless `ALIEN_BROWSER_HEADLESS=0`,
   `browser.headless=false`, or `browser.profiles.<name>.headless=false`
   explicitly requests a visible browser.
 
 ## If the command is missing
 
-If `openclaw browser` is an unknown command, check `plugins.allow` in
-`~/.openclaw/openclaw.json`.
+If `alien browser` is an unknown command, check `plugins.allow` in
+`~/.alien/alien.json`.
 
 When `plugins.allow` is present, list the bundled browser plugin explicitly
 unless the config already has a root `browser` block:
@@ -106,35 +106,35 @@ Related: [Browser tool](/tools/browser#missing-browser-command-or-tool)
 
 Profiles are named browser routing configs. In practice:
 
-- `openclaw`: launches or attaches to a dedicated OpenClaw-managed Chrome instance (isolated user data dir).
+- `alien`: launches or attaches to a dedicated Alien-managed Chrome instance (isolated user data dir).
 - `user`: controls your existing signed-in Chrome session via Chrome DevTools MCP.
 - custom CDP profiles: point at a local or remote CDP endpoint.
 
 ```bash
-openclaw browser profiles
-openclaw browser create-profile --name work --color "#FF5A36"
-openclaw browser create-profile --name chrome-live --driver existing-session
-openclaw browser create-profile --name remote --cdp-url https://browser-host.example.com
-openclaw browser delete-profile --name work
+alien browser profiles
+alien browser create-profile --name work --color "#FF5A36"
+alien browser create-profile --name chrome-live --driver existing-session
+alien browser create-profile --name remote --cdp-url https://browser-host.example.com
+alien browser delete-profile --name work
 ```
 
 Use a specific profile:
 
 ```bash
-openclaw browser --browser-profile work tabs
+alien browser --browser-profile work tabs
 ```
 
 ## Tabs
 
 ```bash
-openclaw browser tabs
-openclaw browser tab new --label docs
-openclaw browser tab label t1 docs
-openclaw browser tab select 2
-openclaw browser tab close 2
-openclaw browser open https://docs.openclaw.ai --label docs
-openclaw browser focus docs
-openclaw browser close t1
+alien browser tabs
+alien browser tab new --label docs
+alien browser tab label t1 docs
+alien browser tab select 2
+alien browser tab close 2
+alien browser open https://docs.alien.ai --label docs
+alien browser focus docs
+alien browser close t1
 ```
 
 `tabs` returns `suggestedTargetId` first, then the stable `tabId` such as `t1`,
@@ -143,7 +143,7 @@ the optional label, and the raw `targetId`. Agents should pass
 assign a label with `open --label`, `tab new --label`, or `tab label`; labels,
 tab ids, raw target ids, and unique target-id prefixes are all accepted.
 When Chromium replaces the underlying raw target during a navigation or form
-submit, OpenClaw keeps the stable `tabId`/label attached to the replacement tab
+submit, Alien keeps the stable `tabId`/label attached to the replacement tab
 when it can prove the match. Raw target ids remain volatile; prefer
 `suggestedTargetId`.
 
@@ -152,17 +152,17 @@ when it can prove the match. Raw target ids remain volatile; prefer
 Snapshot:
 
 ```bash
-openclaw browser snapshot
-openclaw browser snapshot --urls
+alien browser snapshot
+alien browser snapshot --urls
 ```
 
 Screenshot:
 
 ```bash
-openclaw browser screenshot
-openclaw browser screenshot --full-page
-openclaw browser screenshot --ref e12
-openclaw browser screenshot --labels
+alien browser screenshot
+alien browser screenshot --full-page
+alien browser screenshot --ref e12
+alien browser screenshot --labels
 ```
 
 Notes:
@@ -179,35 +179,35 @@ Notes:
 Navigate/click/type (ref-based UI automation):
 
 ```bash
-openclaw browser navigate https://example.com
-openclaw browser click <ref>
-openclaw browser click-coords 120 340
-openclaw browser type <ref> "hello"
-openclaw browser press Enter
-openclaw browser hover <ref>
-openclaw browser scrollintoview <ref>
-openclaw browser drag <startRef> <endRef>
-openclaw browser select <ref> OptionA OptionB
-openclaw browser fill --fields '[{"ref":"1","value":"Ada"}]'
-openclaw browser wait --text "Done"
-openclaw browser evaluate --fn '(el) => el.textContent' --ref <ref>
+alien browser navigate https://example.com
+alien browser click <ref>
+alien browser click-coords 120 340
+alien browser type <ref> "hello"
+alien browser press Enter
+alien browser hover <ref>
+alien browser scrollintoview <ref>
+alien browser drag <startRef> <endRef>
+alien browser select <ref> OptionA OptionB
+alien browser fill --fields '[{"ref":"1","value":"Ada"}]'
+alien browser wait --text "Done"
+alien browser evaluate --fn '(el) => el.textContent' --ref <ref>
 ```
 
 Action responses return the current raw `targetId` after action-triggered page
-replacement when OpenClaw can prove the replacement tab. Scripts should still
+replacement when Alien can prove the replacement tab. Scripts should still
 store and pass `suggestedTargetId`/labels for long-lived workflows.
 
 File + dialog helpers:
 
 ```bash
-openclaw browser upload /tmp/openclaw/uploads/file.pdf --ref <ref>
-openclaw browser waitfordownload
-openclaw browser download <ref> report.pdf
-openclaw browser dialog --accept
+alien browser upload /tmp/alien/uploads/file.pdf --ref <ref>
+alien browser waitfordownload
+alien browser download <ref> report.pdf
+alien browser dialog --accept
 ```
 
-Managed Chrome profiles save ordinary click-triggered downloads into the OpenClaw
-downloads directory (`/tmp/openclaw/downloads` by default, or the configured temp
+Managed Chrome profiles save ordinary click-triggered downloads into the Alien
+downloads directory (`/tmp/alien/downloads` by default, or the configured temp
 root). Use `waitfordownload` or `download` when the agent needs to wait for a
 specific file and return its path; those explicit waiters own the next download.
 
@@ -216,40 +216,40 @@ specific file and return its path; those explicit waiters own the next download.
 Viewport + emulation:
 
 ```bash
-openclaw browser resize 1280 720
-openclaw browser set viewport 1280 720
-openclaw browser set offline on
-openclaw browser set media dark
-openclaw browser set timezone Europe/London
-openclaw browser set locale en-GB
-openclaw browser set geo 51.5074 -0.1278 --accuracy 25
-openclaw browser set device "iPhone 14"
-openclaw browser set headers '{"x-test":"1"}'
-openclaw browser set credentials myuser mypass
+alien browser resize 1280 720
+alien browser set viewport 1280 720
+alien browser set offline on
+alien browser set media dark
+alien browser set timezone Europe/London
+alien browser set locale en-GB
+alien browser set geo 51.5074 -0.1278 --accuracy 25
+alien browser set device "iPhone 14"
+alien browser set headers '{"x-test":"1"}'
+alien browser set credentials myuser mypass
 ```
 
 Cookies + storage:
 
 ```bash
-openclaw browser cookies
-openclaw browser cookies set session abc123 --url https://example.com
-openclaw browser cookies clear
-openclaw browser storage local get
-openclaw browser storage local set token abc123
-openclaw browser storage session clear
+alien browser cookies
+alien browser cookies set session abc123 --url https://example.com
+alien browser cookies clear
+alien browser storage local get
+alien browser storage local set token abc123
+alien browser storage session clear
 ```
 
 ## Debugging
 
 ```bash
-openclaw browser console --level error
-openclaw browser pdf
-openclaw browser responsebody "**/api"
-openclaw browser highlight <ref>
-openclaw browser errors --clear
-openclaw browser requests --filter api
-openclaw browser trace start
-openclaw browser trace stop --out trace.zip
+alien browser console --level error
+alien browser pdf
+alien browser responsebody "**/api"
+alien browser highlight <ref>
+alien browser errors --clear
+alien browser requests --filter api
+alien browser trace start
+alien browser trace stop --out trace.zip
 ```
 
 ## Existing Chrome via MCP
@@ -257,10 +257,10 @@ openclaw browser trace stop --out trace.zip
 Use the built-in `user` profile, or create your own `existing-session` profile:
 
 ```bash
-openclaw browser --browser-profile user tabs
-openclaw browser create-profile --name chrome-live --driver existing-session
-openclaw browser create-profile --name brave-live --driver existing-session --user-data-dir "~/Library/Application Support/BraveSoftware/Brave-Browser"
-openclaw browser --browser-profile chrome-live tabs
+alien browser --browser-profile user tabs
+alien browser create-profile --name chrome-live --driver existing-session
+alien browser create-profile --name brave-live --driver existing-session --user-data-dir "~/Library/Application Support/BraveSoftware/Brave-Browser"
+alien browser --browser-profile chrome-live tabs
 ```
 
 This path is host-only. For Docker, headless servers, Browserless, or other remote setups, use a CDP profile instead.

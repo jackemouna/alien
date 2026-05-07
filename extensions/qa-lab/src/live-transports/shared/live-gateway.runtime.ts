@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   startQaGatewayChild,
   type QaCliBackendAuthMode,
@@ -42,7 +42,7 @@ function omitMemoryCoreEntry<T extends Record<string, unknown> | undefined>(entr
   return rest as T;
 }
 
-function prepareLiveTransportGatewayConfig(cfg: OpenClawConfig): OpenClawConfig {
+function prepareLiveTransportGatewayConfig(cfg: AlienConfig): AlienConfig {
   const defaults = cfg.agents?.defaults ?? {};
   return {
     ...cfg,
@@ -87,7 +87,7 @@ export async function startQaLiveLaneGateway(params: {
     requiredPluginIds: readonly string[];
     createGatewayConfig: (params: {
       baseUrl: string;
-    }) => Pick<OpenClawConfig, "channels" | "messages">;
+    }) => Pick<AlienConfig, "channels" | "messages">;
   };
   transportBaseUrl: string;
   controlUiAllowedOrigins?: string[];
@@ -98,7 +98,7 @@ export async function startQaLiveLaneGateway(params: {
   thinkingDefault?: QaThinkingLevel;
   claudeCliAuthMode?: QaCliBackendAuthMode;
   controlUiEnabled?: boolean;
-  mutateConfig?: (cfg: OpenClawConfig) => OpenClawConfig;
+  mutateConfig?: (cfg: AlienConfig) => AlienConfig;
 }) {
   const mock = await startQaProviderServer(params.providerMode);
   try {

@@ -1,10 +1,10 @@
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-dispatch-runtime";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-dispatch-runtime";
 import {
   resolveSendableOutboundReplyParts,
   resolveTextChunksWithFallback,
-} from "openclaw/plugin-sdk/reply-payload";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { loadWebMedia } from "openclaw/plugin-sdk/web-media";
+} from "alien/plugin-sdk/reply-payload";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { loadWebMedia } from "alien/plugin-sdk/web-media";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import type {
   ButtonInteraction,

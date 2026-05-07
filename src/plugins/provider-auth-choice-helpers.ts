@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/model-selection.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -89,10 +89,10 @@ function mergeConfigPatch<T>(base: T, patch: unknown): T {
 }
 
 export function applyProviderAuthConfigPatch(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   patch: unknown,
   options?: { replaceDefaultModels?: boolean },
-): OpenClawConfig {
+): AlienConfig {
   const merged = mergeConfigPatch(cfg, patch);
   if (!options?.replaceDefaultModels || !isPlainRecord(patch)) {
     return merged;
@@ -112,7 +112,7 @@ export function applyProviderAuthConfigPatch(
         ...merged.agents?.defaults,
         // Opt-in replacement for migrations that rename/remove model keys.
         models: sanitizeConfigPatchValue(patchModels) as NonNullable<
-          NonNullable<OpenClawConfig["agents"]>["defaults"]
+          NonNullable<AlienConfig["agents"]>["defaults"]
         >["models"],
       },
     },
@@ -120,10 +120,10 @@ export function applyProviderAuthConfigPatch(
 }
 
 export function applyDefaultModel(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   model: string,
   opts?: { preserveExistingPrimary?: boolean },
-): OpenClawConfig {
+): AlienConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[model] = models[model] ?? {};
 

@@ -6,7 +6,7 @@ import {
   resolveGpt5PromptOverlayMode,
   resolveGpt5SystemPromptContribution,
   type Gpt5PromptOverlayMode,
-} from "openclaw/plugin-sdk/provider-model-shared";
+} from "alien/plugin-sdk/provider-model-shared";
 
 const OPENAI_PROVIDER_IDS = new Set(["openai", "openai-codex"]);
 

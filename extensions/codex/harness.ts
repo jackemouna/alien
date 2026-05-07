@@ -1,4 +1,4 @@
-import type { AgentHarness } from "openclaw/plugin-sdk/agent-harness-runtime";
+import type { AgentHarness } from "alien/plugin-sdk/agent-harness-runtime";
 import type {
   CodexAppServerListModelsOptions,
   CodexAppServerModel,

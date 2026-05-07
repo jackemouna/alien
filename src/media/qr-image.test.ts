@@ -27,7 +27,7 @@ import {
 } from "./qr-image.ts";
 
 describe("renderQrPngBase64", () => {
-  const tmpRoot = path.join(os.tmpdir(), "openclaw-qr-image-tests");
+  const tmpRoot = path.join(os.tmpdir(), "alien-qr-image-tests");
 
   beforeEach(() => {
     toDataURL.mockClear();
@@ -39,10 +39,10 @@ describe("renderQrPngBase64", () => {
   });
 
   it("delegates PNG rendering to qrcode", async () => {
-    await expect(renderQrPngBase64("openclaw", { scale: 8, marginModules: 2 })).resolves.toBe(
+    await expect(renderQrPngBase64("alien", { scale: 8, marginModules: 2 })).resolves.toBe(
       MOCK_PNG_BASE64,
     );
-    expect(toDataURL).toHaveBeenCalledWith("openclaw", {
+    expect(toDataURL).toHaveBeenCalledWith("alien", {
       margin: 2,
       scale: 8,
       type: "image/png",
@@ -50,8 +50,8 @@ describe("renderQrPngBase64", () => {
   });
 
   it("uses the default PNG rendering options", async () => {
-    await renderQrPngBase64("openclaw");
-    expect(toDataURL).toHaveBeenCalledWith("openclaw", {
+    await renderQrPngBase64("alien");
+    expect(toDataURL).toHaveBeenCalledWith("alien", {
       margin: 4,
       scale: 6,
       type: "image/png",
@@ -59,8 +59,8 @@ describe("renderQrPngBase64", () => {
   });
 
   it("floors finite PNG rendering options before delegating", async () => {
-    await renderQrPngBase64("openclaw", { scale: 8.9, marginModules: 2.9 });
-    expect(toDataURL).toHaveBeenCalledWith("openclaw", {
+    await renderQrPngBase64("alien", { scale: 8.9, marginModules: 2.9 });
+    expect(toDataURL).toHaveBeenCalledWith("alien", {
       margin: 2,
       scale: 8,
       type: "image/png",
@@ -75,20 +75,20 @@ describe("renderQrPngBase64", () => {
     ["marginModules", 6, 17, "marginModules must be between 0 and 16."],
     ["marginModules", 6, Number.POSITIVE_INFINITY, "marginModules must be a finite number."],
   ])("rejects invalid %s values", async (_name, scale, marginModules, message) => {
-    await expect(renderQrPngBase64("openclaw", { scale, marginModules })).rejects.toThrow(message);
+    await expect(renderQrPngBase64("alien", { scale, marginModules })).rejects.toThrow(message);
     expect(toDataURL).not.toHaveBeenCalled();
   });
 
   it("rejects non-PNG qrcode data URLs", async () => {
     toDataURL.mockResolvedValue("data:image/svg+xml;base64,PHN2Zz4=");
-    await expect(renderQrPngBase64("openclaw")).rejects.toThrow(
+    await expect(renderQrPngBase64("alien")).rejects.toThrow(
       "Expected qrcode to return a PNG data URL.",
     );
   });
 
   it("formats QR PNG data URLs", async () => {
     expect(formatQrPngDataUrl(MOCK_PNG_BASE64)).toBe(`data:image/png;base64,${MOCK_PNG_BASE64}`);
-    await expect(renderQrPngDataUrl("openclaw")).resolves.toBe(
+    await expect(renderQrPngDataUrl("alien")).resolves.toBe(
       `data:image/png;base64,${MOCK_PNG_BASE64}`,
     );
   });
@@ -96,7 +96,7 @@ describe("renderQrPngBase64", () => {
   it("writes QR PNGs to a scoped temp file", async () => {
     await fs.mkdir(tmpRoot, { recursive: true });
 
-    const result = await writeQrPngTempFile("openclaw", {
+    const result = await writeQrPngTempFile("alien", {
       tmpRoot,
       dirPrefix: "pair-",
       fileName: "pair-qr.png",
@@ -113,7 +113,7 @@ describe("renderQrPngBase64", () => {
     ["fileName", { dirPrefix: "pair-", fileName: "../qr.png" }],
   ])("rejects pathful QR temp %s values", async (name, opts) => {
     await expect(
-      writeQrPngTempFile("openclaw", {
+      writeQrPngTempFile("alien", {
         tmpRoot,
         dirPrefix: opts.dirPrefix,
         fileName: opts.fileName,

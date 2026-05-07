@@ -1,9 +1,9 @@
 import {
   listNativeCommandSpecs,
   listNativeCommandSpecsForConfig,
-} from "openclaw/plugin-sdk/native-command-registry";
+} from "alien/plugin-sdk/native-command-registry";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../runtime-api.js";
+import type { AlienConfig } from "../runtime-api.js";
 
 const {
   getLoadConfigMock,
@@ -99,7 +99,7 @@ describe("createTelegramBot command menu", () => {
           ],
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
     loadConfig.mockReturnValue(config);
     const commandsSynced = waitForNextSetMyCommands();
 
@@ -140,7 +140,7 @@ describe("createTelegramBot command menu", () => {
           ],
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
     loadConfig.mockReturnValue(config);
     const commandsSynced = waitForNextSetMyCommands();
 
@@ -192,7 +192,7 @@ describe("createTelegramBot command menu", () => {
           ],
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
     loadConfig.mockReturnValue(config);
     const commandsSynced = waitForNextSetMyCommands();
 

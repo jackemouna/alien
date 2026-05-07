@@ -35,7 +35,7 @@ describe("run-additional-boundary-checks", () => {
 
   it("leaves boundary checks unchanged when prompt snapshots are unrelated", () => {
     expect(
-      filterChecksForEnvironment(BOUNDARY_CHECKS, { OPENCLAW_RUN_PROMPT_SNAPSHOTS: "false" }),
+      filterChecksForEnvironment(BOUNDARY_CHECKS, { ALIEN_RUN_PROMPT_SNAPSHOTS: "false" }),
     ).toEqual(BOUNDARY_CHECKS);
   });
 

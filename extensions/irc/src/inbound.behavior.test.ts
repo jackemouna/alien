@@ -56,7 +56,7 @@ function createAccount(overrides?: Partial<ResolvedIrcAccount>): ResolvedIrcAcco
     accountId: "default",
     enabled: true,
     server: "irc.example.com",
-    nick: "OpenClaw",
+    nick: "Alien",
     config: {
       dmPolicy: "pairing",
       allowFrom: [],
@@ -108,7 +108,7 @@ describe("irc inbound behavior", () => {
     expect(sendReply).toHaveBeenCalledTimes(1);
     expect(sendReply).toHaveBeenCalledWith(
       "alice",
-      expect.stringContaining("OpenClaw: access not configured."),
+      expect.stringContaining("Alien: access not configured."),
       undefined,
     );
     expect(sendReply).toHaveBeenCalledWith(

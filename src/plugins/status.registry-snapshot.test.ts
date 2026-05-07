@@ -16,7 +16,7 @@ import { cleanupTrackedTempDirs, makeTrackedTempDir } from "./test-helpers/fs-fi
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("openclaw-plugin-status", tempDirs);
+  return makeTrackedTempDir("alien-plugin-status", tempDirs);
 }
 
 function writeManagedNpmPlugin(params: {
@@ -58,12 +58,12 @@ function writeManagedNpmPlugin(params: {
     JSON.stringify({
       name: params.packageName,
       version: params.version,
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     }),
     "utf8",
   );
   fs.writeFileSync(
-    path.join(packageDir, "openclaw.plugin.json"),
+    path.join(packageDir, "alien.plugin.json"),
     JSON.stringify({
       id: params.pluginId,
       name: "WhatsApp",
@@ -88,8 +88,8 @@ describe("buildPluginRegistrySnapshotReport", () => {
         bundledPluginsDir: makeTempDir(),
         disablePersistedRegistry: false,
       }),
-      OPENCLAW_DISABLE_BUNDLED_PLUGINS: "1",
-      OPENCLAW_STATE_DIR: stateDir,
+      ALIEN_DISABLE_BUNDLED_PLUGINS: "1",
+      ALIEN_STATE_DIR: stateDir,
     };
     const config = {
       plugins: {
@@ -100,7 +100,7 @@ describe("buildPluginRegistrySnapshotReport", () => {
     };
     const whatsappDir = writeManagedNpmPlugin({
       stateDir,
-      packageName: "@openclaw/whatsapp",
+      packageName: "@alien/whatsapp",
       pluginId: "whatsapp",
       version: "2026.5.2",
     });
@@ -137,7 +137,7 @@ describe("buildPluginRegistrySnapshotReport", () => {
     const fixture = createColdPluginFixture({
       rootDir: makeTempDir(),
       pluginId: "indexed-demo",
-      packageName: "@example/openclaw-indexed-demo",
+      packageName: "@example/alien-indexed-demo",
       packageVersion: "9.8.7",
       manifest: {
         id: "indexed-demo",
@@ -173,7 +173,7 @@ describe("buildPluginRegistrySnapshotReport", () => {
       name: "Indexed Demo",
       description: "Manifest-backed list metadata",
       version: "9.8.7",
-      format: "openclaw",
+      format: "alien",
       providerIds: ["indexed-provider"],
       speechProviderIds: ["indexed-speech-provider"],
       realtimeTranscriptionProviderIds: ["indexed-transcription-provider"],
@@ -252,7 +252,7 @@ describe("buildPluginRegistrySnapshotReport", () => {
     const fixture = createColdPluginFixture({
       rootDir: makeTempDir(),
       pluginId: "persisted-demo",
-      packageName: "@example/openclaw-persisted-demo",
+      packageName: "@example/alien-persisted-demo",
       packageVersion: "2.0.0",
       manifest: {
         id: "persisted-demo",

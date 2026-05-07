@@ -35,7 +35,7 @@ function toRepoPath(filePath: string): string {
 }
 
 describe("fs-safe import boundary", () => {
-  it("keeps direct fs-safe imports behind OpenClaw policy wrappers", () => {
+  it("keeps direct fs-safe imports behind Alien policy wrappers", () => {
     const violations = SCAN_ROOTS.flatMap((root) => walk(path.join(REPO_ROOT, root)))
       .map(toRepoPath)
       .filter((filePath) => {
@@ -43,7 +43,7 @@ describe("fs-safe import boundary", () => {
           return false;
         }
         const source = fs.readFileSync(path.join(REPO_ROOT, filePath), "utf8");
-        return source.includes('"@openclaw/fs-safe') || source.includes("'@openclaw/fs-safe");
+        return source.includes('"@alien/fs-safe') || source.includes("'@alien/fs-safe");
       });
 
     expect(violations).toEqual([]);

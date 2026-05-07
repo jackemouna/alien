@@ -1,11 +1,11 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export {
   formatInboundEnvelope,
   type EnvelopeFormatOptions,
-} from "openclaw/plugin-sdk/channel-envelope";
+} from "alien/plugin-sdk/channel-envelope";
 
-type WhatsAppMessagePrefixConfig = OpenClawConfig;
+type WhatsAppMessagePrefixConfig = AlienConfig;
 
 function normalizeAgentId(agentId: string): string {
   return agentId.trim().toLowerCase() || "main";
@@ -34,5 +34,5 @@ export function resolveMessagePrefix(
   if (opts?.hasAllowFrom === true) {
     return "";
   }
-  return resolveIdentityNamePrefix(cfg, agentId) ?? opts?.fallback ?? "[openclaw]";
+  return resolveIdentityNamePrefix(cfg, agentId) ?? opts?.fallback ?? "[alien]";
 }

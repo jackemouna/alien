@@ -1,4 +1,4 @@
-import { registerSingleProviderPlugin } from "openclaw/plugin-sdk/plugin-test-runtime";
+import { registerSingleProviderPlugin } from "alien/plugin-sdk/plugin-test-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 function mockBedrockSdkImportTripwire(): () => number {

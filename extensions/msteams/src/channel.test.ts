@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { MSTeamsConfigSchema } from "../config-api.js";
 import { msTeamsApprovalAuth } from "./approval-auth.js";
 import { msteamsPlugin } from "./channel.js";
 
-function createConfiguredMSTeamsCfg(): OpenClawConfig {
+function createConfiguredMSTeamsCfg(): AlienConfig {
   return {
     channels: {
       msteams: {

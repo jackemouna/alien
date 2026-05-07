@@ -308,7 +308,7 @@ console.log(json);
 
   it("does not treat fetch in names or comments as network send context", () => {
     const source = `
-const inheritedOutputPath = process.env.OPENCLAW_RUN_NODE_OUTPUT_LOG?.trim();
+const inheritedOutputPath = process.env.ALIEN_RUN_NODE_OUTPUT_LOG?.trim();
 async function closeFetchHandles() {
   // Best-effort cleanup for stale fetch keep-alive handles.
 }

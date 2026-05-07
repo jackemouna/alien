@@ -20,7 +20,7 @@ type ActiveTurn = {
 
 type PermissionsMode = "default" | "yolo";
 
-const CODEX_CONVERSATION_CONTROL_STATE = Symbol.for("openclaw.codex.conversationControl");
+const CODEX_CONVERSATION_CONTROL_STATE = Symbol.for("alien.codex.conversationControl");
 
 function getActiveTurns(): Map<string, ActiveTurn> {
   const globalState = globalThis as typeof globalThis & {
@@ -211,7 +211,7 @@ export function formatPermissionsMode(binding: {
 async function requireThreadBinding(sessionFile: string) {
   const binding = await readCodexAppServerBinding(sessionFile);
   if (!binding?.threadId) {
-    throw new Error("No Codex thread is attached to this OpenClaw session yet.");
+    throw new Error("No Codex thread is attached to this Alien session yet.");
   }
   return binding;
 }

@@ -2,17 +2,17 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { AgentMessage } from "openclaw/plugin-sdk/agent-harness-runtime";
+import type { AgentMessage } from "alien/plugin-sdk/agent-harness-runtime";
 import {
   initializeGlobalHookRunner,
   resetGlobalHookRunner,
-} from "openclaw/plugin-sdk/hook-runtime";
-import { createMockPluginRegistry } from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/hook-runtime";
+import { createMockPluginRegistry } from "alien/plugin-sdk/plugin-test-runtime";
 import {
   castAgentMessage,
   makeAgentAssistantMessage,
   makeAgentUserMessage,
-} from "openclaw/plugin-sdk/test-fixtures";
+} from "alien/plugin-sdk/test-fixtures";
 import { afterEach, describe, expect, it } from "vitest";
 import { attachCodexMirrorIdentity, mirrorCodexAppServerTranscript } from "./transcript-mirror.js";
 
@@ -35,7 +35,7 @@ afterEach(async () => {
 });
 
 async function createTempSessionFile() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-transcript-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-codex-transcript-"));
   tempDirs.push(dir);
   return path.join(dir, "session.jsonl");
 }
@@ -77,7 +77,7 @@ describe("mirrorCodexAppServerTranscript", () => {
   });
 
   it("creates the transcript directory on first mirror", async () => {
-    const root = await makeRoot("openclaw-codex-transcript-missing-dir-");
+    const root = await makeRoot("alien-codex-transcript-missing-dir-");
     const sessionFile = path.join(root, "nested", "sessions", "session.jsonl");
 
     await mirrorCodexAppServerTranscript({

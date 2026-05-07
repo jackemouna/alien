@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { collectClawHubOpenClawOwnerErrors } from "./lib/plugin-clawhub-release.ts";
+import { collectClawHubAlienOwnerErrors } from "./lib/plugin-clawhub-release.ts";
 
 type ReleasePlanFile = {
   candidates?: Array<{
@@ -24,14 +24,14 @@ export async function runClawHubOwnerPreflight(argv: string[]) {
     )
     .map((candidate) => ({ packageName: candidate.packageName }));
 
-  const errors = await collectClawHubOpenClawOwnerErrors({ plugins: candidates });
+  const errors = await collectClawHubAlienOwnerErrors({ plugins: candidates });
   if (errors.length > 0) {
     throw new Error(
-      `ClawHub OpenClaw package ownership preflight failed:\n${errors.map((error) => `- ${error}`).join("\n")}`,
+      `ClawHub Alien package ownership preflight failed:\n${errors.map((error) => `- ${error}`).join("\n")}`,
     );
   }
 
-  console.log(`ClawHub OpenClaw owner preflight passed for ${candidates.length} candidate(s).`);
+  console.log(`ClawHub Alien owner preflight passed for ${candidates.length} candidate(s).`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

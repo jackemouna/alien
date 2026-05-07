@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import type {
-  OpenClawPluginCommandDefinition,
+  AlienPluginCommandDefinition,
   PluginCommandContext,
-} from "openclaw/plugin-sdk/core";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/core";
+import type { AlienPluginApi } from "alien/plugin-sdk/plugin-entry";
 import { describe, expect, it, vi } from "vitest";
 import { registerDreamingCommand } from "./dreaming-command.js";
 
@@ -14,35 +14,35 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-function resolveStoredDreaming(config: OpenClawConfig): Record<string, unknown> {
+function resolveStoredDreaming(config: AlienConfig): Record<string, unknown> {
   const entry = asRecord(config.plugins?.entries?.["memory-core"]);
   const pluginConfig = asRecord(entry?.config);
   return asRecord(pluginConfig?.dreaming) ?? {};
 }
 
-function createHarness(initialConfig: OpenClawConfig = {}) {
-  const registered: { command?: OpenClawPluginCommandDefinition } = {};
-  let runtimeConfig: OpenClawConfig = initialConfig;
+function createHarness(initialConfig: AlienConfig = {}) {
+  const registered: { command?: AlienPluginCommandDefinition } = {};
+  let runtimeConfig: AlienConfig = initialConfig;
 
   const runtime = {
     config: {
       current: vi.fn(() => runtimeConfig),
       loadConfig: vi.fn(() => runtimeConfig),
-      replaceConfigFile: vi.fn(async ({ nextConfig }: { nextConfig: OpenClawConfig }) => {
+      replaceConfigFile: vi.fn(async ({ nextConfig }: { nextConfig: AlienConfig }) => {
         runtimeConfig = nextConfig;
       }),
-      writeConfigFile: vi.fn(async (nextConfig: OpenClawConfig) => {
+      writeConfigFile: vi.fn(async (nextConfig: AlienConfig) => {
         runtimeConfig = nextConfig;
       }),
     },
-  } as unknown as OpenClawPluginApi["runtime"];
+  } as unknown as AlienPluginApi["runtime"];
 
   const api = {
     runtime,
-    registerCommand: vi.fn((definition: OpenClawPluginCommandDefinition) => {
+    registerCommand: vi.fn((definition: AlienPluginCommandDefinition) => {
       registered.command = definition;
     }),
-  } as unknown as OpenClawPluginApi;
+  } as unknown as AlienPluginApi;
 
   registerDreamingCommand(api);
 

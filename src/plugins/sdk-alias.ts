@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { tryReadJsonSync } from "../infra/json-files.js";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveAlienPackageRootSync } from "../infra/alien-root.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { PluginLruCache } from "./plugin-cache-primitives.js";
 
@@ -59,7 +59,7 @@ function listPluginSdkSubpathsFromPackageJson(pkg: PluginSdkPackageJson): string
     .toSorted();
 }
 
-function hasTrustedOpenClawRootIndicator(params: {
+function hasTrustedAlienRootIndicator(params: {
   packageRoot: string;
   packageJson: PluginSdkPackageJson;
 }): boolean {
@@ -72,14 +72,14 @@ function hasTrustedOpenClawRootIndicator(params: {
     return false;
   }
   const hasCliEntryExport = Object.prototype.hasOwnProperty.call(packageExports, "./cli-entry");
-  const hasOpenClawBin =
+  const hasAlienBin =
     (typeof params.packageJson.bin === "string" &&
-      normalizeLowercaseStringOrEmpty(params.packageJson.bin).includes("openclaw")) ||
+      normalizeLowercaseStringOrEmpty(params.packageJson.bin).includes("alien")) ||
     (typeof params.packageJson.bin === "object" &&
       params.packageJson.bin !== null &&
-      typeof params.packageJson.bin.openclaw === "string");
-  const hasOpenClawEntrypoint = fs.existsSync(path.join(params.packageRoot, "openclaw.mjs"));
-  return hasCliEntryExport || hasOpenClawBin || hasOpenClawEntrypoint;
+      typeof params.packageJson.bin.alien === "string");
+  const hasAlienEntrypoint = fs.existsSync(path.join(params.packageRoot, "alien.mjs"));
+  return hasCliEntryExport || hasAlienBin || hasAlienEntrypoint;
 }
 
 function readPluginSdkSubpathsFromPackageRoot(packageRoot: string): string[] | null {
@@ -87,21 +87,21 @@ function readPluginSdkSubpathsFromPackageRoot(packageRoot: string): string[] | n
   if (!pkg) {
     return null;
   }
-  if (!hasTrustedOpenClawRootIndicator({ packageRoot, packageJson: pkg })) {
+  if (!hasTrustedAlienRootIndicator({ packageRoot, packageJson: pkg })) {
     return null;
   }
   const subpaths = listPluginSdkSubpathsFromPackageJson(pkg);
   return subpaths.length > 0 ? subpaths : null;
 }
 
-function resolveTrustedOpenClawRootFromArgvHint(params: {
+function resolveTrustedAlienRootFromArgvHint(params: {
   argv1?: string;
   cwd: string;
 }): string | null {
   if (!params.argv1) {
     return null;
   }
-  const packageRoot = resolveOpenClawPackageRootSync({
+  const packageRoot = resolveAlienPackageRootSync({
     cwd: params.cwd,
     argv1: params.argv1,
   });
@@ -112,7 +112,7 @@ function resolveTrustedOpenClawRootFromArgvHint(params: {
   if (!packageJson) {
     return null;
   }
-  return hasTrustedOpenClawRootIndicator({ packageRoot, packageJson }) ? packageRoot : null;
+  return hasTrustedAlienRootIndicator({ packageRoot, packageJson }) ? packageRoot : null;
 }
 
 function findNearestPluginSdkPackageRoot(startDir: string, maxDepth = 12): string | null {
@@ -135,13 +135,13 @@ export function resolveLoaderPackageRoot(
   params: LoaderModuleResolveParams & { modulePath: string },
 ): string | null {
   const cwd = params.cwd ?? path.dirname(params.modulePath);
-  const fromModulePath = resolveOpenClawPackageRootSync({ cwd });
+  const fromModulePath = resolveAlienPackageRootSync({ cwd });
   if (fromModulePath) {
     return fromModulePath;
   }
   const argv1 = params.argv1 ?? process.argv[1];
   const moduleUrl = params.moduleUrl ?? (params.modulePath ? undefined : import.meta.url);
-  return resolveOpenClawPackageRootSync({
+  return resolveAlienPackageRootSync({
     cwd,
     ...(argv1 ? { argv1 } : {}),
     ...(moduleUrl ? { moduleUrl } : {}),
@@ -152,11 +152,11 @@ function resolveLoaderPluginSdkPackageRoot(
   params: LoaderModuleResolveParams & { modulePath: string },
 ): string | null {
   const cwd = params.cwd ?? path.dirname(params.modulePath);
-  const fromCwd = resolveOpenClawPackageRootSync({ cwd });
+  const fromCwd = resolveAlienPackageRootSync({ cwd });
   const fromExplicitHints =
-    resolveTrustedOpenClawRootFromArgvHint({ cwd, argv1: params.argv1 }) ??
+    resolveTrustedAlienRootFromArgvHint({ cwd, argv1: params.argv1 }) ??
     (params.moduleUrl
-      ? resolveOpenClawPackageRootSync({
+      ? resolveAlienPackageRootSync({
           cwd,
           moduleUrl: params.moduleUrl,
         })
@@ -264,7 +264,7 @@ const cachedPluginSdkExportedSubpaths = new PluginLruCache<string[]>(
 const cachedPluginSdkScopedAliasMaps = new PluginLruCache<Record<string, string>>(
   MAX_PLUGIN_LOADER_ALIAS_CACHE_ENTRIES,
 );
-const PLUGIN_SDK_PACKAGE_NAMES = ["openclaw/plugin-sdk", "@openclaw/plugin-sdk"] as const;
+const PLUGIN_SDK_PACKAGE_NAMES = ["alien/plugin-sdk", "@alien/plugin-sdk"] as const;
 const PLUGIN_SDK_SOURCE_CANDIDATE_EXTENSIONS = [
   ".ts",
   ".mts",
@@ -317,7 +317,7 @@ function readPrivateLocalOnlyPluginSdkSubpaths(packageRoot: string): string[] {
 function readBundledPluginPackageName(packageJsonPath: string): string | null {
   const parsed = tryReadJsonSync<{ name?: unknown }>(packageJsonPath);
   const name = typeof parsed?.name === "string" ? parsed.name.trim() : "";
-  return name.startsWith("@openclaw/") ? name : null;
+  return name.startsWith("@alien/") ? name : null;
 }
 
 function isBundledPluginPublicSurfaceSourceBasename(params: {
@@ -450,7 +450,7 @@ function resolveBundledPluginPackagePublicSurfaceAliasMap(params: {
 }
 
 function shouldIncludePrivateLocalOnlyPluginSdkSubpaths() {
-  return process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI === "1";
+  return process.env.ALIEN_ENABLE_PRIVATE_QA_CLI === "1";
 }
 
 function hasPluginSdkSubpathArtifact(packageRoot: string, subpath: string) {
@@ -580,7 +580,7 @@ export function resolvePluginSdkScopedAliasMap(
         }
         break;
       }
-      if (Object.prototype.hasOwnProperty.call(aliasMap, `openclaw/plugin-sdk/${subpath}`)) {
+      if (Object.prototype.hasOwnProperty.call(aliasMap, `alien/plugin-sdk/${subpath}`)) {
         break;
       }
     }
@@ -753,7 +753,7 @@ export function buildPluginLoaderAliasMap(
   const extensionApiAlias = resolveExtensionApiAlias({ modulePath, pluginSdkResolution });
   const result: Record<string, string> = {
     ...(extensionApiAlias
-      ? { "openclaw/extension-api": normalizeJitiAliasTargetPath(extensionApiAlias) }
+      ? { "alien/extension-api": normalizeJitiAliasTargetPath(extensionApiAlias) }
       : {}),
     ...resolveBundledPluginPackagePublicSurfaceAliasMap({
       modulePath,

@@ -1,27 +1,27 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 import type { HomeView } from "@slack/types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { danger } from "openclaw/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { danger } from "alien/plugin-sdk/runtime-env";
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackAppHomeOpenedEvent } from "../types.js";
 
 export function buildSlackHomeView(): HomeView {
   return {
     type: "home",
-    callback_id: "openclaw:home",
+    callback_id: "alien:home",
     blocks: [
       {
         type: "header",
         text: {
           type: "plain_text",
-          text: "OpenClaw",
+          text: "Alien",
         },
       },
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "Send a DM, mention OpenClaw in a channel, or use `/openclaw` to start a session.",
+          text: "Send a DM, mention Alien in a channel, or use `/alien` to start a session.",
         },
       },
       {

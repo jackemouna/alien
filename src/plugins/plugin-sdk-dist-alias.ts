@@ -20,16 +20,16 @@ function writeRuntimeModuleWrapper(sourcePath: string, targetPath: string): void
   fs.writeFileSync(targetPath, content, "utf8");
 }
 
-export function ensureOpenClawPluginSdkAlias(distRoot: string): void {
+export function ensureAlienPluginSdkAlias(distRoot: string): void {
   const pluginSdkDir = path.join(distRoot, "plugin-sdk");
   if (!fs.existsSync(pluginSdkDir)) {
     return;
   }
 
-  const aliasDir = path.join(distRoot, "extensions", "node_modules", "openclaw");
+  const aliasDir = path.join(distRoot, "extensions", "node_modules", "alien");
   const pluginSdkAliasDir = path.join(aliasDir, "plugin-sdk");
   writeRuntimeJsonFile(path.join(aliasDir, "package.json"), {
-    name: "openclaw",
+    name: "alien",
     type: "module",
     exports: {
       "./plugin-sdk": "./plugin-sdk/index.js",

@@ -1,7 +1,7 @@
 import {
   expectProviderOnboardMergedLegacyConfig,
   expectProviderOnboardPrimaryModel,
-} from "openclaw/plugin-sdk/provider-test-contracts";
+} from "alien/plugin-sdk/provider-test-contracts";
 import { describe, expect, it } from "vitest";
 import { applyNvidiaConfig, applyNvidiaProviderConfig } from "./onboard.js";
 

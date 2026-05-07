@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RequestClient } from "../internal/discord.js";
 
@@ -9,9 +9,9 @@ const deliverOutboundPayloadsMock = vi.hoisted(() =>
 const sendMessageDiscordMock = vi.hoisted(() => vi.fn());
 const sendVoiceMessageDiscordMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/outbound-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/outbound-runtime")>(
-    "openclaw/plugin-sdk/outbound-runtime",
+vi.mock("alien/plugin-sdk/outbound-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/outbound-runtime")>(
+    "alien/plugin-sdk/outbound-runtime",
   );
   return {
     ...actual,
@@ -34,7 +34,7 @@ function firstDeliverParams() {
   const calls = deliverOutboundPayloadsMock.mock.calls as unknown as Array<
     [
       {
-        cfg?: OpenClawConfig;
+        cfg?: AlienConfig;
         formatting?: unknown;
         deps?: Record<string, (...args: unknown[]) => Promise<unknown>>;
       },
@@ -51,7 +51,7 @@ describe("deliverDiscordReply", () => {
   const runtime = {} as RuntimeEnv;
   const cfg = {
     channels: { discord: { token: "test-token" } },
-  } as OpenClawConfig;
+  } as AlienConfig;
 
   beforeAll(async () => {
     ({ deliverDiscordReply } = await import("./reply-delivery.js"));
@@ -307,7 +307,7 @@ describe("deliverDiscordReply", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await deliverDiscordReply({
       replies: [{ text: "formatted" }],
@@ -348,7 +348,7 @@ describe("deliverDiscordReply", () => {
       cfg,
       textLimit: 2000,
       replyToMode: "off",
-      mediaLocalRoots: ["/tmp/openclaw-media"],
+      mediaLocalRoots: ["/tmp/alien-media"],
     });
 
     expect(deliverOutboundPayloadsMock).toHaveBeenCalledWith(
@@ -356,7 +356,7 @@ describe("deliverDiscordReply", () => {
         payloads: replies,
         replyToId: undefined,
         replyToMode: "off",
-        mediaAccess: { localRoots: ["/tmp/openclaw-media"] },
+        mediaAccess: { localRoots: ["/tmp/alien-media"] },
       }),
     );
   });

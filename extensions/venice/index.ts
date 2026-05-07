@@ -1,6 +1,6 @@
-import { defineSingleProviderPluginEntry } from "openclaw/plugin-sdk/provider-entry";
-import { applyXaiModelCompat } from "openclaw/plugin-sdk/provider-tools";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { defineSingleProviderPluginEntry } from "alien/plugin-sdk/provider-entry";
+import { applyXaiModelCompat } from "alien/plugin-sdk/provider-tools";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { applyVeniceConfig, VENICE_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildVeniceProvider } from "./provider-catalog.js";
 import { createVeniceDeepSeekV4Wrapper } from "./stream.js";

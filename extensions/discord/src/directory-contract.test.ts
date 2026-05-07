@@ -1,6 +1,6 @@
-import type { BaseProbeResult, BaseTokenResolution } from "openclaw/plugin-sdk/channel-contract";
-import { expectDirectoryIds } from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { BaseProbeResult, BaseTokenResolution } from "alien/plugin-sdk/channel-contract";
+import { expectDirectoryIds } from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   listDiscordDirectoryGroupsFromConfig,
@@ -35,7 +35,7 @@ describe("Discord directory contract", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     await expectDirectoryIds(
       listDiscordDirectoryPeersFromConfig,
@@ -71,7 +71,7 @@ describe("Discord directory contract", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     await expectDirectoryIds(listDiscordDirectoryPeersFromConfig, cfg, ["user:111"]);
     await expectDirectoryIds(listDiscordDirectoryGroupsFromConfig, cfg, ["channel:555"]);
@@ -89,7 +89,7 @@ describe("Discord directory contract", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const entries = await listDiscordDirectoryPeersFromConfig({
       cfg,
@@ -116,7 +116,7 @@ describe("Discord directory contract", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const groups = await listDiscordDirectoryGroupsFromConfig({
       cfg,

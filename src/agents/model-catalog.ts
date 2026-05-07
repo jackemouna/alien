@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getRuntimeConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { planManifestModelCatalogRows } from "../model-catalog/manifest-planner.js";
 import { getCurrentPluginMetadataSnapshot } from "../plugins/current-plugin-metadata-snapshot.js";
@@ -17,7 +17,7 @@ import { resolveDefaultAgentDir } from "./agent-scope.js";
 import { modelSupportsInput as modelCatalogEntrySupportsInput } from "./model-catalog-lookup.js";
 import type { ModelCatalogEntry, ModelInputType } from "./model-catalog.types.js";
 import { buildConfiguredModelCatalog } from "./model-selection-shared.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
+import { ensureAlienModelsJson } from "./models-config.js";
 import { normalizeProviderId } from "./provider-id.js";
 
 const log = createSubsystemLogger("model-catalog");
@@ -62,7 +62,7 @@ const modelSuppressionLoader = createLazyImportLoader(
 );
 
 function shouldLogModelCatalogTiming(): boolean {
-  return process.env.OPENCLAW_DEBUG_INGRESS_TIMING === "1";
+  return process.env.ALIEN_DEBUG_INGRESS_TIMING === "1";
 }
 
 function loadModelSuppression() {
@@ -117,7 +117,7 @@ function appendCatalogEntriesIfAbsent(
 }
 
 export function loadManifestModelCatalog(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   fallbackToMetadataScan?: boolean;
@@ -241,7 +241,7 @@ function normalizePersistedModelCatalogEntry(
 }
 
 async function loadReadOnlyPersistedModelCatalog(params?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
 }): Promise<ModelCatalogEntry[]> {
   const cfg = params?.config ?? getRuntimeConfig();
   const agentDir = resolveDefaultAgentDir(cfg);
@@ -286,7 +286,7 @@ async function loadReadOnlyPersistedModelCatalog(params?: {
   return sortModelCatalogEntries(models);
 }
 
-function loadReadOnlyStaticModelCatalog(params?: { config?: OpenClawConfig }): ModelCatalogEntry[] {
+function loadReadOnlyStaticModelCatalog(params?: { config?: AlienConfig }): ModelCatalogEntry[] {
   const cfg = params?.config ?? getRuntimeConfig();
   const models: ModelCatalogEntry[] = [];
   try {
@@ -313,7 +313,7 @@ function loadReadOnlyStaticModelCatalog(params?: { config?: OpenClawConfig }): M
 }
 
 export async function loadModelCatalog(params?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   useCache?: boolean;
   readOnly?: boolean;
 }): Promise<ModelCatalogEntry[]> {
@@ -349,7 +349,7 @@ export async function loadModelCatalog(params?: {
     try {
       const cfg = params?.config ?? getRuntimeConfig();
       if (!readOnly) {
-        await ensureOpenClawModelsJson(cfg);
+        await ensureAlienModelsJson(cfg);
         logStage("models-json-ready");
       }
       // IMPORTANT: keep the dynamic import *inside* the try/catch.

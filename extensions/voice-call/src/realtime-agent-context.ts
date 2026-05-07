@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { root } from "openclaw/plugin-sdk/security-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { root } from "alien/plugin-sdk/security-runtime";
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreAgentDeps, CoreConfig } from "./core-bridge.js";
 
@@ -85,7 +85,7 @@ function buildConsultPolicyGuidance(
   if (config.consultPolicy === "always") {
     return [
       "Consult behavior:",
-      "- Call openclaw_agent_consult before every substantive answer.",
+      "- Call alien_agent_consult before every substantive answer.",
       "- You may answer directly only for greetings, acknowledgements, brief latency tests, or filler while waiting for the consult result.",
       "- After the consult result arrives, speak that result concisely.",
     ].join("\n");
@@ -93,7 +93,7 @@ function buildConsultPolicyGuidance(
   return [
     "Consult behavior:",
     "- Answer directly for greetings, acknowledgements, simple conversational glue, and brief latency tests.",
-    "- Call openclaw_agent_consult before answering requests that need facts, memory, current information, tools, workspace state, or the user's OpenClaw-specific context.",
+    "- Call alien_agent_consult before answering requests that need facts, memory, current information, tools, workspace state, or the user's Alien-specific context.",
     "- Keep spoken replies concise and natural.",
   ].join("\n");
 }
@@ -118,15 +118,15 @@ export async function buildRealtimeVoiceInstructions(params: {
 
   const agentId = config.agentId ?? "main";
   const capsule: string[] = [
-    "OpenClaw agent voice context:",
+    "Alien agent voice context:",
     `- Agent id: ${agentId}`,
-    "- Use this context to match the OpenClaw agent's personality and standing preferences on fast voice turns.",
-    "- Treat this as compact context only; call openclaw_agent_consult when the caller needs the full agent brain, tools, memory, or workspace state.",
+    "- Use this context to match the Alien agent's personality and standing preferences on fast voice turns.",
+    "- Treat this as compact context only; call alien_agent_consult when the caller needs the full agent brain, tools, memory, or workspace state.",
   ];
 
   if (contextConfig.includeIdentity) {
     const identity = params.agentRuntime.resolveAgentIdentity(
-      params.coreConfig as OpenClawConfig,
+      params.coreConfig as AlienConfig,
       agentId,
     ) as VoiceIdentityLike | undefined;
     const identityLines = [
@@ -152,7 +152,7 @@ export async function buildRealtimeVoiceInstructions(params: {
 
   if (contextConfig.includeWorkspaceFiles) {
     const workspaceDir = params.agentRuntime.resolveAgentWorkspaceDir(
-      params.coreConfig as OpenClawConfig,
+      params.coreConfig as AlienConfig,
       agentId,
     );
     const fileSections = await readWorkspaceVoiceContextFiles({

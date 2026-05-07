@@ -44,7 +44,7 @@ function resetRuntime() {
 
 function mockSnapshot(token: unknown = "abc") {
   readConfigFileSnapshotMock.mockResolvedValue({
-    path: "/tmp/openclaw.json",
+    path: "/tmp/alien.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -71,7 +71,7 @@ describe("dashboardCommand", () => {
     openUrlMock.mockClear();
     formatControlUiSshHintMock.mockClear();
     copyToClipboardMock.mockClear();
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    delete process.env.ALIEN_GATEWAY_TOKEN;
     delete process.env.CUSTOM_GATEWAY_TOKEN;
   });
 
@@ -94,7 +94,7 @@ describe("dashboardCommand", () => {
     expect(copyToClipboardMock).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
     expect(openUrlMock).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
     expect(runtime.log).toHaveBeenCalledWith(
-      "Opened in your browser. Keep that tab to control OpenClaw.",
+      "Opened in your browser. Keep that tab to control Alien.",
     );
   });
 
@@ -182,7 +182,7 @@ describe("dashboardCommand", () => {
     expect(allLogs).not.toContain("#token=");
 
     // UX: user must be pointed to where their token lives so they can self-recover.
-    expect(allLogs).toMatch(/OPENCLAW_GATEWAY_TOKEN/);
+    expect(allLogs).toMatch(/ALIEN_GATEWAY_TOKEN/);
     // UX: hint must name the URL fragment key so the user knows the syntax.
     expect(allLogs).toContain("key `token`");
   });
@@ -210,7 +210,7 @@ describe("dashboardCommand", () => {
     expect(runtime.log).not.toHaveBeenCalledWith(
       "Browser launch disabled (--no-open). Use the URL above.",
     );
-    expect(runtime.log).toHaveBeenCalledWith(expect.stringContaining("OPENCLAW_GATEWAY_TOKEN"));
+    expect(runtime.log).toHaveBeenCalledWith(expect.stringContaining("ALIEN_GATEWAY_TOKEN"));
   });
 
   it("respects --no-open with plain URL hint when clipboard fails and no token is configured", async () => {
@@ -255,7 +255,7 @@ describe("dashboardCommand", () => {
       provider: "default",
       id: "MISSING_GATEWAY_TOKEN",
     });
-    process.env.OPENCLAW_GATEWAY_TOKEN = "fallback-token";
+    process.env.ALIEN_GATEWAY_TOKEN = "fallback-token";
     copyToClipboardMock.mockResolvedValue(true);
     detectBrowserOpenSupportMock.mockResolvedValue({ ok: true });
     openUrlMock.mockResolvedValue(true);

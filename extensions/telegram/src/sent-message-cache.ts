@@ -1,11 +1,11 @@
 import fs from "node:fs";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { replaceFileAtomicSync } from "openclaw/plugin-sdk/security-runtime";
-import { resolveStorePath } from "openclaw/plugin-sdk/session-store-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { replaceFileAtomicSync } from "alien/plugin-sdk/security-runtime";
+import { resolveStorePath } from "alien/plugin-sdk/session-store-runtime";
 
 const TTL_MS = 24 * 60 * 60 * 1000;
-const TELEGRAM_SENT_MESSAGES_STATE_KEY = Symbol.for("openclaw.telegramSentMessagesState");
+const TELEGRAM_SENT_MESSAGES_STATE_KEY = Symbol.for("alien.telegramSentMessagesState");
 
 type SentMessageStore = Map<string, Map<string, number>>;
 
@@ -35,7 +35,7 @@ function createSentMessageStore(): SentMessageStore {
   return new Map<string, Map<string, number>>();
 }
 
-function resolveSentMessageStorePath(cfg?: Pick<OpenClawConfig, "session">): string {
+function resolveSentMessageStorePath(cfg?: Pick<AlienConfig, "session">): string {
   return `${resolveStorePath(cfg?.session?.store)}.telegram-sent-messages.json`;
 }
 
@@ -86,7 +86,7 @@ function readPersistedSentMessages(filePath: string): SentMessageStore {
   }
 }
 
-function getSentMessageBucket(cfg?: Pick<OpenClawConfig, "session">): SentMessageBucket {
+function getSentMessageBucket(cfg?: Pick<AlienConfig, "session">): SentMessageBucket {
   const state = getSentMessageState();
   const persistedPath = resolveSentMessageStorePath(cfg);
   const existing = state.bucketsByPath.get(persistedPath);
@@ -101,7 +101,7 @@ function getSentMessageBucket(cfg?: Pick<OpenClawConfig, "session">): SentMessag
   return bucket;
 }
 
-function getSentMessages(cfg?: Pick<OpenClawConfig, "session">): SentMessageStore {
+function getSentMessages(cfg?: Pick<AlienConfig, "session">): SentMessageStore {
   return getSentMessageBucket(cfg).store;
 }
 
@@ -129,7 +129,7 @@ function persistSentMessages(bucket: SentMessageBucket): void {
 export function recordSentMessage(
   chatId: number | string,
   messageId: number,
-  cfg?: Pick<OpenClawConfig, "session">,
+  cfg?: Pick<AlienConfig, "session">,
 ): void {
   const scopeKey = String(chatId);
   const idKey = String(messageId);
@@ -155,7 +155,7 @@ export function recordSentMessage(
 export function wasSentByBot(
   chatId: number | string,
   messageId: number,
-  cfg?: Pick<OpenClawConfig, "session">,
+  cfg?: Pick<AlienConfig, "session">,
 ): boolean {
   const scopeKey = String(chatId);
   const idKey = String(messageId);

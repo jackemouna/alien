@@ -1,5 +1,5 @@
 import type { SkillCommandSpec } from "../../agents/skills.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -15,7 +15,7 @@ export function reserveSkillCommandNames(params: {
 }
 
 export function resolveConfiguredDirectiveAliases(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   commandTextHasSlash: boolean;
   reservedCommands: Set<string>;
 }) {

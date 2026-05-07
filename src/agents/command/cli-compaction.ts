@@ -2,7 +2,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { SessionEntry } from "../../config/sessions/types.js";
 import type { AgentCompactionMode } from "../../config/types.agent-defaults.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { resolveContextEngine as resolveContextEngineImpl } from "../../context-engine/registry.js";
 import type { ContextEngine } from "../../context-engine/types.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -32,11 +32,11 @@ type SettingsManagerLike = {
 };
 type CliCompactionDeps = {
   openSessionManager: (sessionFile: string) => SessionManagerLike;
-  resolveContextEngine: (cfg: OpenClawConfig) => Promise<ContextEngine>;
+  resolveContextEngine: (cfg: AlienConfig) => Promise<ContextEngine>;
   createPreparedEmbeddedPiSettingsManager: (params: {
     cwd: string;
     agentDir: string;
-    cfg?: OpenClawConfig;
+    cfg?: AlienConfig;
     contextTokenBudget?: number;
   }) => SettingsManagerLike | Promise<SettingsManagerLike>;
   applyPiAutoCompactionGuard: (params: {
@@ -109,7 +109,7 @@ async function compactCliTranscript(params: {
   sessionKey: string;
   sessionFile: string;
   sessionManager: SessionManagerLike;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   workspaceDir: string;
   agentDir: string;
   provider: string;
@@ -177,7 +177,7 @@ async function compactCliTranscript(params: {
 }
 
 export async function runCliTurnCompactionLifecycle(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionId: string;
   sessionKey: string;
   sessionEntry: SessionEntry | undefined;

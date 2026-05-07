@@ -3,15 +3,15 @@ import {
   readNumberParam,
   readStringArrayParam,
   readStringParam,
-} from "openclaw/plugin-sdk/agent-runtime";
-import { readBooleanParam } from "openclaw/plugin-sdk/boolean-param";
-import { resolveReactionMessageId } from "openclaw/plugin-sdk/channel-actions";
-import type { ChannelMessageActionContext } from "openclaw/plugin-sdk/channel-contract";
+} from "alien/plugin-sdk/agent-runtime";
+import { readBooleanParam } from "alien/plugin-sdk/boolean-param";
+import { resolveReactionMessageId } from "alien/plugin-sdk/channel-actions";
+import type { ChannelMessageActionContext } from "alien/plugin-sdk/channel-contract";
 import {
   normalizeInteractiveReply,
   normalizeMessagePresentation,
-} from "openclaw/plugin-sdk/interactive-runtime";
-import { normalizeOptionalStringifiedId } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/interactive-runtime";
+import { normalizeOptionalStringifiedId } from "alien/plugin-sdk/text-runtime";
 import { handleDiscordAction } from "../../action-runtime-api.js";
 import {
   buildDiscordInteractiveComponents,

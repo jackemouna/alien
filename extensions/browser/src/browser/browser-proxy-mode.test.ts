@@ -34,7 +34,7 @@ describe("browser proxy mode", () => {
     expect(
       resolveBrowserNavigationProxyMode({
         resolved,
-        profile: { driver: "openclaw", cdpIsLoopback: true },
+        profile: { driver: "alien", cdpIsLoopback: true },
       }),
     ).toBe("explicit-browser-proxy");
     expect(
@@ -46,7 +46,7 @@ describe("browser proxy mode", () => {
     expect(
       resolveBrowserNavigationProxyMode({
         resolved,
-        profile: { driver: "openclaw", cdpIsLoopback: false },
+        profile: { driver: "alien", cdpIsLoopback: false },
       }),
     ).toBe("direct");
   });

@@ -1,4 +1,4 @@
-import type { WebFetchProviderPlugin } from "openclaw/plugin-sdk/provider-web-fetch-contract";
+import type { WebFetchProviderPlugin } from "alien/plugin-sdk/provider-web-fetch-contract";
 
 function ensureRecord(target: Record<string, unknown>, key: string): Record<string, unknown> {
   const current = target[key];

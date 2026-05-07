@@ -1,14 +1,14 @@
-import { formatCliCommand } from "openclaw/plugin-sdk/cli-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { generateSecureUuid } from "openclaw/plugin-sdk/core";
-import { redactIdentifier } from "openclaw/plugin-sdk/logging-core";
+import { formatCliCommand } from "alien/plugin-sdk/cli-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { generateSecureUuid } from "alien/plugin-sdk/core";
+import { redactIdentifier } from "alien/plugin-sdk/logging-core";
 import {
   convertMarkdownTables,
   resolveMarkdownTableMode,
-} from "openclaw/plugin-sdk/markdown-table-runtime";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
-import { normalizePollInput, type PollInput } from "openclaw/plugin-sdk/poll-runtime";
-import { createSubsystemLogger, getChildLogger } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/markdown-table-runtime";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
+import { normalizePollInput, type PollInput } from "alien/plugin-sdk/poll-runtime";
+import { createSubsystemLogger, getChildLogger } from "alien/plugin-sdk/runtime-env";
 import {
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppAccount,
@@ -28,7 +28,7 @@ import { markdownToWhatsApp, toWhatsappJid } from "./text-runtime.js";
 const outboundLog = createSubsystemLogger("gateway/channels/whatsapp").child("outbound");
 
 function resolveOutboundWhatsAppAccountId(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
 }): string | undefined {
   const explicitAccountId = params.accountId?.trim();
@@ -38,7 +38,7 @@ function resolveOutboundWhatsAppAccountId(params: {
   return resolveDefaultWhatsAppAccountId(params.cfg);
 }
 
-function requireOutboundActiveWebListener(params: { cfg: OpenClawConfig; accountId?: string }): {
+function requireOutboundActiveWebListener(params: { cfg: AlienConfig; accountId?: string }): {
   accountId: string;
   listener: ActiveWebListener;
 } {
@@ -48,7 +48,7 @@ function requireOutboundActiveWebListener(params: { cfg: OpenClawConfig; account
     getRegisteredWhatsAppConnectionController(resolvedAccountId)?.getActiveListener() ?? null;
   if (!listener) {
     throw new Error(
-      `No active WhatsApp Web listener (account: ${resolvedAccountId}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`openclaw channels login --channel whatsapp --account ${resolvedAccountId}`)}.`,
+      `No active WhatsApp Web listener (account: ${resolvedAccountId}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`alien channels login --channel whatsapp --account ${resolvedAccountId}`)}.`,
     );
   }
   return { accountId: resolvedAccountId, listener };
@@ -59,7 +59,7 @@ export async function sendMessageWhatsApp(
   body: string,
   options: {
     verbose: boolean;
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     mediaUrl?: string;
     mediaUrls?: readonly string[];
     mediaAccess?: {
@@ -186,7 +186,7 @@ export async function sendMessageWhatsApp(
 export async function sendTypingWhatsApp(
   to: string,
   options: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     accountId?: string;
   },
 ): Promise<void> {
@@ -209,7 +209,7 @@ export async function sendReactionWhatsApp(
     fromMe?: boolean;
     participant?: string;
     accountId?: string;
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
   },
 ): Promise<void> {
   const correlationId = generateSecureUuid();
@@ -251,7 +251,7 @@ export async function sendReactionWhatsApp(
 export async function sendPollWhatsApp(
   to: string,
   poll: PollInput,
-  options: { verbose: boolean; accountId?: string; cfg: OpenClawConfig },
+  options: { verbose: boolean; accountId?: string; cfg: AlienConfig },
 ): Promise<{ messageId: string; toJid: string }> {
   const correlationId = generateSecureUuid();
   const startedAt = Date.now();

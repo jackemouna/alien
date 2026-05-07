@@ -1,17 +1,17 @@
 ---
-summary: "CLI reference for `openclaw cron` (schedule and run background jobs)"
+summary: "CLI reference for `alien cron` (schedule and run background jobs)"
 read_when:
   - You want scheduled jobs and wakeups
   - You are debugging cron execution and logs
 title: "Cron"
 ---
 
-# `openclaw cron`
+# `alien cron`
 
 Manage cron jobs for the Gateway scheduler.
 
 <Tip>
-Run `openclaw cron --help` for the full command surface. See [Cron jobs](/automation/cron-jobs) for the conceptual guide.
+Run `alien cron --help` for the full command surface. See [Cron jobs](/automation/cron-jobs) for the conceptual guide.
 </Tip>
 
 ## Sessions
@@ -33,7 +33,7 @@ Run `openclaw cron --help` for the full command surface. See [Cron jobs](/automa
 
 ## Delivery
 
-`openclaw cron list` and `openclaw cron show <job-id>` preview the resolved delivery route. For `channel: "last"`, the preview shows whether the route resolved from the main or current session, or will fail closed.
+`alien cron list` and `alien cron show <job-id>` preview the resolved delivery route. For `channel: "last"`, the preview shows whether the route resolved from the main or current session, or will fail closed.
 
 Provider-prefixed targets can disambiguate unresolved announce channels. For example, `to: "telegram:123"` selects Telegram when `delivery.channel` is omitted or `last`. Only prefixes advertised by the loaded plugin are provider selectors. If `delivery.channel` is explicit, the prefix must match that channel; `channel: "whatsapp"` with `to: "telegram:123"` is rejected. Service prefixes such as `imessage:` and `sms:` remain channel-owned target syntax.
 
@@ -84,7 +84,7 @@ One-shot jobs delete after success by default. Use `--keep-after-run` to preserv
 
 Recurring jobs use exponential retry backoff after consecutive errors: 30s, 1m, 5m, 15m, 60m. The schedule returns to normal after the next successful run.
 
-Skipped runs are tracked separately from execution errors. They do not affect retry backoff, but `openclaw cron edit <job-id> --failure-alert-include-skipped` can opt failure alerts into repeated skipped-run notifications.
+Skipped runs are tracked separately from execution errors. They do not affect retry backoff, but `alien cron edit <job-id> --failure-alert-include-skipped` can opt failure alerts into repeated skipped-run notifications.
 
 For isolated jobs that target a local configured model provider, cron runs a lightweight provider preflight before starting the agent turn. Loopback, private-network, and `.local` `api: "ollama"` providers are probed at `/api/tags`; local OpenAI-compatible providers such as vLLM, SGLang, and LM Studio are probed at `/models`. If the endpoint is unreachable, the run is recorded as `skipped` and retried on a later schedule; matching dead endpoints are cached for 5 minutes to avoid many jobs hammering the same local server.
 
@@ -92,10 +92,10 @@ Note: cron job definitions live in `jobs.json`, while pending runtime state live
 
 ### Manual runs
 
-`openclaw cron run` returns as soon as the manual run is queued. Successful responses include `{ ok: true, enqueued: true, runId }`. Use `openclaw cron runs --id <job-id>` to follow the eventual outcome.
+`alien cron run` returns as soon as the manual run is queued. Successful responses include `{ ok: true, enqueued: true, runId }`. Use `alien cron runs --id <job-id>` to follow the eventual outcome.
 
 <Note>
-`openclaw cron run <job-id>` force-runs by default. Use `--due` to keep the older "only run if due" behavior.
+`alien cron run <job-id>` force-runs by default. Use `--due` to keep the older "only run if due" behavior.
 </Note>
 
 ## Models
@@ -111,7 +111,7 @@ Cron `--model` is a **job primary**, not a chat-session `/model` override. That 
 - Configured model fallbacks still apply when the selected job model fails.
 - Per-job payload `fallbacks` replaces the configured fallback list when present.
 - An empty per-job fallback list (`fallbacks: []` in the job payload/API) makes the cron run strict.
-- When a job has `--model` but no fallback list is configured, OpenClaw passes an explicit empty fallback override so the agent primary is not appended as a hidden retry target.
+- When a job has `--model` but no fallback list is configured, Alien passes an explicit empty fallback override so the agent primary is not appended as a hidden retry target.
 
 ### Isolated cron model precedence
 
@@ -151,12 +151,12 @@ Isolated cron runs prefer structured execution-denial metadata from the embedded
 Retention and pruning are controlled in config:
 
 - `cron.sessionRetention` (default `24h`) prunes completed isolated run sessions.
-- `cron.runLog.maxBytes` and `cron.runLog.keepLines` prune `~/.openclaw/cron/runs/<jobId>.jsonl`.
+- `cron.runLog.maxBytes` and `cron.runLog.keepLines` prune `~/.alien/cron/runs/<jobId>.jsonl`.
 
 ## Migrating older jobs
 
 <Note>
-If you have cron jobs from before the current delivery and store format, run `openclaw doctor --fix`. Doctor normalizes legacy cron fields (`jobId`, `schedule.cron`, top-level delivery fields including legacy `threadId`, payload `provider` delivery aliases) and migrates simple `notify: true` webhook fallback jobs to explicit webhook delivery when `cron.webhook` is configured.
+If you have cron jobs from before the current delivery and store format, run `alien doctor --fix`. Doctor normalizes legacy cron fields (`jobId`, `schedule.cron`, top-level delivery fields including legacy `threadId`, payload `provider` delivery aliases) and migrates simple `notify: true` webhook fallback jobs to explicit webhook delivery when `cron.webhook` is configured.
 
 Doctor also removes persisted cron `payload.model` sentinels such as `"default"`, `"null"`, blank strings, and JSON `null`. Cron runtime still treats any non-empty `payload.model` string as an explicit model override and validates it against `agents.defaults.models`; omit the model key when a job should use the agent/default model selection.
 </Note>
@@ -166,37 +166,37 @@ Doctor also removes persisted cron `payload.model` sentinels such as `"default"`
 Update delivery settings without changing the message:
 
 ```bash
-openclaw cron edit <job-id> --announce --channel telegram --to "123456789"
+alien cron edit <job-id> --announce --channel telegram --to "123456789"
 ```
 
 Disable delivery for an isolated job:
 
 ```bash
-openclaw cron edit <job-id> --no-deliver
+alien cron edit <job-id> --no-deliver
 ```
 
 Enable lightweight bootstrap context for an isolated job:
 
 ```bash
-openclaw cron edit <job-id> --light-context
+alien cron edit <job-id> --light-context
 ```
 
 Announce to a specific channel:
 
 ```bash
-openclaw cron edit <job-id> --announce --channel slack --to "channel:C1234567890"
+alien cron edit <job-id> --announce --channel slack --to "channel:C1234567890"
 ```
 
 Announce to a Telegram forum topic:
 
 ```bash
-openclaw cron edit <job-id> --announce --channel telegram --to "-1001234567890" --thread-id 42
+alien cron edit <job-id> --announce --channel telegram --to "-1001234567890" --thread-id 42
 ```
 
 Create an isolated job with lightweight bootstrap context:
 
 ```bash
-openclaw cron add \
+alien cron add \
   --name "Lightweight morning brief" \
   --cron "0 7 * * *" \
   --session isolated \
@@ -212,36 +212,36 @@ openclaw cron add \
 Manual run and inspection:
 
 ```bash
-openclaw cron list
-openclaw cron list --agent ops
-openclaw cron show <job-id>
-openclaw cron run <job-id>
-openclaw cron run <job-id> --due
-openclaw cron runs --id <job-id> --limit 50
+alien cron list
+alien cron list --agent ops
+alien cron show <job-id>
+alien cron run <job-id>
+alien cron run <job-id> --due
+alien cron runs --id <job-id> --limit 50
 ```
 
-`openclaw cron list` shows all matching jobs by default. Pass `--agent <id>` to show only jobs whose effective normalized agent id matches; jobs without a stored agent id count as the configured default agent.
+`alien cron list` shows all matching jobs by default. Pass `--agent <id>` to show only jobs whose effective normalized agent id matches; jobs without a stored agent id count as the configured default agent.
 
 `cron runs` entries include delivery diagnostics with the intended cron target, the resolved target, message-tool sends, fallback use, and delivered state.
 
 Agent and session retargeting:
 
 ```bash
-openclaw cron edit <job-id> --agent ops
-openclaw cron edit <job-id> --clear-agent
-openclaw cron edit <job-id> --session current
-openclaw cron edit <job-id> --session "session:daily-brief"
+alien cron edit <job-id> --agent ops
+alien cron edit <job-id> --clear-agent
+alien cron edit <job-id> --session current
+alien cron edit <job-id> --session "session:daily-brief"
 ```
 
-`openclaw cron add` warns when `--agent` is omitted on agent-turn jobs and falls back to the default agent (`main`). Pass `--agent <id>` at create time to pin a specific agent.
+`alien cron add` warns when `--agent` is omitted on agent-turn jobs and falls back to the default agent (`main`). Pass `--agent <id>` at create time to pin a specific agent.
 
 Delivery tweaks:
 
 ```bash
-openclaw cron edit <job-id> --announce --channel slack --to "channel:C1234567890"
-openclaw cron edit <job-id> --best-effort-deliver
-openclaw cron edit <job-id> --no-best-effort-deliver
-openclaw cron edit <job-id> --no-deliver
+alien cron edit <job-id> --announce --channel slack --to "channel:C1234567890"
+alien cron edit <job-id> --best-effort-deliver
+alien cron edit <job-id> --no-best-effort-deliver
+alien cron edit <job-id> --no-deliver
 ```
 
 ## Related

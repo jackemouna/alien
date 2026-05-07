@@ -21,13 +21,13 @@ Ready for DMs and guild channels via the official Discord gateway.
 
 ## Quick setup
 
-You will need to create a new application with a bot, add the bot to your server, and pair it to OpenClaw. We recommend adding your bot to your own private server. If you don't have one yet, [create one first](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (choose **Create My Own > For me and my friends**).
+You will need to create a new application with a bot, add the bot to your server, and pair it to Alien. We recommend adding your bot to your own private server. If you don't have one yet, [create one first](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (choose **Create My Own > For me and my friends**).
 
 <Steps>
   <Step title="Create a Discord application and bot">
-    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**. Name it something like "OpenClaw".
+    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**. Name it something like "Alien".
 
-    Click **Bot** on the sidebar. Set the **Username** to whatever you call your OpenClaw agent.
+    Click **Bot** on the sidebar. Set the **Username** to whatever you call your Alien agent.
 
   </Step>
 
@@ -82,19 +82,19 @@ You will need to create a new application with a bot, add the bot to your server
     2. Right-click your **server icon** in the sidebar → **Copy Server ID**
     3. Right-click your **own avatar** → **Copy User ID**
 
-    Save your **Server ID** and **User ID** alongside your Bot Token — you'll send all three to OpenClaw in the next step.
+    Save your **Server ID** and **User ID** alongside your Bot Token — you'll send all three to Alien in the next step.
 
   </Step>
 
   <Step title="Allow DMs from server members">
     For pairing to work, Discord needs to allow your bot to DM you. Right-click your **server icon** → **Privacy Settings** → toggle on **Direct Messages**.
 
-    This lets server members (including bots) send you DMs. Keep this enabled if you want to use Discord DMs with OpenClaw. If you only plan to use guild channels, you can disable DMs after pairing.
+    This lets server members (including bots) send you DMs. Keep this enabled if you want to use Discord DMs with Alien. If you only plan to use guild channels, you can disable DMs after pairing.
 
   </Step>
 
   <Step title="Set your bot token securely (do not send it in chat)">
-    Your Discord bot token is a secret (like a password). Set it on the machine running OpenClaw before messaging your agent.
+    Your Discord bot token is a secret (like a password). Set it on the machine running Alien before messaging your agent.
 
 ```bash
 export DISCORD_BOT_TOKEN="YOUR_BOT_TOKEN"
@@ -108,22 +108,22 @@ cat > discord.patch.json5 <<'JSON5'
   },
 }
 JSON5
-openclaw config patch --file ./discord.patch.json5 --dry-run
-openclaw config patch --file ./discord.patch.json5
-openclaw gateway
+alien config patch --file ./discord.patch.json5 --dry-run
+alien config patch --file ./discord.patch.json5
+alien gateway
 ```
 
-    If OpenClaw is already running as a background service, restart it via the OpenClaw Mac app or by stopping and restarting the `openclaw gateway run` process.
-    For managed service installs, run `openclaw gateway install` from a shell where `DISCORD_BOT_TOKEN` is present, or store the variable in `~/.openclaw/.env`, so the service can resolve the env SecretRef after restart.
+    If Alien is already running as a background service, restart it via the Alien Mac app or by stopping and restarting the `alien gateway run` process.
+    For managed service installs, run `alien gateway install` from a shell where `DISCORD_BOT_TOKEN` is present, or store the variable in `~/.alien/.env`, so the service can resolve the env SecretRef after restart.
     If your host is blocked or rate-limited by Discord's startup application lookup, set the Discord application/client ID from the Developer Portal so startup can skip that REST call. Use `channels.discord.applicationId` for the default account, or `channels.discord.accounts.<accountId>.applicationId` when you run multiple Discord bots.
 
   </Step>
 
-  <Step title="Configure OpenClaw and pair">
+  <Step title="Configure Alien and pair">
 
     <Tabs>
       <Tab title="Ask your agent">
-        Chat with your OpenClaw agent on any existing channel (e.g. Telegram) and tell it. If Discord is your first channel, use the CLI / config tab instead.
+        Chat with your Alien agent on any existing channel (e.g. Telegram) and tell it. If Discord is your first channel, use the CLI / config tab instead.
 
         > "I already set my Discord bot token in config. Please finish Discord setup with User ID `<user_id>` and Server ID `<server_id>`."
       </Tab>
@@ -151,7 +151,7 @@ openclaw gateway
 DISCORD_BOT_TOKEN=...
 ```
 
-        For scripted or remote setup, write the same JSON5 block with `openclaw config patch --file ./discord.patch.json5 --dry-run` and then rerun without `--dry-run`. Plaintext `token` values are supported. SecretRef values are also supported for `channels.discord.token` across env/file/exec providers. See [Secrets Management](/gateway/secrets).
+        For scripted or remote setup, write the same JSON5 block with `alien config patch --file ./discord.patch.json5 --dry-run` and then rerun without `--dry-run`. Plaintext `token` values are supported. SecretRef values are also supported for `channels.discord.token` across env/file/exec providers. See [Secrets Management](/gateway/secrets).
 
         For multiple Discord bots, keep each bot token and application ID under its account. A top-level `channels.discord.applicationId` is inherited by accounts, so only set it there when every account should use the same application ID.
 
@@ -192,8 +192,8 @@ DISCORD_BOT_TOKEN=...
       <Tab title="CLI">
 
 ```bash
-openclaw pairing list discord
-openclaw pairing approve discord <CODE>
+alien pairing list discord
+alien pairing approve discord <CODE>
 ```
 
       </Tab>
@@ -208,7 +208,7 @@ openclaw pairing approve discord <CODE>
 
 <Note>
 Token resolution is account-aware. Config token values win over env fallback. `DISCORD_BOT_TOKEN` is only used for the default account.
-If two enabled Discord accounts resolve to the same bot token, OpenClaw starts only one gateway monitor for that token. A config-sourced token wins over the default env fallback; otherwise the first enabled account wins and the duplicate account is reported disabled.
+If two enabled Discord accounts resolve to the same bot token, Alien starts only one gateway monitor for that token. A config-sourced token wins over the default env fallback; otherwise the first enabled account wins and the duplicate account is reported disabled.
 For advanced outbound calls (message tool/channel actions), an explicit per-call `token` is used for that call. This applies to send and read/probe-style actions (for example read/search/fetch/thread/pins/permissions). Account policy/retry settings still come from the selected account in the active runtime snapshot.
 </Note>
 
@@ -305,7 +305,7 @@ Now create some channels on your Discord server and start chatting. Your agent c
 - Reply routing is deterministic: Discord inbound replies back to Discord.
 - Discord guild/channel metadata is added to the model prompt as untrusted
   context, not as a user-visible reply prefix. If a model copies that envelope
-  back, OpenClaw strips the copied metadata from outbound replies and from
+  back, Alien strips the copied metadata from outbound replies and from
   future replay context.
 - By default (`session.dmScope=main`), direct chats share the agent main session (`agent:main:main`).
 - Guild channels are isolated session keys (`agent:<agentId>:discord:channel:<channelId>`).
@@ -317,22 +317,22 @@ Now create some channels on your Discord server and start chatting. Your agent c
 
 ## Forum channels
 
-Discord forum and media channels only accept thread posts. OpenClaw supports two ways to create them:
+Discord forum and media channels only accept thread posts. Alien supports two ways to create them:
 
 - Send a message to the forum parent (`channel:<forumId>`) to auto-create a thread. The thread title uses the first non-empty line of your message.
-- Use `openclaw message thread create` to create a thread directly. Do not pass `--message-id` for forum channels.
+- Use `alien message thread create` to create a thread directly. Do not pass `--message-id` for forum channels.
 
 Example: send to forum parent to create a thread
 
 ```bash
-openclaw message send --channel discord --target channel:<forumId> \
+alien message send --channel discord --target channel:<forumId> \
   --message "Topic title\nBody of the post"
 ```
 
 Example: create a forum thread explicitly
 
 ```bash
-openclaw message thread create --channel discord --target channel:<forumId> \
+alien message thread create --channel discord --target channel:<forumId> \
   --thread-name "Topic title" --message "Body of the post"
 ```
 
@@ -340,7 +340,7 @@ Forum parents do not accept Discord components. If you need components, send to 
 
 ## Interactive components
 
-OpenClaw supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
+Alien supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
 
 Supported blocks:
 
@@ -364,7 +364,7 @@ Modal forms:
 
 - Add `components.modal` with up to 5 fields
 - Field types: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
-- OpenClaw adds a trigger button automatically
+- Alien adds a trigger button automatically
 
 Example:
 
@@ -440,7 +440,7 @@ Example:
     - Named accounts inherit `channels.discord.allowFrom` when their own `allowFrom` and legacy `dm.allowFrom` are unset.
     - Named accounts do not inherit `channels.discord.accounts.default.allowFrom`.
 
-    Legacy `channels.discord.dm.policy` and `channels.discord.dm.allowFrom` still read for compatibility. `openclaw doctor --fix` migrates them to `dmPolicy` and `allowFrom` when it can do so without changing access.
+    Legacy `channels.discord.dm.policy` and `channels.discord.dm.allowFrom` still read for compatibility. `alien doctor --fix` migrates them to `dmPolicy` and `allowFrom` when it can do so without changing access.
 
     DM target format for delivery:
 
@@ -522,7 +522,7 @@ Example:
 
     Lookups fail closed. If Discord returns `Missing Access`, the member lookup fails, or the channel belongs to a different guild, the DM sender is treated as unauthorized.
 
-    Enable the Discord Developer Portal **Server Members Intent** for the bot when using channel-audience access groups. DMs do not include guild member state, so OpenClaw resolves the member through Discord REST at authorization time.
+    Enable the Discord Developer Portal **Server Members Intent** for the bot when using channel-audience access groups. DMs do not include guild member state, so Alien resolves the member through Discord REST at authorization time.
 
   </Tab>
 
@@ -540,7 +540,7 @@ Example:
     - guild must match `channels.discord.guilds` (`id` preferred, slug accepted)
     - optional sender allowlists: `users` (stable IDs recommended) and `roles` (role IDs only); if either is configured, senders are allowed when they match `users` OR `roles`
     - direct name/tag matching is disabled by default; enable `channels.discord.dangerouslyAllowNameMatching: true` only as break-glass compatibility mode
-    - names/tags are supported for `users`, but IDs are safer; `openclaw security audit` warns when name/tag entries are used
+    - names/tags are supported for `users`, but IDs are safer; `alien security audit` warns when name/tag entries are used
     - if a guild has `channels` configured, non-listed channels are denied
     - if a guild has no `channels` block, all channels in that allowlisted guild are allowed
 
@@ -626,7 +626,7 @@ Use `bindings[].match.roles` to route Discord guild members to different agents 
 - Per-channel override: `channels.discord.commands.native`.
 - `commands.native=false` skips Discord slash-command registration and cleanup during startup. Previously registered commands may remain visible in Discord until you remove them from the Discord app.
 - Native command auth uses the same Discord allowlists/policies as normal message handling.
-- Commands may still be visible in Discord UI for users who are not authorized; execution still enforces OpenClaw auth and returns "not authorized".
+- Commands may still be visible in Discord UI for users who are not authorized; execution still enforces Alien auth and returns "not authorized".
 
 See [Slash commands](/tools/slash-commands) for command catalog and behavior.
 
@@ -662,9 +662,9 @@ Default slash command settings:
   </Accordion>
 
   <Accordion title="Live stream preview">
-    OpenClaw can stream draft replies by sending a temporary message and editing it as text arrives. `channels.discord.streaming` takes `off` | `partial` | `block` | `progress` (default). `progress` keeps one editable status draft and updates it with tool progress until final delivery; `streamMode` is a legacy runtime alias. Run `openclaw doctor --fix` to rewrite persisted config to the canonical key.
+    Alien can stream draft replies by sending a temporary message and editing it as text arrives. `channels.discord.streaming` takes `off` | `partial` | `block` | `progress` (default). `progress` keeps one editable status draft and updates it with tool progress until final delivery; `streamMode` is a legacy runtime alias. Run `alien doctor --fix` to rewrite persisted config to the canonical key.
 
-    Set `channels.discord.streaming.mode` to `off` to disable Discord preview edits. If Discord block streaming is explicitly enabled, OpenClaw skips the preview stream to avoid double-streaming.
+    Set `channels.discord.streaming.mode` to `off` to disable Discord preview edits. If Discord block streaming is explicitly enabled, Alien skips the preview stream to avoid double-streaming.
 
 ```json5
 {
@@ -707,7 +707,7 @@ Default slash command settings:
     }
     ```
 
-    Preview streaming is text-only; media replies fall back to normal delivery. When `block` streaming is explicitly enabled, OpenClaw skips the preview stream to avoid double-streaming.
+    Preview streaming is text-only; media replies fall back to normal delivery. When `block` streaming is explicitly enabled, Alien skips the preview stream to avoid double-streaming.
 
   </Accordion>
 
@@ -777,7 +777,7 @@ Default slash command settings:
     - `channels.discord.threadBindings.*` overrides Discord behavior.
     - `spawnSessions` controls auto-create/bind threads for `sessions_spawn({ thread: true })` and ACP thread spawns. Default: `true`.
     - `defaultSpawnContext` controls native subagent context for thread-bound spawns. Default: `"fork"`.
-    - Deprecated `spawnSubagentSessions`/`spawnAcpSessions` keys are migrated by `openclaw doctor --fix`.
+    - Deprecated `spawnSubagentSessions`/`spawnAcpSessions` keys are migrated by `alien doctor --fix`.
     - If thread bindings are disabled for an account, `/focus` and related thread binding operations are unavailable.
 
     See [Sub-agents](/tools/subagents), [ACP Agents](/tools/acp-agents), and [Configuration Reference](/gateway/configuration-reference).
@@ -805,7 +805,7 @@ Default slash command settings:
             agent: "codex",
             backend: "acpx",
             mode: "persistent",
-            cwd: "/workspace/openclaw",
+            cwd: "/workspace/alien",
           },
         },
       },
@@ -862,7 +862,7 @@ Default slash command settings:
   </Accordion>
 
   <Accordion title="Ack reactions">
-    `ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
+    `ackReaction` sends an acknowledgement emoji while Alien is processing an inbound message.
 
     Resolution order:
 
@@ -1013,7 +1013,7 @@ Default slash command settings:
     discord: {
       activity: "Live coding",
       activityType: 1,
-      activityUrl: "https://twitch.tv/openclaw",
+      activityUrl: "https://twitch.tv/alien",
     },
   },
 }
@@ -1065,18 +1065,18 @@ Default slash command settings:
 
     Discord auto-enables native exec approvals when `enabled` is unset or `"auto"` and at least one approver can be resolved, either from `execApprovals.approvers` or from `commands.ownerAllowFrom`. Discord does not infer exec approvers from channel `allowFrom`, legacy `dm.allowFrom`, or direct-message `defaultTo`. Set `enabled: false` to disable Discord as a native approval client explicitly.
 
-    For sensitive owner-only group commands such as `/diagnostics` and `/export-trajectory`, OpenClaw sends approval prompts and final results privately. It tries Discord DM first when the invoking owner has a Discord owner route; if that is not available, it falls back to the first available owner route from `commands.ownerAllowFrom`, such as Telegram.
+    For sensitive owner-only group commands such as `/diagnostics` and `/export-trajectory`, Alien sends approval prompts and final results privately. It tries Discord DM first when the invoking owner has a Discord owner route; if that is not available, it falls back to the first available owner route from `commands.ownerAllowFrom`, such as Telegram.
 
-    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only resolved approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery.
+    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only resolved approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, Alien falls back to DM delivery.
 
     Discord also renders the shared approval buttons used by other chat channels. The native Discord adapter mainly adds approver DM routing and channel fanout.
-    When those buttons are present, they are the primary approval UX; OpenClaw
+    When those buttons are present, they are the primary approval UX; Alien
     should only include a manual `/approve` command when the tool result says
     chat approvals are unavailable or manual approval is the only path.
-    If the Discord native approval runtime is not active, OpenClaw keeps the
+    If the Discord native approval runtime is not active, Alien keeps the
     local deterministic `/approve <id> <decision>` prompt visible. If the
     runtime is active but a native card cannot be delivered to any target,
-    OpenClaw sends a same-chat fallback notice with the exact `/approve`
+    Alien sends a same-chat fallback notice with the exact `/approve`
     command from the pending approval.
 
     Gateway auth and approval resolution follow the shared Gateway client contract (`plugin:` IDs resolve through `plugin.approval.resolve`; other IDs through `exec.approval.resolve`). Approvals expire after 30 minutes by default.
@@ -1112,7 +1112,7 @@ Default gate behavior:
 
 ## Components v2 UI
 
-OpenClaw uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires constructing a component payload via the discord tool), while legacy `embeds` remain available but are not recommended.
+Alien uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires constructing a component payload via the discord tool), while legacy `embeds` remain available but are not recommended.
 
 - `channels.discord.ui.components.accentColor` sets the accent color used by Discord component containers (hex).
 - Set per account with `channels.discord.accounts.<id>.ui.components.accentColor`.
@@ -1160,7 +1160,7 @@ Use `/vc join|leave|status` to control sessions. The command uses the account de
 To inspect the bot's effective permissions before joining, run:
 
 ```bash
-openclaw channels capabilities --channel discord --target channel:<voice-channel-id>
+alien channels capabilities --channel discord --target channel:<voice-channel-id>
 ```
 
 Auto-join example:
@@ -1204,8 +1204,8 @@ Notes:
 - `voice.daveEncryption` and `voice.decryptionFailureTolerance` pass through to `@discordjs/voice` join options.
 - `@discordjs/voice` defaults are `daveEncryption=true` and `decryptionFailureTolerance=24` if unset.
 - `voice.connectTimeoutMs` controls the initial `@discordjs/voice` Ready wait for `/vc join` and auto-join attempts. Default: `30000`.
-- `voice.reconnectGraceMs` controls how long OpenClaw waits for a disconnected voice session to begin reconnecting before destroying it. Default: `15000`.
-- OpenClaw also watches receive decrypt failures and auto-recovers by leaving/rejoining the voice channel after repeated failures in a short window.
+- `voice.reconnectGraceMs` controls how long Alien waits for a disconnected voice session to begin reconnecting before destroying it. Default: `15000`.
+- Alien also watches receive decrypt failures and auto-recovers by leaving/rejoining the voice channel after repeated failures in a short window.
 - If receive logs repeatedly show `DecryptionFailed(UnencryptedWhenPassthroughDisabled)` after updating, collect a dependency report and logs. The bundled `@discordjs/voice` line includes the upstream padding fix from discord.js PR #11449, which closed discord.js issue #11419.
 
 Voice channel pipeline:
@@ -1220,11 +1220,11 @@ Credentials are resolved per component: LLM route auth for `voice.model`, STT au
 
 ### Voice messages
 
-Discord voice messages show a waveform preview and require OGG/Opus audio. OpenClaw generates the waveform automatically, but needs `ffmpeg` and `ffprobe` on the gateway host to inspect and convert.
+Discord voice messages show a waveform preview and require OGG/Opus audio. Alien generates the waveform automatically, but needs `ffmpeg` and `ffprobe` on the gateway host to inspect and convert.
 
 - Provide a **local file path** (URLs are rejected).
 - Omit text content (Discord rejects text + voice message in the same payload).
-- Any audio format is accepted; OpenClaw converts to OGG/Opus as needed.
+- Any audio format is accepted; Alien converts to OGG/Opus as needed.
 
 ```bash
 message(action="send", channel="discord", target="channel:123", path="/path/to/audio.mp3", asVoice=true)
@@ -1251,9 +1251,9 @@ message(action="send", channel="discord", target="channel:123", path="/path/to/a
     Useful checks:
 
 ```bash
-openclaw doctor
-openclaw channels status --probe
-openclaw logs --follow
+alien doctor
+alien channels status --probe
+alien logs --follow
 ```
 
   </Accordion>
@@ -1301,29 +1301,29 @@ openclaw logs --follow
   </Accordion>
 
   <Accordion title="Gateway metadata lookup timeout warnings">
-    OpenClaw fetches Discord `/gateway/bot` metadata before connecting. Transient failures fall back to Discord's default gateway URL and are rate-limited in logs.
+    Alien fetches Discord `/gateway/bot` metadata before connecting. Transient failures fall back to Discord's default gateway URL and are rate-limited in logs.
 
     Metadata timeout knobs:
 
     - single-account: `channels.discord.gatewayInfoTimeoutMs`
     - multi-account: `channels.discord.accounts.<accountId>.gatewayInfoTimeoutMs`
-    - env fallback when config is unset: `OPENCLAW_DISCORD_GATEWAY_INFO_TIMEOUT_MS`
+    - env fallback when config is unset: `ALIEN_DISCORD_GATEWAY_INFO_TIMEOUT_MS`
     - default: `30000` (30 seconds), max: `120000`
 
   </Accordion>
 
   <Accordion title="Gateway READY timeout restarts">
-    OpenClaw waits for Discord's gateway `READY` event during startup and after runtime reconnects. Multi-account setups with startup staggering can need a longer startup READY window than the default.
+    Alien waits for Discord's gateway `READY` event during startup and after runtime reconnects. Multi-account setups with startup staggering can need a longer startup READY window than the default.
 
     READY timeout knobs:
 
     - startup single-account: `channels.discord.gatewayReadyTimeoutMs`
     - startup multi-account: `channels.discord.accounts.<accountId>.gatewayReadyTimeoutMs`
-    - startup env fallback when config is unset: `OPENCLAW_DISCORD_READY_TIMEOUT_MS`
+    - startup env fallback when config is unset: `ALIEN_DISCORD_READY_TIMEOUT_MS`
     - startup default: `15000` (15 seconds), max: `120000`
     - runtime single-account: `channels.discord.gatewayRuntimeReadyTimeoutMs`
     - runtime multi-account: `channels.discord.accounts.<accountId>.gatewayRuntimeReadyTimeoutMs`
-    - runtime env fallback when config is unset: `OPENCLAW_DISCORD_RUNTIME_READY_TIMEOUT_MS`
+    - runtime env fallback when config is unset: `ALIEN_DISCORD_RUNTIME_READY_TIMEOUT_MS`
     - runtime default: `30000` (30 seconds), max: `120000`
 
   </Accordion>
@@ -1376,7 +1376,7 @@ openclaw logs --follow
 
   <Accordion title="Voice STT drops with DecryptionFailed(...)">
 
-    - keep OpenClaw current (`openclaw update`) so the Discord voice receive recovery logic is present
+    - keep Alien current (`alien update`) so the Discord voice receive recovery logic is present
     - confirm `channels.discord.voice.daveEncryption=true` (default)
     - start from `channels.discord.voice.decryptionFailureTolerance=24` (upstream default) and tune only if needed
     - watch logs for:
@@ -1413,7 +1413,7 @@ Primary reference: [Configuration reference - Discord](/gateway/config-channels#
 
 - Treat bot tokens as secrets (`DISCORD_BOT_TOKEN` preferred in supervised environments).
 - Grant least-privilege Discord permissions.
-- If command deploy/state is stale, restart gateway and re-check with `openclaw channels status --probe`.
+- If command deploy/state is stale, restart gateway and re-check with `alien channels status --probe`.
 
 ## Related
 

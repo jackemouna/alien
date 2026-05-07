@@ -1,8 +1,8 @@
 /**
- * High-level lifecycle management for OpenClaw's operator-managed network
+ * High-level lifecycle management for Alien's operator-managed network
  * proxy routing.
  *
- * OpenClaw does not spawn or configure the filtering proxy. When enabled, it
+ * Alien does not spawn or configure the filtering proxy. When enabled, it
  * routes process-wide HTTP clients through the configured forward proxy URL and
  * restores the previous process state on shutdown.
  */
@@ -42,7 +42,7 @@ const PROXY_ENV_KEYS = ["http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"
 const GLOBAL_AGENT_PROXY_KEYS = ["GLOBAL_AGENT_HTTP_PROXY", "GLOBAL_AGENT_HTTPS_PROXY"] as const;
 const GLOBAL_AGENT_FORCE_KEYS = ["GLOBAL_AGENT_FORCE_GLOBAL_AGENT"] as const;
 const NO_PROXY_ENV_KEYS = ["no_proxy", "NO_PROXY", "GLOBAL_AGENT_NO_PROXY"] as const;
-const PROXY_ACTIVE_KEYS = ["OPENCLAW_PROXY_ACTIVE", "OPENCLAW_PROXY_LOOPBACK_MODE"] as const;
+const PROXY_ACTIVE_KEYS = ["ALIEN_PROXY_ACTIVE", "ALIEN_PROXY_LOOPBACK_MODE"] as const;
 const ALL_PROXY_ENV_KEYS = [
   ...PROXY_ENV_KEYS,
   ...GLOBAL_AGENT_PROXY_KEYS,
@@ -98,8 +98,8 @@ function captureProxyEnv(): ProxyEnvSnapshot {
     no_proxy: process.env["no_proxy"],
     NO_PROXY: process.env["NO_PROXY"],
     GLOBAL_AGENT_NO_PROXY: process.env["GLOBAL_AGENT_NO_PROXY"],
-    OPENCLAW_PROXY_ACTIVE: process.env["OPENCLAW_PROXY_ACTIVE"],
-    OPENCLAW_PROXY_LOOPBACK_MODE: process.env["OPENCLAW_PROXY_LOOPBACK_MODE"],
+    ALIEN_PROXY_ACTIVE: process.env["ALIEN_PROXY_ACTIVE"],
+    ALIEN_PROXY_LOOPBACK_MODE: process.env["ALIEN_PROXY_LOOPBACK_MODE"],
   };
 }
 
@@ -117,8 +117,8 @@ function applyProxyEnv(proxyUrl: string, loopbackMode: ProxyLoopbackMode): void 
     process.env[key] = proxyUrl;
   }
   process.env["GLOBAL_AGENT_FORCE_GLOBAL_AGENT"] = "true";
-  process.env["OPENCLAW_PROXY_ACTIVE"] = "1";
-  process.env["OPENCLAW_PROXY_LOOPBACK_MODE"] = loopbackMode;
+  process.env["ALIEN_PROXY_ACTIVE"] = "1";
+  process.env["ALIEN_PROXY_LOOPBACK_MODE"] = loopbackMode;
   for (const key of NO_PROXY_ENV_KEYS) {
     process.env[key] = "";
   }
@@ -323,17 +323,17 @@ function isSupportedProxyUrl(value: string): boolean {
 }
 
 function resolveProxyUrl(config: ProxyConfig | undefined): string {
-  const candidate = config?.proxyUrl?.trim() || process.env["OPENCLAW_PROXY_URL"]?.trim();
+  const candidate = config?.proxyUrl?.trim() || process.env["ALIEN_PROXY_URL"]?.trim();
   if (!candidate) {
     throw new Error(
       "proxy: enabled but no HTTP proxy URL is configured; set proxy.proxyUrl " +
-        "or OPENCLAW_PROXY_URL to an http:// forward proxy.",
+        "or ALIEN_PROXY_URL to an http:// forward proxy.",
     );
   }
   if (!isSupportedProxyUrl(candidate)) {
     throw new Error(
       "proxy: enabled but proxy URL is invalid; set proxy.proxyUrl " +
-        "or OPENCLAW_PROXY_URL to an http:// forward proxy.",
+        "or ALIEN_PROXY_URL to an http:// forward proxy.",
     );
   }
   return candidate;
@@ -349,7 +349,7 @@ function redactProxyUrlForLog(value: string): string {
 }
 
 export function ensureInheritedManagedProxyRoutingActive(): void {
-  if (process.env["OPENCLAW_PROXY_ACTIVE"] !== "1") {
+  if (process.env["ALIEN_PROXY_ACTIVE"] !== "1") {
     return;
   }
   const proxyUrl = process.env["GLOBAL_AGENT_HTTP_PROXY"] ?? process.env["HTTP_PROXY"];

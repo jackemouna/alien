@@ -21,7 +21,7 @@ import type { DurableInboundReplyDeliveryOptions } from "../channels/turn/kernel
 import type { PreparedChannelTurn, RunChannelTurnParams } from "../channels/turn/types.js";
 export type { ChannelTurnRecordOptions } from "../channels/turn/types.js";
 export type { DurableInboundReplyDeliveryParams } from "../channels/turn/kernel.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { createChannelReplyPipeline } from "./channel-reply-core.js";
 import {
   normalizeOutboundReplyPayload,
@@ -61,12 +61,12 @@ export {
 
 /** Run `dispatchReplyFromConfig` with a dispatcher that always gets its settled callback. */
 export async function dispatchReplyFromConfigWithSettledDispatcher(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ctxPayload: FinalizedMsgContext;
   dispatcher: ReplyDispatcher;
   onSettled: () => void | Promise<void>;
   replyOptions?: ReplyDispatchFromConfigOptions;
-  configOverride?: OpenClawConfig;
+  configOverride?: AlienConfig;
 }): Promise<DispatchFromConfigResult> {
   return await withReplyDispatcher({
     dispatcher: params.dispatcher,
@@ -84,7 +84,7 @@ export async function dispatchReplyFromConfigWithSettledDispatcher(params: {
 
 /** Assemble the common inbound reply dispatch dependencies for a resolved route. */
 export function buildInboundReplyDispatchBase(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: string;
   accountId?: string;
   route: {
@@ -120,7 +120,7 @@ export function buildInboundReplyDispatchBase(params: {
 
 type BuildInboundReplyDispatchBaseParams = Parameters<typeof buildInboundReplyDispatchBase>[0];
 type RecordChannelMessageReplyDispatchParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: string;
   accountId?: string;
   agentId: string;

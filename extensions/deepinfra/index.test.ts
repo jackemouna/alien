@@ -1,7 +1,7 @@
 import {
   createCapturedPluginRegistration,
   registerSingleProviderPlugin,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/plugin-test-runtime";
 import { describe, expect, it } from "vitest";
 import deepinfraPlugin from "./index.js";
 
@@ -51,7 +51,7 @@ describe("deepinfra augmentModelCatalog", () => {
 });
 
 describe("deepinfra capability registration", () => {
-  it("registers all DeepInfra-backed OpenClaw provider surfaces", () => {
+  it("registers all DeepInfra-backed Alien provider surfaces", () => {
     const captured = createCapturedPluginRegistration();
     deepinfraPlugin.register(captured.api);
 

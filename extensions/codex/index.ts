@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveLivePluginConfigObject } from "openclaw/plugin-sdk/plugin-config-runtime";
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveLivePluginConfigObject } from "alien/plugin-sdk/plugin-config-runtime";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
 import { createCodexAppServerAgentHarness } from "./harness.js";
 import { buildCodexMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import { buildCodexProvider } from "./provider.js";
@@ -19,7 +19,7 @@ export default definePluginEntry({
     const resolveCurrentPluginConfig = () =>
       resolveLivePluginConfigObject(
         api.runtime.config?.current
-          ? () => api.runtime.config.current() as OpenClawConfig
+          ? () => api.runtime.config.current() as AlienConfig
           : undefined,
         "codex",
         api.pluginConfig as Record<string, unknown>,

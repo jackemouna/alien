@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { extractModelCompat } from "../plugins/provider-model-compat.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 import { buildPluginToolMetadataKey, getPluginToolMeta } from "../plugins/tools.js";
@@ -9,7 +9,7 @@ import {
 import { resolveAgentDir, resolveAgentWorkspaceDir, resolveSessionAgentId } from "./agent-scope.js";
 import { getChannelAgentToolMeta } from "./channel-tools.js";
 import { normalizeStaticProviderModelId } from "./model-ref-shared.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
+import { createAlienCodingTools } from "./pi-tools.js";
 import { resolveEffectiveToolPolicy } from "./pi-tools.policy.js";
 import { findNormalizedProviderValue, normalizeProviderId } from "./provider-id.js";
 import { summarizeToolDescriptionText } from "./tool-description-summary.js";
@@ -86,16 +86,16 @@ function policyDeniesTool(policy: { deny?: string[] } | undefined, toolName: str
   return (
     listIncludesTool(policy?.deny, toolName) ||
     listIncludesTool(policy?.deny, "group:ui") ||
-    listIncludesTool(policy?.deny, "group:openclaw")
+    listIncludesTool(policy?.deny, "group:alien")
   );
 }
 
-function hasExplicitBrowserIntent(cfg: OpenClawConfig): boolean {
+function hasExplicitBrowserIntent(cfg: AlienConfig): boolean {
   return cfg.browser?.enabled !== false && Boolean(cfg.browser || cfg.plugins?.entries?.browser);
 }
 
 function buildToolInventoryNotices(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   profile: string;
   entries: EffectiveToolInventoryEntry[];
   effectivePolicy: ReturnType<typeof resolveEffectiveToolPolicy>;
@@ -165,7 +165,7 @@ function disambiguateLabels(entries: EffectiveToolInventoryEntry[]): EffectiveTo
 }
 
 function resolveEffectiveModelCompat(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   modelProvider?: string;
   modelId?: string;
 }) {
@@ -206,7 +206,7 @@ export function resolveEffectiveToolInventory(
     modelId: params.modelId,
   });
 
-  const effectiveTools = createOpenClawCodingTools({
+  const effectiveTools = createAlienCodingTools({
     agentId,
     sessionKey: params.sessionKey,
     workspaceDir,

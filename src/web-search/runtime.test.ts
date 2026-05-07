@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import type { PluginWebSearchProviderEntry } from "../plugins/web-provider-types.js";
 import {
   createWebSearchTestProvider,
@@ -14,13 +14,13 @@ type TestPluginWebSearchConfig = {
 
 type WebSearchProviderResolverParams = {
   bundledAllowlistCompat?: boolean;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   onlyPluginIds?: readonly string[];
   origin?: string;
 };
 
 type ManifestContractOwnerParams = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   contract?: string;
   origin?: string;
   value?: string;
@@ -59,7 +59,7 @@ function createCustomSearchTool() {
   };
 }
 
-function getCustomSearchApiKey(config?: OpenClawConfig): unknown {
+function getCustomSearchApiKey(config?: AlienConfig): unknown {
   const pluginConfig = config?.plugins?.entries?.["custom-search"]?.config as
     | TestPluginWebSearchConfig
     | undefined;
@@ -80,7 +80,7 @@ function createCustomSearchProvider(
   });
 }
 
-function createCustomSearchConfig(apiKey: unknown): OpenClawConfig {
+function createCustomSearchConfig(apiKey: unknown): AlienConfig {
   return {
     plugins: {
       entries: {

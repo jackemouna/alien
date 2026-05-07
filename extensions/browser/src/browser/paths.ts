@@ -1,5 +1,5 @@
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../infra/tmp-alien-dir.js";
 export {
   resolveExistingPathsWithinRoot,
   pathScope,
@@ -9,7 +9,7 @@ export {
   resolveWritablePathWithinRoot,
 } from "../sdk-security-runtime.js";
 
-const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/openclaw";
+const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/alien";
 
 function canUseNodeFs(): boolean {
   const getBuiltinModule = (
@@ -28,7 +28,7 @@ function canUseNodeFs(): boolean {
 }
 
 const DEFAULT_BROWSER_TMP_DIR = canUseNodeFs()
-  ? resolvePreferredOpenClawTmpDir()
+  ? resolvePreferredAlienTmpDir()
   : DEFAULT_FALLBACK_BROWSER_TMP_DIR;
 export const DEFAULT_TRACE_DIR = DEFAULT_BROWSER_TMP_DIR;
 export const DEFAULT_DOWNLOAD_DIR = path.join(DEFAULT_BROWSER_TMP_DIR, "downloads");

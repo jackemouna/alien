@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import {
   loadConfig,
   refreshPluginRegistry,
@@ -16,13 +16,13 @@ import {
   writePersistedInstalledPluginIndexInstallRecords,
 } from "./plugins-cli-test-helpers.js";
 
-const ORIGINAL_OPENCLAW_NIX_MODE = process.env.OPENCLAW_NIX_MODE;
+const ORIGINAL_ALIEN_NIX_MODE = process.env.ALIEN_NIX_MODE;
 
 function createTrackedPluginConfig(params: {
   pluginId: string;
   spec: string;
   resolvedName?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     plugins: {
       installs: {
@@ -34,7 +34,7 @@ function createTrackedPluginConfig(params: {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 describe("plugins cli update", () => {
@@ -43,10 +43,10 @@ describe("plugins cli update", () => {
   });
 
   afterEach(() => {
-    if (ORIGINAL_OPENCLAW_NIX_MODE === undefined) {
-      delete process.env.OPENCLAW_NIX_MODE;
+    if (ORIGINAL_ALIEN_NIX_MODE === undefined) {
+      delete process.env.ALIEN_NIX_MODE;
     } else {
-      process.env.OPENCLAW_NIX_MODE = ORIGINAL_OPENCLAW_NIX_MODE;
+      process.env.ALIEN_NIX_MODE = ORIGINAL_ALIEN_NIX_MODE;
     }
   });
 
@@ -64,17 +64,17 @@ describe("plugins cli update", () => {
   });
 
   it("refuses plugin updates in Nix mode before package-manager work", async () => {
-    const previous = process.env.OPENCLAW_NIX_MODE;
-    process.env.OPENCLAW_NIX_MODE = "1";
+    const previous = process.env.ALIEN_NIX_MODE;
+    process.env.ALIEN_NIX_MODE = "1";
     try {
       await expect(runPluginsCommand(["plugins", "update", "--all"])).rejects.toThrow(
-        "OPENCLAW_NIX_MODE=1",
+        "ALIEN_NIX_MODE=1",
       );
     } finally {
       if (previous === undefined) {
-        delete process.env.OPENCLAW_NIX_MODE;
+        delete process.env.ALIEN_NIX_MODE;
       } else {
-        process.env.OPENCLAW_NIX_MODE = previous;
+        process.env.ALIEN_NIX_MODE = previous;
       }
     }
 
@@ -97,7 +97,7 @@ describe("plugins cli update", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const nextConfig = {
       hooks: {
         internal: {
@@ -110,7 +110,7 @@ describe("plugins cli update", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     loadConfig.mockReturnValue(cfg);
     updateNpmInstalledPlugins.mockResolvedValue({
@@ -150,7 +150,7 @@ describe("plugins cli update", () => {
       plugins: {
         installs: {},
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     await expect(runPluginsCommand(["plugins", "update"])).rejects.toThrow("__exit__:1");
 
@@ -163,7 +163,7 @@ describe("plugins cli update", () => {
       plugins: {
         installs: {},
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     await runPluginsCommand(["plugins", "update", "--all"]);
 
@@ -174,8 +174,8 @@ describe("plugins cli update", () => {
 
   it("passes dangerous force unsafe install to plugin updates", async () => {
     const config = createTrackedPluginConfig({
-      pluginId: "openclaw-codex-app-server",
-      spec: "openclaw-codex-app-server@beta",
+      pluginId: "alien-codex-app-server",
+      spec: "alien-codex-app-server@beta",
     });
     loadConfig.mockReturnValue(config);
     setInstalledPluginIndexInstallRecords(config.plugins?.installs ?? {});
@@ -188,14 +188,14 @@ describe("plugins cli update", () => {
     await runPluginsCommand([
       "plugins",
       "update",
-      "openclaw-codex-app-server",
+      "alien-codex-app-server",
       "--dangerously-force-unsafe-install",
     ]);
 
     expect(updateNpmInstalledPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config,
-        pluginIds: ["openclaw-codex-app-server"],
+        pluginIds: ["alien-codex-app-server"],
         dangerouslyForceUnsafeInstall: true,
       }),
     );
@@ -207,21 +207,21 @@ describe("plugins cli update", () => {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@openclaw/alpha@1.0.0",
+            spec: "@alien/alpha@1.0.0",
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const nextConfig = {
       plugins: {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@openclaw/alpha@1.1.0",
+            spec: "@alien/alpha@1.1.0",
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     loadConfig.mockReturnValue(cfg);
     setInstalledPluginIndexInstallRecords(cfg.plugins?.installs ?? {});
     updateNpmInstalledPlugins.mockResolvedValue({
@@ -264,29 +264,29 @@ describe("plugins cli update", () => {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@openclaw/alpha@1.0.0",
+            spec: "@alien/alpha@1.0.0",
           },
           beta: {
             source: "npm",
-            spec: "@openclaw/beta@1.0.0",
+            spec: "@alien/beta@1.0.0",
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const nextConfig = {
       plugins: {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@openclaw/alpha@1.1.0",
+            spec: "@alien/alpha@1.1.0",
           },
           beta: {
             source: "npm",
-            spec: "@openclaw/beta@1.0.0",
+            spec: "@alien/beta@1.0.0",
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     loadConfig.mockReturnValue(cfg);
     setInstalledPluginIndexInstallRecords(cfg.plugins?.installs ?? {});
     updateNpmInstalledPlugins.mockResolvedValue({
@@ -330,7 +330,7 @@ describe("plugins cli update", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     loadConfig.mockReturnValue(cfg);
     updateNpmInstalledPlugins.mockResolvedValue({
       config: cfg,

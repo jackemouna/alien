@@ -1,5 +1,5 @@
-import type { PluginRuntime } from "openclaw/plugin-sdk/core";
-import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
+import type { PluginRuntime } from "alien/plugin-sdk/core";
+import { createPluginRuntimeStore } from "alien/plugin-sdk/runtime-store";
 
 type LineChannelRuntime = {
   buildTemplateMessageFromPayload?: typeof import("./template-messages.js").buildTemplateMessageFromPayload;

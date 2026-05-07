@@ -11,8 +11,8 @@ Captures repeatable workflows as workspace skills, with pending review, safe wri
 
 ## Distribution
 
-- Package: `@openclaw/skill-workshop`
-- Install route: included in OpenClaw
+- Package: `@alien/skill-workshop`
+- Install route: included in Alien
 
 ## Surface
 

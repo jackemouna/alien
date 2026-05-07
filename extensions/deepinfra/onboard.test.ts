@@ -1,12 +1,12 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import * as providerAuth from "openclaw/plugin-sdk/provider-auth-runtime";
+import * as providerAuth from "alien/plugin-sdk/provider-auth-runtime";
 import {
-  type OpenClawConfig,
+  type AlienConfig,
   resolveAgentModelPrimaryValue,
-} from "openclaw/plugin-sdk/provider-onboard";
-import { captureEnv } from "openclaw/plugin-sdk/test-env";
+} from "alien/plugin-sdk/provider-onboard";
+import { captureEnv } from "alien/plugin-sdk/test-env";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   applyDeepInfraProviderConfig,
@@ -18,7 +18,7 @@ import { DEEPINFRA_DEFAULT_MODEL_ID } from "./provider-models.js";
 
 const { resolveEnvApiKey } = providerAuth;
 
-const emptyCfg: OpenClawConfig = {};
+const emptyCfg: AlienConfig = {};
 
 describe("DeepInfra provider config", () => {
   describe("constants", () => {
@@ -56,7 +56,7 @@ describe("DeepInfra provider config", () => {
     });
 
     it("preserves existing alias if already set", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             models: {
@@ -71,7 +71,7 @@ describe("DeepInfra provider config", () => {
     });
 
     it("does not change the default model selection", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         agents: {
           defaults: {
             model: { primary: "openai/gpt-5" },
@@ -137,7 +137,7 @@ describe("DeepInfra provider config", () => {
     });
 
     it("resolves the deepinfra api key via resolveApiKeyForProvider", async () => {
-      const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+      const agentDir = mkdtempSync(join(tmpdir(), "alien-test-"));
       const envSnapshot = captureEnv(["DEEPINFRA_API_KEY"]);
       process.env.DEEPINFRA_API_KEY = "deepinfra-provider-test-key";
 

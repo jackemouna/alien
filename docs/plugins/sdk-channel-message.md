@@ -8,7 +8,7 @@ read_when:
 ---
 
 Channel plugins should expose one `message` adapter from
-`openclaw/plugin-sdk/channel-message`. The adapter describes the native message
+`alien/plugin-sdk/channel-message`. The adapter describes the native message
 lifecycle that the platform supports:
 
 ```text
@@ -28,7 +28,7 @@ The `channel-message` subpath is intentionally cheap enough for hot plugin
 bootstrap files such as `channel.ts`: it exposes adapter contracts, capability
 proofs, receipts, and compatibility facades without loading outbound delivery.
 Runtime delivery helpers are available from
-`openclaw/plugin-sdk/channel-message-runtime` for monitor/send code paths that
+`alien/plugin-sdk/channel-message-runtime` for monitor/send code paths that
 are already doing asynchronous message I/O.
 
 ## Minimal adapter
@@ -39,7 +39,7 @@ Most new channel plugins can start with a small adapter:
 import {
   defineChannelMessageAdapter,
   createMessageReceiptFromOutboundResults,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 
 export const demoMessageAdapter = defineChannelMessageAdapter({
   id: "demo",
@@ -97,7 +97,7 @@ If the channel already has a compatible `outbound` adapter, prefer deriving the
 message adapter instead of duplicating send code:
 
 ```typescript
-import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
+import { createChannelMessageAdapterFromOutbound } from "alien/plugin-sdk/channel-message";
 
 const demoMessageAdapter = createChannelMessageAdapterFromOutbound({
   id: "demo",
@@ -198,7 +198,7 @@ When a caller needs durable delivery, derive requirements instead of building
 maps by hand:
 
 ```typescript
-import { deriveDurableFinalDeliveryRequirements } from "openclaw/plugin-sdk/channel-message";
+import { deriveDurableFinalDeliveryRequirements } from "alien/plugin-sdk/channel-message";
 
 const requiredCapabilities = deriveDurableFinalDeliveryRequirements({
   payload,
@@ -352,7 +352,7 @@ import {
   verifyChannelMessageLiveCapabilityAdapterProofs,
   verifyChannelMessageLiveFinalizerProofs,
   verifyChannelMessageReceiveAckPolicyAdapterProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 
 it("backs declared message capabilities", async () => {
   await expect(
@@ -392,9 +392,9 @@ new channel code.
 
 | Deprecated API                               | Replacement                                                                                                         |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `openclaw/plugin-sdk/channel-reply-pipeline` | `openclaw/plugin-sdk/channel-message`                                                                               |
+| `alien/plugin-sdk/channel-reply-pipeline` | `alien/plugin-sdk/channel-message`                                                                               |
 | `createChannelTurnReplyPipeline(...)`        | `createChannelMessageReplyPipeline(...)` for compatibility dispatchers, or a `message` adapter for new channel code |
-| `deliverDurableInboundReplyPayload(...)`     | `deliverInboundReplyWithMessageSendContext(...)` from `openclaw/plugin-sdk/channel-message-runtime`                 |
+| `deliverDurableInboundReplyPayload(...)`     | `deliverInboundReplyWithMessageSendContext(...)` from `alien/plugin-sdk/channel-message-runtime`                 |
 | `dispatchInboundReplyWithBase(...)`          | `dispatchChannelMessageReplyWithBase(...)` only for compatibility dispatchers                                       |
 | `recordInboundSessionAndDispatchReply(...)`  | `recordChannelMessageReplyDispatch(...)` only for compatibility dispatchers                                         |
 | `resolveChannelSourceReplyDeliveryMode(...)` | `resolveChannelMessageSourceReplyDeliveryMode(...)`                                                                 |

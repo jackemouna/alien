@@ -1,15 +1,15 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/account-id";
 import {
   hasConfiguredSecretInput,
   normalizeSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   mergeDiscordAccountConfig,
   resolveDefaultDiscordAccountId,
   resolveDiscordAccountConfig,
 } from "./accounts.js";
-import type { DiscordAccountConfig, OpenClawConfig } from "./runtime-api.js";
+import type { DiscordAccountConfig, AlienConfig } from "./runtime-api.js";
 import type { DiscordCredentialStatus } from "./token.js";
 
 export type InspectedDiscordAccount = {
@@ -47,7 +47,7 @@ function inspectDiscordTokenValue(value: unknown): {
 }
 
 export function inspectDiscordAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   envToken?: string | null;
 }): InspectedDiscordAccount {

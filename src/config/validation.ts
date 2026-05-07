@@ -42,9 +42,9 @@ import { GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA } from "./bundled-channel-con
 import { collectChannelSchemaMetadata } from "./channel-config-metadata.js";
 import { materializeRuntimeConfig } from "./materialize.js";
 import { collectConfiguredModelRefs } from "./model-refs.js";
-import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
+import type { AlienConfig, ConfigValidationIssue } from "./types.js";
 import { coerceSecretRef } from "./types.secrets.js";
-import { OpenClawSchema } from "./zod-schema.js";
+import { AlienSchema } from "./zod-schema.js";
 
 const LEGACY_REMOVED_PLUGIN_IDS = new Set(["google-antigravity-auth", "google-gemini-cli-auth"]);
 const BLOCKED_PLUGIN_CANDIDATE_PREFIX = "blocked plugin candidate:";
@@ -71,7 +71,7 @@ function stripDeprecatedValidationKeys(raw: unknown): unknown {
 }
 
 const CUSTOM_EXPECTED_ONE_OF_RE = /expected one of ((?:"[^"]+"(?:\|"?[^"]+"?)*)+)/i;
-const SECRETREF_POLICY_DOC_URL = "https://docs.openclaw.ai/reference/secretref-credential-surface";
+const SECRETREF_POLICY_DOC_URL = "https://docs.alien.ai/reference/secretref-credential-surface";
 const bundledChannelSchemaById = new Map<string, unknown>(
   GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA.map(
     (entry) => [entry.channelId, entry.schema] as const,
@@ -112,7 +112,7 @@ function formatMissingOfficialExternalPluginWarning(pluginId: string): string | 
   if (!installSpec) {
     return null;
   }
-  return `plugin not installed: ${pluginId} — install the official external plugin with: openclaw plugins install ${installSpec}`;
+  return `plugin not installed: ${pluginId} — install the official external plugin with: alien plugins install ${installSpec}`;
 }
 
 function asJsonSchemaLike(value: unknown): JsonSchemaLike | null {
@@ -206,7 +206,7 @@ function collectAllowedValuesFromBundledChannelSchemaPath(
   return collectAllowedValuesFromJsonSchemaNode(targetNode);
 }
 
-function collectRawBundledChannelConfigIssues(config: OpenClawConfig): ConfigValidationIssue[] {
+function collectRawBundledChannelConfigIssues(config: AlienConfig): ConfigValidationIssue[] {
   if (!config.channels || !isRecord(config.channels)) {
     return [];
   }
@@ -558,7 +558,7 @@ function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   return isPathWithinRoot(workspaceRoot, resolved);
 }
 
-function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[] {
+function validateIdentityAvatar(config: AlienConfig): ConfigValidationIssue[] {
   const agents = config.agents?.list;
   if (!Array.isArray(agents) || agents.length === 0) {
     return [];
@@ -608,7 +608,7 @@ function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[]
   return issues;
 }
 
-function validateGatewayTailscaleBind(config: OpenClawConfig): ConfigValidationIssue[] {
+function validateGatewayTailscaleBind(config: AlienConfig): ConfigValidationIssue[] {
   const tailscaleMode = config.gateway?.tailscale?.mode ?? "off";
   if (tailscaleMode !== "serve" && tailscaleMode !== "funnel") {
     return [];
@@ -646,10 +646,10 @@ export function validateConfigObjectRaw(
     touchedPaths?: ReadonlyArray<ReadonlyArray<string>>;
     validateBundledChannels?: boolean;
   },
-): { ok: true; config: OpenClawConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: AlienConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const normalizedRaw = stripDeprecatedValidationKeys(raw);
   const policyIssues = collectUnsupportedSecretRefPolicyIssues(normalizedRaw);
-  const validated = OpenClawSchema.safeParse(normalizedRaw);
+  const validated = AlienSchema.safeParse(normalizedRaw);
   if (!validated.success) {
     const schemaIssues = validated.error.issues.map((issue) => mapZodIssueToConfigIssue(issue));
     return {
@@ -657,7 +657,7 @@ export function validateConfigObjectRaw(
       issues: mergeUnsupportedMutableSecretRefIssues(policyIssues, schemaIssues),
     };
   }
-  const validatedConfig = validated.data as OpenClawConfig;
+  const validatedConfig = validated.data as AlienConfig;
   const channelIssues =
     policyIssues.length > 0 || opts?.validateBundledChannels
       ? collectRawBundledChannelConfigIssues(validatedConfig)
@@ -703,7 +703,7 @@ export function validateConfigObject(
     manifestRegistry?: Pick<PluginMetadataSnapshot, "manifestRegistry">["manifestRegistry"];
     sourceRaw?: unknown;
   },
-): { ok: true; config: OpenClawConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: AlienConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const result = validateConfigObjectRaw(raw, opts);
   if (!result.ok) {
     return result;
@@ -719,7 +719,7 @@ export function validateConfigObject(
 type ValidateConfigWithPluginsResult =
   | {
       ok: true;
-      config: OpenClawConfig;
+      config: AlienConfig;
       warnings: ConfigValidationIssue[];
     }
   | {
@@ -733,7 +733,7 @@ type ValidateConfigWithPluginsParams = {
   pluginValidation?: "full" | "skip";
   pluginMetadataSnapshot?: Pick<PluginMetadataSnapshot, "manifestRegistry">;
   loadPluginMetadataSnapshot?: (
-    config: OpenClawConfig,
+    config: AlienConfig,
   ) => Pick<PluginMetadataSnapshot, "manifestRegistry">;
   sourceRaw?: unknown;
 };
@@ -823,7 +823,7 @@ function validateConfigObjectWithPluginsBase(
     >;
   };
 
-  let compatConfig: OpenClawConfig | null | undefined;
+  let compatConfig: AlienConfig | null | undefined;
   let compatPluginIds: ReadonlySet<string> | null = null;
   let compatPluginIdsResolved = false;
   let registryDiagnosticsPushed = false;
@@ -894,7 +894,7 @@ function validateConfigObjectWithPluginsBase(
     return compatPluginIds;
   };
 
-  const ensureCompatConfig = (): OpenClawConfig => {
+  const ensureCompatConfig = (): AlienConfig => {
     if (compatConfig !== undefined) {
       return compatConfig ?? config;
     }
@@ -1115,7 +1115,7 @@ function validateConfigObjectWithPluginsBase(
     if (installCatalogEntry) {
       warnings.push({
         path,
-        message: `web_search provider is not available: ${trimmed} (install or enable plugin "${installCatalogEntry.pluginId}", then run openclaw doctor --fix)`,
+        message: `web_search provider is not available: ${trimmed} (install or enable plugin "${installCatalogEntry.pluginId}", then run alien doctor --fix)`,
         allowedValues: collectKnownWebSearchProviderIds(),
       });
       return;
@@ -1132,7 +1132,7 @@ function validateConfigObjectWithPluginsBase(
     if (hasStalePluginEvidenceForUnknownWebSearchProvider(trimmed)) {
       warnings.push({
         ...issue,
-        message: `${issue.message} (stale web search plugin config ignored; run openclaw doctor --fix to remove stale config, or install the plugin)`,
+        message: `${issue.message} (stale web search plugin config ignored; run alien doctor --fix to remove stale config, or install the plugin)`,
       });
       return;
     }
@@ -1265,12 +1265,12 @@ function validateConfigObjectWithPluginsBase(
           const pluginId = installCatalogEntry.pluginId ?? installCatalogEntry.id;
           warnings.push({
             path: issue.path,
-            message: `channel plugin is not available: ${trimmed} (install or enable plugin "${pluginId}", then run openclaw doctor --fix)`,
+            message: `channel plugin is not available: ${trimmed} (install or enable plugin "${pluginId}", then run alien doctor --fix)`,
           });
         } else if (hasStalePluginEvidenceForUnknownChannel(trimmed)) {
           warnings.push({
             ...issue,
-            message: `${issue.message} (stale channel plugin config ignored; run openclaw doctor --fix to remove stale config, or install the plugin)`,
+            message: `${issue.message} (stale channel plugin config ignored; run alien doctor --fix to remove stale config, or install the plugin)`,
           });
         } else {
           issues.push(issue);
@@ -1622,7 +1622,7 @@ function validateConfigObjectWithPluginsBase(
           replacePluginEntryConfig(pluginId, res.value as Record<string, unknown>);
         }
       } else if (record.format === "bundle") {
-        // Compatible bundles currently expose no native OpenClaw config schema.
+        // Compatible bundles currently expose no native Alien config schema.
         // Treat them as schema-less capability packs rather than failing validation.
       } else {
         issues.push({

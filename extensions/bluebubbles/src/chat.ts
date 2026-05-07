@@ -3,14 +3,14 @@ import path from "node:path";
 import { createBlueBubblesClient, type BlueBubblesClient } from "./client.js";
 import { assertMultipartActionOk } from "./multipart.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 
 export type BlueBubblesChatOpts = {
   serverUrl?: string;
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
 };
 
 function clientFromOpts(params: BlueBubblesChatOpts): BlueBubblesClient {

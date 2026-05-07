@@ -24,15 +24,15 @@ vi.mock("../internal/voice.js", () => ({
   },
 }));
 
-vi.mock("openclaw/plugin-sdk/dangerous-name-runtime", () => ({
+vi.mock("alien/plugin-sdk/dangerous-name-runtime", () => ({
   isDangerousNameMatchingEnabled: () => false,
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", () => ({
+vi.mock("alien/plugin-sdk/runtime-env", () => ({
   danger: (value: string) => value,
 }));
 
-vi.mock("openclaw/plugin-sdk/text-runtime", () => ({
+vi.mock("alien/plugin-sdk/text-runtime", () => ({
   normalizeOptionalString: (value: string | null | undefined) => {
     if (typeof value !== "string") {
       return undefined;

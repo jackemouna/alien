@@ -2,11 +2,11 @@
 // Keep monitor internals off the broad package runtime-api barrel so monitor
 // tests and shared workers do not pull unrelated Matrix helper surfaces.
 
-export type { NormalizedLocation } from "openclaw/plugin-sdk/channel-location";
-export type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
-export type { BlockReplyContext, ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-export type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
+export type { NormalizedLocation } from "alien/plugin-sdk/channel-location";
+export type { PluginRuntime, RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
+export type { BlockReplyContext, ReplyPayload } from "alien/plugin-sdk/reply-runtime";
+export type { MarkdownTableMode, AlienConfig } from "alien/plugin-sdk/config-types";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime";
 export {
   addAllowlistUserEntriesFromConfigEntry,
   buildAllowlistResolutionSummary,
@@ -14,15 +14,15 @@ export {
   formatAllowlistMatchMeta,
   patchAllowlistUsersInConfigEntries,
   summarizeMapping,
-} from "openclaw/plugin-sdk/allow-from";
+} from "alien/plugin-sdk/allow-from";
 export {
   createReplyPrefixOptions,
   createTypingCallbacks,
-} from "openclaw/plugin-sdk/channel-reply-options-runtime";
-export { formatLocationText, toLocationContext } from "openclaw/plugin-sdk/channel-location";
-export { getAgentScopedMediaLocalRoots } from "openclaw/plugin-sdk/agent-media-payload";
-export { logInboundDrop, logTypingFailure } from "openclaw/plugin-sdk/channel-logging";
+} from "alien/plugin-sdk/channel-reply-options-runtime";
+export { formatLocationText, toLocationContext } from "alien/plugin-sdk/channel-location";
+export { getAgentScopedMediaLocalRoots } from "alien/plugin-sdk/agent-media-payload";
+export { logInboundDrop, logTypingFailure } from "alien/plugin-sdk/channel-logging";
 export {
   buildChannelKeyCandidates,
   resolveChannelEntryMatch,
-} from "openclaw/plugin-sdk/channel-targets";
+} from "alien/plugin-sdk/channel-targets";

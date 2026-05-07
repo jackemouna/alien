@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildCliRespawnPlan,
   EXPERIMENTAL_WARNING_FLAG,
-  OPENCLAW_NODE_EXTRA_CA_CERTS_READY,
-  OPENCLAW_NODE_OPTIONS_READY,
+  ALIEN_NODE_EXTRA_CA_CERTS_READY,
+  ALIEN_NODE_OPTIONS_READY,
   resolveCliRespawnCommand,
   runCliRespawnPlan,
 } from "./entry.respawn.js";
@@ -14,7 +14,7 @@ describe("buildCliRespawnPlan", () => {
   it("returns null when respawn policy skips the argv", () => {
     expect(
       buildCliRespawnPlan({
-        argv: ["node", "openclaw", "--help"],
+        argv: ["node", "alien", "--help"],
         env: {},
         execArgv: [],
         autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
@@ -24,7 +24,7 @@ describe("buildCliRespawnPlan", () => {
 
   it("adds NODE_EXTRA_CA_CERTS and warning suppression in one respawn", () => {
     const plan = buildCliRespawnPlan({
-      argv: ["node", "openclaw", "status"],
+      argv: ["node", "alien", "status"],
       env: {},
       execArgv: [],
       autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
@@ -34,32 +34,32 @@ describe("buildCliRespawnPlan", () => {
     expect(plan?.command).toBe(process.execPath);
     expect(plan?.argv[0]).toBe(EXPERIMENTAL_WARNING_FLAG);
     expect(plan?.env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/certs/ca-certificates.crt");
-    expect(plan?.env[OPENCLAW_NODE_EXTRA_CA_CERTS_READY]).toBe("1");
-    expect(plan?.env[OPENCLAW_NODE_OPTIONS_READY]).toBe("1");
+    expect(plan?.env[ALIEN_NODE_EXTRA_CA_CERTS_READY]).toBe("1");
+    expect(plan?.env[ALIEN_NODE_OPTIONS_READY]).toBe("1");
   });
 
   it.each(["tui", "terminal", "chat"] as const)(
     "preserves NODE_EXTRA_CA_CERTS respawn for interactive %s",
     (command) => {
       const plan = buildCliRespawnPlan({
-        argv: ["node", "openclaw", command],
+        argv: ["node", "alien", command],
         env: {},
         execArgv: [],
         autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
       });
 
       expect(plan).not.toBeNull();
-      expect(plan?.argv).toEqual(["openclaw", command]);
+      expect(plan?.argv).toEqual(["alien", command]);
       expect(plan?.env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/certs/ca-certificates.crt");
-      expect(plan?.env[OPENCLAW_NODE_EXTRA_CA_CERTS_READY]).toBe("1");
-      expect(plan?.env[OPENCLAW_NODE_OPTIONS_READY]).toBeUndefined();
+      expect(plan?.env[ALIEN_NODE_EXTRA_CA_CERTS_READY]).toBe("1");
+      expect(plan?.env[ALIEN_NODE_OPTIONS_READY]).toBeUndefined();
     },
   );
 
   it("does not respawn interactive commands for warning suppression only", () => {
     expect(
       buildCliRespawnPlan({
-        argv: ["node", "openclaw", "tui"],
+        argv: ["node", "alien", "tui"],
         env: {},
         execArgv: [],
         autoNodeExtraCaCerts: undefined,
@@ -69,7 +69,7 @@ describe("buildCliRespawnPlan", () => {
 
   it("does not overwrite an existing NODE_EXTRA_CA_CERTS value", () => {
     const plan = buildCliRespawnPlan({
-      argv: ["node", "openclaw", "status"],
+      argv: ["node", "alien", "status"],
       env: { NODE_EXTRA_CA_CERTS: "/custom/ca.pem" },
       execArgv: [],
       autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
@@ -81,10 +81,10 @@ describe("buildCliRespawnPlan", () => {
   it("returns null when both respawn guards are already satisfied", () => {
     expect(
       buildCliRespawnPlan({
-        argv: ["node", "openclaw", "status"],
+        argv: ["node", "alien", "status"],
         env: {
-          [OPENCLAW_NODE_EXTRA_CA_CERTS_READY]: "1",
-          [OPENCLAW_NODE_OPTIONS_READY]: "1",
+          [ALIEN_NODE_EXTRA_CA_CERTS_READY]: "1",
+          [ALIEN_NODE_OPTIONS_READY]: "1",
         },
         execArgv: [EXPERIMENTAL_WARNING_FLAG],
         autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
@@ -97,7 +97,7 @@ describe("buildCliRespawnPlan", () => {
       buildCliRespawnPlan({
         argv: [
           "node",
-          "C:\\Users\\alice\\AppData\\Roaming\\npm\\node_modules\\openclaw\\openclaw.mjs",
+          "C:\\Users\\alice\\AppData\\Roaming\\npm\\node_modules\\alien\\alien.mjs",
           "onboard",
         ],
         env: {},
@@ -110,7 +110,7 @@ describe("buildCliRespawnPlan", () => {
 
   it("respawns Volta shims through node so the shim is not called directly", () => {
     const plan = buildCliRespawnPlan({
-      argv: ["/home/alice/.volta/bin/volta-shim", "/usr/local/bin/openclaw", "status"],
+      argv: ["/home/alice/.volta/bin/volta-shim", "/usr/local/bin/alien", "status"],
       env: { PATH: "/home/alice/.volta/bin:/usr/bin:/bin" },
       execArgv: [],
       execPath: "/home/alice/.volta/bin/volta-shim",
@@ -119,7 +119,7 @@ describe("buildCliRespawnPlan", () => {
     });
 
     expect(plan?.command).toBe("node");
-    expect(plan?.argv).toEqual([EXPERIMENTAL_WARNING_FLAG, "/usr/local/bin/openclaw", "status"]);
+    expect(plan?.argv).toEqual([EXPERIMENTAL_WARNING_FLAG, "/usr/local/bin/alien", "status"]);
   });
 });
 
@@ -151,8 +151,8 @@ describe("runCliRespawnPlan", () => {
     runCliRespawnPlan(
       {
         command: "/usr/bin/node",
-        argv: ["/repo/openclaw/dist/entry.js", "status"],
-        env: { OPENCLAW_NODE_OPTIONS_READY: "1" },
+        argv: ["/repo/alien/dist/entry.js", "status"],
+        env: { ALIEN_NODE_OPTIONS_READY: "1" },
       },
       {
         spawn: spawn as unknown as typeof import("node:child_process").spawn,
@@ -164,10 +164,10 @@ describe("runCliRespawnPlan", () => {
 
     expect(spawn).toHaveBeenCalledWith(
       "/usr/bin/node",
-      ["/repo/openclaw/dist/entry.js", "status"],
+      ["/repo/alien/dist/entry.js", "status"],
       {
         stdio: "inherit",
-        env: { OPENCLAW_NODE_OPTIONS_READY: "1" },
+        env: { ALIEN_NODE_OPTIONS_READY: "1" },
       },
     );
     expect(attachChildProcessBridge).toHaveBeenCalledWith(child, {
@@ -193,7 +193,7 @@ describe("runCliRespawnPlan", () => {
       runCliRespawnPlan(
         {
           command: "/usr/bin/node",
-          argv: ["/repo/openclaw/dist/entry.js", "tui"],
+          argv: ["/repo/alien/dist/entry.js", "tui"],
           env: {},
         },
         {

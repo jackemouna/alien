@@ -1,9 +1,9 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
+} from "alien/plugin-sdk/channel-config-helpers";
 import { inspectSlackAccount } from "./account-inspect.js";
 import {
   listSlackAccountIds,

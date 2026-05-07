@@ -1,5 +1,5 @@
 ---
-summary: "Adds Kimi, Kimi Coding model provider support to OpenClaw."
+summary: "Adds Kimi, Kimi Coding model provider support to Alien."
 read_when:
   - You are installing, configuring, or auditing the kimi plugin
 title: "Kimi plugin"
@@ -7,12 +7,12 @@ title: "Kimi plugin"
 
 # Kimi plugin
 
-Adds Kimi, Kimi Coding model provider support to OpenClaw.
+Adds Kimi, Kimi Coding model provider support to Alien.
 
 ## Distribution
 
-- Package: `@openclaw/kimi-provider`
-- Install route: included in OpenClaw
+- Package: `@alien/kimi-provider`
+- Install route: included in Alien
 
 ## Surface
 

@@ -37,7 +37,7 @@ Think of the split like this:
 | Active memory plugin (`memory-core`, QMD, Honcho, etc.) | Recall, semantic search, promotion, dreaming, memory runtime                               |
 | `memory-wiki`                                           | Compiled wiki pages, provenance-rich syntheses, dashboards, wiki-specific search/get/apply |
 
-If the active memory plugin exposes shared recall artifacts, OpenClaw can search
+If the active memory plugin exposes shared recall artifacts, Alien can search
 both layers in one pass with `memory_search corpus=all`.
 
 When you need wiki-specific ranking, provenance, or direct page access, use the
@@ -62,11 +62,11 @@ Practical rule:
 - use `memory_search corpus=all` when you want shared search to span both layers
 
 If bridge mode reports zero exported artifacts, the active memory plugin is not
-currently exposing public bridge inputs yet. Run `openclaw wiki doctor` first,
+currently exposing public bridge inputs yet. Run `alien wiki doctor` first,
 then confirm the active memory plugin supports public artifacts.
 
 When bridge mode is active and `bridge.readMemoryArtifacts` is enabled,
-`openclaw wiki status`, `openclaw wiki doctor`, and `openclaw wiki bridge
+`alien wiki status`, `alien wiki doctor`, and `alien wiki bridge
 import` read through the running Gateway. That keeps CLI bridge checks aligned
 with the runtime memory plugin context. If bridge is disabled or artifact reads
 are turned off, those commands keep their local/offline behavior.
@@ -122,7 +122,7 @@ The plugin initializes a vault like this:
   reports/
   _attachments/
   _views/
-  .openclaw-wiki/
+  .alien-wiki/
 ```
 
 Managed content stays inside generated blocks. Human note blocks are preserved.
@@ -239,8 +239,8 @@ claims:
 The compile step reads wiki pages, normalizes summaries, and emits stable
 machine-facing artifacts under:
 
-- `.openclaw-wiki/cache/agent-digest.json`
-- `.openclaw-wiki/cache/claims.jsonl`
+- `.alien-wiki/cache/agent-digest.json`
+- `.alien-wiki/cache/claims.jsonl`
 
 These digests exist so agents and runtime code do not have to scrape Markdown
 pages.
@@ -379,13 +379,13 @@ Put config under `plugins.entries.memory-wiki.config`:
         config: {
           vaultMode: "isolated",
           vault: {
-            path: "~/.openclaw/wiki/main",
+            path: "~/.alien/wiki/main",
             renderMode: "obsidian",
           },
           obsidian: {
             enabled: true,
             useOfficialCli: true,
-            vaultName: "OpenClaw Wiki",
+            vaultName: "Alien Wiki",
             openAfterWrites: false,
           },
           bridge: {
@@ -481,17 +481,17 @@ This keeps:
 `memory-wiki` also exposes a top-level CLI surface:
 
 ```bash
-openclaw wiki status
-openclaw wiki doctor
-openclaw wiki init
-openclaw wiki ingest ./notes/alpha.md
-openclaw wiki compile
-openclaw wiki lint
-openclaw wiki search "alpha"
-openclaw wiki get entity.alpha
-openclaw wiki apply synthesis "Alpha Summary" --body "..." --source-id source.alpha
-openclaw wiki bridge import
-openclaw wiki obsidian status
+alien wiki status
+alien wiki doctor
+alien wiki init
+alien wiki ingest ./notes/alpha.md
+alien wiki compile
+alien wiki lint
+alien wiki search "alpha"
+alien wiki get entity.alpha
+alien wiki apply synthesis "Alpha Summary" --body "..." --source-id source.alpha
+alien wiki bridge import
+alien wiki obsidian status
 ```
 
 See [CLI: wiki](/cli/wiki) for the full command reference.

@@ -1,6 +1,6 @@
-import { fetchWithRuntimeDispatcherOrMockedGlobal } from "openclaw/plugin-sdk/runtime-fetch";
-import type { DmPolicy, GroupPolicy } from "openclaw/plugin-sdk/setup";
-import { fetchWithSsrFGuard, type SsrFPolicy } from "openclaw/plugin-sdk/ssrf-runtime";
+import { fetchWithRuntimeDispatcherOrMockedGlobal } from "alien/plugin-sdk/runtime-fetch";
+import type { DmPolicy, GroupPolicy } from "alien/plugin-sdk/setup";
+import { fetchWithSsrFGuard, type SsrFPolicy } from "alien/plugin-sdk/ssrf-runtime";
 
 type BlueBubblesGroupConfig = {
   /** If true, only respond in this group when mentioned. */

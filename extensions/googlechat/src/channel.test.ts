@@ -1,10 +1,10 @@
-import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+import { verifyChannelMessageAdapterCapabilityProofs } from "alien/plugin-sdk/channel-message";
 import {
   createDirectoryTestRuntime,
   expectDirectorySurface,
-} from "openclaw/plugin-sdk/channel-test-helpers";
+} from "alien/plugin-sdk/channel-test-helpers";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../runtime-api.js";
+import type { AlienConfig } from "../runtime-api.js";
 import {
   googlechatDirectoryAdapter,
   googlechatMessageAdapter,
@@ -47,7 +47,7 @@ function normalizeGoogleChatTarget(raw?: string | null): string | undefined {
   return normalized;
 }
 
-function resolveGoogleChatAccountImpl(params: { cfg: OpenClawConfig; accountId?: string | null }) {
+function resolveGoogleChatAccountImpl(params: { cfg: AlienConfig; accountId?: string | null }) {
   const accountId = params.accountId?.trim() || DEFAULT_ACCOUNT_ID;
   const channelConfig = (params.cfg.channels?.googlechat ?? {}) as Record<string, unknown>;
   const accounts =
@@ -129,7 +129,7 @@ vi.mock("./channel.deps.runtime.js", () => {
     getChatChannelMeta: (id: string) => ({ id, name: id }),
     isGoogleChatSpaceTarget: (value: string) => value.toLowerCase().startsWith("spaces/"),
     isGoogleChatUserTarget: (value: string) => value.toLowerCase().startsWith("users/"),
-    listGoogleChatAccountIds: (cfg: OpenClawConfig) => {
+    listGoogleChatAccountIds: (cfg: AlienConfig) => {
       const ids = Object.keys(cfg.channels?.googlechat?.accounts ?? {});
       return ids.length > 0 ? ids : ["default"];
     },
@@ -139,9 +139,9 @@ vi.mock("./channel.deps.runtime.js", () => {
     normalizeGoogleChatTarget,
     PAIRING_APPROVED_MESSAGE: "approved",
     resolveChannelMediaMaxBytes: (params: {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       resolveChannelLimitMb: (args: {
-        cfg: OpenClawConfig;
+        cfg: AlienConfig;
         accountId?: string;
       }) => number | undefined;
       accountId?: string;
@@ -173,7 +173,7 @@ afterEach(() => {
   mockGoogleChatMediaLoaders();
 });
 
-function createGoogleChatCfg(): OpenClawConfig {
+function createGoogleChatCfg(): AlienConfig {
   return {
     channels: {
       googlechat: {
@@ -393,7 +393,7 @@ describe("googlechatPlugin threading", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const workAccount = googlechatThreadingAdapter.scopedAccountReplyToMode.resolveAccount(
       cfg,
@@ -669,7 +669,7 @@ describe("googlechat directory", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const directory = expectDirectorySurface(googlechatDirectoryAdapter);
 
@@ -712,7 +712,7 @@ describe("googlechat directory", () => {
           dm: { allowFrom: [" users/alice ", " googlechat:user:Bob@Example.com "] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const directory = expectDirectorySurface(googlechatDirectoryAdapter);
 
@@ -745,7 +745,7 @@ describe("googlechatPlugin security", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const account = resolveGoogleChatAccountImpl({ cfg, accountId: "default" });
 

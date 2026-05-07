@@ -22,7 +22,7 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   createInternalHookEvent,
   hasInternalHookListeners,
@@ -195,7 +195,7 @@ function rejectPluginRuntimeDeleteMismatch(params: {
   return true;
 }
 
-function resolveGatewaySessionTargetFromKey(key: string, cfg: OpenClawConfig) {
+function resolveGatewaySessionTargetFromKey(key: string, cfg: AlienConfig) {
   const target = resolveGatewaySessionStoreTarget({ cfg, key });
   return { cfg, target, storePath: target.storePath };
 }

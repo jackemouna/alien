@@ -1,4 +1,4 @@
-import { danger, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import { danger, type RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import type { MutableDiscordGateway } from "./gateway-handle.js";
 import type { DiscordMonitorStatusSink } from "./status.js";
 import type { ThreadBindingManager } from "./thread-bindings.js";

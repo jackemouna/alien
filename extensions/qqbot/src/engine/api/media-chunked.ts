@@ -36,7 +36,7 @@
 
 import * as crypto from "node:crypto";
 import type { FileHandle } from "node:fs/promises";
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk/ssrf-runtime";
+import { fetchWithSsrFGuard } from "alien/plugin-sdk/ssrf-runtime";
 import type { MediaSource, OpenedLocalFile } from "../messaging/media-source.js";
 import { openLocalFile } from "../messaging/media-source.js";
 import {

@@ -3,17 +3,17 @@ import { rmSync } from "node:fs";
 import { readdir, readFile, stat, unlink } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { join } from "node:path";
-import { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
-import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
-import { resolveWebhookPath } from "openclaw/plugin-sdk/webhook-ingress";
+import { loadOutboundMediaFromUrl } from "alien/plugin-sdk/outbound-media";
+import { privateFileStore } from "alien/plugin-sdk/security-runtime";
+import { resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
+import { resolveWebhookPath } from "alien/plugin-sdk/webhook-ingress";
 
 const ZALO_OUTBOUND_MEDIA_TTL_MS = 2 * 60_000;
 const ZALO_OUTBOUND_MEDIA_SEGMENT = "media";
 const ZALO_OUTBOUND_MEDIA_PREFIX = `/${ZALO_OUTBOUND_MEDIA_SEGMENT}/`;
 const ZALO_OUTBOUND_MEDIA_DIR = join(
-  resolvePreferredOpenClawTmpDir(),
-  "openclaw-zalo-outbound-media",
+  resolvePreferredAlienTmpDir(),
+  "alien-zalo-outbound-media",
 );
 const ZALO_OUTBOUND_MEDIA_ID_RE = /^[a-f0-9]{24}$/;
 

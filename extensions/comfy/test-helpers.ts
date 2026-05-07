@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import * as providerAuth from "openclaw/plugin-sdk/provider-auth-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import * as providerAuth from "alien/plugin-sdk/provider-auth-runtime";
 import { expect, vi } from "vitest";
 
 type FetchGuardMock = ReturnType<typeof vi.fn>;
@@ -19,24 +19,24 @@ type ComfyCloudJobResponseOptions = {
   redirectLocation: string;
 };
 
-export function buildComfyConfig(config: Record<string, unknown>): OpenClawConfig {
+export function buildComfyConfig(config: Record<string, unknown>): AlienConfig {
   return {
     plugins: {
       entries: {
         comfy: { config },
       },
     },
-  } as unknown as OpenClawConfig;
+  } as unknown as AlienConfig;
 }
 
-export function buildLegacyComfyConfig(config: Record<string, unknown>): OpenClawConfig {
+export function buildLegacyComfyConfig(config: Record<string, unknown>): AlienConfig {
   return {
     models: {
       providers: {
         comfy: config,
       },
     },
-  } as unknown as OpenClawConfig;
+  } as unknown as AlienConfig;
 }
 
 export function parseComfyJsonBody(

@@ -4,15 +4,15 @@ import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
-import { KeyedAsyncQueue } from "openclaw/plugin-sdk/keyed-async-queue";
+import { KeyedAsyncQueue } from "alien/plugin-sdk/keyed-async-queue";
 import { isAcpRuntimeSpawnAvailable } from "../../acp/runtime/availability.js";
 import type { SourceReplyDeliveryMode } from "../../auto-reply/get-reply-options.types.js";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { CliBackendConfig } from "../../config/types.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { privateFileStore } from "../../infra/private-file-store.js";
 import { tempWorkspace } from "../../infra/private-temp-workspace.js";
-import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../../infra/tmp-alien-dir.js";
 import { MAX_IMAGE_BYTES } from "../../media/constants.js";
 import { extensionForMime } from "../../media/mime.js";
 import {
@@ -70,7 +70,7 @@ export function resolveCliRunQueueKey(params: {
 
 export function buildSystemPrompt(params: {
   workspaceDir: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   defaultThinkLevel?: ThinkLevel;
   extraSystemPrompt?: string;
   sourceReplyDeliveryMode?: SourceReplyDeliveryMode;
@@ -96,7 +96,7 @@ export function buildSystemPrompt(params: {
     workspaceDir: params.workspaceDir,
     cwd: process.cwd(),
     runtime: {
-      host: "openclaw",
+      host: "alien",
       os: `${os.type()} ${os.release()}`,
       arch: os.arch(),
       node: process.version,
@@ -219,14 +219,14 @@ function resolveCliImagePath(image: ImageContent): string {
     .update("\0")
     .update(image.data)
     .digest("hex");
-  return path.join(resolvePreferredOpenClawTmpDir(), "openclaw-cli-images", `${digest}${ext}`);
+  return path.join(resolvePreferredAlienTmpDir(), "alien-cli-images", `${digest}${ext}`);
 }
 
 function resolveCliImageRoot(params: { backend: CliBackendConfig; workspaceDir: string }): string {
   if (params.backend.imagePathScope === "workspace") {
-    return path.join(params.workspaceDir, ".openclaw-cli-images");
+    return path.join(params.workspaceDir, ".alien-cli-images");
   }
-  return path.join(resolvePreferredOpenClawTmpDir(), "openclaw-cli-images");
+  return path.join(resolvePreferredAlienTmpDir(), "alien-cli-images");
 }
 
 function appendImagePathsToPrompt(prompt: string, paths: string[], prefix = ""): string {
@@ -311,8 +311,8 @@ export async function writeCliSystemPromptFile(params: {
     return { cleanup: async () => {} };
   }
   const workspace = await tempWorkspace({
-    rootDir: resolvePreferredOpenClawTmpDir(),
-    prefix: "openclaw-cli-system-prompt-",
+    rootDir: resolvePreferredAlienTmpDir(),
+    prefix: "alien-cli-system-prompt-",
   });
   const filePath = await workspace.write(
     "system-prompt.md",

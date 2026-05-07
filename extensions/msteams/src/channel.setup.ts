@@ -1,8 +1,8 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
-import { createTopLevelChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
+import { createTopLevelChannelConfigAdapter } from "alien/plugin-sdk/channel-config-helpers";
+import type { ChannelPlugin } from "alien/plugin-sdk/channel-core";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { MSTeamsChannelConfigSchema } from "./config-schema.js";
 import { msteamsSetupAdapter } from "./setup-core.js";
 import { msteamsSetupWizard } from "./setup-surface.js";
@@ -25,7 +25,7 @@ const meta = {
   order: 60,
 } as const;
 
-const resolveMSTeamsChannelConfig = (cfg: OpenClawConfig) => ({
+const resolveMSTeamsChannelConfig = (cfg: AlienConfig) => ({
   allowFrom: cfg.channels?.msteams?.allowFrom,
   defaultTo: cfg.channels?.msteams?.defaultTo,
 });

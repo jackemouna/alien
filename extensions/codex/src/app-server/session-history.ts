@@ -5,7 +5,7 @@ import {
   migrateSessionEntries,
   parseSessionEntries,
 } from "@mariozechner/pi-coding-agent";
-import type { AgentMessage } from "openclaw/plugin-sdk/agent-harness-runtime";
+import type { AgentMessage } from "alien/plugin-sdk/agent-harness-runtime";
 
 function isMissingFileError(error: unknown): boolean {
   return Boolean(

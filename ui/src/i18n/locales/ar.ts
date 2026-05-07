@@ -408,7 +408,7 @@ export const ar: TranslationMap = {
     skills: "Skills ومفاتيح API.",
     nodes: "الأجهزة المقترنة والأوامر.",
     chat: "دردشة Gateway للتدخلات السريعة.",
-    config: "تعديل openclaw.json.",
+    config: "تعديل alien.json.",
     communications: "القنوات، والرسائل، وإعدادات الصوت.",
     appearance: "السمة، وواجهة المستخدم، وإعدادات معالج الإعداد.",
     automation: "الأوامر، والخطافات، وcron، والمكونات الإضافية.",
@@ -478,7 +478,7 @@ export const ar: TranslationMap = {
       metadataUpgradeTitle: "تغيير بيانات تعريف الجهاز بانتظار الموافقة.",
       metadataUpgradeSummary: "هذا الجهاز مقترن بالفعل، لكن تغيير بيانات التعريف بانتظار الموافقة.",
       mobileHint:
-        "على الهاتف؟ انسخ عنوان URL الكامل (بما في ذلك #token=...) من openclaw dashboard --no-open على سطح المكتب.",
+        "على الهاتف؟ انسخ عنوان URL الكامل (بما في ذلك #token=...) من alien dashboard --no-open على سطح المكتب.",
       docsTitle: "مستندات اقتران الأجهزة (تُفتح في تبويب جديد)",
       docsLink: "المستندات: اقتران الأجهزة",
     },
@@ -516,7 +516,7 @@ export const ar: TranslationMap = {
       modelAuthExpiresIn: "ينتهي {when}",
       modelAuthAttentionExpiredTitle: "انتهت صلاحية مصادقة النموذج",
       modelAuthAttentionExpiringTitle: "ستنتهي صلاحية مصادقة النموذج قريبًا",
-      modelAuthAttentionExpiredDesc: "{providers} — أعد المصادقة باستخدام openclaw models auth",
+      modelAuthAttentionExpiredDesc: "{providers} — أعد المصادقة باستخدام alien models auth",
       modelAuthAttentionExpiringEntry: "{provider} ({when})",
     },
     attention: {

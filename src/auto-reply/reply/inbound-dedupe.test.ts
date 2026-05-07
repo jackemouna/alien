@@ -1,4 +1,4 @@
-import { importFreshModule } from "openclaw/plugin-sdk/test-fixtures";
+import { importFreshModule } from "alien/plugin-sdk/test-fixtures";
 import { afterEach, describe, expect, it } from "vitest";
 import type { MsgContext } from "../templating.js";
 import { buildInboundDedupeKey, resetInboundDedupe } from "./inbound-dedupe.js";

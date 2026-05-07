@@ -2,4 +2,4 @@ export {
   createReplyDispatcherWithTyping,
   dispatchInboundMessage,
   settleReplyDispatcher,
-} from "openclaw/plugin-sdk/reply-runtime";
+} from "alien/plugin-sdk/reply-runtime";

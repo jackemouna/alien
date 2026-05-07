@@ -1,8 +1,8 @@
 import { spawn, type SpawnOptions } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { pathExists } from "openclaw/plugin-sdk/security-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { pathExists } from "alien/plugin-sdk/security-runtime";
 import { ensureRepoBoundDirectory, resolveRepoRelativeOutputDir } from "../cli-paths.js";
 import {
   acquireQaCredentialLease,
@@ -140,16 +140,16 @@ const DEFAULT_PROVIDER_MODE = "live-frontier";
 const DEFAULT_MODEL = "openai/gpt-5.4";
 const DEFAULT_SLACK_CHANNEL_ID = "C0AUXUC5AGN";
 const DEFAULT_HYDRATE_MODE: MantisSlackDesktopHydrateMode = "source";
-const CRABBOX_BIN_ENV = "OPENCLAW_MANTIS_CRABBOX_BIN";
-const CRABBOX_PROVIDER_ENV = "OPENCLAW_MANTIS_CRABBOX_PROVIDER";
-const CRABBOX_CLASS_ENV = "OPENCLAW_MANTIS_CRABBOX_CLASS";
-const CRABBOX_LEASE_ID_ENV = "OPENCLAW_MANTIS_CRABBOX_LEASE_ID";
-const CRABBOX_KEEP_ENV = "OPENCLAW_MANTIS_KEEP_VM";
-const CRABBOX_IDLE_TIMEOUT_ENV = "OPENCLAW_MANTIS_CRABBOX_IDLE_TIMEOUT";
-const CRABBOX_TTL_ENV = "OPENCLAW_MANTIS_CRABBOX_TTL";
-const HYDRATE_MODE_ENV = "OPENCLAW_MANTIS_HYDRATE_MODE";
-const SLACK_URL_ENV = "OPENCLAW_MANTIS_SLACK_URL";
-const SLACK_CHANNEL_ID_ENV = "OPENCLAW_MANTIS_SLACK_CHANNEL_ID";
+const CRABBOX_BIN_ENV = "ALIEN_MANTIS_CRABBOX_BIN";
+const CRABBOX_PROVIDER_ENV = "ALIEN_MANTIS_CRABBOX_PROVIDER";
+const CRABBOX_CLASS_ENV = "ALIEN_MANTIS_CRABBOX_CLASS";
+const CRABBOX_LEASE_ID_ENV = "ALIEN_MANTIS_CRABBOX_LEASE_ID";
+const CRABBOX_KEEP_ENV = "ALIEN_MANTIS_KEEP_VM";
+const CRABBOX_IDLE_TIMEOUT_ENV = "ALIEN_MANTIS_CRABBOX_IDLE_TIMEOUT";
+const CRABBOX_TTL_ENV = "ALIEN_MANTIS_CRABBOX_TTL";
+const HYDRATE_MODE_ENV = "ALIEN_MANTIS_HYDRATE_MODE";
+const SLACK_URL_ENV = "ALIEN_MANTIS_SLACK_URL";
+const SLACK_CHANNEL_ID_ENV = "ALIEN_MANTIS_SLACK_CHANNEL_ID";
 
 function trimToValue(value: string | undefined) {
   const trimmed = value?.trim();
@@ -301,43 +301,43 @@ function buildCrabboxEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const next = {
     ...env,
   };
-  if (!trimToValue(next.OPENCLAW_LIVE_OPENAI_KEY) && trimToValue(next.OPENAI_API_KEY)) {
-    next.OPENCLAW_LIVE_OPENAI_KEY = next.OPENAI_API_KEY;
+  if (!trimToValue(next.ALIEN_LIVE_OPENAI_KEY) && trimToValue(next.OPENAI_API_KEY)) {
+    next.ALIEN_LIVE_OPENAI_KEY = next.OPENAI_API_KEY;
   }
-  if (!trimToValue(next.OPENCLAW_MANTIS_SLACK_BOT_TOKEN) && trimToValue(next.SLACK_BOT_TOKEN)) {
-    next.OPENCLAW_MANTIS_SLACK_BOT_TOKEN = next.SLACK_BOT_TOKEN;
-  }
-  if (
-    !trimToValue(next.OPENCLAW_MANTIS_SLACK_BOT_TOKEN) &&
-    trimToValue(next.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN)
-  ) {
-    next.OPENCLAW_MANTIS_SLACK_BOT_TOKEN = next.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN;
-  }
-  if (!trimToValue(next.OPENCLAW_MANTIS_SLACK_APP_TOKEN) && trimToValue(next.SLACK_APP_TOKEN)) {
-    next.OPENCLAW_MANTIS_SLACK_APP_TOKEN = next.SLACK_APP_TOKEN;
+  if (!trimToValue(next.ALIEN_MANTIS_SLACK_BOT_TOKEN) && trimToValue(next.SLACK_BOT_TOKEN)) {
+    next.ALIEN_MANTIS_SLACK_BOT_TOKEN = next.SLACK_BOT_TOKEN;
   }
   if (
-    !trimToValue(next.OPENCLAW_MANTIS_SLACK_APP_TOKEN) &&
-    trimToValue(next.OPENCLAW_QA_SLACK_SUT_APP_TOKEN)
+    !trimToValue(next.ALIEN_MANTIS_SLACK_BOT_TOKEN) &&
+    trimToValue(next.ALIEN_QA_SLACK_SUT_BOT_TOKEN)
   ) {
-    next.OPENCLAW_MANTIS_SLACK_APP_TOKEN = next.OPENCLAW_QA_SLACK_SUT_APP_TOKEN;
+    next.ALIEN_MANTIS_SLACK_BOT_TOKEN = next.ALIEN_QA_SLACK_SUT_BOT_TOKEN;
+  }
+  if (!trimToValue(next.ALIEN_MANTIS_SLACK_APP_TOKEN) && trimToValue(next.SLACK_APP_TOKEN)) {
+    next.ALIEN_MANTIS_SLACK_APP_TOKEN = next.SLACK_APP_TOKEN;
   }
   if (
-    !trimToValue(next.OPENCLAW_MANTIS_SLACK_CHANNEL_ID) &&
-    trimToValue(next.OPENCLAW_QA_SLACK_CHANNEL_ID)
+    !trimToValue(next.ALIEN_MANTIS_SLACK_APP_TOKEN) &&
+    trimToValue(next.ALIEN_QA_SLACK_SUT_APP_TOKEN)
   ) {
-    next.OPENCLAW_MANTIS_SLACK_CHANNEL_ID = next.OPENCLAW_QA_SLACK_CHANNEL_ID;
+    next.ALIEN_MANTIS_SLACK_APP_TOKEN = next.ALIEN_QA_SLACK_SUT_APP_TOKEN;
+  }
+  if (
+    !trimToValue(next.ALIEN_MANTIS_SLACK_CHANNEL_ID) &&
+    trimToValue(next.ALIEN_QA_SLACK_CHANNEL_ID)
+  ) {
+    next.ALIEN_MANTIS_SLACK_CHANNEL_ID = next.ALIEN_QA_SLACK_CHANNEL_ID;
   }
   return next;
 }
 
 function resolveSlackGatewayEnvPayload(env: NodeJS.ProcessEnv): SlackGatewayCredentialPayload {
-  const channelId = trimToValue(env.OPENCLAW_QA_SLACK_CHANNEL_ID);
-  const sutBotToken = trimToValue(env.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN);
-  const sutAppToken = trimToValue(env.OPENCLAW_QA_SLACK_SUT_APP_TOKEN);
+  const channelId = trimToValue(env.ALIEN_QA_SLACK_CHANNEL_ID);
+  const sutBotToken = trimToValue(env.ALIEN_QA_SLACK_SUT_BOT_TOKEN);
+  const sutAppToken = trimToValue(env.ALIEN_QA_SLACK_SUT_APP_TOKEN);
   if (!channelId || !sutBotToken || !sutAppToken) {
     throw new Error(
-      "Gateway setup requires OPENCLAW_QA_SLACK_CHANNEL_ID, OPENCLAW_QA_SLACK_SUT_BOT_TOKEN, and OPENCLAW_QA_SLACK_SUT_APP_TOKEN when using --credential-source env.",
+      "Gateway setup requires ALIEN_QA_SLACK_CHANNEL_ID, ALIEN_QA_SLACK_SUT_BOT_TOKEN, and ALIEN_QA_SLACK_SUT_APP_TOKEN when using --credential-source env.",
     );
   }
   return {
@@ -380,8 +380,8 @@ async function prepareGatewayCredentialEnv(params: {
     return {};
   }
   if (
-    trimToValue(params.env.OPENCLAW_MANTIS_SLACK_BOT_TOKEN) &&
-    trimToValue(params.env.OPENCLAW_MANTIS_SLACK_APP_TOKEN)
+    trimToValue(params.env.ALIEN_MANTIS_SLACK_BOT_TOKEN) &&
+    trimToValue(params.env.ALIEN_MANTIS_SLACK_APP_TOKEN)
   ) {
     return {};
   }
@@ -395,16 +395,16 @@ async function prepareGatewayCredentialEnv(params: {
   });
   const leaseHeartbeat = startQaCredentialLeaseHeartbeat(credentialLease);
   const payload = credentialLease.payload;
-  params.env.OPENCLAW_MANTIS_SLACK_BOT_TOKEN = payload.sutBotToken;
-  params.env.OPENCLAW_MANTIS_SLACK_APP_TOKEN = payload.sutAppToken;
-  params.env.OPENCLAW_MANTIS_SLACK_CHANNEL_ID =
-    trimToValue(params.env.OPENCLAW_MANTIS_SLACK_CHANNEL_ID) ?? payload.channelId;
-  params.env.OPENCLAW_QA_SLACK_CHANNEL_ID =
-    trimToValue(params.env.OPENCLAW_QA_SLACK_CHANNEL_ID) ?? payload.channelId;
-  params.env.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN =
-    trimToValue(params.env.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN) ?? payload.sutBotToken;
-  params.env.OPENCLAW_QA_SLACK_SUT_APP_TOKEN =
-    trimToValue(params.env.OPENCLAW_QA_SLACK_SUT_APP_TOKEN) ?? payload.sutAppToken;
+  params.env.ALIEN_MANTIS_SLACK_BOT_TOKEN = payload.sutBotToken;
+  params.env.ALIEN_MANTIS_SLACK_APP_TOKEN = payload.sutAppToken;
+  params.env.ALIEN_MANTIS_SLACK_CHANNEL_ID =
+    trimToValue(params.env.ALIEN_MANTIS_SLACK_CHANNEL_ID) ?? payload.channelId;
+  params.env.ALIEN_QA_SLACK_CHANNEL_ID =
+    trimToValue(params.env.ALIEN_QA_SLACK_CHANNEL_ID) ?? payload.channelId;
+  params.env.ALIEN_QA_SLACK_SUT_BOT_TOKEN =
+    trimToValue(params.env.ALIEN_QA_SLACK_SUT_BOT_TOKEN) ?? payload.sutBotToken;
+  params.env.ALIEN_QA_SLACK_SUT_APP_TOKEN =
+    trimToValue(params.env.ALIEN_QA_SLACK_SUT_APP_TOKEN) ?? payload.sutAppToken;
   return {
     credentialLease,
     leaseHeartbeat,
@@ -460,8 +460,8 @@ slack_channel_id=${slackChannelId}
 rm -rf "$out"
 mkdir -p "$out"
 export DISPLAY="\${DISPLAY:-:99}"
-if [ -n "\${OPENCLAW_LIVE_OPENAI_KEY:-}" ] && [ -z "\${OPENAI_API_KEY:-}" ]; then
-  export OPENAI_API_KEY="$OPENCLAW_LIVE_OPENAI_KEY"
+if [ -n "\${ALIEN_LIVE_OPENAI_KEY:-}" ] && [ -z "\${OPENAI_API_KEY:-}" ]; then
+  export OPENAI_API_KEY="$ALIEN_LIVE_OPENAI_KEY"
 fi
 if ! command -v node >/dev/null 2>&1; then
   sudo apt-get update -y >"$out/node-apt.log" 2>&1
@@ -483,11 +483,11 @@ if [ -z "$browser_bin" ]; then
   echo "No browser binary found. Checked BROWSER, CHROME_BIN, google-chrome, chromium, chromium-browser." >&2
   exit 127
 fi
-team_id="\${OPENCLAW_QA_SLACK_TEAM_ID:-}"
-auth_test_token="\${OPENCLAW_QA_SLACK_SUT_BOT_TOKEN:-\${OPENCLAW_MANTIS_SLACK_BOT_TOKEN:-}}"
+team_id="\${ALIEN_QA_SLACK_TEAM_ID:-}"
+auth_test_token="\${ALIEN_QA_SLACK_SUT_BOT_TOKEN:-\${ALIEN_MANTIS_SLACK_BOT_TOKEN:-}}"
 if [ -z "$slack_url_override" ] && [ -z "$team_id" ] && [ -n "$auth_test_token" ]; then
   node --input-type=module >"$out/slack-auth-test.json" 2>"$out/slack-auth-test.err" <<'MANTIS_SLACK_AUTH'
-const token = process.env.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN || process.env.OPENCLAW_MANTIS_SLACK_BOT_TOKEN;
+const token = process.env.ALIEN_QA_SLACK_SUT_BOT_TOKEN || process.env.ALIEN_MANTIS_SLACK_BOT_TOKEN;
 const response = await fetch("https://slack.com/api/auth.test", {
   method: "POST",
   headers: { authorization: \`Bearer \${token}\` },
@@ -499,16 +499,16 @@ MANTIS_SLACK_AUTH
   team_id="$(node --input-type=module -e 'import fs from "node:fs"; const value = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); process.stdout.write(value.team_id || "");' "$out/slack-auth-test.json" || true)"
 fi
 slack_url="$slack_url_override"
-if [ -z "$slack_url" ] && [ -n "$team_id" ] && [ -n "\${OPENCLAW_QA_SLACK_CHANNEL_ID:-}" ]; then
-  slack_url="https://app.slack.com/client/$team_id/$OPENCLAW_QA_SLACK_CHANNEL_ID"
+if [ -z "$slack_url" ] && [ -n "$team_id" ] && [ -n "\${ALIEN_QA_SLACK_CHANNEL_ID:-}" ]; then
+  slack_url="https://app.slack.com/client/$team_id/$ALIEN_QA_SLACK_CHANNEL_ID"
 fi
-profile="\${OPENCLAW_MANTIS_SLACK_BROWSER_PROFILE_DIR:-$HOME/.config/openclaw-mantis/slack-chrome-profile}"
+profile="\${ALIEN_MANTIS_SLACK_BROWSER_PROFILE_DIR:-$HOME/.config/alien-mantis/slack-chrome-profile}"
 mkdir -p "$profile"
 if [ "$setup_gateway" = "1" ]; then
-  export SLACK_BOT_TOKEN="\${OPENCLAW_MANTIS_SLACK_BOT_TOKEN:-\${SLACK_BOT_TOKEN:-}}"
-  export SLACK_APP_TOKEN="\${OPENCLAW_MANTIS_SLACK_APP_TOKEN:-\${SLACK_APP_TOKEN:-}}"
+  export SLACK_BOT_TOKEN="\${ALIEN_MANTIS_SLACK_BOT_TOKEN:-\${SLACK_BOT_TOKEN:-}}"
+  export SLACK_APP_TOKEN="\${ALIEN_MANTIS_SLACK_APP_TOKEN:-\${SLACK_APP_TOKEN:-}}"
   if [ -z "$SLACK_BOT_TOKEN" ] || [ -z "$SLACK_APP_TOKEN" ]; then
-    echo "Gateway setup requires OPENCLAW_MANTIS_SLACK_BOT_TOKEN and OPENCLAW_MANTIS_SLACK_APP_TOKEN." >&2
+    echo "Gateway setup requires ALIEN_MANTIS_SLACK_BOT_TOKEN and ALIEN_MANTIS_SLACK_APP_TOKEN." >&2
     exit 2
   fi
   if [ -z "$slack_url" ] && [ -n "$team_id" ]; then
@@ -590,8 +590,8 @@ qa_status=0
     exit 3
   fi
   if [ "$setup_gateway" = "1" ]; then
-    export OPENCLAW_HOME="$HOME/.openclaw-mantis/slack-openclaw"
-    mkdir -p "$OPENCLAW_HOME"
+    export ALIEN_HOME="$HOME/.alien-mantis/slack-alien"
+    mkdir -p "$ALIEN_HOME"
     cat >"$out/slack.socket.patch.json5" <<MANTIS_SLACK_PATCH
 {
   gateway: {
@@ -619,20 +619,20 @@ qa_status=0
   },
 }
 MANTIS_SLACK_PATCH
-    pnpm openclaw config patch --file "$out/slack.socket.patch.json5" --dry-run
-    pnpm openclaw config patch --file "$out/slack.socket.patch.json5"
-    nohup pnpm openclaw gateway run --dev --allow-unconfigured --port 38973 --cli-backend-logs </dev/null >"$out/openclaw-gateway.log" 2>&1 &
+    pnpm alien config patch --file "$out/slack.socket.patch.json5" --dry-run
+    pnpm alien config patch --file "$out/slack.socket.patch.json5"
+    nohup pnpm alien gateway run --dev --allow-unconfigured --port 38973 --cli-backend-logs </dev/null >"$out/alien-gateway.log" 2>&1 &
     gateway_pid="$!"
-    echo "$gateway_pid" >"$out/openclaw-gateway.pid"
+    echo "$gateway_pid" >"$out/alien-gateway.pid"
     sleep 12
     if ! kill -0 "$gateway_pid" >/dev/null 2>&1; then
-      echo "OpenClaw gateway exited during startup." >&2
+      echo "Alien gateway exited during startup." >&2
       wait "$gateway_pid" || true
       exit 1
     fi
     disown "$gateway_pid" >/dev/null 2>&1 || true
   else
-    qa_args=(openclaw qa slack --repo-root . --output-dir "$out/slack-qa" --provider-mode "$provider_mode" --model "$primary_model" --alt-model "$alternate_model" --credential-source "$credential_source" --credential-role "$credential_role")
+    qa_args=(alien qa slack --repo-root . --output-dir "$out/slack-qa" --provider-mode "$provider_mode" --model "$primary_model" --alt-model "$alternate_model" --credential-source "$credential_source" --credential-role "$credential_role")
     if [ "$fast_mode" = "1" ]; then
       qa_args+=(--fast)
     fi
@@ -654,8 +654,8 @@ cat >"$out/remote-metadata.json" <<MANTIS_REMOTE_METADATA
   "display": "$DISPLAY",
   "openedUrl": "$slack_url",
   "gatewaySetup": $setup_gateway,
-  "gatewayAlive": $(if [ "$setup_gateway" = "1" ] && [ -f "$out/openclaw-gateway.pid" ] && kill -0 "$(cat "$out/openclaw-gateway.pid")" >/dev/null 2>&1; then echo true; else echo false; fi),
-  "gatewayPid": "$(if [ -f "$out/openclaw-gateway.pid" ]; then cat "$out/openclaw-gateway.pid"; fi)",
+  "gatewayAlive": $(if [ "$setup_gateway" = "1" ] && [ -f "$out/alien-gateway.pid" ] && kill -0 "$(cat "$out/alien-gateway.pid")" >/dev/null 2>&1; then echo true; else echo false; fi),
+  "gatewayPid": "$(if [ -f "$out/alien-gateway.pid" ]; then cat "$out/alien-gateway.pid"; fi)",
   "gatewayPort": 38973,
   "qaExitCode": $qa_status,
   "credentialSource": "$credential_source",
@@ -907,14 +907,14 @@ export async function runMantisSlackDesktopSmoke(
   const slackChannelId =
     trimToValue(opts.slackChannelId) ??
     trimToValue(env[SLACK_CHANNEL_ID_ENV]) ??
-    trimToValue(env.OPENCLAW_QA_SLACK_CHANNEL_ID) ??
+    trimToValue(env.ALIEN_QA_SLACK_CHANNEL_ID) ??
     DEFAULT_SLACK_CHANNEL_ID;
   const slackUrl = trimToValue(opts.slackUrl) ?? trimToValue(env[SLACK_URL_ENV]);
   const runner = opts.commandRunner ?? defaultCommandRunner;
   const explicitLeaseId = trimToValue(opts.leaseId) ?? trimToValue(env[CRABBOX_LEASE_ID_ENV]);
   const keepLease = opts.keepLease ?? (gatewaySetup || isTruthyOptIn(env[CRABBOX_KEEP_ENV]));
   const createdLease = explicitLeaseId === undefined;
-  const remoteOutputDir = `/tmp/openclaw-mantis-slack-desktop-${startedAt
+  const remoteOutputDir = `/tmp/alien-mantis-slack-desktop-${startedAt
     .toISOString()
     .replace(/[^0-9A-Za-z]/gu, "-")}`;
   let credentialLease: SlackGatewayCredentialLease | undefined;
@@ -1038,7 +1038,7 @@ export async function runMantisSlackDesktopSmoke(
       throw remoteRunError;
     }
     if (gatewaySetup && !gatewaySetupCompleted) {
-      throw new Error("Slack desktop gateway setup did not report a live OpenClaw gateway.");
+      throw new Error("Slack desktop gateway setup did not report a live Alien gateway.");
     }
     summary = {
       artifacts: {

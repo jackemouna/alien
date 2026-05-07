@@ -1,9 +1,9 @@
-import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
+import { resolveMarkdownTableMode } from "alien/plugin-sdk/markdown-table-runtime";
 import {
   convertMarkdownTables,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import type { ClawdbotConfig } from "../runtime-api.js";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";

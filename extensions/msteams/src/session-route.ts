@@ -3,8 +3,8 @@ import {
   stripChannelTargetPrefix,
   stripTargetKindPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "openclaw/plugin-sdk/channel-core";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-core";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 export function resolveMSTeamsOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {
   let trimmed = stripChannelTargetPrefix(params.target, "msteams", "teams");

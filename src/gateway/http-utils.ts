@@ -33,13 +33,13 @@ export {
   type GatewayHttpRequestAuthCheckResult,
 } from "./http-auth-utils.js";
 
-export const OPENCLAW_MODEL_ID = "openclaw";
-export const OPENCLAW_DEFAULT_MODEL_ID = "openclaw/default";
+export const ALIEN_MODEL_ID = "alien";
+export const ALIEN_DEFAULT_MODEL_ID = "alien/default";
 
 function resolveAgentIdFromHeader(req: IncomingMessage): string | undefined {
   const raw =
-    normalizeOptionalString(getHeader(req, "x-openclaw-agent-id")) ||
-    normalizeOptionalString(getHeader(req, "x-openclaw-agent")) ||
+    normalizeOptionalString(getHeader(req, "x-alien-agent-id")) ||
+    normalizeOptionalString(getHeader(req, "x-alien-agent")) ||
     "";
   if (!raw) {
     return undefined;
@@ -56,12 +56,12 @@ export function resolveAgentIdFromModel(
     return undefined;
   }
   const lowered = normalizeLowercaseStringOrEmpty(raw);
-  if (lowered === OPENCLAW_MODEL_ID || lowered === OPENCLAW_DEFAULT_MODEL_ID) {
+  if (lowered === ALIEN_MODEL_ID || lowered === ALIEN_DEFAULT_MODEL_ID) {
     return resolveDefaultAgentId(cfg);
   }
 
   const m =
-    raw.match(/^openclaw[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
+    raw.match(/^alien[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
     raw.match(/^agent:(?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i);
   const agentId = m?.groups?.agentId;
   if (!agentId) {
@@ -78,11 +78,11 @@ export async function resolveOpenAiCompatModelOverride(params: {
   const requestModel = params.model?.trim();
   if (requestModel && !resolveAgentIdFromModel(requestModel)) {
     return {
-      errorMessage: "Invalid `model`. Use `openclaw` or `openclaw/<agentId>`.",
+      errorMessage: "Invalid `model`. Use `alien` or `alien/<agentId>`.",
     };
   }
 
-  const raw = getHeader(params.req, "x-openclaw-model")?.trim();
+  const raw = getHeader(params.req, "x-alien-model")?.trim();
   if (!raw) {
     return {};
   }
@@ -92,7 +92,7 @@ export async function resolveOpenAiCompatModelOverride(params: {
   const defaultProvider = defaultModelRef.provider;
   const parsed = parseModelRef(raw, defaultProvider);
   if (!parsed) {
-    return { errorMessage: "Invalid `x-openclaw-model`." };
+    return { errorMessage: "Invalid `x-alien-model`." };
   }
 
   const catalog = await loadGatewayModelCatalog();
@@ -132,7 +132,7 @@ function resolveSessionKey(params: {
   user?: string | undefined;
   prefix: string;
 }): string {
-  const explicit = getHeader(params.req, "x-openclaw-session-key")?.trim();
+  const explicit = getHeader(params.req, "x-alien-session-key")?.trim();
   if (explicit) {
     return explicit;
   }
@@ -159,7 +159,7 @@ export function resolveGatewayRequestContext(params: {
   });
 
   const messageChannel = params.useMessageChannelHeader
-    ? (normalizeMessageChannel(getHeader(params.req, "x-openclaw-message-channel")) ??
+    ? (normalizeMessageChannel(getHeader(params.req, "x-alien-message-channel")) ??
       params.defaultMessageChannel)
     : params.defaultMessageChannel;
 

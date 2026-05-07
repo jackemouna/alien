@@ -1,5 +1,5 @@
-import { isProviderApiKeyConfigured } from "openclaw/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
+import { isProviderApiKeyConfigured } from "alien/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "alien/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -9,14 +9,14 @@ import {
   resolveProviderOperationTimeoutMs,
   sanitizeConfiguredModelProviderRequest,
   waitProviderOperationPollInterval,
-} from "openclaw/plugin-sdk/provider-http";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/provider-http";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
   VideoGenerationSourceAsset,
-} from "openclaw/plugin-sdk/video-generation";
+} from "alien/plugin-sdk/video-generation";
 import { OPENROUTER_BASE_URL } from "./provider-catalog.js";
 
 const DEFAULT_MODEL = "google/veo-3.1-fast";
@@ -392,8 +392,8 @@ export function buildOpenRouterVideoGenerationProvider(): VideoGenerationProvide
           defaultHeaders: {
             Authorization: `Bearer ${auth.apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://openclaw.ai",
-            "X-OpenRouter-Title": "OpenClaw",
+            "HTTP-Referer": "https://alien.ai",
+            "X-OpenRouter-Title": "Alien",
           },
           request: sanitizeConfiguredModelProviderRequest(
             req.cfg?.models?.providers?.openrouter?.request,

@@ -11,4 +11,4 @@ export {
   type ReplaceFileAtomicResult,
   type ReplaceFileAtomicSyncFileSystem,
   type ReplaceFileAtomicSyncOptions,
-} from "@openclaw/fs-safe/atomic";
+} from "@alien/fs-safe/atomic";

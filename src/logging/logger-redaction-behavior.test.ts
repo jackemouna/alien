@@ -13,10 +13,10 @@ import { __test__ as loggerTest } from "./logger.js";
 const secret = "sk-testsecret1234567890abcd";
 const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
 const SPAN_ID = "00f067aa0ba902b7";
-const logPathTracker = createSuiteLogPathTracker("openclaw-log-redaction-");
-const originalConfigPath = process.env.OPENCLAW_CONFIG_PATH;
+const logPathTracker = createSuiteLogPathTracker("alien-log-redaction-");
+const originalConfigPath = process.env.ALIEN_CONFIG_PATH;
 const originalHome = process.env.HOME;
-const originalTestFileLog = process.env.OPENCLAW_TEST_FILE_LOG;
+const originalTestFileLog = process.env.ALIEN_TEST_FILE_LOG;
 
 beforeAll(async () => {
   await logPathTracker.setup();
@@ -24,9 +24,9 @@ beforeAll(async () => {
 
 afterEach(() => {
   if (originalConfigPath === undefined) {
-    delete process.env.OPENCLAW_CONFIG_PATH;
+    delete process.env.ALIEN_CONFIG_PATH;
   } else {
-    process.env.OPENCLAW_CONFIG_PATH = originalConfigPath;
+    process.env.ALIEN_CONFIG_PATH = originalConfigPath;
   }
   if (originalHome === undefined) {
     delete process.env.HOME;
@@ -34,9 +34,9 @@ afterEach(() => {
     process.env.HOME = originalHome;
   }
   if (originalTestFileLog === undefined) {
-    delete process.env.OPENCLAW_TEST_FILE_LOG;
+    delete process.env.ALIEN_TEST_FILE_LOG;
   } else {
-    process.env.OPENCLAW_TEST_FILE_LOG = originalTestFileLog;
+    process.env.ALIEN_TEST_FILE_LOG = originalTestFileLog;
   }
   resetDiagnosticTraceContextForTest();
   resetLogger();
@@ -83,8 +83,8 @@ describe("file log redaction", () => {
         },
       }),
     );
-    process.env.OPENCLAW_CONFIG_PATH = configPath;
-    process.env.OPENCLAW_TEST_FILE_LOG = "1";
+    process.env.ALIEN_CONFIG_PATH = configPath;
+    process.env.ALIEN_TEST_FILE_LOG = "1";
 
     getLogger().info({ message: "configured log path works" });
 
@@ -96,8 +96,8 @@ describe("file log redaction", () => {
     const home = path.join(path.dirname(logPathTracker.nextPath()), "home");
     process.env.HOME = home;
 
-    expect(loggerTest.resolveActiveLogFile("~/custom-openclaw.log")).toBe(
-      path.join(home, "custom-openclaw.log"),
+    expect(loggerTest.resolveActiveLogFile("~/custom-alien.log")).toBe(
+      path.join(home, "custom-alien.log"),
     );
   });
 

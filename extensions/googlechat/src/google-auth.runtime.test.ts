@@ -28,7 +28,7 @@ const mocks = vi.hoisted(() => ({
   ),
 }));
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   buildHostnameAllowlistPolicyFromSuffixAllowlist:
     mocks.buildHostnameAllowlistPolicyFromSuffixAllowlist,
   fetchWithSsrFGuard: mocks.fetchWithSsrFGuard,

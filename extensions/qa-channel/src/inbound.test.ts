@@ -1,12 +1,12 @@
-import { createPluginRuntimeMock } from "openclaw/plugin-sdk/channel-test-helpers";
+import { createPluginRuntimeMock } from "alien/plugin-sdk/channel-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setQaChannelRuntime } from "../api.js";
 import { handleQaInbound, isHttpMediaUrl } from "./inbound.js";
 
 const dispatchChannelMessageReplyWithBaseMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+vi.mock("alien/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("alien/plugin-sdk/channel-message")>();
   return {
     ...actual,
     dispatchChannelMessageReplyWithBase: dispatchChannelMessageReplyWithBaseMock,
@@ -30,7 +30,7 @@ describe("isHttpMediaUrl", () => {
 describe("handleQaInbound", () => {
   it("marks group messages that match configured mention patterns", async () => {
     const runtime = createPluginRuntimeMock();
-    vi.mocked(runtime.channel.mentions.buildMentionRegexes).mockReturnValue([/\b@?openclaw\b/i]);
+    vi.mocked(runtime.channel.mentions.buildMentionRegexes).mockReturnValue([/\b@?alien\b/i]);
     setQaChannelRuntime(runtime);
 
     await handleQaInbound({
@@ -41,8 +41,8 @@ describe("handleQaInbound", () => {
         enabled: true,
         configured: true,
         baseUrl: "http://127.0.0.1:43123",
-        botUserId: "openclaw",
-        botDisplayName: "OpenClaw QA",
+        botUserId: "alien",
+        botDisplayName: "Alien QA",
         pollTimeoutMs: 250,
         config: {},
       },
@@ -58,7 +58,7 @@ describe("handleQaInbound", () => {
         },
         senderId: "alice",
         senderName: "Alice",
-        text: "@openclaw ping",
+        text: "@alien ping",
         timestamp: 1_777_000_000_000,
         reactions: [],
       },

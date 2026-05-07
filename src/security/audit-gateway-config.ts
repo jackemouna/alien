@@ -1,5 +1,5 @@
 import { isIP } from "node:net";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { hasConfiguredSecretInput } from "../config/types.secrets.js";
 import { resolveGatewayAuth } from "../gateway/auth-resolve.js";
 import { resolveGatewayAuthTokenSourceConflict } from "../gateway/auth-token-source-conflict.js";
@@ -11,7 +11,7 @@ import type { SecurityAuditFinding } from "./audit.types.js";
 import { collectCoreInsecureOrDangerousFlags } from "./core-dangerous-config-flags.js";
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 
-type CollectDangerousConfigFlags = (cfg: OpenClawConfig) => string[];
+type CollectDangerousConfigFlags = (cfg: AlienConfig) => string[];
 
 export type CollectGatewayConfigFindingsOptions = {
   collectDangerousConfigFlags?: CollectDangerousConfigFlags;
@@ -22,8 +22,8 @@ function hasNonEmptyString(value: unknown): value is string {
 }
 
 export function collectGatewayConfigFindings(
-  cfg: OpenClawConfig,
-  sourceConfig: OpenClawConfig,
+  cfg: AlienConfig,
+  sourceConfig: AlienConfig,
   env: NodeJS.ProcessEnv,
   options: CollectGatewayConfigFindingsOptions = {},
 ): SecurityAuditFinding[] {
@@ -43,8 +43,8 @@ export function collectGatewayConfigFindings(
     : [];
   const hasToken = typeof auth.token === "string" && auth.token.trim().length > 0;
   const hasPassword = typeof auth.password === "string" && auth.password.trim().length > 0;
-  const envTokenConfigured = hasNonEmptyString(env.OPENCLAW_GATEWAY_TOKEN);
-  const envPasswordConfigured = hasNonEmptyString(env.OPENCLAW_GATEWAY_PASSWORD);
+  const envTokenConfigured = hasNonEmptyString(env.ALIEN_GATEWAY_TOKEN);
+  const envPasswordConfigured = hasNonEmptyString(env.ALIEN_GATEWAY_PASSWORD);
   const tokenConfiguredFromConfig = hasConfiguredSecretInput(
     sourceConfig.gateway?.auth?.token,
     sourceConfig.secrets?.defaults,

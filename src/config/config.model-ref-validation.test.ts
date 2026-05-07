@@ -20,7 +20,7 @@ function createModelSuppressionRegistry(): PluginManifestRegistry {
         hooks: [],
         rootDir: "/tmp/plugins/openai",
         source: "test",
-        manifestPath: "/tmp/plugins/openai/openclaw.plugin.json",
+        manifestPath: "/tmp/plugins/openai/alien.plugin.json",
         modelCatalog: {
           suppressions: [
             {

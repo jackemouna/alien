@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({
@@ -6,9 +6,9 @@ const hoisted = vi.hoisted(() => ({
   sendReactionWhatsApp: vi.fn(async () => undefined),
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("alien/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/runtime-env")>(
+    "alien/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -34,7 +34,7 @@ describe("whatsappOutbound sendPoll", () => {
   });
 
   it("threads cfg through poll send options", async () => {
-    const cfg = { marker: "resolved-cfg" } as OpenClawConfig;
+    const cfg = { marker: "resolved-cfg" } as AlienConfig;
     const poll = {
       question: "Lunch?",
       options: ["Pizza", "Sushi"],

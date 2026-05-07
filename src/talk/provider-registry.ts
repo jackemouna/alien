@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   resolvePluginCapabilityProvider,
   resolvePluginCapabilityProviders,
@@ -16,27 +16,27 @@ export function normalizeRealtimeVoiceProviderId(
   return normalizeCapabilityProviderId(providerId);
 }
 
-function resolveRealtimeVoiceProviderEntries(cfg?: OpenClawConfig): RealtimeVoiceProviderPlugin[] {
+function resolveRealtimeVoiceProviderEntries(cfg?: AlienConfig): RealtimeVoiceProviderPlugin[] {
   return resolvePluginCapabilityProviders({
     key: "realtimeVoiceProviders",
     cfg,
   });
 }
 
-function buildProviderMaps(cfg?: OpenClawConfig): {
+function buildProviderMaps(cfg?: AlienConfig): {
   canonical: Map<string, RealtimeVoiceProviderPlugin>;
   aliases: Map<string, RealtimeVoiceProviderPlugin>;
 } {
   return buildCapabilityProviderMaps(resolveRealtimeVoiceProviderEntries(cfg));
 }
 
-export function listRealtimeVoiceProviders(cfg?: OpenClawConfig): RealtimeVoiceProviderPlugin[] {
+export function listRealtimeVoiceProviders(cfg?: AlienConfig): RealtimeVoiceProviderPlugin[] {
   return [...buildProviderMaps(cfg).canonical.values()];
 }
 
 export function getRealtimeVoiceProvider(
   providerId: string | undefined,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): RealtimeVoiceProviderPlugin | undefined {
   const normalized = normalizeRealtimeVoiceProviderId(providerId);
   if (!normalized) {
@@ -55,7 +55,7 @@ export function getRealtimeVoiceProvider(
 
 export function canonicalizeRealtimeVoiceProviderId(
   providerId: string | undefined,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): RealtimeVoiceProviderId | undefined {
   const normalized = normalizeRealtimeVoiceProviderId(providerId);
   if (!normalized) {

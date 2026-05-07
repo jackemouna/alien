@@ -1,37 +1,37 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createHybridChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
+} from "alien/plugin-sdk/channel-config-helpers";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "openclaw/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
+} from "alien/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
 import {
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
-} from "openclaw/plugin-sdk/channel-message";
-import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
+} from "alien/plugin-sdk/channel-message";
+import { createPairingPrefixStripper } from "alien/plugin-sdk/channel-pairing";
 import {
   createAllowlistProviderGroupPolicyWarningCollector,
   projectConfigAccountIdWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
-import { getSessionBindingService } from "openclaw/plugin-sdk/conversation-runtime";
+} from "alien/plugin-sdk/channel-policy";
+import { getSessionBindingService } from "alien/plugin-sdk/conversation-runtime";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
-} from "openclaw/plugin-sdk/directory-runtime";
+} from "alien/plugin-sdk/directory-runtime";
 import {
   normalizeMessagePresentation,
   renderMessagePresentationFallbackText,
-} from "openclaw/plugin-sdk/interactive-runtime";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "openclaw/plugin-sdk/outbound-runtime";
-import { createComputedAccountStatusAdapter } from "openclaw/plugin-sdk/status-helpers";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/interactive-runtime";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "alien/plugin-sdk/outbound-runtime";
+import { createComputedAccountStatusAdapter } from "alien/plugin-sdk/status-helpers";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   inspectFeishuCredentials,
   listEnabledFeishuAccounts,
@@ -1190,8 +1190,8 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount, FeishuProbeResul
       },
       auth: {
         login: async ({ cfg }) => {
-          const { createClackPrompter } = await import("openclaw/plugin-sdk/setup-runtime");
-          const { replaceConfigFile } = await import("openclaw/plugin-sdk/config-mutation");
+          const { createClackPrompter } = await import("alien/plugin-sdk/setup-runtime");
+          const { replaceConfigFile } = await import("alien/plugin-sdk/config-mutation");
           const prompter = createClackPrompter();
           const nextCfg = await runFeishuLogin({ cfg, prompter });
           if (nextCfg !== cfg) {

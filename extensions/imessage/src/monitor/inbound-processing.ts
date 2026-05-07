@@ -7,29 +7,29 @@ import {
   matchesMentionPatterns,
   resolveEnvelopeFormatOptions,
   resolveInboundMentionDecision,
-} from "openclaw/plugin-sdk/channel-inbound";
+} from "alien/plugin-sdk/channel-inbound";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "openclaw/plugin-sdk/channel-policy";
-import { hasControlCommand } from "openclaw/plugin-sdk/command-auth";
-import { resolveDualTextControlCommandGate } from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveChannelContextVisibilityMode } from "openclaw/plugin-sdk/context-visibility-runtime";
+} from "alien/plugin-sdk/channel-policy";
+import { hasControlCommand } from "alien/plugin-sdk/command-auth";
+import { resolveDualTextControlCommandGate } from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveChannelContextVisibilityMode } from "alien/plugin-sdk/context-visibility-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
-import { finalizeInboundContext } from "openclaw/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/reply-history";
+import { finalizeInboundContext } from "alien/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
 import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
   evaluateSupplementalContextVisibility,
-} from "openclaw/plugin-sdk/security-runtime";
-import { sanitizeTerminalText } from "openclaw/plugin-sdk/text-runtime";
-import { truncateUtf16Safe } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/security-runtime";
+import { sanitizeTerminalText } from "alien/plugin-sdk/text-runtime";
+import { truncateUtf16Safe } from "alien/plugin-sdk/text-runtime";
 import { resolveIMessageConversationRoute } from "../conversation-route.js";
 import {
   formatIMessageChatTarget,
@@ -138,7 +138,7 @@ type IMessageInboundDecision =
   | IMessageInboundDispatchDecision;
 
 export function resolveIMessageInboundDecision(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
   message: IMessagePayload;
   opts?: Pick<MonitorIMessageOpts, "requireMention">;
@@ -524,7 +524,7 @@ export function resolveIMessageInboundDecision(params: {
 }
 
 export function buildIMessageInboundContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   decision: IMessageInboundDispatchDecision;
   message: IMessagePayload;
   envelopeOptions?: EnvelopeFormatOptions;

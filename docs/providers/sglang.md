@@ -1,12 +1,12 @@
 ---
-summary: "Run OpenClaw with SGLang (OpenAI-compatible self-hosted server)"
+summary: "Run Alien with SGLang (OpenAI-compatible self-hosted server)"
 read_when:
-  - You want to run OpenClaw against a local SGLang server
+  - You want to run Alien against a local SGLang server
   - You want OpenAI-compatible /v1 endpoints with your own models
 title: "SGLang"
 ---
 
-SGLang serves open-weight models via an OpenAI-compatible HTTP API. OpenClaw connects to SGLang using the `openai-completions` provider family with auto-discovery of available models.
+SGLang serves open-weight models via an OpenAI-compatible HTTP API. Alien connects to SGLang using the `openai-completions` provider family with auto-discovery of available models.
 
 | Property                  | Value                                                        |
 | ------------------------- | ------------------------------------------------------------ |
@@ -20,7 +20,7 @@ SGLang serves open-weight models via an OpenAI-compatible HTTP API. OpenClaw con
 | Streaming usage           | Yes (`supportsStreamingUsage: true`)                         |
 | Pricing                   | Marked external-free (`modelPricing.external: false`)        |
 
-OpenClaw also **auto-discovers** available models from SGLang when you opt in with `SGLANG_API_KEY` and you do not define an explicit `models.providers.sglang` entry — see [Model discovery (implicit provider)](#model-discovery-implicit-provider) below.
+Alien also **auto-discovers** available models from SGLang when you opt in with `SGLANG_API_KEY` and you do not define an explicit `models.providers.sglang` entry — see [Model discovery (implicit provider)](#model-discovery-implicit-provider) below.
 
 ## Getting started
 
@@ -43,7 +43,7 @@ OpenClaw also **auto-discovers** available models from SGLang when you opt in wi
   </Step>
   <Step title="Run onboarding or set a model directly">
     ```bash
-    openclaw onboard
+    alien onboard
     ```
 
     Or configure the model manually:
@@ -64,7 +64,7 @@ OpenClaw also **auto-discovers** available models from SGLang when you opt in wi
 ## Model discovery (implicit provider)
 
 When `SGLANG_API_KEY` is set (or an auth profile exists) and you **do not**
-define `models.providers.sglang`, OpenClaw will query:
+define `models.providers.sglang`, Alien will query:
 
 - `GET http://127.0.0.1:30000/v1/models`
 

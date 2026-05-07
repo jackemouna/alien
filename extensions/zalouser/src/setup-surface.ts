@@ -10,8 +10,8 @@ import {
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
   type DmPolicy,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/setup";
+  type AlienConfig,
+} from "alien/plugin-sdk/setup";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -43,11 +43,11 @@ function parseZalouserEntries(raw: string): string[] {
 }
 
 function setZalouserAccountScopedConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   defaultPatch: Record<string, unknown>,
   accountPatch: Record<string, unknown> = defaultPatch,
-): OpenClawConfig {
+): AlienConfig {
   return patchScopedAccountConfig({
     cfg,
     channelKey: channel,
@@ -58,10 +58,10 @@ function setZalouserAccountScopedConfig(
 }
 
 function setZalouserDmPolicy(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   policy: DmPolicy,
-): OpenClawConfig {
+): AlienConfig {
   const resolvedAccountId = normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID;
   const resolved = resolveZalouserAccountSync({ cfg, accountId: resolvedAccountId });
   return setZalouserAccountScopedConfig(
@@ -79,20 +79,20 @@ function setZalouserDmPolicy(
 }
 
 function setZalouserGroupPolicy(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): OpenClawConfig {
+): AlienConfig {
   return setZalouserAccountScopedConfig(cfg, accountId, {
     groupPolicy,
   });
 }
 
 function setZalouserGroupAllowlist(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
   groupKeys: string[],
-): OpenClawConfig {
+): AlienConfig {
   const groups = Object.fromEntries(
     groupKeys.map((key) => [key, { enabled: true, requireMention: true }]),
   );
@@ -101,8 +101,8 @@ function setZalouserGroupAllowlist(
   });
 }
 
-function ensureZalouserPluginEnabled(cfg: OpenClawConfig): OpenClawConfig {
-  const next: OpenClawConfig = {
+function ensureZalouserPluginEnabled(cfg: AlienConfig): AlienConfig {
+  const next: AlienConfig = {
     ...cfg,
     plugins: {
       ...cfg.plugins,
@@ -144,10 +144,10 @@ async function noteZalouserHelp(
 }
 
 async function promptZalouserAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prompter: Parameters<NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]>>[0]["prompter"];
   accountId: string;
-}): Promise<OpenClawConfig> {
+}): Promise<AlienConfig> {
   const { cfg, prompter, accountId } = params;
   const resolved = resolveZalouserAccountSync({ cfg, accountId });
   const existingAllowFrom = resolved.config.allowFrom ?? [];
@@ -164,7 +164,7 @@ async function promptZalouserAllowFrom(params: {
         [
           "No DM allowlist entries added yet.",
           "Direct chats will stay blocked until you add people later.",
-          `Tip: use \`${formatCliCommand("openclaw directory peers list --channel zalouser")}\` to look up people after onboarding.`,
+          `Tip: use \`${formatCliCommand("alien directory peers list --channel zalouser")}\` to look up people after onboarding.`,
         ].join("\n"),
         ZALOUSER_ALLOWLIST_TITLE,
       );
@@ -242,10 +242,10 @@ const zalouserDmPolicy: ChannelSetupDmPolicy = {
 };
 
 async function promptZalouserQuickstartDmPolicy(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prompter: Parameters<NonNullable<ChannelSetupWizard["prepare"]>>[0]["prompter"];
   accountId: string;
-}): Promise<OpenClawConfig> {
+}): Promise<AlienConfig> {
   const { cfg, prompter, accountId } = params;
   const resolved = resolveZalouserAccountSync({ cfg, accountId });
   const existingPolicy = resolved.config.dmPolicy ?? "pairing";
@@ -418,7 +418,7 @@ export const zalouserSetupWizard: ChannelSetupWizard = {
           [
             "No group allowlist entries added yet.",
             "Group chats will stay blocked until you add groups later.",
-            `Tip: use \`${formatCliCommand("openclaw directory groups list --channel zalouser")}\` after onboarding to find group IDs.`,
+            `Tip: use \`${formatCliCommand("alien directory groups list --channel zalouser")}\` after onboarding to find group IDs.`,
             "Mention requirement stays on by default for groups you allow later.",
           ].join("\n"),
           ZALOUSER_GROUPS_TITLE,

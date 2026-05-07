@@ -1,4 +1,4 @@
-import { mergeDmAllowFromSources } from "openclaw/plugin-sdk/allow-from";
+import { mergeDmAllowFromSources } from "alien/plugin-sdk/allow-from";
 import { normalizeMatrixAllowList, resolveMatrixAllowListMatch } from "./allowlist.js";
 
 type MatrixCommandAuthorizer = {

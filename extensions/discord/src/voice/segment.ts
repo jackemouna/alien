@@ -1,9 +1,9 @@
 import path from "node:path";
-import { agentCommandFromIngress } from "openclaw/plugin-sdk/agent-runtime";
-import type { DiscordAccountConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { agentCommandFromIngress } from "alien/plugin-sdk/agent-runtime";
+import type { DiscordAccountConfig, AlienConfig } from "alien/plugin-sdk/config-types";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { formatMention } from "../mentions.js";
 import { normalizeDiscordSlug } from "../monitor/allow-list.js";
 import { buildDiscordGroupSystemPrompt } from "../monitor/inbound-context.js";
@@ -27,7 +27,7 @@ export async function processDiscordVoiceSegment(params: {
   wavPath: string;
   userId: string;
   durationSeconds: number;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   discordConfig: DiscordAccountConfig;
   runtime: RuntimeEnv;
   ownerAllowFrom?: string[];

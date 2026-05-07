@@ -1,5 +1,5 @@
 import type { CliBackendConfig } from "../config/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { resolveRuntimeCliBackends } from "../plugins/cli-backends.runtime.js";
 import { resolvePluginSetupCliBackend } from "../plugins/setup-registry.js";
 import { resolveRuntimeTextTransforms } from "../plugins/text-transforms.runtime.js";
@@ -204,7 +204,7 @@ export function resolveCliBackendLiveTest(provider: string): ResolvedCliBackendL
 
 export function resolveCliBackendConfig(
   provider: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
   options: { agentId?: string } = {},
 ): ResolvedCliBackend | null {
   const normalized = normalizeBackendKey(provider);

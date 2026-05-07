@@ -1,5 +1,5 @@
 ---
-summary: "Native iMessage support via imsg (JSON-RPC over stdio). Preferred for new OpenClaw iMessage setups when host requirements fit."
+summary: "Native iMessage support via imsg (JSON-RPC over stdio). Preferred for new Alien iMessage setups when host requirements fit."
 read_when:
   - Setting up iMessage support
   - Debugging iMessage send/receive
@@ -7,7 +7,7 @@ title: "iMessage"
 ---
 
 <Note>
-For new OpenClaw iMessage deployments, start here when you can run `imsg` on a signed-in macOS Messages host. BlueBubbles remains available as a legacy fallback for existing setups that depend on its HTTP server, webhooks, or richer private-API actions.
+For new Alien iMessage deployments, start here when you can run `imsg` on a signed-in macOS Messages host. BlueBubbles remains available as a legacy fallback for existing setups that depend on its HTTP server, webhooks, or richer private-API actions.
 </Note>
 
 Status: native external CLI integration. Gateway spawns `imsg rpc` and communicates over JSON-RPC on stdio (no separate daemon/port).
@@ -38,7 +38,7 @@ imsg rpc --help
 
       </Step>
 
-      <Step title="Configure OpenClaw">
+      <Step title="Configure Alien">
 
 ```json5
 {
@@ -57,7 +57,7 @@ imsg rpc --help
       <Step title="Start gateway">
 
 ```bash
-openclaw gateway
+alien gateway
 ```
 
       </Step>
@@ -65,8 +65,8 @@ openclaw gateway
       <Step title="Approve first DM pairing (default dmPolicy)">
 
 ```bash
-openclaw pairing list imessage
-openclaw pairing approve imessage <CODE>
+alien pairing list imessage
+alien pairing approve imessage <CODE>
 ```
 
         Pairing requests expire after 1 hour.
@@ -76,7 +76,7 @@ openclaw pairing approve imessage <CODE>
   </Tab>
 
   <Tab title="Remote Mac over SSH">
-    OpenClaw only requires a stdio-compatible `cliPath`, so you can point `cliPath` at a wrapper script that SSHes to a remote Mac and runs `imsg`.
+    Alien only requires a stdio-compatible `cliPath`, so you can point `cliPath` at a wrapper script that SSHes to a remote Mac and runs `imsg`.
 
 ```bash
 #!/usr/bin/env bash
@@ -90,7 +90,7 @@ exec ssh -T gateway-host imsg "$@"
   channels: {
     imessage: {
       enabled: true,
-      cliPath: "~/.openclaw/scripts/imsg-ssh",
+      cliPath: "~/.alien/scripts/imsg-ssh",
       remoteHost: "user@gateway-host", // used for SCP attachment fetches
       includeAttachments: true,
       // Optional: override allowed attachment roots.
@@ -102,9 +102,9 @@ exec ssh -T gateway-host imsg "$@"
 }
 ```
 
-    If `remoteHost` is not set, OpenClaw attempts to auto-detect it by parsing the SSH wrapper script.
+    If `remoteHost` is not set, Alien attempts to auto-detect it by parsing the SSH wrapper script.
     `remoteHost` must be `host` or `user@host` (no spaces or SSH options).
-    OpenClaw uses strict host-key checking for SCP, so the relay host key must already exist in `~/.ssh/known_hosts`.
+    Alien uses strict host-key checking for SCP, so the relay host key must already exist in `~/.ssh/known_hosts`.
     Attachment paths are validated against allowed roots (`attachmentRoots` / `remoteAttachmentRoots`).
 
   </Tab>
@@ -113,7 +113,7 @@ exec ssh -T gateway-host imsg "$@"
 ## Requirements and permissions (macOS)
 
 - Messages must be signed in on the Mac running `imsg`.
-- Full Disk Access is required for the process context running OpenClaw/`imsg` (Messages DB access).
+- Full Disk Access is required for the process context running Alien/`imsg` (Messages DB access).
 - Automation permission is required to send messages through Messages.app.
 
 <Tip>
@@ -175,7 +175,7 @@ imsg send <handle> "test"
     Group-ish thread behavior:
 
     Some multi-participant iMessage threads can arrive with `is_group=false`.
-    If that `chat_id` is explicitly configured under `channels.imessage.groups`, OpenClaw treats it as group traffic (group gating + group session isolation).
+    If that `chat_id` is explicitly configured under `channels.imessage.groups`, Alien treats it as group traffic (group gating + group session isolation).
 
   </Tab>
 </Tabs>
@@ -243,7 +243,7 @@ See [ACP Agents](/tools/acp-agents) for shared ACP binding behavior.
     1. Create/sign in a dedicated macOS user.
     2. Sign into Messages with the bot Apple ID in that user.
     3. Install `imsg` in that user.
-    4. Create SSH wrapper so OpenClaw can run `imsg` in that user context.
+    4. Create SSH wrapper so Alien can run `imsg` in that user context.
     5. Point `channels.imessage.accounts.<id>.cliPath` and `.dbPath` to that user profile.
 
     First run may require GUI approvals (Automation + Full Disk Access) in that bot user session.
@@ -265,7 +265,7 @@ See [ACP Agents](/tools/acp-agents) for shared ACP binding behavior.
   channels: {
     imessage: {
       enabled: true,
-      cliPath: "~/.openclaw/scripts/imsg-ssh",
+      cliPath: "~/.alien/scripts/imsg-ssh",
       remoteHost: "bot@mac-mini.tailnet-1234.ts.net",
       includeAttachments: true,
       dbPath: "/Users/bot/Library/Messages/chat.db",
@@ -359,7 +359,7 @@ Disable:
 
 ```bash
 imsg rpc --help
-openclaw channels status --probe
+alien channels status --probe
 ```
 
     If probe reports RPC unsupported, update `imsg`.
@@ -371,7 +371,7 @@ openclaw channels status --probe
 
     - `channels.imessage.dmPolicy`
     - `channels.imessage.allowFrom`
-    - pairing approvals (`openclaw pairing list imessage`)
+    - pairing approvals (`alien pairing list imessage`)
 
   </Accordion>
 
@@ -404,7 +404,7 @@ imsg chats --limit 1
 imsg send <handle> "test"
 ```
 
-    Confirm Full Disk Access + Automation are granted for the process context that runs OpenClaw/`imsg`.
+    Confirm Full Disk Access + Automation are granted for the process context that runs Alien/`imsg`.
 
   </Accordion>
 </AccordionGroup>

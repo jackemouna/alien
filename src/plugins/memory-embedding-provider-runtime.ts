@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/provider-id.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   resolvePluginCapabilityProvider,
   resolvePluginCapabilityProviders,
@@ -16,7 +16,7 @@ export function listRegisteredMemoryEmbeddingProviderAdapters(): MemoryEmbedding
   return listRegisteredMemoryEmbeddingProviders().map((entry) => entry.adapter);
 }
 export function listMemoryEmbeddingProviders(
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): MemoryEmbeddingProviderAdapter[] {
   const registered = listRegisteredMemoryEmbeddingProviderAdapters();
   const merged = new Map(registered.map((adapter) => [adapter.id, adapter]));
@@ -31,7 +31,7 @@ export function listMemoryEmbeddingProviders(
   return [...merged.values()];
 }
 
-function readConfiguredProviderApiId(providerId: string, cfg?: OpenClawConfig): string | undefined {
+function readConfiguredProviderApiId(providerId: string, cfg?: AlienConfig): string | undefined {
   const providers = cfg?.models?.providers;
   if (!providers) {
     return undefined;
@@ -50,7 +50,7 @@ function readConfiguredProviderApiId(providerId: string, cfg?: OpenClawConfig): 
   return normalizedApi && normalizedApi !== normalized ? normalizedApi : undefined;
 }
 
-function resolveMemoryEmbeddingProviderLookupIds(id: string, cfg?: OpenClawConfig): string[] {
+function resolveMemoryEmbeddingProviderLookupIds(id: string, cfg?: AlienConfig): string[] {
   const ids = [id];
   const apiId = readConfiguredProviderApiId(id, cfg);
   if (apiId && !ids.some((candidate) => normalizeProviderId(candidate) === apiId)) {
@@ -61,7 +61,7 @@ function resolveMemoryEmbeddingProviderLookupIds(id: string, cfg?: OpenClawConfi
 
 export function getMemoryEmbeddingProvider(
   id: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): MemoryEmbeddingProviderAdapter | undefined {
   const ids = resolveMemoryEmbeddingProviderLookupIds(id, cfg);
   for (const candidateId of ids) {

@@ -60,9 +60,9 @@ const prepareDeps = {
   getActiveMcpLoopbackRuntime,
   ensureMcpLoopbackServer,
   createMcpLoopbackServerConfig,
-  resolveOpenClawReferencePaths: async (
-    params: Parameters<typeof import("../docs-path.js").resolveOpenClawReferencePaths>[0],
-  ) => (await import("../docs-path.js")).resolveOpenClawReferencePaths(params),
+  resolveAlienReferencePaths: async (
+    params: Parameters<typeof import("../docs-path.js").resolveAlienReferencePaths>[0],
+  ) => (await import("../docs-path.js")).resolveAlienReferencePaths(params),
   // Surfaced as a dep so tests can stub the on-disk Claude CLI transcript probe
   // without touching ~/.claude/projects.
   claudeCliSessionTranscriptHasContent,
@@ -200,14 +200,14 @@ export async function prepareCliRunContext(
       : undefined,
     env: mcpLoopbackRuntime
       ? {
-          OPENCLAW_MCP_TOKEN:
+          ALIEN_MCP_TOKEN:
             params.senderIsOwner === true
               ? mcpLoopbackRuntime.ownerToken
               : mcpLoopbackRuntime.nonOwnerToken,
-          OPENCLAW_MCP_AGENT_ID: sessionAgentId ?? "",
-          OPENCLAW_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
-          OPENCLAW_MCP_SESSION_KEY: params.sessionKey ?? "",
-          OPENCLAW_MCP_MESSAGE_CHANNEL: params.messageChannel ?? params.messageProvider ?? "",
+          ALIEN_MCP_AGENT_ID: sessionAgentId ?? "",
+          ALIEN_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
+          ALIEN_MCP_SESSION_KEY: params.sessionKey ?? "",
+          ALIEN_MCP_MESSAGE_CHANNEL: params.messageChannel ?? params.messageProvider ?? "",
         }
       : undefined,
     warn: (message) => cliBackendLog.warn(message),
@@ -296,7 +296,7 @@ export async function prepareCliRunContext(
     );
   }
   let openClawHistoryMessages: unknown[] | undefined;
-  const loadOpenClawHistoryMessages = async () => {
+  const loadAlienHistoryMessages = async () => {
     openClawHistoryMessages ??= await loadCliSessionHistoryMessages({
       sessionId: params.sessionId,
       sessionFile: params.sessionFile,
@@ -311,7 +311,7 @@ export async function prepareCliRunContext(
     agentId: sessionAgentId,
     defaultAgentId,
   });
-  const openClawReferences = await prepareDeps.resolveOpenClawReferencePaths({
+  const openClawReferences = await prepareDeps.resolveAlienReferencePaths({
     workspaceDir,
     argv1: process.argv[1],
     cwd: process.cwd(),
@@ -362,7 +362,7 @@ export async function prepareCliRunContext(
     const hookResult = await resolvePromptBuildHookResult({
       config: params.config ?? getRuntimeConfig(),
       prompt: params.prompt,
-      messages: await loadOpenClawHistoryMessages(),
+      messages: await loadAlienHistoryMessages(),
       hookCtx: {
         runId: params.runId,
         agentId: sessionAgentId,

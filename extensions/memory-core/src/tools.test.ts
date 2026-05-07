@@ -8,7 +8,7 @@ import {
 } from "./memory-tool-manager-mock.js";
 import { createMemorySearchTool } from "./tools.js";
 import {
-  asOpenClawConfig,
+  asAlienConfig,
   createMemorySearchToolOrThrow,
   expectUnavailableMemorySearchDetails,
 } from "./tools.test-helpers.js";
@@ -110,7 +110,7 @@ describe("memory_search unavailable payloads", () => {
 
   it("uses explicit plugin context agent over synthetic active-memory session keys", async () => {
     const tool = createMemorySearchToolOrThrow({
-      config: asOpenClawConfig({
+      config: asAlienConfig({
         agents: {
           list: [
             { id: "main", default: true, memorySearch: { enabled: false } },
@@ -128,7 +128,7 @@ describe("memory_search unavailable payloads", () => {
   });
 
   it("re-resolves config when executing a previously created tool", async () => {
-    const startupConfig = asOpenClawConfig({
+    const startupConfig = asAlienConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -142,7 +142,7 @@ describe("memory_search unavailable payloads", () => {
         backend: "builtin",
       },
     });
-    const patchedConfig = asOpenClawConfig({
+    const patchedConfig = asAlienConfig({
       agents: {
         defaults: {
           memorySearch: {

@@ -14,29 +14,29 @@ const mocks = vi.hoisted(() => {
     }) satisfies AnyAgentTool;
 
   return {
-    createOpenClawToolsOptions: vi.fn(),
+    createAlienToolsOptions: vi.fn(),
     stubTool,
   };
 });
 
-vi.mock("./openclaw-tools.js", () => ({
-  createOpenClawTools: (options: unknown) => {
-    mocks.createOpenClawToolsOptions(options);
+vi.mock("./alien-tools.js", () => ({
+  createAlienTools: (options: unknown) => {
+    mocks.createAlienToolsOptions(options);
     return [mocks.stubTool("cron", true)];
   },
 }));
 
 import "./test-helpers/fast-bash-tools.js";
 import "./test-helpers/fast-coding-tools.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
+import { createAlienCodingTools } from "./pi-tools.js";
 
-describe("createOpenClawCodingTools cron scope", () => {
+describe("createAlienCodingTools cron scope", () => {
   beforeEach(() => {
-    mocks.createOpenClawToolsOptions.mockClear();
+    mocks.createAlienToolsOptions.mockClear();
   });
 
   it("scopes the cron owner-only runtime grant to self-removal", () => {
-    const tools = createOpenClawCodingTools({
+    const tools = createAlienCodingTools({
       trigger: "cron",
       jobId: "job-current",
       senderIsOwner: false,
@@ -44,7 +44,7 @@ describe("createOpenClawCodingTools cron scope", () => {
     });
 
     expect(tools.map((tool) => tool.name)).toContain("cron");
-    expect(mocks.createOpenClawToolsOptions).toHaveBeenCalledWith(
+    expect(mocks.createAlienToolsOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         cronSelfRemoveOnlyJobId: "job-current",
       }),
@@ -52,13 +52,13 @@ describe("createOpenClawCodingTools cron scope", () => {
   });
 
   it("does not scope ordinary owner cron sessions", () => {
-    createOpenClawCodingTools({
+    createAlienCodingTools({
       trigger: "cron",
       jobId: "job-current",
       senderIsOwner: true,
     });
 
-    expect(mocks.createOpenClawToolsOptions).toHaveBeenCalledWith(
+    expect(mocks.createAlienToolsOptions).toHaveBeenCalledWith(
       expect.not.objectContaining({
         cronSelfRemoveOnlyJobId: expect.any(String),
       }),

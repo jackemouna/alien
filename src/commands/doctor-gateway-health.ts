@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import type { DoctorMemoryStatusPayload } from "../gateway/server-methods/doctor.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
@@ -27,7 +27,7 @@ function isGatewayCallTimeout(message: string): boolean {
 
 export async function checkGatewayHealth(params: {
   runtime: RuntimeEnv;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   timeoutMs?: number;
 }): Promise<{ healthOk: boolean; status?: StatusSummary }> {
   const gatewayDetails = buildGatewayConnectionDetails({ config: params.cfg });
@@ -83,7 +83,7 @@ export async function checkGatewayHealth(params: {
 }
 
 export async function probeGatewayMemoryStatus(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   timeoutMs?: number;
 }): Promise<GatewayMemoryProbe> {
   const timeoutMs =

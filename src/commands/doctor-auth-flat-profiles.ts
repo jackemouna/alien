@@ -10,7 +10,7 @@ import {
 import type { AuthProfileCredential, AuthProfileStore } from "../agents/auth-profiles/types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { loadJsonFile } from "../infra/json-file.js";
 import { note } from "../terminal/note.js";
 import { shortenHomePath } from "../utils.js";
@@ -173,7 +173,7 @@ function listExistingAgentDirsFromState(): string[] {
     });
 }
 
-function listAuthProfileRepairCandidates(cfg: OpenClawConfig): AuthProfileRepairCandidate[] {
+function listAuthProfileRepairCandidates(cfg: AlienConfig): AuthProfileRepairCandidate[] {
   const candidates = new Map<string, AuthProfileRepairCandidate>();
   addCandidate(candidates, resolveDefaultAgentDir(cfg));
   for (const agentId of listAgentIds(cfg)) {
@@ -212,7 +212,7 @@ function backupAuthProfileStore(authPath: string, now: () => number): string {
 }
 
 export async function maybeRepairLegacyFlatAuthProfileStores(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prompter: DoctorPrompter;
   now?: () => number;
 }): Promise<LegacyFlatAuthProfileRepairResult> {
@@ -235,7 +235,7 @@ export async function maybeRepairLegacyFlatAuthProfileStores(params: {
       ...legacyStores.map(
         (entry) => `- ${shortenHomePath(entry.authPath)} uses the legacy flat auth profile format.`,
       ),
-      `- The gateway expects the canonical version/profiles store; ${formatCliCommand("openclaw doctor --fix")} rewrites this legacy shape with a backup.`,
+      `- The gateway expects the canonical version/profiles store; ${formatCliCommand("alien doctor --fix")} rewrites this legacy shape with a backup.`,
     ].join("\n"),
     "Auth profiles",
   );

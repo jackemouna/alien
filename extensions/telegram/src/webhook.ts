@@ -2,18 +2,18 @@ import { createServer } from "node:http";
 import type { IncomingMessage } from "node:http";
 import net from "node:net";
 import * as grammy from "grammy";
-import type { ChannelAccountSnapshot } from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { isDiagnosticsEnabled } from "openclaw/plugin-sdk/diagnostic-runtime";
-import type { BackoffPolicy, RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import type { ChannelAccountSnapshot } from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { isDiagnosticsEnabled } from "alien/plugin-sdk/diagnostic-runtime";
+import type { BackoffPolicy, RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import {
   computeBackoff,
   defaultRuntime,
   formatDurationPrecise,
   sleepWithAbort,
-} from "openclaw/plugin-sdk/runtime-env";
-import { safeEqualSecret } from "openclaw/plugin-sdk/security-runtime";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/runtime-env";
+import { safeEqualSecret } from "alien/plugin-sdk/security-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/ssrf-runtime";
 import {
   logWebhookError,
   logWebhookProcessed,
@@ -21,13 +21,13 @@ import {
   normalizeOptionalString,
   startDiagnosticHeartbeat,
   stopDiagnosticHeartbeat,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import {
   applyBasicWebhookRequestGuards,
   createFixedWindowRateLimiter,
   WEBHOOK_RATE_LIMIT_DEFAULTS,
-} from "openclaw/plugin-sdk/webhook-ingress";
-import { readJsonBodyWithLimit } from "openclaw/plugin-sdk/webhook-request-guards";
+} from "alien/plugin-sdk/webhook-ingress";
+import { readJsonBodyWithLimit } from "alien/plugin-sdk/webhook-request-guards";
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { createTelegramBot } from "./bot.js";
@@ -216,7 +216,7 @@ function resolveForwardedClientIp(
   return undefined;
 }
 
-function resolveTelegramWebhookClientIp(req: IncomingMessage, config?: OpenClawConfig): string {
+function resolveTelegramWebhookClientIp(req: IncomingMessage, config?: AlienConfig): string {
   const remoteAddress = parseIpLiteral(req.socket.remoteAddress);
   const trustedProxies = config?.gateway?.trustedProxies;
   if (!remoteAddress) {
@@ -244,7 +244,7 @@ function resolveTelegramWebhookClientIp(req: IncomingMessage, config?: OpenClawC
 function resolveTelegramWebhookRateLimitKey(
   req: IncomingMessage,
   path: string,
-  config?: OpenClawConfig,
+  config?: AlienConfig,
 ): string {
   return `${path}:${resolveTelegramWebhookClientIp(req, config)}`;
 }
@@ -252,7 +252,7 @@ function resolveTelegramWebhookRateLimitKey(
 export async function startTelegramWebhook(opts: {
   token: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   path?: string;
   port?: number;
   host?: string;

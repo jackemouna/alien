@@ -1,25 +1,25 @@
-import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
+import { adaptScopedAccountAccessor } from "alien/plugin-sdk/channel-config-helpers";
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type MessageReceiptPartKind,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "alien/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   listResolvedDirectoryGroupEntriesFromMapKeys,
   listResolvedDirectoryUserEntriesFromAllowFrom,
-} from "openclaw/plugin-sdk/directory-runtime";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
-import type { OutboundMediaLoadOptions } from "openclaw/plugin-sdk/outbound-media";
-import { sanitizeForPlainText } from "openclaw/plugin-sdk/outbound-runtime";
+} from "alien/plugin-sdk/directory-runtime";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
+import type { OutboundMediaLoadOptions } from "alien/plugin-sdk/outbound-media";
+import { sanitizeForPlainText } from "alien/plugin-sdk/outbound-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import {
   type ResolvedGoogleChatAccount,
   chunkTextForOutbound,
@@ -32,7 +32,7 @@ import {
   resolveChannelMediaMaxBytes,
   resolveGoogleChatAccount,
   resolveGoogleChatOutboundSpace,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "./channel.deps.runtime.js";
 import { resolveGoogleChatGroupRequireMention } from "./group-policy.js";
 
@@ -87,7 +87,7 @@ const collectGoogleChatGroupPolicyWarnings =
 const collectGoogleChatSecurityWarnings = composeAccountWarningCollectors<
   ResolvedGoogleChatAccount,
   {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     account: ResolvedGoogleChatAccount;
   }
 >(
@@ -130,7 +130,7 @@ export const googlechatSecurityAdapter = {
 
 export const googlechatThreadingAdapter = {
   scopedAccountReplyToMode: {
-    resolveAccount: (cfg: OpenClawConfig, accountId?: string | null) =>
+    resolveAccount: (cfg: AlienConfig, accountId?: string | null) =>
       resolveGoogleChatAccount({ cfg, accountId }),
     resolveReplyToMode: (account: ResolvedGoogleChatAccount, _chatType?: string | null) =>
       account.config.replyToMode,
@@ -148,7 +148,7 @@ export const googlechatPairingTextAdapter = {
     message,
     accountId,
   }: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     id: string;
     message: string;
     accountId?: string | null;
@@ -206,7 +206,7 @@ export const googlechatOutboundAdapter = {
       replyToId,
       threadId,
     }: {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       to: string;
       text: string;
       accountId?: string | null;
@@ -246,7 +246,7 @@ export const googlechatOutboundAdapter = {
       replyToId,
       threadId,
     }: {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       to: string;
       text?: string;
       mediaUrl?: string;

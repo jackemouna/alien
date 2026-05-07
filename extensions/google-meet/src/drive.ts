@@ -1,4 +1,4 @@
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk/ssrf-runtime";
+import { fetchWithSsrFGuard } from "alien/plugin-sdk/ssrf-runtime";
 import { googleApiError } from "./google-api-errors.js";
 
 const GOOGLE_DRIVE_API_BASE_URL = "https://www.googleapis.com/drive/v3";

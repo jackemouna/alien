@@ -1,8 +1,8 @@
 import type { SlashCommandRegistry } from "../slash-commands.js";
 import { getPluginVersionString, resolveRuntimeServiceVersion } from "./state.js";
 
-const QQBOT_PLUGIN_GITHUB_URL = "https://github.com/openclaw/openclaw/tree/main/extensions/qqbot";
-const QQBOT_UPGRADE_GUIDE_URL = "https://q.qq.com/qqbot/openclaw/upgrade.html";
+const QQBOT_PLUGIN_GITHUB_URL = "https://github.com/alien/alien/tree/main/extensions/qqbot";
+const QQBOT_UPGRADE_GUIDE_URL = "https://q.qq.com/qqbot/alien/upgrade.html";
 
 export function registerBasicBotCommands(registry: SlashCommandRegistry): void {
   registry.register({
@@ -40,11 +40,11 @@ export function registerBasicBotCommands(registry: SlashCommandRegistry): void {
 
   registry.register({
     name: "bot-ping",
-    description: "测试 OpenClaw 与 QQ 之间的网络延迟",
+    description: "测试 Alien 与 QQ 之间的网络延迟",
     usage: [
       `/bot-ping`,
       ``,
-      `测试当前 OpenClaw 宿主机与 QQ 服务器之间的网络延迟。`,
+      `测试当前 Alien 宿主机与 QQ 服务器之间的网络延迟。`,
       `返回网络传输耗时和插件处理耗时。`,
     ].join("\n"),
     handler: (ctx) => {
@@ -69,14 +69,14 @@ export function registerBasicBotCommands(registry: SlashCommandRegistry): void {
 
   registry.register({
     name: "bot-version",
-    description: "查看 QQBot 插件版本和 OpenClaw 框架版本",
+    description: "查看 QQBot 插件版本和 Alien 框架版本",
     c2cOnly: true,
-    usage: [`/bot-version`, ``, `查看当前 QQBot 插件版本和 OpenClaw 框架版本。`].join("\n"),
+    usage: [`/bot-version`, ``, `查看当前 QQBot 插件版本和 Alien 框架版本。`].join("\n"),
     handler: async () => {
       const frameworkVersion = resolveRuntimeServiceVersion();
       const ver = getPluginVersionString();
       const lines = [
-        `🦞 OpenClaw 框架版本：${frameworkVersion}`,
+        `👾 Alien 框架版本：${frameworkVersion}`,
         `🤖 QQBot 插件版本：v${ver}`,
         `🌟 官方 GitHub 仓库：[点击前往](${QQBOT_PLUGIN_GITHUB_URL})`,
       ];

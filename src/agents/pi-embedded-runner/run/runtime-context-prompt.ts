@@ -1,14 +1,14 @@
 import { truncateUtf16Safe } from "../../../utils.js";
 import {
-  OPENCLAW_NEXT_TURN_RUNTIME_CONTEXT_HEADER,
-  OPENCLAW_RUNTIME_CONTEXT_CUSTOM_TYPE,
-  OPENCLAW_RUNTIME_CONTEXT_NOTICE,
-  OPENCLAW_RUNTIME_EVENT_HEADER,
+  ALIEN_NEXT_TURN_RUNTIME_CONTEXT_HEADER,
+  ALIEN_RUNTIME_CONTEXT_CUSTOM_TYPE,
+  ALIEN_RUNTIME_CONTEXT_NOTICE,
+  ALIEN_RUNTIME_EVENT_HEADER,
 } from "../../internal-runtime-context.js";
 import type { CurrentTurnPromptContext } from "./params.js";
-export { OPENCLAW_RUNTIME_CONTEXT_CUSTOM_TYPE };
+export { ALIEN_RUNTIME_CONTEXT_CUSTOM_TYPE };
 
-const OPENCLAW_RUNTIME_EVENT_USER_PROMPT = "Continue the OpenClaw runtime event.";
+const ALIEN_RUNTIME_EVENT_USER_PROMPT = "Continue the Alien runtime event.";
 const MAX_CURRENT_TURN_CONTEXT_STRING_CHARS = 2_000;
 
 type RuntimeContextSession = {
@@ -98,7 +98,7 @@ export function resolveRuntimeContextPromptParts(params: {
   if (!prompt) {
     return runtimeContext
       ? {
-          prompt: OPENCLAW_RUNTIME_EVENT_USER_PROMPT,
+          prompt: ALIEN_RUNTIME_EVENT_USER_PROMPT,
           runtimeContext,
           runtimeOnly: true,
           runtimeSystemContext: buildRuntimeEventSystemContext(runtimeContext),
@@ -115,9 +115,9 @@ function buildRuntimeContextMessageContent(params: {
 }): string {
   return [
     params.kind === "runtime-event"
-      ? OPENCLAW_RUNTIME_EVENT_HEADER
-      : OPENCLAW_NEXT_TURN_RUNTIME_CONTEXT_HEADER,
-    OPENCLAW_RUNTIME_CONTEXT_NOTICE,
+      ? ALIEN_RUNTIME_EVENT_HEADER
+      : ALIEN_NEXT_TURN_RUNTIME_CONTEXT_HEADER,
+    ALIEN_RUNTIME_CONTEXT_NOTICE,
     "",
     params.runtimeContext,
   ].join("\n");
@@ -141,10 +141,10 @@ export async function queueRuntimeContextForNextTurn(params: {
   }
   await params.session.sendCustomMessage(
     {
-      customType: OPENCLAW_RUNTIME_CONTEXT_CUSTOM_TYPE,
+      customType: ALIEN_RUNTIME_CONTEXT_CUSTOM_TYPE,
       content: runtimeContext,
       display: false,
-      details: { source: "openclaw-runtime-context" },
+      details: { source: "alien-runtime-context" },
     },
     { deliverAs: "nextTurn" },
   );

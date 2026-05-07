@@ -1,14 +1,14 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   __testing as sessionBindingTesting,
   getSessionBindingService,
-} from "openclaw/plugin-sdk/conversation-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 import { __testing, createBlueBubblesConversationBindingManager } from "./conversation-bindings.js";
 
 const baseCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies OpenClawConfig;
+} satisfies AlienConfig;
 
 describe("BlueBubbles conversation bindings", () => {
   beforeEach(() => {

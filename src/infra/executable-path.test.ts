@@ -19,7 +19,7 @@ function restoreEnvValue(name: string, value: string | undefined): void {
 
 describe("executable path helpers", () => {
   it("detects executable files and rejects directories or non-executables", async () => {
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const execPath = path.join(base, "tool");
       const filePath = path.join(base, "plain.txt");
       const dirPath = path.join(base, "dir");
@@ -36,7 +36,7 @@ describe("executable path helpers", () => {
   });
 
   it("resolves executables from PATH entries and cwd-relative paths", async () => {
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const binDir = path.join(base, "bin");
       const cwd = path.join(base, "cwd");
       await fs.mkdir(binDir, { recursive: true });
@@ -60,7 +60,7 @@ describe("executable path helpers", () => {
   });
 
   it("resolves absolute, home-relative, and Path-cased env executables", async () => {
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const homeDir = path.join(base, "home");
       const binDir = path.join(base, "bin");
       await fs.mkdir(homeDir, { recursive: true });
@@ -93,13 +93,13 @@ describe("executable path helpers", () => {
     }
 
     expect(
-      resolveExecutablePath(String.raw`:\Users\demo\AI\system\openclaw\git.exe`, {
-        cwd: String.raw`C:\Users\demo\AI\system\openclaw`,
+      resolveExecutablePath(String.raw`:\Users\demo\AI\system\alien\git.exe`, {
+        cwd: String.raw`C:\Users\demo\AI\system\alien`,
       }),
     ).toBeUndefined();
     expect(
-      resolveExecutablePath(String.raw`:/Users/demo/AI/system/openclaw/git.exe`, {
-        cwd: String.raw`C:\Users\demo\AI\system\openclaw`,
+      resolveExecutablePath(String.raw`:/Users/demo/AI/system/alien/git.exe`, {
+        cwd: String.raw`C:\Users\demo\AI\system\alien`,
       }),
     ).toBeUndefined();
   });
@@ -127,7 +127,7 @@ describe("resolveExecutable", () => {
 
   it("resolves to the first .cmd result from PATH on Windows without executing where.exe", async () => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const binDir = path.join(base, "bin");
       await fs.mkdir(binDir, { recursive: true });
       const cmdPath = path.join(binDir, "gcloud.cmd");
@@ -151,7 +151,7 @@ describe("resolveExecutable", () => {
 
   it("falls back to .exe when no .cmd match exists on Windows", async () => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const binDir = path.join(base, "bin");
       await fs.mkdir(binDir, { recursive: true });
       const exePath = path.join(binDir, "tailscale.exe");
@@ -170,7 +170,7 @@ describe("resolveExecutable", () => {
 
   it("falls back to first PATH result when no .cmd or .exe match exists on Windows", async () => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    await withTempDir({ prefix: "openclaw-exec-path-" }, async (base) => {
+    await withTempDir({ prefix: "alien-exec-path-" }, async (base) => {
       const binDir = path.join(base, "bin");
       await fs.mkdir(binDir, { recursive: true });
       const ps1Path = path.join(binDir, "gcloud.ps1");

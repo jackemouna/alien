@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { MALFORMED_STREAMING_FRAGMENT_ERROR_MESSAGE } from "../shared/assistant-error-format.js";
 import { getSlashCommands, parseCommand } from "./commands.js";
 import {
@@ -135,11 +135,11 @@ describe("resolveTuiSessionKey", () => {
 });
 
 describe("resolveInitialTuiAgentId", () => {
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     agents: {
       list: [
-        { id: "main", workspace: "/tmp/openclaw" },
-        { id: "ops", workspace: "/tmp/openclaw/projects/ops" },
+        { id: "main", workspace: "/tmp/alien" },
+        { id: "ops", workspace: "/tmp/alien/projects/ops" },
       ],
     },
   };
@@ -150,7 +150,7 @@ describe("resolveInitialTuiAgentId", () => {
         cfg,
         fallbackAgentId: "main",
         initialSessionInput: "",
-        cwd: "/tmp/openclaw/projects/ops/src",
+        cwd: "/tmp/alien/projects/ops/src",
       }),
     ).toBe("ops");
   });
@@ -161,7 +161,7 @@ describe("resolveInitialTuiAgentId", () => {
         cfg,
         fallbackAgentId: "main",
         initialSessionInput: "agent:main:incident",
-        cwd: "/tmp/openclaw/projects/ops/src",
+        cwd: "/tmp/alien/projects/ops/src",
       }),
     ).toBe("main");
   });
@@ -182,8 +182,8 @@ describe("resolveGatewayDisconnectState", () => {
   it("returns pairing recovery guidance when disconnect reason requires pairing", () => {
     const state = resolveGatewayDisconnectState("gateway closed (1008): pairing required");
     expect(state.connectionStatus).toContain("pairing required");
-    expect(state.activityStatus).toBe("pairing required: run openclaw devices list");
-    expect(state.pairingHint).toContain("openclaw devices list");
+    expect(state.activityStatus).toBe("pairing required: run alien devices list");
+    expect(state.pairingHint).toContain("alien devices list");
   });
 
   it("falls back to idle for generic disconnect reasons", () => {
@@ -405,7 +405,7 @@ describe("resolveLocalAuthCliInvocation", () => {
     expect(
       resolveLocalAuthCliInvocation({
         execPath: "/usr/bin/node",
-        wrapperPath: "/repo/openclaw.mjs",
+        wrapperPath: "/repo/alien.mjs",
         runNodePath: "/repo/scripts/run-node.mjs",
         hasDistEntry: false,
         hasRunNodeScript: true,
@@ -420,14 +420,14 @@ describe("resolveLocalAuthCliInvocation", () => {
     expect(
       resolveLocalAuthCliInvocation({
         execPath: "/usr/bin/node",
-        wrapperPath: "/repo/openclaw.mjs",
+        wrapperPath: "/repo/alien.mjs",
         runNodePath: "/repo/scripts/run-node.mjs",
         hasDistEntry: true,
         hasRunNodeScript: true,
       }),
     ).toEqual({
       command: "/usr/bin/node",
-      args: ["/repo/openclaw.mjs", "models", "auth", "login"],
+      args: ["/repo/alien.mjs", "models", "auth", "login"],
     });
   });
 });
@@ -471,7 +471,7 @@ describe("resolveLocalAuthSpawnCwd", () => {
   it("runs the packaged wrapper from the repo root", () => {
     expect(
       resolveLocalAuthSpawnCwd({
-        args: ["/repo/openclaw.mjs", "models", "auth", "login"],
+        args: ["/repo/alien.mjs", "models", "auth", "login"],
         defaultCwd: "/worktree/subdir",
       }),
     ).toBe("/repo");

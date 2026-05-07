@@ -61,6 +61,6 @@ export function classifyOAuthRefreshFailure(message: string): {
 export function buildOAuthRefreshFailureLoginCommand(provider: string | null | undefined): string {
   const safeProvider = sanitizeOAuthRefreshFailureProvider(provider);
   return safeProvider
-    ? formatCliCommand(`openclaw models auth login --provider ${safeProvider}`)
-    : formatCliCommand("openclaw models auth login");
+    ? formatCliCommand(`alien models auth login --provider ${safeProvider}`)
+    : formatCliCommand("alien models auth login");
 }

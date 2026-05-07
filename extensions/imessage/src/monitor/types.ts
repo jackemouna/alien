@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 
 type IMessageAttachment = {
   original_path?: string | null;
@@ -33,7 +33,7 @@ export type MonitorIMessageOpts = {
   cliPath?: string;
   dbPath?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   allowFrom?: Array<string | number>;
   groupAllowFrom?: Array<string | number>;
   includeAttachments?: boolean;

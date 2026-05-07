@@ -2,7 +2,7 @@ import {
   isAcpSessionKey,
   isCronSessionKey,
   isSubagentSessionKey,
-} from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/routing";
 import { getRuntimeConfig } from "../config/config.js";
 import { resolveBrowserConfig, type ResolvedBrowserTabCleanupConfig } from "./config.js";
 import { sweepTrackedBrowserTabs } from "./session-tab-registry.js";

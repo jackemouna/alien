@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 
 const getLoadedChannelPluginMock = vi.hoisted(() => vi.fn());
 const getChannelPluginMock = vi.hoisted(() => vi.fn());
@@ -210,7 +210,7 @@ describe("looksLikeTargetId", () => {
 });
 
 describe("maybeResolvePluginMessagingTarget", () => {
-  const cfg = {} as OpenClawConfig;
+  const cfg = {} as AlienConfig;
 
   it("returns undefined when requireIdLike is set and the target is not id-like", async () => {
     getLoadedChannelPluginMock.mockReturnValueOnce({

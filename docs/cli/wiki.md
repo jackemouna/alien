@@ -1,12 +1,12 @@
 ---
-summary: "CLI reference for `openclaw wiki` (memory-wiki vault status, search, compile, lint, apply, bridge, and Obsidian helpers)"
+summary: "CLI reference for `alien wiki` (memory-wiki vault status, search, compile, lint, apply, bridge, and Obsidian helpers)"
 read_when:
   - You want to use the memory-wiki CLI
-  - You are documenting or changing `openclaw wiki`
+  - You are documenting or changing `alien wiki`
 title: "Wiki"
 ---
 
-# `openclaw wiki`
+# `alien wiki`
 
 Inspect and maintain the `memory-wiki` vault.
 
@@ -20,7 +20,7 @@ Related:
 
 ## What it is for
 
-Use `openclaw wiki` when you want a compiled knowledge vault with:
+Use `alien wiki` when you want a compiled knowledge vault with:
 
 - wiki-native search and page reads
 - provenance-rich syntheses
@@ -31,33 +31,33 @@ Use `openclaw wiki` when you want a compiled knowledge vault with:
 ## Common commands
 
 ```bash
-openclaw wiki status
-openclaw wiki doctor
-openclaw wiki init
-openclaw wiki ingest ./notes/alpha.md
-openclaw wiki compile
-openclaw wiki lint
-openclaw wiki search "alpha"
-openclaw wiki search "who should I ask about Teams?" --mode route-question
-openclaw wiki get entity.alpha --from 1 --lines 80
+alien wiki status
+alien wiki doctor
+alien wiki init
+alien wiki ingest ./notes/alpha.md
+alien wiki compile
+alien wiki lint
+alien wiki search "alpha"
+alien wiki search "who should I ask about Teams?" --mode route-question
+alien wiki get entity.alpha --from 1 --lines 80
 
-openclaw wiki apply synthesis "Alpha Summary" \
+alien wiki apply synthesis "Alpha Summary" \
   --body "Short synthesis body" \
   --source-id source.alpha
 
-openclaw wiki apply metadata entity.alpha \
+alien wiki apply metadata entity.alpha \
   --source-id source.alpha \
   --status review \
   --question "Still active?"
 
-openclaw wiki bridge import
-openclaw wiki unsafe-local import
+alien wiki bridge import
+alien wiki unsafe-local import
 
-openclaw wiki obsidian status
-openclaw wiki obsidian search "alpha"
-openclaw wiki obsidian open syntheses/alpha-summary.md
-openclaw wiki obsidian command workspace:quick-switcher
-openclaw wiki obsidian daily
+alien wiki obsidian status
+alien wiki obsidian search "alpha"
+alien wiki obsidian open syntheses/alpha-summary.md
+alien wiki obsidian command workspace:quick-switcher
+alien wiki obsidian daily
 ```
 
 ## Commands
@@ -110,8 +110,8 @@ Rebuild indexes, related blocks, dashboards, and compiled digests.
 
 This writes stable machine-facing artifacts under:
 
-- `.openclaw-wiki/cache/agent-digest.json`
-- `.openclaw-wiki/cache/claims.jsonl`
+- `.alien-wiki/cache/agent-digest.json`
+- `.alien-wiki/cache/claims.jsonl`
 
 If `render.createDashboards` is enabled, compile also refreshes report pages.
 
@@ -140,7 +140,7 @@ Behavior depends on config:
   `raw-claim`
 
 Use `wiki search` when you want wiki-specific ranking or provenance details.
-For one broad shared recall pass, prefer `openclaw memory search` when the
+For one broad shared recall pass, prefer `alien memory search` when the
 active memory plugin exposes shared search.
 
 Search modes help the agent choose the right surface:
@@ -153,10 +153,10 @@ Search modes help the agent choose the right surface:
 Examples:
 
 ```bash
-openclaw wiki search "bgroux" --mode find-person
-openclaw wiki search "who knows Teams rollout?" --mode route-question
-openclaw wiki search "maintainer-whois" --mode source-evidence
-openclaw wiki search "strong route Teams" --mode raw-claim --json
+alien wiki search "bgroux" --mode find-person
+alien wiki search "who knows Teams rollout?" --mode route-question
+alien wiki search "maintainer-whois" --mode source-evidence
+alien wiki search "strong route Teams" --mode raw-claim --json
 ```
 
 Text output includes `Claim:` and `Evidence:` lines when a result matches a
@@ -171,8 +171,8 @@ Read a wiki page by id or relative path.
 Examples:
 
 ```bash
-openclaw wiki get entity.alpha
-openclaw wiki get syntheses/alpha-summary.md --from 1 --lines 80
+alien wiki get entity.alpha
+alien wiki get syntheses/alpha-summary.md --from 1 --lines 80
 ```
 
 ### `wiki apply`
@@ -238,7 +238,7 @@ These require the official `obsidian` CLI on `PATH` when
 
 ## Configuration tie-ins
 
-`openclaw wiki` behavior is shaped by:
+`alien wiki` behavior is shaped by:
 
 - `plugins.entries.memory-wiki.config.vaultMode`
 - `plugins.entries.memory-wiki.config.search.backend`

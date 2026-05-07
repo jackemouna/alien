@@ -1,4 +1,4 @@
-import { logError } from "openclaw/plugin-sdk/text-runtime";
+import { logError } from "alien/plugin-sdk/text-runtime";
 import {
   resolveDiscordComponentEntryWithPersistence,
   resolveDiscordModalEntryWithPersistence,

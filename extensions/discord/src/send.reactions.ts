@@ -1,4 +1,4 @@
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
 import {
   createOwnMessageReaction,
   deleteOwnMessageReaction,

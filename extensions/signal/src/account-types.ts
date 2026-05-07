@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export type SignalAccountConfig = Omit<
-  Exclude<NonNullable<OpenClawConfig["channels"]>["signal"], undefined>,
+  Exclude<NonNullable<AlienConfig["channels"]>["signal"], undefined>,
   "accounts"
 >;

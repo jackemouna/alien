@@ -1,5 +1,5 @@
 ---
-summary: "Persistent wiki compiler and Obsidian-friendly knowledge vault for OpenClaw."
+summary: "Persistent wiki compiler and Obsidian-friendly knowledge vault for Alien."
 read_when:
   - You are installing, configuring, or auditing the memory-wiki plugin
 title: "Memory Wiki plugin"
@@ -7,12 +7,12 @@ title: "Memory Wiki plugin"
 
 # Memory Wiki plugin
 
-Persistent wiki compiler and Obsidian-friendly knowledge vault for OpenClaw.
+Persistent wiki compiler and Obsidian-friendly knowledge vault for Alien.
 
 ## Distribution
 
-- Package: `@openclaw/memory-wiki`
-- Install route: included in OpenClaw
+- Package: `@alien/memory-wiki`
+- Install route: included in Alien
 
 ## Surface
 

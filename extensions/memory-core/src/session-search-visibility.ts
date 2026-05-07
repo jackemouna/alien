@@ -1,18 +1,18 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/memory-core-host-runtime-core";
-import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-core-host-runtime-files";
+import type { AlienConfig } from "alien/plugin-sdk/memory-core-host-runtime-core";
+import type { MemorySearchResult } from "alien/plugin-sdk/memory-core-host-runtime-files";
 import {
   extractTranscriptIdentityFromSessionsMemoryHit,
   loadCombinedSessionStoreForGateway,
   resolveTranscriptStemToSessionKeys,
-} from "openclaw/plugin-sdk/session-transcript-hit";
+} from "alien/plugin-sdk/session-transcript-hit";
 import {
   createAgentToAgentPolicy,
   createSessionVisibilityGuard,
   resolveEffectiveSessionToolsVisibility,
-} from "openclaw/plugin-sdk/session-visibility";
+} from "alien/plugin-sdk/session-visibility";
 
 export async function filterMemorySearchHitsBySessionVisibility(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   requesterSessionKey: string | undefined;
   sandboxed: boolean;
   hits: MemorySearchResult[];

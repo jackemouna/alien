@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { resolveAuthProfileMetadata } from "./identity.js";
 import type { AuthProfileStore } from "./types.js";
 
 export function resolveAuthProfileDisplayLabel(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   store: AuthProfileStore;
   profileId: string;
 }): string {

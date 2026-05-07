@@ -8,7 +8,7 @@ read_when:
   - You are changing ClawSweeper dispatch or GitHub activity forwarding
 ---
 
-OpenClaw CI runs on every push to `main` and every pull request. The `preflight` job classifies the diff and turns expensive lanes off when only unrelated areas changed. Manual `workflow_dispatch` runs intentionally bypass smart scoping and fan out the full graph for release candidates and broad validation. Android lanes stay opt-in through `include_android`. Release-only plugin coverage lives in the separate [`Plugin Prerelease`](#plugin-prerelease) workflow and only runs from [`Full Release Validation`](#full-release-validation) or an explicit manual dispatch.
+Alien CI runs on every push to `main` and every pull request. The `preflight` job classifies the diff and turns expensive lanes off when only unrelated areas changed. Manual `workflow_dispatch` runs intentionally bypass smart scoping and fan out the full graph for release candidates and broad validation. Android lanes stay opt-in through `include_android`. Release-only plugin coverage lives in the separate [`Plugin Prerelease`](#plugin-prerelease) workflow and only runs from [`Full Release Validation`](#full-release-validation) or an explicit manual dispatch.
 
 ## Pipeline overview
 
@@ -35,7 +35,7 @@ OpenClaw CI runs on every push to `main` and every pull request. The `preflight`
 | `macos-swift`                    | Swift lint, build, and tests for the macOS app                                                            | macOS-relevant changes             |
 | `android`                        | Android unit tests for both flavors plus one debug APK build                                              | Android-relevant changes           |
 | `test-performance-agent`         | Daily Codex slow-test optimization after trusted activity                                                 | Main CI success or manual dispatch |
-| `openclaw-performance`           | Daily/on-demand Kova runtime performance reports with mock-provider, deep-profile, and GPT 5.4 live lanes | Scheduled and manual dispatch      |
+| `alien-performance`           | Daily/on-demand Kova runtime performance reports with mock-provider, deep-profile, and GPT 5.4 live lanes | Scheduled and manual dispatch      |
 
 ## Fail-fast order
 
@@ -64,7 +64,7 @@ The `check-dependencies` shard runs `pnpm deadcode:dependencies` (a production K
 
 ## ClawSweeper activity forwarding
 
-`.github/workflows/clawsweeper-dispatch.yml` is the target-side bridge from OpenClaw repository activity into ClawSweeper. It does not check out or execute untrusted pull request code. The workflow creates a GitHub App token from `CLAWSWEEPER_APP_PRIVATE_KEY`, then dispatches compact `repository_dispatch` payloads to `openclaw/clawsweeper`.
+`.github/workflows/clawsweeper-dispatch.yml` is the target-side bridge from Alien repository activity into ClawSweeper. It does not check out or execute untrusted pull request code. The workflow creates a GitHub App token from `CLAWSWEEPER_APP_PRIVATE_KEY`, then dispatches compact `repository_dispatch` payloads to `alien/clawsweeper`.
 
 The workflow has four lanes:
 
@@ -73,7 +73,7 @@ The workflow has four lanes:
 - `clawsweeper_commit_review` for commit-level review requests on `main` pushes;
 - `github_activity` for general GitHub activity that the ClawSweeper agent may inspect.
 
-The `github_activity` lane forwards normalized metadata only: event type, action, actor, repository, item number, URL, title, state, and short excerpts for comments or reviews when present. It intentionally avoids forwarding the full webhook body. The receiving workflow in `openclaw/clawsweeper` is `.github/workflows/github-activity.yml`, which posts the normalized event to the OpenClaw Gateway hook for the ClawSweeper agent.
+The `github_activity` lane forwards normalized metadata only: event type, action, actor, repository, item number, URL, title, state, and short excerpts for comments or reviews when present. It intentionally avoids forwarding the full webhook body. The receiving workflow in `alien/clawsweeper` is `.github/workflows/github-activity.yml`, which posts the normalized event to the Alien Gateway hook for the ClawSweeper agent.
 
 General activity is observation, not delivery-by-default. The ClawSweeper agent receives the Discord target in its prompt and should post to `#clawsweeper` only when the event is surprising, actionable, risky, or operationally useful. Routine opens, edits, bot churn, duplicate webhook noise, and normal review traffic should result in `NO_REPLY`.
 
@@ -100,8 +100,8 @@ gh workflow run full-release-validation.yml --ref main -f ref=<branch-or-sha>
 | `blacksmith-8vcpu-ubuntu-2404`   | `build-artifacts`, build-smoke, Linux Node test shards, bundled plugin test shards, `check-additional` shards, `android`                                                                                                                                                                                                                                                                                                                                     |
 | `blacksmith-16vcpu-ubuntu-2404`  | `check-lint` (CPU-sensitive enough that 8 vCPU cost more than they saved); install-smoke Docker builds (32-vCPU queue time cost more than it saved)                                                                                                                                                                                                                                                                                                          |
 | `blacksmith-16vcpu-windows-2025` | `checks-windows`                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `blacksmith-6vcpu-macos-latest`  | `macos-node` on `openclaw/openclaw`; forks fall back to `macos-latest`                                                                                                                                                                                                                                                                                                                                                                                       |
-| `blacksmith-12vcpu-macos-latest` | `macos-swift` on `openclaw/openclaw`; forks fall back to `macos-latest`                                                                                                                                                                                                                                                                                                                                                                                      |
+| `blacksmith-6vcpu-macos-latest`  | `macos-node` on `alien/alien`; forks fall back to `macos-latest`                                                                                                                                                                                                                                                                                                                                                                                       |
+| `blacksmith-12vcpu-macos-latest` | `macos-swift` on `alien/alien`; forks fall back to `macos-latest`                                                                                                                                                                                                                                                                                                                                                                                      |
 
 Canonical-repo CI keeps Blacksmith as the default runner path. During `preflight`, `scripts/ci-runner-labels.mjs` checks recent queued and in-progress Actions runs for queued Blacksmith jobs. If a specific Blacksmith label already has queued jobs, downstream jobs that would use that exact label fall back to the matching GitHub-hosted runner (`ubuntu-24.04`, `windows-2025`, or `macos-latest`) for that run only. Other Blacksmith sizes in the same OS family stay on their primary labels. If the API probe fails, no fallback is applied.
 
@@ -132,48 +132,48 @@ pnpm test:perf:groups:compare .artifacts/test-perf/baseline-before.json .artifac
 pnpm perf:kova:summary --report .artifacts/kova/reports/mock-provider/report.json --output .artifacts/kova/summary.md
 ```
 
-## OpenClaw Performance
+## Alien Performance
 
-`OpenClaw Performance` is the product/runtime performance workflow. It runs daily on `main` and can be dispatched manually:
+`Alien Performance` is the product/runtime performance workflow. It runs daily on `main` and can be dispatched manually:
 
 ```bash
-gh workflow run openclaw-performance.yml --ref main -f profile=diagnostic -f repeat=3
-gh workflow run openclaw-performance.yml --ref main -f profile=smoke -f repeat=1 -f deep_profile=true -f live_gpt54=true
-gh workflow run openclaw-performance.yml --ref main -f target_ref=v2026.5.2 -f profile=diagnostic -f repeat=3
+gh workflow run alien-performance.yml --ref main -f profile=diagnostic -f repeat=3
+gh workflow run alien-performance.yml --ref main -f profile=smoke -f repeat=1 -f deep_profile=true -f live_gpt54=true
+gh workflow run alien-performance.yml --ref main -f target_ref=v2026.5.2 -f profile=diagnostic -f repeat=3
 ```
 
 Manual dispatch normally benchmarks the workflow ref. Set `target_ref` to benchmark a release tag or another branch with the current workflow implementation. Published report paths and latest pointers are keyed by the tested ref, and each `index.md` records the tested ref/SHA, workflow ref/SHA, Kova ref, profile, lane auth mode, model, repeat count, and scenario filters.
 
-The workflow installs OCM from a pinned release and Kova from `openclaw/Kova` at the pinned `kova_ref` input, then runs three lanes:
+The workflow installs OCM from a pinned release and Kova from `alien/Kova` at the pinned `kova_ref` input, then runs three lanes:
 
 - `mock-provider`: Kova diagnostic scenarios against a local-build runtime with deterministic fake OpenAI-compatible auth.
 - `mock-deep-profile`: CPU/heap/trace profiling for startup, gateway, and agent-turn hotspots.
 - `live-gpt54`: a real OpenAI `openai/gpt-5.4` agent turn, skipped when `OPENAI_API_KEY` is unavailable.
 
-The mock-provider lane also runs OpenClaw-native source probes after the Kova pass: gateway boot timing and memory across default, hook, and 50-plugin startup cases; repeated mock-OpenAI `channel-chat-baseline` hello loops; and CLI startup commands against the booted gateway. The source probe Markdown summary lives at `source/index.md` in the report bundle, with raw JSON beside it.
+The mock-provider lane also runs Alien-native source probes after the Kova pass: gateway boot timing and memory across default, hook, and 50-plugin startup cases; repeated mock-OpenAI `channel-chat-baseline` hello loops; and CLI startup commands against the booted gateway. The source probe Markdown summary lives at `source/index.md` in the report bundle, with raw JSON beside it.
 
-Every lane uploads GitHub artifacts. When `CLAWGRIT_REPORTS_TOKEN` is configured, the workflow also commits `report.json`, `report.md`, bundles, `index.md`, and source-probe artifacts into `openclaw/clawgrit-reports` under `openclaw-performance/<tested-ref>/<run-id>-<attempt>/<lane>/`. The current tested-ref pointer is written as `openclaw-performance/<tested-ref>/latest-<lane>.json`.
+Every lane uploads GitHub artifacts. When `CLAWGRIT_REPORTS_TOKEN` is configured, the workflow also commits `report.json`, `report.md`, bundles, `index.md`, and source-probe artifacts into `alien/clawgrit-reports` under `alien-performance/<tested-ref>/<run-id>-<attempt>/<lane>/`. The current tested-ref pointer is written as `alien-performance/<tested-ref>/latest-<lane>.json`.
 
 ## Full Release Validation
 
-`Full Release Validation` is the manual umbrella workflow for "run everything before release." It accepts a branch, tag, or full commit SHA, dispatches the manual `CI` workflow with that target, dispatches `Plugin Prerelease` for release-only plugin/package/static/Docker proof, and dispatches `OpenClaw Release Checks` for install smoke, package acceptance, cross-OS package checks, QA Lab parity, Matrix, and Telegram lanes. Stable/default runs keep exhaustive live/E2E and Docker release-path coverage behind `run_release_soak=true`; `release_profile=full` forces that soak coverage on so broad advisory validation remains broad. With `rerun_group=all` and `release_profile=full`, it also runs `NPM Telegram Beta E2E` against the `release-package-under-test` artifact from release checks. After publishing, pass `npm_telegram_package_spec` to rerun the same Telegram package lane against the published npm package.
+`Full Release Validation` is the manual umbrella workflow for "run everything before release." It accepts a branch, tag, or full commit SHA, dispatches the manual `CI` workflow with that target, dispatches `Plugin Prerelease` for release-only plugin/package/static/Docker proof, and dispatches `Alien Release Checks` for install smoke, package acceptance, cross-OS package checks, QA Lab parity, Matrix, and Telegram lanes. Stable/default runs keep exhaustive live/E2E and Docker release-path coverage behind `run_release_soak=true`; `release_profile=full` forces that soak coverage on so broad advisory validation remains broad. With `rerun_group=all` and `release_profile=full`, it also runs `NPM Telegram Beta E2E` against the `release-package-under-test` artifact from release checks. After publishing, pass `npm_telegram_package_spec` to rerun the same Telegram package lane against the published npm package.
 
 See [Full release validation](/reference/full-release-validation) for the
 stage matrix, exact workflow job names, profile differences, artifacts, and
 focused rerun handles.
 
-`OpenClaw Release Publish` is the manual mutating release workflow. Dispatch it
+`Alien Release Publish` is the manual mutating release workflow. Dispatch it
 from `release/YYYY.M.D` or `main` after the release tag exists and after the
-OpenClaw npm preflight has succeeded. It verifies `pnpm plugins:sync:check`,
+Alien npm preflight has succeeded. It verifies `pnpm plugins:sync:check`,
 dispatches `Plugin NPM Release` for all publishable plugin packages, dispatches
 `Plugin ClawHub Release` for the same release SHA, and only then dispatches
-`OpenClaw NPM Release` with the saved `preflight_run_id`.
+`Alien NPM Release` with the saved `preflight_run_id`.
 
 ```bash
-gh workflow run openclaw-release-publish.yml \
+gh workflow run alien-release-publish.yml \
   --ref release/YYYY.M.D \
   -f tag=vYYYY.M.D-beta.N \
-  -f preflight_run_id=<successful-openclaw-npm-preflight-run-id> \
+  -f preflight_run_id=<successful-alien-npm-preflight-run-id> \
   -f npm_dist_tag=beta
 ```
 
@@ -203,9 +203,9 @@ Docker release-path soak; `full` forces soak on.
 
 The umbrella records the dispatched child run ids, and the final `Verify full validation` job re-checks current child run conclusions and appends slowest-job tables for each child run. If a child workflow is rerun and turns green, rerun only the parent verifier job to refresh the umbrella result and timing summary.
 
-For recovery, both `Full Release Validation` and `OpenClaw Release Checks` accept `rerun_group`. Use `all` for a release candidate, `ci` for only the normal full CI child, `plugin-prerelease` for only the plugin prerelease child, `release-checks` for every release child, or a narrower group: `install-smoke`, `cross-os`, `live-e2e`, `package`, `qa`, `qa-parity`, `qa-live`, or `npm-telegram` on the umbrella. This keeps a failed release box rerun bounded after a focused fix. For one failed cross-OS lane, combine `rerun_group=cross-os` with `cross_os_suite_filter`, for example `windows/packaged-upgrade`; long cross-OS commands emit heartbeat lines and packaged-upgrade summaries include per-phase timings. QA release-check lanes are advisory, so QA-only failures warn but do not block the release-check verifier.
+For recovery, both `Full Release Validation` and `Alien Release Checks` accept `rerun_group`. Use `all` for a release candidate, `ci` for only the normal full CI child, `plugin-prerelease` for only the plugin prerelease child, `release-checks` for every release child, or a narrower group: `install-smoke`, `cross-os`, `live-e2e`, `package`, `qa`, `qa-parity`, `qa-live`, or `npm-telegram` on the umbrella. This keeps a failed release box rerun bounded after a focused fix. For one failed cross-OS lane, combine `rerun_group=cross-os` with `cross_os_suite_filter`, for example `windows/packaged-upgrade`; long cross-OS commands emit heartbeat lines and packaged-upgrade summaries include per-phase timings. QA release-check lanes are advisory, so QA-only failures warn but do not block the release-check verifier.
 
-`OpenClaw Release Checks` uses the trusted workflow ref to resolve the selected ref once into a `release-package-under-test` tarball, then passes that artifact to cross-OS checks and Package Acceptance, plus the live/E2E release-path Docker workflow when soak coverage runs. That keeps the package bytes consistent across release boxes and avoids repacking the same candidate in multiple child jobs.
+`Alien Release Checks` uses the trusted workflow ref to resolve the selected ref once into a `release-package-under-test` tarball, then passes that artifact to cross-OS checks and Package Acceptance, plus the live/E2E release-path Docker workflow when soak coverage runs. That keeps the package bytes consistent across release boxes and avoids repacking the same candidate in multiple child jobs.
 
 Duplicate `Full Release Validation` runs for `ref=main` and `rerun_group=all`
 supersede the older umbrella. The parent monitor cancels any child workflow it
@@ -231,25 +231,25 @@ The release live/E2E child keeps broad native `pnpm test:live` coverage, but it 
 
 That keeps the same file coverage while making slow live provider failures easier to rerun and diagnose. The aggregate `native-live-extensions-o-z`, `native-live-extensions-media`, and `native-live-extensions-media-music` shard names remain valid for manual one-shot reruns.
 
-The native live media shards run in `ghcr.io/openclaw/openclaw-live-media-runner:ubuntu-24.04`, built by the `Live Media Runner Image` workflow. That image preinstalls `ffmpeg` and `ffprobe`; media jobs only verify the binaries before setup. Keep Docker-backed live suites on normal Blacksmith runners — container jobs are the wrong place to launch nested Docker tests.
+The native live media shards run in `ghcr.io/alien/alien-live-media-runner:ubuntu-24.04`, built by the `Live Media Runner Image` workflow. That image preinstalls `ffmpeg` and `ffprobe`; media jobs only verify the binaries before setup. Keep Docker-backed live suites on normal Blacksmith runners — container jobs are the wrong place to launch nested Docker tests.
 
-Docker-backed live model/backend shards use a separate shared `ghcr.io/openclaw/openclaw-live-test:<sha>` image per selected commit. The live release workflow builds and pushes that image once, then the Docker live model, provider-sharded gateway, CLI backend, ACP bind, and Codex harness shards run with `OPENCLAW_SKIP_DOCKER_BUILD=1`. Gateway Docker shards carry explicit script-level `timeout` caps below the workflow job timeout so a stuck container or cleanup path fails fast instead of consuming the whole release-check budget. If those shards rebuild the full source Docker target independently, the release run is misconfigured and will waste wall clock on duplicate image builds.
+Docker-backed live model/backend shards use a separate shared `ghcr.io/alien/alien-live-test:<sha>` image per selected commit. The live release workflow builds and pushes that image once, then the Docker live model, provider-sharded gateway, CLI backend, ACP bind, and Codex harness shards run with `ALIEN_SKIP_DOCKER_BUILD=1`. Gateway Docker shards carry explicit script-level `timeout` caps below the workflow job timeout so a stuck container or cleanup path fails fast instead of consuming the whole release-check budget. If those shards rebuild the full source Docker target independently, the release run is misconfigured and will waste wall clock on duplicate image builds.
 
 ## Package Acceptance
 
-Use `Package Acceptance` when the question is "does this installable OpenClaw package work as a product?" It is different from normal CI: normal CI validates the source tree, while package acceptance validates a single tarball through the same Docker E2E harness users exercise after install or update.
+Use `Package Acceptance` when the question is "does this installable Alien package work as a product?" It is different from normal CI: normal CI validates the source tree, while package acceptance validates a single tarball through the same Docker E2E harness users exercise after install or update.
 
 ### Jobs
 
-1. `resolve_package` checks out `workflow_ref`, resolves one package candidate, writes `.artifacts/docker-e2e-package/openclaw-current.tgz`, writes `.artifacts/docker-e2e-package/package-candidate.json`, uploads both as the `package-under-test` artifact, and prints the source, workflow ref, package ref, version, SHA-256, and profile in the GitHub step summary.
-2. `docker_acceptance` calls `openclaw-live-and-e2e-checks-reusable.yml` with `ref=workflow_ref` and `package_artifact_name=package-under-test`. The reusable workflow downloads that artifact, validates the tarball inventory, prepares package-digest Docker images when needed, and runs the selected Docker lanes against that package instead of packing the workflow checkout. When a profile selects multiple targeted `docker_lanes`, the reusable workflow prepares the package and shared images once, then fans those lanes out as parallel targeted Docker jobs with unique artifacts.
+1. `resolve_package` checks out `workflow_ref`, resolves one package candidate, writes `.artifacts/docker-e2e-package/alien-current.tgz`, writes `.artifacts/docker-e2e-package/package-candidate.json`, uploads both as the `package-under-test` artifact, and prints the source, workflow ref, package ref, version, SHA-256, and profile in the GitHub step summary.
+2. `docker_acceptance` calls `alien-live-and-e2e-checks-reusable.yml` with `ref=workflow_ref` and `package_artifact_name=package-under-test`. The reusable workflow downloads that artifact, validates the tarball inventory, prepares package-digest Docker images when needed, and runs the selected Docker lanes against that package instead of packing the workflow checkout. When a profile selects multiple targeted `docker_lanes`, the reusable workflow prepares the package and shared images once, then fans those lanes out as parallel targeted Docker jobs with unique artifacts.
 3. `package_telegram` optionally calls `NPM Telegram Beta E2E`. It runs when `telegram_mode` is not `none` and installs the same `package-under-test` artifact when Package Acceptance resolved one; standalone Telegram dispatch can still install a published npm spec.
 4. `summary` fails the workflow if package resolution, Docker acceptance, or the optional Telegram lane failed.
 
 ### Candidate sources
 
-- `source=npm` accepts only `openclaw@beta`, `openclaw@latest`, or an exact OpenClaw release version such as `openclaw@2026.4.27-beta.2`. Use this for published prerelease/stable acceptance.
-- `source=ref` packs a trusted `package_ref` branch, tag, or full commit SHA. The resolver fetches OpenClaw branches/tags, verifies the selected commit is reachable from repository branch history or a release tag, installs deps in a detached worktree, and packs it with `scripts/package-openclaw-for-docker.mjs`.
+- `source=npm` accepts only `alien@beta`, `alien@latest`, or an exact Alien release version such as `alien@2026.4.27-beta.2`. Use this for published prerelease/stable acceptance.
+- `source=ref` packs a trusted `package_ref` branch, tag, or full commit SHA. The resolver fetches Alien branches/tags, verifies the selected commit is reachable from repository branch history or a release tag, installs deps in a detached worktree, and packs it with `scripts/package-alien-for-docker.mjs`.
 - `source=url` downloads an HTTPS `.tgz`; `package_sha256` is required.
 - `source=artifact` downloads one `.tgz` from `artifact_run_id` and `artifact_name`; `package_sha256` is optional but should be supplied for externally shared artifacts.
 
@@ -269,7 +269,7 @@ For the dedicated update and plugin testing policy, including local commands,
 Docker lanes, Package Acceptance inputs, release defaults, and failure triage,
 see [Testing updates and plugins](/help/testing-updates-plugins).
 
-Release checks call Package Acceptance with `source=artifact`, the prepared release package artifact, `suite_profile=custom`, `docker_lanes='doctor-switch update-channel-switch upgrade-survivor published-upgrade-survivor plugins-offline plugin-update'`, and `telegram_mode=mock-openai`. This keeps package migration, update, stale-plugin-dependency cleanup, configured-plugin install repair, offline plugin, plugin-update, and Telegram proof on the same resolved package tarball. Set `package_acceptance_package_spec` on Full Release Validation or OpenClaw Release Checks to run that same matrix against a shipped npm package instead of the SHA-built artifact. Cross-OS release checks still cover OS-specific onboarding, installer, and platform behavior; package/update product validation should start with Package Acceptance. The `published-upgrade-survivor` Docker lane validates one published package baseline per run in the blocking release path. In Package Acceptance, the resolved `package-under-test` tarball is always the candidate and `published_upgrade_survivor_baseline` selects the fallback published baseline, defaulting to `openclaw@latest`; failed-lane rerun commands preserve that baseline. Full Release Validation with `run_release_soak=true` or `release_profile=full` sets `published_upgrade_survivor_baselines='last-stable-4 2026.4.23 2026.5.2 2026.4.15'` and `published_upgrade_survivor_scenarios=reported-issues` to expand across the four latest stable npm releases plus pinned plugin-compatibility boundary releases and issue-shaped fixtures for Feishu config, preserved bootstrap/persona files, configured OpenClaw plugin installs, tilde log paths, and stale legacy plugin dependency roots. Multi-baseline published-upgrade survivor selections are sharded by baseline into separate targeted Docker runner jobs. The separate `Update Migration` workflow uses the `update-migration` Docker lane with `all-since-2026.4.23` and `plugin-deps-cleanup` when the question is exhaustive published update cleanup, not normal Full Release CI breadth. Local aggregate runs can pass exact package specs with `OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPECS`, keep a single lane with `OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC` such as `openclaw@2026.4.15`, or set `OPENCLAW_UPGRADE_SURVIVOR_SCENARIOS` for the scenario matrix. The published lane configures the baseline with a baked `openclaw config set` command recipe, records recipe steps in `summary.json`, and probes `/healthz`, `/readyz`, plus RPC status after Gateway start. The Windows packaged and installer fresh lanes also verify that an installed package can import a browser-control override from a raw absolute Windows path. The OpenAI cross-OS agent-turn smoke defaults to `OPENCLAW_CROSS_OS_OPENAI_MODEL` when set, otherwise `openai/gpt-5.4`, so the install and gateway proof stays on a GPT-5 test model while avoiding GPT-4.x defaults.
+Release checks call Package Acceptance with `source=artifact`, the prepared release package artifact, `suite_profile=custom`, `docker_lanes='doctor-switch update-channel-switch upgrade-survivor published-upgrade-survivor plugins-offline plugin-update'`, and `telegram_mode=mock-openai`. This keeps package migration, update, stale-plugin-dependency cleanup, configured-plugin install repair, offline plugin, plugin-update, and Telegram proof on the same resolved package tarball. Set `package_acceptance_package_spec` on Full Release Validation or Alien Release Checks to run that same matrix against a shipped npm package instead of the SHA-built artifact. Cross-OS release checks still cover OS-specific onboarding, installer, and platform behavior; package/update product validation should start with Package Acceptance. The `published-upgrade-survivor` Docker lane validates one published package baseline per run in the blocking release path. In Package Acceptance, the resolved `package-under-test` tarball is always the candidate and `published_upgrade_survivor_baseline` selects the fallback published baseline, defaulting to `alien@latest`; failed-lane rerun commands preserve that baseline. Full Release Validation with `run_release_soak=true` or `release_profile=full` sets `published_upgrade_survivor_baselines='last-stable-4 2026.4.23 2026.5.2 2026.4.15'` and `published_upgrade_survivor_scenarios=reported-issues` to expand across the four latest stable npm releases plus pinned plugin-compatibility boundary releases and issue-shaped fixtures for Feishu config, preserved bootstrap/persona files, configured Alien plugin installs, tilde log paths, and stale legacy plugin dependency roots. Multi-baseline published-upgrade survivor selections are sharded by baseline into separate targeted Docker runner jobs. The separate `Update Migration` workflow uses the `update-migration` Docker lane with `all-since-2026.4.23` and `plugin-deps-cleanup` when the question is exhaustive published update cleanup, not normal Full Release CI breadth. Local aggregate runs can pass exact package specs with `ALIEN_UPGRADE_SURVIVOR_BASELINE_SPECS`, keep a single lane with `ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC` such as `alien@2026.4.15`, or set `ALIEN_UPGRADE_SURVIVOR_SCENARIOS` for the scenario matrix. The published lane configures the baseline with a baked `alien config set` command recipe, records recipe steps in `summary.json`, and probes `/healthz`, `/readyz`, plus RPC status after Gateway start. The Windows packaged and installer fresh lanes also verify that an installed package can import a browser-control override from a raw absolute Windows path. The OpenAI cross-OS agent-turn smoke defaults to `ALIEN_CROSS_OS_OPENAI_MODEL` when set, otherwise `openai/gpt-5.4`, so the install and gateway proof stays on a GPT-5 test model while avoiding GPT-4.x defaults.
 
 ### Legacy compatibility windows
 
@@ -291,7 +291,7 @@ gh workflow run package-acceptance.yml \
   --ref main \
   -f workflow_ref=main \
   -f source=npm \
-  -f package_spec=openclaw@beta \
+  -f package_spec=alien@beta \
   -f suite_profile=product \
   -f telegram_mode=mock-openai
 
@@ -309,7 +309,7 @@ gh workflow run package-acceptance.yml \
   --ref main \
   -f workflow_ref=main \
   -f source=url \
-  -f package_url=https://example.com/openclaw-current.tgz \
+  -f package_url=https://example.com/alien-current.tgz \
   -f package_sha256=<64-char-sha256> \
   -f suite_profile=smoke
 
@@ -339,39 +339,39 @@ The slow Bun global install image-provider smoke is separately gated by `run_bun
 
 ## Local Docker E2E
 
-`pnpm test:docker:all` prebuilds one shared live-test image, packs OpenClaw once as an npm tarball, and builds two shared `scripts/e2e/Dockerfile` images:
+`pnpm test:docker:all` prebuilds one shared live-test image, packs Alien once as an npm tarball, and builds two shared `scripts/e2e/Dockerfile` images:
 
 - a bare Node/Git runner for installer/update/plugin-dependency lanes;
 - a functional image that installs the same tarball into `/app` for normal functionality lanes.
 
-Docker lane definitions live in `scripts/lib/docker-e2e-scenarios.mjs`, planner logic lives in `scripts/lib/docker-e2e-plan.mjs`, and the runner only executes the selected plan. The scheduler selects the image per lane with `OPENCLAW_DOCKER_E2E_BARE_IMAGE` and `OPENCLAW_DOCKER_E2E_FUNCTIONAL_IMAGE`, then runs lanes with `OPENCLAW_SKIP_DOCKER_BUILD=1`.
+Docker lane definitions live in `scripts/lib/docker-e2e-scenarios.mjs`, planner logic lives in `scripts/lib/docker-e2e-plan.mjs`, and the runner only executes the selected plan. The scheduler selects the image per lane with `ALIEN_DOCKER_E2E_BARE_IMAGE` and `ALIEN_DOCKER_E2E_FUNCTIONAL_IMAGE`, then runs lanes with `ALIEN_SKIP_DOCKER_BUILD=1`.
 
 ### Tunables
 
 | Variable                               | Default | Purpose                                                                                       |
 | -------------------------------------- | ------- | --------------------------------------------------------------------------------------------- |
-| `OPENCLAW_DOCKER_ALL_PARALLELISM`      | 10      | Main-pool slot count for normal lanes.                                                        |
-| `OPENCLAW_DOCKER_ALL_TAIL_PARALLELISM` | 10      | Provider-sensitive tail-pool slot count.                                                      |
-| `OPENCLAW_DOCKER_ALL_LIVE_LIMIT`       | 9       | Concurrent live lane cap so providers do not throttle.                                        |
-| `OPENCLAW_DOCKER_ALL_NPM_LIMIT`        | 10      | Concurrent npm install lane cap.                                                              |
-| `OPENCLAW_DOCKER_ALL_SERVICE_LIMIT`    | 7       | Concurrent multi-service lane cap.                                                            |
-| `OPENCLAW_DOCKER_ALL_START_STAGGER_MS` | 2000    | Stagger between lane starts to avoid Docker daemon create storms; set `0` for no stagger.     |
-| `OPENCLAW_DOCKER_ALL_LANE_TIMEOUT_MS`  | 7200000 | Per-lane fallback timeout (120 minutes); selected live/tail lanes use tighter caps.           |
-| `OPENCLAW_DOCKER_ALL_DRY_RUN`          | unset   | `1` prints the scheduler plan without running lanes.                                          |
-| `OPENCLAW_DOCKER_ALL_LANES`            | unset   | Comma-separated exact lane list; skips cleanup smoke so agents can reproduce one failed lane. |
+| `ALIEN_DOCKER_ALL_PARALLELISM`      | 10      | Main-pool slot count for normal lanes.                                                        |
+| `ALIEN_DOCKER_ALL_TAIL_PARALLELISM` | 10      | Provider-sensitive tail-pool slot count.                                                      |
+| `ALIEN_DOCKER_ALL_LIVE_LIMIT`       | 9       | Concurrent live lane cap so providers do not throttle.                                        |
+| `ALIEN_DOCKER_ALL_NPM_LIMIT`        | 10      | Concurrent npm install lane cap.                                                              |
+| `ALIEN_DOCKER_ALL_SERVICE_LIMIT`    | 7       | Concurrent multi-service lane cap.                                                            |
+| `ALIEN_DOCKER_ALL_START_STAGGER_MS` | 2000    | Stagger between lane starts to avoid Docker daemon create storms; set `0` for no stagger.     |
+| `ALIEN_DOCKER_ALL_LANE_TIMEOUT_MS`  | 7200000 | Per-lane fallback timeout (120 minutes); selected live/tail lanes use tighter caps.           |
+| `ALIEN_DOCKER_ALL_DRY_RUN`          | unset   | `1` prints the scheduler plan without running lanes.                                          |
+| `ALIEN_DOCKER_ALL_LANES`            | unset   | Comma-separated exact lane list; skips cleanup smoke so agents can reproduce one failed lane. |
 
-A lane heavier than its effective cap can still start from an empty pool, then runs alone until it releases capacity. The local aggregate preflights Docker, removes stale OpenClaw E2E containers, emits active-lane status, persists lane timings for longest-first ordering, and stops scheduling new pooled lanes after the first failure by default.
+A lane heavier than its effective cap can still start from an empty pool, then runs alone until it releases capacity. The local aggregate preflights Docker, removes stale Alien E2E containers, emits active-lane status, persists lane timings for longest-first ordering, and stops scheduling new pooled lanes after the first failure by default.
 
 ### Reusable live/E2E workflow
 
-The reusable live/E2E workflow asks `scripts/test-docker-all.mjs --plan-json` which package, image kind, live image, lane, and credential coverage is required. `scripts/docker-e2e.mjs` then converts that plan into GitHub outputs and summaries. It either packs OpenClaw through `scripts/package-openclaw-for-docker.mjs`, downloads a current-run package artifact, or downloads a package artifact from `package_artifact_run_id`; validates the tarball inventory; builds and pushes package-digest-tagged bare/functional GHCR Docker E2E images through Blacksmith's Docker layer cache when the plan needs package-installed lanes; and reuses provided `docker_e2e_bare_image`/`docker_e2e_functional_image` inputs or existing package-digest images instead of rebuilding. Docker image pulls are retried with a bounded 180-second per-attempt timeout so a stuck registry/cache stream retries quickly instead of consuming most of the CI critical path.
+The reusable live/E2E workflow asks `scripts/test-docker-all.mjs --plan-json` which package, image kind, live image, lane, and credential coverage is required. `scripts/docker-e2e.mjs` then converts that plan into GitHub outputs and summaries. It either packs Alien through `scripts/package-alien-for-docker.mjs`, downloads a current-run package artifact, or downloads a package artifact from `package_artifact_run_id`; validates the tarball inventory; builds and pushes package-digest-tagged bare/functional GHCR Docker E2E images through Blacksmith's Docker layer cache when the plan needs package-installed lanes; and reuses provided `docker_e2e_bare_image`/`docker_e2e_functional_image` inputs or existing package-digest images instead of rebuilding. Docker image pulls are retried with a bounded 180-second per-attempt timeout so a stuck registry/cache stream retries quickly instead of consuming most of the CI critical path.
 
 ### Release-path chunks
 
-Release Docker coverage runs smaller chunked jobs with `OPENCLAW_SKIP_DOCKER_BUILD=1` so each chunk pulls only the image kind it needs and executes multiple lanes through the same weighted scheduler:
+Release Docker coverage runs smaller chunked jobs with `ALIEN_SKIP_DOCKER_BUILD=1` so each chunk pulls only the image kind it needs and executes multiple lanes through the same weighted scheduler:
 
-- `OPENCLAW_DOCKER_ALL_PROFILE=release-path`
-- `OPENCLAW_DOCKER_ALL_CHUNK=core | package-update-openai | package-update-anthropic | package-update-core | plugins-runtime-plugins | plugins-runtime-services | plugins-runtime-install-a..h`
+- `ALIEN_DOCKER_ALL_PROFILE=release-path`
+- `ALIEN_DOCKER_ALL_CHUNK=core | package-update-openai | package-update-anthropic | package-update-core | plugins-runtime-plugins | plugins-runtime-services | plugins-runtime-install-a..h`
 
 Current release Docker chunks are `core`, `package-update-openai`, `package-update-anthropic`, `package-update-core`, `plugins-runtime-plugins`, `plugins-runtime-services`, and `plugins-runtime-install-a` through `plugins-runtime-install-h`. `plugins-runtime-core`, `plugins-runtime`, and `plugins-integrations` remain aggregate plugin/runtime aliases. The `install-e2e` lane alias remains the aggregate manual rerun alias for both provider installer lanes.
 
@@ -400,7 +400,7 @@ Release checks run Matrix and Telegram live transport lanes with the determinist
 
 Matrix uses `--profile fast` for scheduled and release gates, adding `--fail-fast` only when the checked-out CLI supports it. The CLI default and manual workflow input remain `all`; manual `matrix_profile=all` dispatch always shards full Matrix coverage into `transport`, `media`, `e2ee-smoke`, `e2ee-deep`, and `e2ee-cli` jobs.
 
-`OpenClaw Release Checks` also runs the release-critical QA Lab lanes before release approval; its QA parity gate runs the candidate and baseline packs as parallel lane jobs, then downloads both artifacts into a small report job for the final parity comparison.
+`Alien Release Checks` also runs the release-critical QA Lab lanes before release approval; its QA parity gate runs the candidate and baseline packs as parallel lane jobs, then downloads both artifacts into a small report job for the final parity comparison.
 
 For normal PRs, follow scoped CI/check evidence instead of treating parity as a required status.
 
@@ -489,17 +489,17 @@ Local changed-lane logic lives in `scripts/changed-lanes.mjs` and is executed by
 - release metadata-only version bumps run targeted version/config/root-dependency checks;
 - unknown root/config changes fail safe to all check lanes.
 
-Local changed-test routing lives in `scripts/test-projects.test-support.mjs` and is intentionally cheaper than `check:changed`: direct test edits run themselves, source edits prefer explicit mappings, then sibling tests and import-graph dependents. Shared group-room delivery config is one of the explicit mappings: changes to the group visible-reply config, source reply delivery mode, or the message-tool system prompt route through the core reply tests plus Discord and Slack delivery regressions so a shared default change fails before the first PR push. Use `OPENCLAW_TEST_CHANGED_BROAD=1 pnpm test:changed` only when the change is harness-wide enough that the cheap mapped set is not a trustworthy proxy.
+Local changed-test routing lives in `scripts/test-projects.test-support.mjs` and is intentionally cheaper than `check:changed`: direct test edits run themselves, source edits prefer explicit mappings, then sibling tests and import-graph dependents. Shared group-room delivery config is one of the explicit mappings: changes to the group visible-reply config, source reply delivery mode, or the message-tool system prompt route through the core reply tests plus Discord and Slack delivery regressions so a shared default change fails before the first PR push. Use `ALIEN_TEST_CHANGED_BROAD=1 pnpm test:changed` only when the change is harness-wide enough that the cheap mapped set is not a trustworthy proxy.
 
 ## Testbox validation
 
 Run Testbox from the repo root and prefer a fresh warmed box for broad proof. Before spending a slow gate on a box that was reused, expired, or just reported an unexpectedly large sync, run `pnpm testbox:sanity` inside the box first.
 
-The sanity check fails fast when required root files such as `pnpm-lock.yaml` disappeared or when `git status --short` shows at least 200 tracked deletions. That usually means the remote sync state is not a trustworthy copy of the PR; stop that box and warm a fresh one instead of debugging the product test failure. For intentional large-deletion PRs, set `OPENCLAW_TESTBOX_ALLOW_MASS_DELETIONS=1` for that sanity run.
+The sanity check fails fast when required root files such as `pnpm-lock.yaml` disappeared or when `git status --short` shows at least 200 tracked deletions. That usually means the remote sync state is not a trustworthy copy of the PR; stop that box and warm a fresh one instead of debugging the product test failure. For intentional large-deletion PRs, set `ALIEN_TESTBOX_ALLOW_MASS_DELETIONS=1` for that sanity run.
 
-`pnpm testbox:run` also terminates a local Blacksmith CLI invocation that stays in the sync phase for more than five minutes without post-sync output. Set `OPENCLAW_TESTBOX_SYNC_TIMEOUT_MS=0` to disable that guard, or use a larger millisecond value for unusually large local diffs.
+`pnpm testbox:run` also terminates a local Blacksmith CLI invocation that stays in the sync phase for more than five minutes without post-sync output. Set `ALIEN_TESTBOX_SYNC_TIMEOUT_MS=0` to disable that guard, or use a larger millisecond value for unusually large local diffs.
 
-Crabbox is the repo-owned remote-box wrapper for maintainer Linux proof. Use it when a check is too broad for a local edit loop, when CI parity matters, or when the proof needs secrets, Docker, package lanes, reusable boxes, or remote logs. The normal OpenClaw backend is `blacksmith-testbox`; owned AWS/Hetzner capacity is a fallback for Blacksmith outages, quota issues, or explicit owned-capacity testing.
+Crabbox is the repo-owned remote-box wrapper for maintainer Linux proof. Use it when a check is too broad for a local edit loop, when CI parity matters, or when the proof needs secrets, Docker, package lanes, reusable boxes, or remote logs. The normal Alien backend is `blacksmith-testbox`; owned AWS/Hetzner capacity is a fallback for Blacksmith outages, quota issues, or explicit owned-capacity testing.
 
 Before a first run, check the wrapper from the repo root:
 
@@ -513,7 +513,7 @@ Changed gate:
 
 ```bash
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -521,14 +521,14 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
 ```
 
 Focused test rerun:
 
 ```bash
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -536,14 +536,14 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test <path-or-filter>"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test <path-or-filter>"
 ```
 
 Full suite:
 
 ```bash
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -551,7 +551,7 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
 ```
 
 Read the final JSON summary. The useful fields are `provider`, `leaseId`, `syncDelegated`, `exitCode`, `commandMs`, and `totalMs`. One-shot Blacksmith-backed Crabbox runs should stop the Testbox automatically; if a run is interrupted or cleanup is unclear, inspect live boxes and stop only the boxes you created:
@@ -573,7 +573,7 @@ If Crabbox is the broken layer but Blacksmith itself works, use direct Blacksmit
 
 ```bash
 blacksmith testbox warmup ci-check-testbox.yml --ref main --idle-timeout 90
-blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
+blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
 blacksmith testbox stop --id <tbx_id>
 ```
 
@@ -590,7 +590,7 @@ Escalate to owned Crabbox capacity only when Blacksmith is down, quota-limited, 
 CRABBOX_CAPACITY_REGIONS=eu-west-1,eu-west-2,eu-central-1,us-east-1,us-west-2 \
   pnpm crabbox:warmup -- --provider aws --class standard --market on-demand --idle-timeout 90m
 pnpm crabbox:hydrate -- --id <cbx_id-or-slug>
-pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
+pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
 pnpm crabbox:stop -- <cbx_id-or-slug>
 ```
 

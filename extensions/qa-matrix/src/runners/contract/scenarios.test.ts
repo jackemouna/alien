@@ -14,15 +14,15 @@ const { createMatrixQaE2eeScenarioClient, runMatrixQaE2eeBootstrap, startMatrixQ
 const {
   formatMatrixQaCliCommand,
   redactMatrixQaCliOutput,
-  resolveMatrixQaOpenClawCliEntryPath,
-  runMatrixQaOpenClawCli,
-  startMatrixQaOpenClawCli,
+  resolveMatrixQaAlienCliEntryPath,
+  runMatrixQaAlienCli,
+  startMatrixQaAlienCli,
 } = vi.hoisted(() => ({
-  formatMatrixQaCliCommand: (args: string[]) => `openclaw ${args.join(" ")}`,
+  formatMatrixQaCliCommand: (args: string[]) => `alien ${args.join(" ")}`,
   redactMatrixQaCliOutput: (text: string) => text,
-  resolveMatrixQaOpenClawCliEntryPath: (cwd: string) => `${cwd}/dist/index.js`,
-  runMatrixQaOpenClawCli: vi.fn(),
-  startMatrixQaOpenClawCli: vi.fn(),
+  resolveMatrixQaAlienCliEntryPath: (cwd: string) => `${cwd}/dist/index.js`,
+  runMatrixQaAlienCli: vi.fn(),
+  startMatrixQaAlienCli: vi.fn(),
 }));
 
 vi.mock("../../substrate/client.js", () => ({
@@ -38,9 +38,9 @@ vi.mock("../../substrate/fault-proxy.js", () => ({
 vi.mock("./scenario-runtime-cli.js", () => ({
   formatMatrixQaCliCommand,
   redactMatrixQaCliOutput,
-  resolveMatrixQaOpenClawCliEntryPath,
-  runMatrixQaOpenClawCli,
-  startMatrixQaOpenClawCli,
+  resolveMatrixQaAlienCliEntryPath,
+  runMatrixQaAlienCli,
+  startMatrixQaAlienCli,
 }));
 
 import {
@@ -207,8 +207,8 @@ describe("matrix live qa scenarios", () => {
     createMatrixQaClient.mockReset();
     createMatrixQaE2eeScenarioClient.mockReset();
     runMatrixQaE2eeBootstrap.mockReset();
-    runMatrixQaOpenClawCli.mockReset();
-    startMatrixQaOpenClawCli.mockReset();
+    runMatrixQaAlienCli.mockReset();
+    startMatrixQaAlienCli.mockReset();
     startMatrixQaFaultProxy.mockReset();
   });
 
@@ -832,7 +832,7 @@ describe("matrix live qa scenarios", () => {
   it("merges default and scenario-requested Matrix topology once per run", () => {
     expect(
       scenarioTesting.buildMatrixQaTopologyForScenarios({
-        defaultRoomName: "OpenClaw Matrix QA run",
+        defaultRoomName: "Alien Matrix QA run",
         scenarios: [
           MATRIX_QA_SCENARIOS[0],
           {
@@ -869,7 +869,7 @@ describe("matrix live qa scenarios", () => {
           key: "main",
           kind: "group",
           members: ["driver", "observer", "sut"],
-          name: "OpenClaw Matrix QA run",
+          name: "Alien Matrix QA run",
           requireMention: true,
         },
         {
@@ -892,7 +892,7 @@ describe("matrix live qa scenarios", () => {
   it("rejects conflicting Matrix topology room definitions", () => {
     expect(() =>
       scenarioTesting.buildMatrixQaTopologyForScenarios({
-        defaultRoomName: "OpenClaw Matrix QA run",
+        defaultRoomName: "Alien Matrix QA run",
         scenarios: [
           {
             id: "matrix-thread-follow-up",
@@ -937,7 +937,7 @@ describe("matrix live qa scenarios", () => {
 
   it("provisions isolated encrypted rooms for each E2EE scenario", () => {
     const topology = scenarioTesting.buildMatrixQaTopologyForScenarios({
-      defaultRoomName: "OpenClaw Matrix QA run",
+      defaultRoomName: "Alien Matrix QA run",
       scenarios: [
         MATRIX_QA_SCENARIOS.find((scenario) => scenario.id === "matrix-e2ee-basic-reply")!,
         MATRIX_QA_SCENARIOS.find((scenario) => scenario.id === "matrix-e2ee-thread-follow-up")!,
@@ -950,7 +950,7 @@ describe("matrix live qa scenarios", () => {
         key: "main",
         kind: "group",
         members: ["driver", "observer", "sut"],
-        name: "OpenClaw Matrix QA run",
+        name: "Alien Matrix QA run",
         requireMention: true,
       },
       {
@@ -1982,7 +1982,7 @@ describe("matrix live qa scenarios", () => {
           ...matrixQaScenarioContext(),
           driverDeviceId: "DRIVER",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: gatewayConfigPath,
+            ALIEN_CONFIG_PATH: gatewayConfigPath,
             PATH: process.env.PATH,
           },
           gatewayStateDir: stateRoot,
@@ -2240,7 +2240,7 @@ describe("matrix live qa scenarios", () => {
         runMatrixQaScenario(scenario!, {
           ...matrixQaScenarioContext(),
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: gatewayConfigPath,
+            ALIEN_CONFIG_PATH: gatewayConfigPath,
             PATH: process.env.PATH,
           },
           outputDir,
@@ -4773,7 +4773,7 @@ describe("matrix live qa scenarios", () => {
       });
       const kill = vi.fn();
       const endStdin = vi.fn();
-      startMatrixQaOpenClawCli.mockReturnValue({
+      startMatrixQaAlienCli.mockReturnValue({
         args: ["matrix", "verify", "self", "--account", "cli"],
         endStdin,
         kill,
@@ -4783,10 +4783,10 @@ describe("matrix live qa scenarios", () => {
         writeStdin,
       });
       let cliAccountConfigDuringRun: Record<string, unknown> | null = null;
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env, stdin }) => {
-        if (!cliAccountConfigDuringRun && env.OPENCLAW_CONFIG_PATH) {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env, stdin }) => {
+        if (!cliAccountConfigDuringRun && env.ALIEN_CONFIG_PATH) {
           const cliConfig = JSON.parse(
-            await readFile(String(env.OPENCLAW_CONFIG_PATH), "utf8"),
+            await readFile(String(env.ALIEN_CONFIG_PATH), "utf8"),
           ) as {
             channels?: {
               matrix?: {
@@ -4856,8 +4856,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -4871,8 +4871,8 @@ describe("matrix live qa scenarios", () => {
         },
       });
 
-      expect(startMatrixQaOpenClawCli).toHaveBeenCalledTimes(1);
-      expect(startMatrixQaOpenClawCli.mock.calls[0]?.[0].args).toEqual([
+      expect(startMatrixQaAlienCli).toHaveBeenCalledTimes(1);
+      expect(startMatrixQaAlienCli.mock.calls[0]?.[0].args).toEqual([
         "matrix",
         "verify",
         "self",
@@ -4881,20 +4881,20 @@ describe("matrix live qa scenarios", () => {
         "--timeout-ms",
         "8000",
       ]);
-      expect(startMatrixQaOpenClawCli.mock.calls[0]?.[0].timeoutMs).toBe(16_000);
+      expect(startMatrixQaAlienCli.mock.calls[0]?.[0].timeoutMs).toBe(16_000);
       expect(waitForOutput).toHaveBeenCalledTimes(2);
       expect(writeStdin).toHaveBeenCalledWith("yes\n");
       expect(endStdin).toHaveBeenCalledTimes(1);
       expect(wait).toHaveBeenCalledTimes(1);
       expect(kill).toHaveBeenCalledTimes(1);
       expect(registerWithToken).toHaveBeenCalledWith({
-        deviceName: "OpenClaw Matrix QA CLI Self Verification Owner",
+        deviceName: "Alien Matrix QA CLI Self Verification Owner",
         localpart: expect.stringMatching(/^qa-cli-self-verification-[a-f0-9]{8}$/),
         password: expect.stringMatching(/^matrix-qa-/),
         registrationToken: "registration-token",
       });
       expect(loginWithPassword).toHaveBeenCalledWith({
-        deviceName: "OpenClaw Matrix QA CLI Self Verification Device",
+        deviceName: "Alien Matrix QA CLI Self Verification Device",
         password: "cli-owner-password",
         userId: "@cli-owner:matrix-qa.test",
       });
@@ -4907,8 +4907,8 @@ describe("matrix live qa scenarios", () => {
           userId: "@cli-owner:matrix-qa.test",
         }),
       );
-      expect(runMatrixQaOpenClawCli).toHaveBeenCalledTimes(2);
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli).toHaveBeenCalledTimes(2);
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         [
           "matrix",
           "verify",
@@ -4921,11 +4921,11 @@ describe("matrix live qa scenarios", () => {
         ],
         ["matrix", "verify", "status", "--account", "cli", "--json"],
       ]);
-      expect(runMatrixQaOpenClawCli.mock.calls[0]?.[0].stdin).toBe("encoded-recovery-key\n");
-      const cliEnv = startMatrixQaOpenClawCli.mock.calls[0]?.[0].env;
-      expect(cliEnv?.OPENCLAW_STATE_DIR).toContain("openclaw-matrix-cli-qa-");
-      expect(cliEnv?.OPENCLAW_CONFIG_PATH).toContain("openclaw-matrix-cli-qa-");
-      const configPath = String(cliEnv?.OPENCLAW_CONFIG_PATH);
+      expect(runMatrixQaAlienCli.mock.calls[0]?.[0].stdin).toBe("encoded-recovery-key\n");
+      const cliEnv = startMatrixQaAlienCli.mock.calls[0]?.[0].env;
+      expect(cliEnv?.ALIEN_STATE_DIR).toContain("alien-matrix-cli-qa-");
+      expect(cliEnv?.ALIEN_CONFIG_PATH).toContain("alien-matrix-cli-qa-");
+      const configPath = String(cliEnv?.ALIEN_CONFIG_PATH);
       expect(cliAccountConfigDuringRun).toMatchObject({
         accessToken: "cli-token",
         deviceId: "CLIDEVICE",
@@ -4937,7 +4937,7 @@ describe("matrix live qa scenarios", () => {
         userId: "@cli-owner:matrix-qa.test",
       });
       await expect(readFile(configPath, "utf8")).rejects.toThrow();
-      await expect(readdir(String(cliEnv?.OPENCLAW_STATE_DIR))).rejects.toThrow();
+      await expect(readdir(String(cliEnv?.ALIEN_STATE_DIR))).rejects.toThrow();
       expect(acceptVerification).toHaveBeenCalledWith("owner-request");
       expect(confirmVerificationSas).toHaveBeenCalledWith("owner-request");
       expect(deleteOwnDevices).toHaveBeenCalledWith(["CLIDEVICE"]);
@@ -4980,10 +4980,10 @@ describe("matrix live qa scenarios", () => {
         password: "cli-add-password",
         userId: "@cli-add:matrix-qa.test",
       });
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
-        if (env.OPENCLAW_CONFIG_PATH) {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
+        if (env.ALIEN_CONFIG_PATH) {
           const initialConfig = JSON.parse(
-            await readFile(String(env.OPENCLAW_CONFIG_PATH), "utf8"),
+            await readFile(String(env.ALIEN_CONFIG_PATH), "utf8"),
           ) as {
             channels?: { matrix?: { enabled?: boolean; accounts?: Record<string, unknown> } };
             plugins?: { allow?: string[]; entries?: { matrix?: unknown } };
@@ -5044,8 +5044,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5061,7 +5061,7 @@ describe("matrix live qa scenarios", () => {
         },
       });
 
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         [
           "matrix",
           "account",
@@ -5077,7 +5077,7 @@ describe("matrix live qa scenarios", () => {
           "--password",
           "cli-add-password",
           "--device-name",
-          "OpenClaw Matrix QA CLI Account Add E2EE",
+          "Alien Matrix QA CLI Account Add E2EE",
           "--allow-private-network",
           "--enable-e2ee",
           "--json",
@@ -5086,7 +5086,7 @@ describe("matrix live qa scenarios", () => {
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Account Add Owner",
+          deviceName: "Alien Matrix QA CLI Account Add Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5113,10 +5113,10 @@ describe("matrix live qa scenarios", () => {
         userId: "@cli-setup:matrix-qa.test",
       });
       let initialAccountConfig: Record<string, unknown> | null = null;
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
-        if (!initialAccountConfig && env.OPENCLAW_CONFIG_PATH) {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
+        if (!initialAccountConfig && env.ALIEN_CONFIG_PATH) {
           const initialConfig = JSON.parse(
-            await readFile(String(env.OPENCLAW_CONFIG_PATH), "utf8"),
+            await readFile(String(env.ALIEN_CONFIG_PATH), "utf8"),
           ) as {
             channels?: {
               matrix?: {
@@ -5190,8 +5190,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5215,13 +5215,13 @@ describe("matrix live qa scenarios", () => {
         startupVerification: "off",
         userId: "@cli-setup:matrix-qa.test",
       });
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         ["matrix", "encryption", "setup", "--account", "cli-encryption-setup", "--json"],
         ["matrix", "verify", "status", "--account", "cli-encryption-setup", "--json"],
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Encryption Setup Owner",
+          deviceName: "Alien Matrix QA CLI Encryption Setup Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5256,10 +5256,10 @@ describe("matrix live qa scenarios", () => {
         userId: "@cli-idempotent:matrix-qa.test",
       });
       let initialAccountConfig: Record<string, unknown> | null = null;
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
-        if (!initialAccountConfig && env.OPENCLAW_CONFIG_PATH) {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
+        if (!initialAccountConfig && env.ALIEN_CONFIG_PATH) {
           const initialConfig = JSON.parse(
-            await readFile(String(env.OPENCLAW_CONFIG_PATH), "utf8"),
+            await readFile(String(env.ALIEN_CONFIG_PATH), "utf8"),
           ) as {
             channels?: {
               matrix?: {
@@ -5313,8 +5313,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5339,13 +5339,13 @@ describe("matrix live qa scenarios", () => {
         startupVerification: "off",
         userId: "@cli-idempotent:matrix-qa.test",
       });
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         ["matrix", "encryption", "setup", "--account", "cli-encryption-idempotent", "--json"],
         ["matrix", "encryption", "setup", "--account", "cli-encryption-idempotent", "--json"],
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Encryption Idempotent Owner",
+          deviceName: "Alien Matrix QA CLI Encryption Idempotent Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5411,9 +5411,9 @@ describe("matrix live qa scenarios", () => {
       }));
       const wait = vi
         .fn()
-        .mockRejectedValue(new Error("openclaw matrix encryption setup exited 1"));
+        .mockRejectedValue(new Error("alien matrix encryption setup exited 1"));
       const kill = vi.fn();
-      startMatrixQaOpenClawCli.mockReturnValue({
+      startMatrixQaAlienCli.mockReturnValue({
         args: ["matrix", "encryption", "setup", "--account", "cli-encryption-failure", "--json"],
         kill,
         output,
@@ -5433,8 +5433,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5470,7 +5470,7 @@ describe("matrix live qa scenarios", () => {
           search: "",
         }),
       ).toBe(true);
-      expect(startMatrixQaOpenClawCli.mock.calls[0]?.[0].args).toEqual([
+      expect(startMatrixQaAlienCli.mock.calls[0]?.[0].args).toEqual([
         "matrix",
         "encryption",
         "setup",
@@ -5478,15 +5478,15 @@ describe("matrix live qa scenarios", () => {
         "cli-encryption-failure",
         "--json",
       ]);
-      expect(startMatrixQaOpenClawCli.mock.calls[0]?.[0].env.OPENCLAW_CONFIG_PATH).toContain(
-        "openclaw-matrix-e2ee-setup-qa-",
+      expect(startMatrixQaAlienCli.mock.calls[0]?.[0].env.ALIEN_CONFIG_PATH).toContain(
+        "alien-matrix-e2ee-setup-qa-",
       );
       expect(output).toHaveBeenCalledTimes(1);
       expect(wait).toHaveBeenCalledTimes(1);
       expect(kill).toHaveBeenCalledTimes(1);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Encryption Failure Owner",
+          deviceName: "Alien Matrix QA CLI Encryption Failure Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5551,10 +5551,10 @@ describe("matrix live qa scenarios", () => {
         userId: "@cli-recovery:matrix-qa.test",
       });
       let initialAccountConfig: Record<string, unknown> | null = null;
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
-        if (!initialAccountConfig && env.OPENCLAW_CONFIG_PATH) {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
+        if (!initialAccountConfig && env.ALIEN_CONFIG_PATH) {
           const initialConfig = JSON.parse(
-            await readFile(String(env.OPENCLAW_CONFIG_PATH), "utf8"),
+            await readFile(String(env.ALIEN_CONFIG_PATH), "utf8"),
           ) as {
             channels?: {
               matrix?: {
@@ -5612,8 +5612,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5643,7 +5643,7 @@ describe("matrix live qa scenarios", () => {
       expect(bootstrapOwnDeviceVerification).toHaveBeenCalledWith({
         allowAutomaticCrossSigningReset: false,
       });
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         [
           "matrix",
           "encryption",
@@ -5657,7 +5657,7 @@ describe("matrix live qa scenarios", () => {
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Recovery Key Owner",
+          deviceName: "Alien Matrix QA CLI Recovery Key Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5725,9 +5725,9 @@ describe("matrix live qa scenarios", () => {
       }));
       const wait = vi
         .fn()
-        .mockRejectedValue(new Error("openclaw matrix encryption setup exited 1"));
+        .mockRejectedValue(new Error("alien matrix encryption setup exited 1"));
       const kill = vi.fn();
-      startMatrixQaOpenClawCli.mockReturnValue({
+      startMatrixQaAlienCli.mockReturnValue({
         args: [
           "matrix",
           "encryption",
@@ -5756,8 +5756,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5774,7 +5774,7 @@ describe("matrix live qa scenarios", () => {
         },
       });
 
-      expect(startMatrixQaOpenClawCli.mock.calls[0]?.[0].args).toEqual([
+      expect(startMatrixQaAlienCli.mock.calls[0]?.[0].args).toEqual([
         "matrix",
         "encryption",
         "setup",
@@ -5789,7 +5789,7 @@ describe("matrix live qa scenarios", () => {
       expect(kill).toHaveBeenCalledTimes(1);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Invalid Recovery Key Owner",
+          deviceName: "Alien Matrix QA CLI Invalid Recovery Key Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -5822,8 +5822,8 @@ describe("matrix live qa scenarios", () => {
         password: "cli-multi-password",
         userId: "@cli-multi:matrix-qa.test",
       });
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
-        const configPath = String(env.OPENCLAW_CONFIG_PATH);
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
+        const configPath = String(env.ALIEN_CONFIG_PATH);
         const config = JSON.parse(await readFile(configPath, "utf8")) as {
           channels: {
             matrix: {
@@ -5882,8 +5882,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: "/tmp/gateway-config.json",
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: "/tmp/gateway-config.json",
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -5900,12 +5900,12 @@ describe("matrix live qa scenarios", () => {
         },
       });
 
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         ["matrix", "encryption", "setup", "--account", "cli-multi-target", "--json"],
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Multi Account Owner",
+          deviceName: "Alien Matrix QA CLI Multi Account Owner",
           registrationToken: "registration-token",
         }),
       );
@@ -6020,10 +6020,10 @@ describe("matrix live qa scenarios", () => {
         }),
       };
       createMatrixQaE2eeScenarioClient.mockResolvedValueOnce(driverClient);
-      runMatrixQaOpenClawCli.mockImplementation(async ({ args, env }) => {
+      runMatrixQaAlienCli.mockImplementation(async ({ args, env }) => {
         const joined = args.join(" ");
         if (joined === "matrix encryption setup --account cli-setup-gateway --json") {
-          const configPath = String(env.OPENCLAW_CONFIG_PATH);
+          const configPath = String(env.ALIEN_CONFIG_PATH);
           const config = JSON.parse(await readFile(configPath, "utf8")) as {
             channels: {
               matrix: {
@@ -6086,8 +6086,8 @@ describe("matrix live qa scenarios", () => {
           driverDeviceId: "DRIVERDEVICE",
           driverPassword: "driver-password",
           gatewayRuntimeEnv: {
-            OPENCLAW_CONFIG_PATH: gatewayConfigPath,
-            OPENCLAW_STATE_DIR: "/tmp/gateway-state",
+            ALIEN_CONFIG_PATH: gatewayConfigPath,
+            ALIEN_STATE_DIR: "/tmp/gateway-state",
             PATH: process.env.PATH,
           },
           outputDir,
@@ -6150,18 +6150,18 @@ describe("matrix live qa scenarios", () => {
         setupBootstrapMarker: "preserved",
       });
 
-      expect(runMatrixQaOpenClawCli.mock.calls.map(([params]) => params.args)).toEqual([
+      expect(runMatrixQaAlienCli.mock.calls.map(([params]) => params.args)).toEqual([
         ["matrix", "encryption", "setup", "--account", "cli-setup-gateway", "--json"],
       ]);
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Setup Gateway",
+          deviceName: "Alien Matrix QA CLI Setup Gateway",
           registrationToken: "registration-token",
         }),
       );
       expect(registerWithToken).toHaveBeenCalledWith(
         expect.objectContaining({
-          deviceName: "OpenClaw Matrix QA CLI Setup Driver",
+          deviceName: "Alien Matrix QA CLI Setup Driver",
           registrationToken: "registration-token",
         }),
       );

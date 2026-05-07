@@ -2,7 +2,7 @@ import {
   resolveAckReaction,
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
-} from "openclaw/plugin-sdk/channel-feedback";
+} from "alien/plugin-sdk/channel-feedback";
 import {
   buildMentionRegexes,
   formatInboundEnvelope,
@@ -11,25 +11,25 @@ import {
   matchesMentionWithExplicit,
   resolveEnvelopeFormatOptions,
   resolveInboundMentionDecision,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { resolveChannelMessageSourceReplyDeliveryMode } from "openclaw/plugin-sdk/channel-message";
-import { hasControlCommand } from "openclaw/plugin-sdk/command-detection";
-import { resolveControlCommandGate } from "openclaw/plugin-sdk/command-gating";
-import { shouldHandleTextCommands } from "openclaw/plugin-sdk/command-surface";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { finalizeInboundContext } from "openclaw/plugin-sdk/reply-dispatch-runtime";
+} from "alien/plugin-sdk/channel-inbound";
+import { resolveChannelMessageSourceReplyDeliveryMode } from "alien/plugin-sdk/channel-message";
+import { hasControlCommand } from "alien/plugin-sdk/command-detection";
+import { resolveControlCommandGate } from "alien/plugin-sdk/command-gating";
+import { shouldHandleTextCommands } from "alien/plugin-sdk/command-surface";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { finalizeInboundContext } from "alien/plugin-sdk/reply-dispatch-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
-} from "openclaw/plugin-sdk/reply-history";
-import type { FinalizedMsgContext } from "openclaw/plugin-sdk/reply-runtime";
-import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "openclaw/plugin-sdk/security-runtime";
-import { enqueueSystemEvent } from "openclaw/plugin-sdk/system-event-runtime";
+} from "alien/plugin-sdk/reply-history";
+import type { FinalizedMsgContext } from "alien/plugin-sdk/reply-runtime";
+import { logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "alien/plugin-sdk/security-runtime";
+import { enqueueSystemEvent } from "alien/plugin-sdk/system-event-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import type { ResolvedSlackAccount } from "../../accounts.js";
 import { reactSlackMessage } from "../../actions.js";
 import { formatSlackFileReference } from "../../file-reference.js";

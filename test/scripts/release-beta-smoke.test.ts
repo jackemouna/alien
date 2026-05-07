@@ -8,7 +8,7 @@ describe("release-beta-smoke", () => {
   it("parses workflow run urls when gh includes them in dispatch output", () => {
     expect(
       parseWorkflowRunIdFromOutput(
-        "Dispatched: https://github.com/openclaw/openclaw/actions/runs/1234567890",
+        "Dispatched: https://github.com/alien/alien/actions/runs/1234567890",
       ),
     ).toBe("1234567890");
   });

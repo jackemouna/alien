@@ -1,7 +1,7 @@
 import type { ChannelMessageAdapterShape } from "../../channels/message/types.js";
 import { getChannelPlugin, getLoadedChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.plugin.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { getActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   isDeliverableMessageChannel,
@@ -29,7 +29,7 @@ export function normalizeDeliverableOutboundChannel(
 
 function maybeBootstrapChannelPlugin(params: {
   channel: DeliverableMessageChannel;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
 }): void {
   bootstrapOutboundChannelPlugin(params);
 }
@@ -52,7 +52,7 @@ function resolveDirectFromActiveRegistry(
 
 export function resolveOutboundChannelPlugin(params: {
   channel: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   allowBootstrap?: boolean;
 }): ChannelPlugin | undefined {
   const normalized = normalizeDeliverableOutboundChannel(params.channel);
@@ -81,7 +81,7 @@ export function resolveOutboundChannelPlugin(params: {
 
 export function resolveOutboundChannelMessageAdapter(params: {
   channel: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   allowBootstrap?: boolean;
 }): ChannelMessageAdapterShape | undefined {
   return resolveOutboundChannelPlugin(params)?.message;

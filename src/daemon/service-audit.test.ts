@@ -42,7 +42,7 @@ function createGatewayAudit({
       programArguments: ["/usr/bin/node", "gateway"],
       environment: {
         PATH: path,
-        ...(serviceToken ? { OPENCLAW_GATEWAY_TOKEN: serviceToken } : {}),
+        ...(serviceToken ? { ALIEN_GATEWAY_TOKEN: serviceToken } : {}),
         ...extraEnvironment,
       },
       ...(environmentValueSources ? { environmentValueSources } : {}),
@@ -104,7 +104,7 @@ describe("auditGatewayServiceConfig", () => {
   });
 
   it("accepts Linux minimal PATH with user directories", async () => {
-    const env = { HOME: "/tmp/openclaw-testuser", PNPM_HOME: "/opt/pnpm" };
+    const env = { HOME: "/tmp/alien-testuser", PNPM_HOME: "/opt/pnpm" };
     const minimalPath = buildMinimalServicePath({ platform: "linux", env });
     const audit = await auditGatewayServiceConfig({
       env,
@@ -124,7 +124,7 @@ describe("auditGatewayServiceConfig", () => {
   });
 
   it("accepts canonical macOS gateway service PATH without user-bin defaults", async () => {
-    const home = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-service-audit-home-"));
+    const home = await fs.mkdtemp(path.join(os.tmpdir(), "alien-service-audit-home-"));
     try {
       const servicePath = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
 
@@ -145,7 +145,7 @@ describe("auditGatewayServiceConfig", () => {
 
   it("still requires explicit env-configured tool roots in gateway service PATH", async () => {
     const audit = await auditGatewayServiceConfig({
-      env: { HOME: "/tmp/openclaw-testuser", PNPM_HOME: "/opt/pnpm" },
+      env: { HOME: "/tmp/alien-testuser", PNPM_HOME: "/opt/pnpm" },
       platform: "linux",
       command: {
         programArguments: ["/usr/bin/node", "gateway"],
@@ -160,7 +160,7 @@ describe("auditGatewayServiceConfig", () => {
   });
 
   it("flags stale Linux version-manager and package-manager PATH entries", async () => {
-    const env = { HOME: "/tmp/openclaw-testuser-nonminimal" };
+    const env = { HOME: "/tmp/alien-testuser-nonminimal" };
     const minimalPath = buildMinimalServicePath({ platform: "linux", env });
     const staleEntries = [
       `${env.HOME}/.volta/bin`,
@@ -191,8 +191,8 @@ describe("auditGatewayServiceConfig", () => {
 
   it("accepts Linux fnm aliases/default without requiring the legacy current symlink", async () => {
     const env = {
-      HOME: "/tmp/openclaw-testuser",
-      FNM_DIR: "/tmp/openclaw-testuser/.local/share/fnm",
+      HOME: "/tmp/alien-testuser",
+      FNM_DIR: "/tmp/alien-testuser/.local/share/fnm",
     };
     const pathParts = buildMinimalServicePath({ platform: "linux", env })
       .split(":")
@@ -213,8 +213,8 @@ describe("auditGatewayServiceConfig", () => {
 
   it("accepts Linux fnm current symlink without requiring aliases/default", async () => {
     const env = {
-      HOME: "/tmp/openclaw-testuser",
-      FNM_DIR: "/tmp/openclaw-testuser/.local/share/fnm",
+      HOME: "/tmp/alien-testuser",
+      FNM_DIR: "/tmp/alien-testuser/.local/share/fnm",
     };
     const pathParts = buildMinimalServicePath({ platform: "linux", env })
       .split(":")
@@ -309,7 +309,7 @@ describe("auditGatewayServiceConfig", () => {
       expectedGatewayToken: "new-token",
       serviceToken: "old-token",
       environmentValueSources: {
-        OPENCLAW_GATEWAY_TOKEN: "file",
+        ALIEN_GATEWAY_TOKEN: "file",
       },
     });
     expectTokenAudit(audit, { embedded: false, mismatch: false });
@@ -320,7 +320,7 @@ describe("auditGatewayServiceConfig", () => {
       expectedGatewayToken: "new-token",
       serviceToken: "old-token",
       environmentValueSources: {
-        OPENCLAW_GATEWAY_TOKEN: "inline-and-file",
+        ALIEN_GATEWAY_TOKEN: "inline-and-file",
       },
     });
     expectTokenAudit(audit, { embedded: true, mismatch: true });
@@ -329,7 +329,7 @@ describe("auditGatewayServiceConfig", () => {
   it("flags inline managed service env values from the service key list", async () => {
     const audit = await createGatewayAudit({
       extraEnvironment: {
-        OPENCLAW_SERVICE_MANAGED_ENV_KEYS: "TAVILY_API_KEY,OPENROUTER_API_KEY",
+        ALIEN_SERVICE_MANAGED_ENV_KEYS: "TAVILY_API_KEY,OPENROUTER_API_KEY",
         TAVILY_API_KEY: "tvly-test",
         OPENROUTER_API_KEY: "or-test",
       },

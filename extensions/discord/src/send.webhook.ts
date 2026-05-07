@@ -1,6 +1,6 @@
-import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { recordChannelActivity } from "alien/plugin-sdk/channel-activity-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveDiscordClientAccountContext } from "./client.js";
 import {
   DiscordError,
@@ -14,7 +14,7 @@ import { createDiscordSendResult } from "./send.receipt.js";
 import type { DiscordSendResult } from "./send.types.js";
 
 type DiscordWebhookSendOpts = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   webhookId: string;
   webhookToken: string;
   accountId?: string;

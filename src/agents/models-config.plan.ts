@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
 import { isRecord } from "../utils.js";
 import {
@@ -14,10 +14,10 @@ import {
   type ProviderConfig,
 } from "./models-config.providers.js";
 
-type ModelsConfig = NonNullable<OpenClawConfig["models"]>;
+type ModelsConfig = NonNullable<AlienConfig["models"]>;
 export type ResolveImplicitProvidersForModelsJson = (params: {
   agentDir: string;
-  config: OpenClawConfig;
+  config: AlienConfig;
   env: NodeJS.ProcessEnv;
   workspaceDir?: string;
   explicitProviders: Record<string, ProviderConfig>;
@@ -41,7 +41,7 @@ export type ModelsJsonPlan =
 
 export async function resolveProvidersForModelsJsonWithDeps(
   params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
     workspaceDir?: string;
@@ -104,10 +104,10 @@ function resolveProvidersForMode(params: {
   });
 }
 
-export async function planOpenClawModelsJsonWithDeps(
+export async function planAlienModelsJsonWithDeps(
   params: {
-    cfg: OpenClawConfig;
-    sourceConfigForSecrets?: OpenClawConfig;
+    cfg: AlienConfig;
+    sourceConfigForSecrets?: AlienConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
     workspaceDir?: string;
@@ -187,8 +187,8 @@ export async function planOpenClawModelsJsonWithDeps(
   };
 }
 
-export async function planOpenClawModelsJson(
-  params: Parameters<typeof planOpenClawModelsJsonWithDeps>[0],
+export async function planAlienModelsJson(
+  params: Parameters<typeof planAlienModelsJsonWithDeps>[0],
 ): Promise<ModelsJsonPlan> {
-  return planOpenClawModelsJsonWithDeps(params);
+  return planAlienModelsJsonWithDeps(params);
 }

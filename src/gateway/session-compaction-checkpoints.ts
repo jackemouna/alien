@@ -14,7 +14,7 @@ import type {
   SessionEntry,
 } from "../config/sessions.js";
 import { isCompactionCheckpointTranscriptFileName } from "../config/sessions/artifacts.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveGatewaySessionStoreTarget } from "./session-utils.js";
 
@@ -398,7 +398,7 @@ async function cleanupTrimmedCompactionCheckpointFiles(params: {
 }
 
 export async function persistSessionCompactionCheckpoint(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey: string;
   sessionId: string;
   reason: SessionCompactionCheckpointReason;

@@ -1,16 +1,16 @@
 import { createRequire } from "node:module";
 import path from "node:path";
-import { loadJsonFile } from "openclaw/plugin-sdk/json-store";
+import { loadJsonFile } from "alien/plugin-sdk/json-store";
 import {
   buildExecRemoteCommand,
   createSshSandboxSessionFromConfigText,
   runPluginCommandWithTimeout,
   shellEscape,
   type SshSandboxSession,
-} from "openclaw/plugin-sdk/sandbox";
+} from "alien/plugin-sdk/sandbox";
 import type { ResolvedOpenShellPluginConfig } from "./config.js";
 
-export { buildExecRemoteCommand, shellEscape } from "openclaw/plugin-sdk/sandbox";
+export { buildExecRemoteCommand, shellEscape } from "alien/plugin-sdk/sandbox";
 
 const require = createRequire(import.meta.url);
 

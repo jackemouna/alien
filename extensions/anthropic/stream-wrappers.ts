@@ -1,6 +1,6 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { streamSimple } from "@mariozechner/pi-ai";
-import type { ProviderWrapStreamFnContext } from "openclaw/plugin-sdk/plugin-entry";
+import type { ProviderWrapStreamFnContext } from "alien/plugin-sdk/plugin-entry";
 import {
   applyAnthropicPayloadPolicyToParams,
   composeProviderStreamWrappers,
@@ -8,13 +8,13 @@ import {
   resolveAnthropicPayloadPolicy,
   stripTrailingAnthropicAssistantPrefillWhenThinking,
   streamWithPayloadPatch,
-} from "openclaw/plugin-sdk/provider-stream-shared";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/provider-stream-shared";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
 import {
   normalizeFastMode,
   normalizeLowercaseStringOrEmpty,
   readStringValue,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("anthropic-stream");
 

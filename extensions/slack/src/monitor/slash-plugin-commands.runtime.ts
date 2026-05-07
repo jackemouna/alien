@@ -1,1 +1,1 @@
-export { listProviderPluginCommandSpecs } from "openclaw/plugin-sdk/command-auth";
+export { listProviderPluginCommandSpecs } from "alien/plugin-sdk/command-auth";

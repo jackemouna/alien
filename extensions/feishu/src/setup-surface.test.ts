@@ -4,7 +4,7 @@ import {
   createPluginSetupWizardStatus,
   createTestWizardPrompter,
   runSetupWizardConfigure,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/plugin-test-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeishuProbeResult } from "./types.js";
 

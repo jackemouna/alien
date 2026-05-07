@@ -4,7 +4,7 @@ const { callGatewayToolMock } = vi.hoisted(() => ({
   callGatewayToolMock: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/agent-harness-runtime", () => ({
+vi.mock("alien/plugin-sdk/agent-harness-runtime", () => ({
   callGatewayTool: callGatewayToolMock,
 }));
 

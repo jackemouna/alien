@@ -7,4 +7,4 @@ export {
   promptLegacyChannelAllowFromForAccount,
   resolveEntriesWithOptionalToken,
   setSetupChannelEnabled,
-} from "openclaw/plugin-sdk/setup-runtime";
+} from "alien/plugin-sdk/setup-runtime";

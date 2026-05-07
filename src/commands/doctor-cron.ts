@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { resolveCronStorePath, loadCronStore, saveCronStore } from "../cron/store.js";
 import type { CronJob } from "../cron/types.js";
 import {
@@ -187,8 +187,8 @@ export async function noteLegacyWhatsAppCrontabHealthCheck(
   note(
     [
       "Legacy WhatsApp crontab health check detected.",
-      "`~/.openclaw/bin/ensure-whatsapp.sh` is not maintained by current OpenClaw and can misreport `Gateway inactive` from cron when the systemd user bus environment is missing.",
-      `Remove the stale crontab entry with ${formatCliCommand("crontab -e")}; use ${formatCliCommand("openclaw channels status --probe")}, ${formatCliCommand("openclaw doctor")}, and ${formatCliCommand("openclaw gateway status")} for current health checks.`,
+      "`~/.alien/bin/ensure-whatsapp.sh` is not maintained by current Alien and can misreport `Gateway inactive` from cron when the systemd user bus environment is missing.",
+      `Remove the stale crontab entry with ${formatCliCommand("crontab -e")}; use ${formatCliCommand("alien channels status --probe")}, ${formatCliCommand("alien doctor")}, and ${formatCliCommand("alien gateway status")} for current health checks.`,
       `Matched ${pluralize(legacyLines.length, "entry")}.`,
     ].join("\n"),
     "Cron",
@@ -196,7 +196,7 @@ export async function noteLegacyWhatsAppCrontabHealthCheck(
 }
 
 export async function maybeRepairLegacyCronStore(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   options: DoctorOptions;
   prompter: Pick<DoctorPrompter, "confirm">;
 }) {
@@ -230,7 +230,7 @@ export async function maybeRepairLegacyCronStore(params: {
     [
       `Legacy cron job storage detected at ${shortenHomePath(storePath)}.`,
       ...previewLines,
-      `Repair with ${formatCliCommand("openclaw doctor --fix")} to normalize the store before the next scheduler run.`,
+      `Repair with ${formatCliCommand("alien doctor --fix")} to normalize the store before the next scheduler run.`,
     ].join("\n"),
     "Cron",
   );

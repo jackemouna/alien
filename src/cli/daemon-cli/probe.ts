@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.js";
+import type { AlienConfig } from "../../config/types.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createLazyImportLoader } from "../../shared/lazy-promise.js";
 import { withProgress } from "../progress.js";
@@ -28,7 +28,7 @@ export async function probeGatewayStatus(opts: {
   url: string;
   token?: string;
   password?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   tlsFingerprint?: string;
   timeoutMs: number;
   preauthHandshakeTimeoutMs?: number;

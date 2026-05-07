@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import type { ThreadBindingManager } from "./thread-bindings.js";
 
-type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<AlienConfig["channels"]>["discord"];
 
 export type DiscordCommandArgContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   discordConfig: DiscordConfig;
   accountId: string;
   sessionPrefix: string;

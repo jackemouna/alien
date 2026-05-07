@@ -1,31 +1,31 @@
 ---
-summary: "CLI reference for `openclaw devices` (device pairing + token rotation/revocation)"
+summary: "CLI reference for `alien devices` (device pairing + token rotation/revocation)"
 read_when:
   - You are approving device pairing requests
   - You need to rotate or revoke device tokens
 title: "Devices"
 ---
 
-# `openclaw devices`
+# `alien devices`
 
 Manage device pairing requests and device-scoped tokens.
 
 ## Commands
 
-### `openclaw devices list`
+### `alien devices list`
 
 List pending pairing requests and paired devices.
 
 ```
-openclaw devices list
-openclaw devices list --json
+alien devices list
+alien devices list --json
 ```
 
 Pending request output shows the requested access next to the device's current
 approved access when the device is already paired. This makes scope/role
 upgrades explicit instead of looking like the pairing was lost.
 
-### `openclaw devices remove <deviceId>`
+### `alien devices remove <deviceId>`
 
 Remove one paired device entry.
 
@@ -34,35 +34,35 @@ remove only **their own** device entry. Removing some other device requires
 `operator.admin`.
 
 ```
-openclaw devices remove <deviceId>
-openclaw devices remove <deviceId> --json
+alien devices remove <deviceId>
+alien devices remove <deviceId> --json
 ```
 
-### `openclaw devices clear --yes [--pending]`
+### `alien devices clear --yes [--pending]`
 
 Clear paired devices in bulk.
 
 ```
-openclaw devices clear --yes
-openclaw devices clear --yes --pending
-openclaw devices clear --yes --pending --json
+alien devices clear --yes
+alien devices clear --yes --pending
+alien devices clear --yes --pending --json
 ```
 
-### `openclaw devices approve [requestId] [--latest]`
+### `alien devices approve [requestId] [--latest]`
 
 Approve a pending device pairing request by exact `requestId`. If `requestId`
-is omitted or `--latest` is passed, OpenClaw only prints the selected pending
+is omitted or `--latest` is passed, Alien only prints the selected pending
 request and exits; rerun approval with the exact request ID after verifying
 the details.
 
 <Note>
-If a device retries pairing with changed auth details (role, scopes, or public key), OpenClaw supersedes the previous pending entry and issues a new `requestId`. Run `openclaw devices list` right before approval to use the current ID.
+If a device retries pairing with changed auth details (role, scopes, or public key), Alien supersedes the previous pending entry and issues a new `requestId`. Run `alien devices list` right before approval to use the current ID.
 </Note>
 
 If the device is already paired and asks for broader scopes or a broader role,
-OpenClaw keeps the existing approval in place and creates a new pending upgrade
-request. Review the `Requested` vs `Approved` columns in `openclaw devices list`
-or use `openclaw devices approve --latest` to preview the exact upgrade before
+Alien keeps the existing approval in place and creates a new pending upgrade
+request. Review the `Requested` vs `Approved` columns in `alien devices list`
+or use `alien devices approve --latest` to preview the exact upgrade before
 approving it.
 
 If the Gateway is explicitly configured with
@@ -72,20 +72,20 @@ is disabled by default and never applies to operator/browser clients or upgrade
 requests.
 
 ```
-openclaw devices approve
-openclaw devices approve <requestId>
-openclaw devices approve --latest
+alien devices approve
+alien devices approve <requestId>
+alien devices approve --latest
 ```
 
-### `openclaw devices reject <requestId>`
+### `alien devices reject <requestId>`
 
 Reject a pending device pairing request.
 
 ```
-openclaw devices reject <requestId>
+alien devices reject <requestId>
 ```
 
-### `openclaw devices rotate --device <id> --role <role> [--scope <scope...>]`
+### `alien devices rotate --device <id> --role <role> [--scope <scope...>]`
 
 Rotate a device token for a specific role (optionally updating scopes).
 The target role must already exist in that device's approved pairing contract;
@@ -99,7 +99,7 @@ scopes; rotation cannot mint or preserve a broader operator token than the
 caller already has.
 
 ```
-openclaw devices rotate --device <deviceId> --role operator --scope operator.read --scope operator.write
+alien devices rotate --device <deviceId> --role operator --scope operator.read --scope operator.write
 ```
 
 Returns rotation metadata as JSON. If the caller is rotating its own token while
@@ -107,7 +107,7 @@ authenticated with that device token, the response also includes the replacement
 token so the client can persist it before reconnecting. Shared/admin rotations
 do not echo the bearer token.
 
-### `openclaw devices revoke --device <id> --role <role>`
+### `alien devices revoke --device <id> --role <role>`
 
 Revoke a device token for a specific role.
 
@@ -117,7 +117,7 @@ The target token scope set must also fit within the caller session's own
 operator scopes; pairing-only callers cannot revoke admin/write operator tokens.
 
 ```
-openclaw devices revoke --device <deviceId> --role node
+alien devices revoke --device <deviceId> --role node
 ```
 
 Returns the revoke result as JSON.
@@ -162,27 +162,27 @@ Use this when Control UI or other clients keep failing with `AUTH_TOKEN_MISMATCH
 1. Confirm current gateway token source:
 
 ```bash
-openclaw config get gateway.auth.token
+alien config get gateway.auth.token
 ```
 
 2. List paired devices and identify the affected device id:
 
 ```bash
-openclaw devices list
+alien devices list
 ```
 
 3. Rotate operator token for the affected device:
 
 ```bash
-openclaw devices rotate --device <deviceId> --role operator
+alien devices rotate --device <deviceId> --role operator
 ```
 
 4. If rotation is not enough, remove stale pairing and approve again:
 
 ```bash
-openclaw devices remove <deviceId>
-openclaw devices list
-openclaw devices approve <requestId>
+alien devices remove <deviceId>
+alien devices list
+alien devices approve <requestId>
 ```
 
 5. Retry client connection with the current shared token/password.

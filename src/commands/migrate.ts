@@ -169,7 +169,7 @@ export async function migrateApplyCommand(
     throw new Error("--no-backup requires --force.");
   }
   if (!opts.yes && !process.stdin.isTTY) {
-    throw new Error("openclaw migrate apply requires --yes in non-interactive mode.");
+    throw new Error("alien migrate apply requires --yes in non-interactive mode.");
   }
   const provider = resolveMigrationProvider(providerId);
   if (!opts.yes) {

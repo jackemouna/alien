@@ -2,7 +2,7 @@ import { getChannelPlugin } from "../../channels/plugins/index.js";
 import { getLoadedChannelPluginForRead } from "../../channels/plugins/registry-loaded-read.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.plugin.js";
 import type { ChannelDirectoryEntryKind, ChannelId } from "../../channels/plugins/types.public.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { getActivePluginChannelRegistryVersion } from "../../plugins/runtime.js";
 import {
   normalizeOptionalLowercaseString,
@@ -112,7 +112,7 @@ export function looksLikeTargetId(params: {
 }
 
 export async function maybeResolvePluginMessagingTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   input: string;
   accountId?: string | null;

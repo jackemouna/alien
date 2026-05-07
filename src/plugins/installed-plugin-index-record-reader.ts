@@ -54,16 +54,16 @@ function readStringRecord(value: unknown): Record<string, string> {
 }
 
 function hasPackagePluginMetadata(manifest: Record<string, unknown>): boolean {
-  const openclaw = manifest.openclaw;
-  if (!isRecord(openclaw)) {
+  const alien = manifest.alien;
+  if (!isRecord(alien)) {
     return false;
   }
-  const extensions = openclaw.extensions;
+  const extensions = alien.extensions;
   return Array.isArray(extensions) && extensions.some((entry) => typeof entry === "string");
 }
 
 function readManifestPluginId(packageDir: string): string | undefined {
-  const manifest = readJsonObjectFileSync(path.join(packageDir, "openclaw.plugin.json"));
+  const manifest = readJsonObjectFileSync(path.join(packageDir, "alien.plugin.json"));
   const id = typeof manifest?.id === "string" ? manifest.id.trim() : "";
   return id || undefined;
 }

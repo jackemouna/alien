@@ -1,4 +1,4 @@
-import { listOpenClawPluginManifestMetadata } from "../plugins/manifest-metadata-scan.js";
+import { listAlienPluginManifestMetadata } from "../plugins/manifest-metadata-scan.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -121,8 +121,8 @@ function readCompatBoolean(
   return typeof value === "boolean" ? value : undefined;
 }
 
-const OPENCLAW_ATTRIBUTION_PRODUCT = "OpenClaw";
-const OPENCLAW_ATTRIBUTION_ORIGINATOR = "openclaw";
+const ALIEN_ATTRIBUTION_PRODUCT = "Alien";
+const ALIEN_ATTRIBUTION_ORIGINATOR = "alien";
 const OPENROUTER_ATTRIBUTION_CATEGORIES =
   "cli-agent,cloud-agent,programming-app,creative-writing,writing-assistant,general-chat,personal-agent";
 
@@ -169,8 +169,8 @@ type ManifestProviderRequestCacheEntry = {
 let manifestProviderEndpointCache: ManifestProviderEndpointCacheEntry[] | null = null;
 let manifestProviderRequestCache: Map<string, ManifestProviderRequestCacheEntry> | null = null;
 
-function formatOpenClawUserAgent(version: string): string {
-  return `${OPENCLAW_ATTRIBUTION_ORIGINATOR}/${version}`;
+function formatAlienUserAgent(version: string): string {
+  return `${ALIEN_ATTRIBUTION_ORIGINATOR}/${version}`;
 }
 
 function tryParseHostname(value: string): string | undefined {
@@ -318,7 +318,7 @@ function readManifestProviderRequests(
 
 function collectManifestProviderEndpoints(): ManifestProviderEndpointCacheEntry[] {
   const entries: ManifestProviderEndpointCacheEntry[] = [];
-  for (const { manifest } of listOpenClawPluginManifestMetadata()) {
+  for (const { manifest } of listAlienPluginManifestMetadata()) {
     entries.push(...readManifestProviderEndpoints(manifest));
   }
   return entries;
@@ -326,7 +326,7 @@ function collectManifestProviderEndpoints(): ManifestProviderEndpointCacheEntry[
 
 function collectManifestProviderRequests(): Map<string, ManifestProviderRequestCacheEntry> {
   const entries = new Map<string, ManifestProviderRequestCacheEntry>();
-  for (const { manifest } of listOpenClawPluginManifestMetadata()) {
+  for (const { manifest } of listAlienPluginManifestMetadata()) {
     for (const [provider, request] of readManifestProviderRequests(manifest)) {
       entries.set(provider, request);
     }
@@ -455,7 +455,7 @@ export function resolveProviderAttributionIdentity(
   env: RuntimeVersionEnv = process.env as RuntimeVersionEnv,
 ): ProviderAttributionIdentity {
   return {
-    product: OPENCLAW_ATTRIBUTION_PRODUCT,
+    product: ALIEN_ATTRIBUTION_PRODUCT,
     version: resolveRuntimeServiceVersion(env),
   };
 }
@@ -470,10 +470,10 @@ function buildOpenRouterAttributionPolicy(
     verification: "vendor-documented",
     hook: "request-headers",
     docsUrl: "https://openrouter.ai/docs/app-attribution",
-    reviewNote: "Documented app attribution headers. Verified in OpenClaw runtime wrapper.",
+    reviewNote: "Documented app attribution headers. Verified in Alien runtime wrapper.",
     ...identity,
     headers: {
-      "HTTP-Referer": "https://openclaw.ai",
+      "HTTP-Referer": "https://alien.ai",
       "X-OpenRouter-Title": identity.product,
       "X-OpenRouter-Categories": OPENROUTER_ATTRIBUTION_CATEGORIES,
     },
@@ -493,9 +493,9 @@ function buildOpenAIAttributionPolicy(
       "OpenAI native traffic supports hidden originator/User-Agent attribution. Verified against the Codex wire contract.",
     ...identity,
     headers: {
-      originator: OPENCLAW_ATTRIBUTION_ORIGINATOR,
+      originator: ALIEN_ATTRIBUTION_ORIGINATOR,
       version: identity.version,
-      "User-Agent": formatOpenClawUserAgent(identity.version),
+      "User-Agent": formatAlienUserAgent(identity.version),
     },
   };
 }
@@ -513,9 +513,9 @@ function buildOpenAICodexAttributionPolicy(
       "OpenAI Codex ChatGPT-backed traffic supports the same hidden originator/User-Agent attribution contract.",
     ...identity,
     headers: {
-      originator: OPENCLAW_ATTRIBUTION_ORIGINATOR,
+      originator: ALIEN_ATTRIBUTION_ORIGINATOR,
       version: identity.version,
-      "User-Agent": formatOpenClawUserAgent(identity.version),
+      "User-Agent": formatAlienUserAgent(identity.version),
     },
   };
 }

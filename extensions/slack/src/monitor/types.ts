@@ -1,6 +1,6 @@
-import type { ChannelRuntimeSurface } from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig, SlackSlashCommandConfig } from "openclaw/plugin-sdk/config-types";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import type { ChannelRuntimeSurface } from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig, SlackSlashCommandConfig } from "alien/plugin-sdk/config-types";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import type { SlackMessageEvent } from "../types.js";
 
 export type MonitorSlackOpts = {
@@ -8,7 +8,7 @@ export type MonitorSlackOpts = {
   appToken?: string;
   accountId?: string;
   mode?: "socket" | "http";
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   runtime?: RuntimeEnv;
   channelRuntime?: ChannelRuntimeSurface;
   abortSignal?: AbortSignal;

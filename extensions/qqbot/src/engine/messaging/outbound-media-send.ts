@@ -6,7 +6,7 @@ import path from "node:path";
 import {
   pathExistsSync,
   resolveLocalPathFromRootsSync,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import type { GatewayAccount } from "../types.js";
 import { MediaFileType } from "../types.js";
 import {

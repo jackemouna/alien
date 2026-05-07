@@ -22,7 +22,7 @@ import { createModelsProviderData } from "./model-picker.test-utils.js";
 
 const buildModelsProviderDataMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/models-provider-runtime", () => ({
+vi.mock("alien/plugin-sdk/models-provider-runtime", () => ({
   buildModelsProviderData: buildModelsProviderDataMock,
 }));
 
@@ -541,8 +541,8 @@ describe("Discord model picker rendering", () => {
         [
           {
             id: "pi",
-            label: "OpenClaw Pi Default",
-            description: "Use the built-in OpenClaw Pi runtime.",
+            label: "Alien Pi Default",
+            description: "Use the built-in Alien Pi runtime.",
           },
           {
             id: "codex",
@@ -577,7 +577,7 @@ describe("Discord model picker rendering", () => {
     }
     expect(runtimeSelect.options?.map((option) => option.value)).toEqual(["pi", "codex"]);
     expect(runtimeSelect.options?.find((option) => option.value === "pi")?.label).toBe(
-      "OpenClaw Pi Default",
+      "Alien Pi Default",
     );
     expect(runtimeSelect.options?.find((option) => option.value === "codex")?.default).toBe(true);
 

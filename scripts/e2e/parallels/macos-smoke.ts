@@ -8,7 +8,7 @@ import {
   makeTempDir,
   packageBuildCommitFromTgz,
   packageVersionFromTgz,
-  packOpenClaw,
+  packAlien,
   parseMode,
   parseProvider,
   modelProviderConfigBatchJson,
@@ -94,8 +94,8 @@ interface MacosSummary {
 
 const guestPath =
   "/opt/homebrew/bin:/opt/homebrew/opt/node/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin";
-const guestOpenClaw = "/opt/homebrew/bin/openclaw";
-const guestOpenClawEntry = "/opt/homebrew/lib/node_modules/openclaw/openclaw.mjs";
+const guestAlien = "/opt/homebrew/bin/alien";
+const guestAlienEntry = "/opt/homebrew/lib/node_modules/alien/alien.mjs";
 const guestNode = "/opt/homebrew/bin/node";
 const guestNpm = "/opt/homebrew/bin/npm";
 
@@ -106,7 +106,7 @@ const defaultOptions = (): MacosOptions => ({
   hostIp: undefined,
   hostPort: 18425,
   hostPortExplicit: false,
-  installUrl: "https://openclaw.ai/install.sh",
+  installUrl: "https://alien.ai/install.sh",
   installVersion: "",
   json: false,
   keepServer: false,
@@ -132,7 +132,7 @@ Options:
   --model <provider/model>    Override the model used for the agent-turn smoke.
   --api-key-env <var>        Host env var name for provider API key.
   --openai-api-key-env <var> Alias for --api-key-env (backward compatible)
-  --install-url <url>        Installer URL for latest release. Default: https://openclaw.ai/install.sh
+  --install-url <url>        Installer URL for latest release. Default: https://alien.ai/install.sh
   --host-port <port>         Host HTTP port for current-main tgz. Default: 18425
   --host-ip <ip>             Override Parallels host IP.
   --latest-version <ver>     Override npm latest version lookup.
@@ -284,7 +284,7 @@ class MacosSmoke {
   }
 
   async run(): Promise<void> {
-    this.runDir = await makeTempDir("openclaw-parallels-macos.");
+    this.runDir = await makeTempDir("alien-parallels-macos.");
     this.phases = new PhaseRunner(this.runDir);
     this.guest = new MacosGuest(
       {
@@ -297,7 +297,7 @@ class MacosSmoke {
       this.phases,
     );
     this.discord = this.createDiscordSmoke();
-    this.tgzDir = await makeTempDir("openclaw-parallels-macos-tgz.");
+    this.tgzDir = await makeTempDir("alien-parallels-macos-tgz.");
     try {
       this.snapshot = resolveSnapshot(this.options.vmName, this.options.snapshotHint);
       this.latestVersion = resolveLatestVersion(this.options.latestVersion);
@@ -322,7 +322,7 @@ class MacosSmoke {
       say(`Run logs: ${this.runDir}`);
 
       if (await this.needsHostTgz()) {
-        this.artifact = await packOpenClaw({
+        this.artifact = await packAlien({
           destination: this.tgzDir,
           packageSpec: this.options.targetPackageSpec,
           requireControlUi: true,
@@ -420,8 +420,8 @@ class MacosSmoke {
       },
       guest: this.guest,
       guestNode,
-      guestOpenClaw,
-      guestOpenClawEntry,
+      guestAlien,
+      guestAlienEntry,
       runDir: this.runDir,
       vmName: this.options.vmName,
     });
@@ -462,7 +462,7 @@ class MacosSmoke {
     await this.phase("fresh.restore-snapshot", 780, () => this.restoreSnapshot());
     await this.phase("fresh.reset-state", 180, () => this.resetState());
     await this.phase("fresh.install-main", this.targetInstallsDirectly() ? 420 : 420, () =>
-      this.installMain("openclaw-main-fresh.tgz"),
+      this.installMain("alien-main-fresh.tgz"),
     );
     this.status.freshVersion = await this.extractLastVersion("fresh.install-main");
     await this.phase("fresh.verify-main-version", 60, () => this.verifyTargetVersion());
@@ -475,7 +475,7 @@ class MacosSmoke {
     this.status.freshDashboard = "pass";
     await this.phase(
       "fresh.first-agent-turn",
-      Number(process.env.OPENCLAW_PARALLELS_MACOS_AGENT_TIMEOUT_S || 2700),
+      Number(process.env.ALIEN_PARALLELS_MACOS_AGENT_TIMEOUT_S || 2700),
       () => this.verifyTurn(),
     );
     this.status.freshAgent = "pass";
@@ -508,7 +508,7 @@ class MacosSmoke {
     }
     if (this.options.targetPackageSpec) {
       await this.phase("upgrade.install-main", this.targetInstallsDirectly() ? 420 : 420, () =>
-        this.installMain("openclaw-main-upgrade.tgz"),
+        this.installMain("alien-main-upgrade.tgz"),
       );
       this.status.upgradeVersion = await this.extractLastVersion("upgrade.install-main");
       await this.phase("upgrade.verify-main-version", 60, () => this.verifyTargetVersion());
@@ -518,7 +518,7 @@ class MacosSmoke {
     } else {
       await this.phase(
         "upgrade.update-dev",
-        Number(process.env.OPENCLAW_PARALLELS_MACOS_UPDATE_DEV_TIMEOUT_S || 1800),
+        Number(process.env.ALIEN_PARALLELS_MACOS_UPDATE_DEV_TIMEOUT_S || 1800),
         () => this.runDevChannelUpdate(),
       );
       this.status.upgradeVersion = await this.extractLastVersion("upgrade.update-dev");
@@ -532,7 +532,7 @@ class MacosSmoke {
     this.status.upgradeDashboard = "pass";
     await this.phase(
       "upgrade.first-agent-turn",
-      Number(process.env.OPENCLAW_PARALLELS_MACOS_AGENT_TIMEOUT_S || 2700),
+      Number(process.env.ALIEN_PARALLELS_MACOS_AGENT_TIMEOUT_S || 2700),
       () => this.verifyTurn(),
     );
     this.status.upgradeAgent = "pass";
@@ -726,25 +726,25 @@ class MacosSmoke {
   }
 
   private resetState(): void {
-    this.guestSh(String.raw`/usr/bin/pkill -f 'openclaw.*gateway run' >/dev/null 2>&1 || true
-/usr/bin/pkill -f 'openclaw-gateway' >/dev/null 2>&1 || true
-/usr/bin/pkill -f 'openclaw.mjs gateway' >/dev/null 2>&1 || true
+    this.guestSh(String.raw`/usr/bin/pkill -f 'alien.*gateway run' >/dev/null 2>&1 || true
+/usr/bin/pkill -f 'alien-gateway' >/dev/null 2>&1 || true
+/usr/bin/pkill -f 'alien.mjs gateway' >/dev/null 2>&1 || true
 printf 'preflight.user=%s\n' "$(whoami)"
 printf 'preflight.home=%s\n' "$HOME"
 printf 'preflight.path=%s\n' "$PATH"
 printf 'preflight.umask=%s\n' "$(umask)"
 printf 'preflight.npmRoot=%s\n' "$(${guestNpm} root -g 2>/dev/null || true)"
-${guestNpm} uninstall -g openclaw >/dev/null 2>&1 || true
-rm -rf "$HOME/.openclaw"
-rm -f /tmp/openclaw-parallels-macos-gateway.log`);
+${guestNpm} uninstall -g alien >/dev/null 2>&1 || true
+rm -rf "$HOME/.alien"
+rm -f /tmp/alien-parallels-macos-gateway.log`);
   }
 
   private installLatestRelease(): void {
     this.guestSh(
-      `export OPENCLAW_NO_ONBOARD=1
-curl -fsSL ${shellQuote(this.options.installUrl)} -o /tmp/openclaw-install.sh
-bash /tmp/openclaw-install.sh --version ${shellQuote(this.installVersion)}
-${guestOpenClaw} --version`,
+      `export ALIEN_NO_ONBOARD=1
+curl -fsSL ${shellQuote(this.options.installUrl)} -o /tmp/alien-install.sh
+bash /tmp/alien-install.sh --version ${shellQuote(this.installVersion)}
+${guestAlien} --version`,
     );
   }
 
@@ -753,7 +753,7 @@ ${guestOpenClaw} --version`,
       this
         .guestSh(`printf 'install-source: registry-spec %s\\n' ${shellQuote(this.options.targetPackageSpec || "")}
 ${guestNpm} install -g ${shellQuote(this.options.targetPackageSpec || "")}
-${guestOpenClaw} --version`);
+${guestAlien} --version`);
       return;
     }
     if (!this.artifact || !this.server) {
@@ -763,7 +763,7 @@ ${guestOpenClaw} --version`);
     this.guestSh(`printf 'install-source: host-tgz %s\\n' ${shellQuote(tgzUrl)}
 curl -fsSL ${shellQuote(tgzUrl)} -o /tmp/${tempName}
 ${guestNpm} install -g /tmp/${tempName}
-${guestOpenClaw} --version`);
+${guestAlien} --version`);
   }
 
   private async verifyTargetVersion(): Promise<void> {
@@ -781,7 +781,7 @@ ${guestOpenClaw} --version`);
   }
 
   private verifyVersionContains(needle: string): void {
-    const version = this.guestExec([guestOpenClaw, "--version"]);
+    const version = this.guestExec([guestAlien, "--version"]);
     if (!version.includes(needle)) {
       throw new Error(`version mismatch: expected substring ${needle}`);
     }
@@ -800,12 +800,12 @@ check_path() {
     exit 1
   fi
 }
-check_path "$root/openclaw"
-check_path "$root/openclaw/extensions"
-if [ -d "$root/openclaw/extensions" ]; then
+check_path "$root/alien"
+check_path "$root/alien/extensions"
+if [ -d "$root/alien/extensions" ]; then
   while IFS= read -r -d '' extension_dir; do
     check_path "$extension_dir"
-  done < <(/usr/bin/find "$root/openclaw/extensions" -mindepth 1 -maxdepth 1 -type d -print0)
+  done < <(/usr/bin/find "$root/alien/extensions" -mindepth 1 -maxdepth 1 -type d -print0)
 fi`);
   }
 
@@ -814,7 +814,7 @@ fi`);
     this.guestExec([
       "/usr/bin/env",
       `${this.auth.apiKeyEnv}=${this.auth.apiKeyValue}`,
-      guestOpenClaw,
+      guestAlien,
       "onboard",
       "--non-interactive",
       "--mode",
@@ -841,7 +841,7 @@ fi`);
 
   private ensureGuestPnpm(): void {
     this.guestSh(String.raw`set -eu
-bootstrap_root=/tmp/openclaw-smoke-pnpm-bootstrap
+bootstrap_root=/tmp/alien-smoke-pnpm-bootstrap
 bootstrap_bin="$bootstrap_root/node_modules/.bin"
 if [ -x "$bootstrap_bin/pnpm" ]; then
   echo "bootstrap-pnpm: reuse"
@@ -860,24 +860,24 @@ mkdir -p "$bootstrap_root"
     const home = this.guestHome();
     this.guestSh(
       `set -eu
-rm -rf ${shellQuote(`${home}/openclaw`)}
-export PATH=${shellQuote(`/tmp/openclaw-smoke-pnpm-bootstrap/node_modules/.bin:${guestPath}`)}
+rm -rf ${shellQuote(`${home}/alien`)}
+export PATH=${shellQuote(`/tmp/alien-smoke-pnpm-bootstrap/node_modules/.bin:${guestPath}`)}
 ${guestNode} - <<'JS'
 const fs = require("node:fs");
 const path = require("node:path");
-const configPath = path.join(process.env.HOME || ${JSON.stringify(home)}, ".openclaw", "openclaw.json");
+const configPath = path.join(process.env.HOME || ${JSON.stringify(home)}, ".alien", "alien.json");
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 config.update = { ...(config.update || {}), channel: "dev" };
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\\n");
 JS
-/usr/bin/env NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_ALLOW_OLDER_BINARY_DESTRUCTIVE_ACTIONS=1 OPENCLAW_DISABLE_BUNDLED_PLUGINS=1 ${guestNode} ${guestOpenClawEntry} update --channel dev --yes --json
-${guestNode} ${guestOpenClawEntry} --version
-${guestNode} ${guestOpenClawEntry} update status --json`,
+/usr/bin/env NODE_OPTIONS=--max-old-space-size=4096 ALIEN_ALLOW_OLDER_BINARY_DESTRUCTIVE_ACTIONS=1 ALIEN_DISABLE_BUNDLED_PLUGINS=1 ${guestNode} ${guestAlienEntry} update --channel dev --yes --json
+${guestNode} ${guestAlienEntry} --version
+${guestNode} ${guestAlienEntry} update status --json`,
     );
   }
 
   private verifyDevChannelUpdate(): void {
-    const status = this.guestExec([guestNode, guestOpenClawEntry, "update", "status", "--json"]);
+    const status = this.guestExec([guestNode, guestAlienEntry, "update", "status", "--json"]);
     for (const needle of ['"installKind": "git"', '"value": "dev"', '"branch": "main"']) {
       if (!status.includes(needle)) {
         throw new Error(`dev update status missing ${needle}`);
@@ -893,21 +893,21 @@ ${guestNode} ${guestOpenClawEntry} update status --json`,
     this.guestSh(
       `set -euo pipefail
 trap '' HUP
-/usr/bin/pkill -f 'openclaw.*gateway run' >/dev/null 2>&1 || true
-/usr/bin/pkill -f 'openclaw-gateway' >/dev/null 2>&1 || true
-/usr/bin/pkill -f 'openclaw.mjs gateway' >/dev/null 2>&1 || true
+/usr/bin/pkill -f 'alien.*gateway run' >/dev/null 2>&1 || true
+/usr/bin/pkill -f 'alien-gateway' >/dev/null 2>&1 || true
+/usr/bin/pkill -f 'alien.mjs gateway' >/dev/null 2>&1 || true
 /usr/bin/env HOME=${shellQuote(home)} USER=${shellQuote(this.guestUser)} LOGNAME=${shellQuote(this.guestUser)} PATH=${shellQuote(guestPath)} ${shellQuote(
         `${this.auth.apiKeyEnv}=${this.auth.apiKeyValue}`,
-      )} OPENCLAW_HOME=${shellQuote(home)} OPENCLAW_STATE_DIR=${shellQuote(`${home}/.openclaw`)} OPENCLAW_CONFIG_PATH=${shellQuote(
-        `${home}/.openclaw/openclaw.json`,
-      )} ${guestNode} ${guestOpenClawEntry} gateway run --bind loopback --port 18789 --force </dev/null >/tmp/openclaw-parallels-macos-gateway.log 2>&1 &
+      )} ALIEN_HOME=${shellQuote(home)} ALIEN_STATE_DIR=${shellQuote(`${home}/.alien`)} ALIEN_CONFIG_PATH=${shellQuote(
+        `${home}/.alien/alien.json`,
+      )} ${guestNode} ${guestAlienEntry} gateway run --bind loopback --port 18789 --force </dev/null >/tmp/alien-parallels-macos-gateway.log 2>&1 &
 sleep 1`,
     );
   }
 
   private verifyGateway(): void {
     for (let attempt = 1; attempt <= 8; attempt++) {
-      const result = this.guestOpenClaw(
+      const result = this.guestAlien(
         ["gateway", "status", "--deep", "--require-rpc", "--timeout", "15000"],
         false,
       );
@@ -923,16 +923,16 @@ sleep 1`,
   }
 
   private showGatewayStatusCompat(): void {
-    const help = this.guestExec([guestOpenClaw, "gateway", "status", "--help"], { check: false });
+    const help = this.guestExec([guestAlien, "gateway", "status", "--help"], { check: false });
     const args = help.includes("--require-rpc")
       ? ["gateway", "status", "--deep", "--require-rpc"]
       : ["gateway", "status", "--deep"];
-    if (!this.guestOpenClaw(args, false)) {
+    if (!this.guestAlien(args, false)) {
       throw new Error("gateway status failed");
     }
   }
 
-  private guestOpenClaw(args: string[], check: boolean): boolean {
+  private guestAlien(args: string[], check: boolean): boolean {
     const result = run(
       "prlctl",
       [
@@ -949,7 +949,7 @@ sleep 1`,
               `PATH=${guestPath}`,
             ]
           : ["--current-user", "/usr/bin/env", `PATH=${guestPath}`]),
-        guestOpenClaw,
+        guestAlien,
         ...args,
       ],
       { check: false, quiet: true, timeoutMs: this.remainingPhaseTimeoutMs() },
@@ -957,7 +957,7 @@ sleep 1`,
     this.log(result.stdout);
     this.log(result.stderr);
     if (check && result.status !== 0) {
-      throw new Error(`openclaw ${args.join(" ")} failed`);
+      throw new Error(`alien ${args.join(" ")} failed`);
     }
     return result.status === 0;
   }
@@ -966,9 +966,9 @@ sleep 1`,
     this.guestSh(String.raw`set -eu
 deadline=$((SECONDS + 120))
 while [ $SECONDS -lt $deadline ]; do
-  if curl -fsSL --connect-timeout 2 --max-time 5 http://127.0.0.1:18789/ >/tmp/openclaw-dashboard-smoke.html 2>/dev/null; then
-    grep -F '<title>OpenClaw Control</title>' /tmp/openclaw-dashboard-smoke.html >/dev/null &&
-      grep -F '<openclaw-app></openclaw-app>' /tmp/openclaw-dashboard-smoke.html >/dev/null &&
+  if curl -fsSL --connect-timeout 2 --max-time 5 http://127.0.0.1:18789/ >/tmp/alien-dashboard-smoke.html 2>/dev/null; then
+    grep -F '<title>Alien Control</title>' /tmp/alien-dashboard-smoke.html >/dev/null &&
+      grep -F '<alien-app></alien-app>' /tmp/alien-dashboard-smoke.html >/dev/null &&
       exit 0
   fi
   sleep 1
@@ -978,7 +978,7 @@ exit 1`);
   }
 
   private verifyTurn(): void {
-    this.guestExec([guestNode, guestOpenClawEntry, "models", "set", this.auth.modelId]);
+    this.guestExec([guestNode, guestAlienEntry, "models", "set", this.auth.modelId]);
     const modelProviderConfigBatch = modelProviderConfigBatchJson(this.auth.modelId, "macos");
     if (modelProviderConfigBatch) {
       this.guestSh(`provider_config_batch="$(mktemp)"
@@ -986,30 +986,30 @@ cat >"$provider_config_batch" <<'JSON'
 ${modelProviderConfigBatch}
 JSON
 ${shellQuote(guestNode)} ${shellQuote(
-        guestOpenClawEntry,
+        guestAlienEntry,
       )} config set --batch-file "$provider_config_batch" --strict-json
 rm -f "$provider_config_batch"`);
     }
     this.guestExec([
       guestNode,
-      guestOpenClawEntry,
+      guestAlienEntry,
       "config",
       "set",
       "agents.defaults.skipBootstrap",
       "true",
       "--strict-json",
     ]);
-    this.guestExec([guestNode, guestOpenClawEntry, "config", "set", "tools.profile", "minimal"]);
+    this.guestExec([guestNode, guestAlienEntry, "config", "set", "tools.profile", "minimal"]);
     this.guestSh(
       `${posixAgentWorkspaceScript("Parallels macOS smoke test assistant.")}
 agent_ok=false
 for attempt in 1 2; do
   session_id="parallels-macos-smoke"
   if [ "$attempt" -gt 1 ]; then session_id="parallels-macos-smoke-retry-$attempt"; fi
-  rm -f "$HOME/.openclaw/agents/main/sessions/$session_id.jsonl"
+  rm -f "$HOME/.alien/agents/main/sessions/$session_id.jsonl"
   output_file="$(mktemp)"
   set +e
-  /usr/bin/env ${shellQuote(`${this.auth.apiKeyEnv}=${this.auth.apiKeyValue}`)} ${guestNode} ${guestOpenClawEntry} agent --local --agent main --session-id "$session_id" --message ${shellQuote(
+  /usr/bin/env ${shellQuote(`${this.auth.apiKeyEnv}=${this.auth.apiKeyValue}`)} ${guestNode} ${guestAlienEntry} agent --local --agent main --session-id "$session_id" --message ${shellQuote(
     "Reply with exact ASCII text OK only.",
   )} --thinking minimal --timeout ${resolveParallelsModelTimeoutSeconds("macos")} --json >"$output_file" 2>&1
   rc=$?
@@ -1031,7 +1031,7 @@ for attempt in 1 2; do
   fi
 done
 if [ "$agent_ok" != true ]; then
-  echo "openclaw agent finished without OK response" >&2
+  echo "alien agent finished without OK response" >&2
   exit 1
 fi`,
     );
@@ -1067,7 +1067,7 @@ fi`,
 
   private async extractLastVersion(phaseName: string): Promise<string> {
     const log = await readFile(path.join(this.runDir, `${phaseName}.log`), "utf8").catch(() => "");
-    const matches = [...log.matchAll(/OpenClaw\s+([0-9][^\s]*)/gi)];
+    const matches = [...log.matchAll(/Alien\s+([0-9][^\s]*)/gi)];
     return matches.at(-1)?.[1] ?? "";
   }
 

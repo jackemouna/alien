@@ -1,9 +1,9 @@
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
 export type {
   MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
   MemorySyncProgressUpdate,
-} from "openclaw/plugin-sdk/memory-core-host-engine-storage";
+} from "alien/plugin-sdk/memory-core-host-engine-storage";
 export {
   dedupeDreamDiaryEntries,
   removeBackfillDiaryEntries,

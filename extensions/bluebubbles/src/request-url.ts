@@ -1,1 +1,1 @@
-export { resolveRequestUrl } from "openclaw/plugin-sdk/request-url";
+export { resolveRequestUrl } from "alien/plugin-sdk/request-url";

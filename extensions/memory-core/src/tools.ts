@@ -1,21 +1,21 @@
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import type { MemorySource } from "openclaw/plugin-sdk/memory-core-host-engine-storage";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import type { MemorySource } from "alien/plugin-sdk/memory-core-host-engine-storage";
 import {
   asToolParamsRecord,
   jsonResult,
   readNumberParam,
   readStringParam,
   type MemoryCorpusSearchResult,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/memory-core-host-runtime-core";
+  type AlienConfig,
+} from "alien/plugin-sdk/memory-core-host-runtime-core";
 import type {
   MemorySearchResult,
   MemorySearchRuntimeDebug,
-} from "openclaw/plugin-sdk/memory-core-host-runtime-files";
+} from "alien/plugin-sdk/memory-core-host-runtime-files";
 import {
   resolveMemoryCorePluginConfig,
   resolveMemoryDeepDreamingConfig,
-} from "openclaw/plugin-sdk/memory-core-host-status";
+} from "alien/plugin-sdk/memory-core-host-status";
 import { filterMemorySearchHitsBySessionVisibility } from "./session-search-visibility.js";
 import { recordShortTermRecalls } from "./short-term-promotion.js";
 import {
@@ -134,7 +134,7 @@ function isActiveMemorySessionKey(sessionKey?: string): boolean {
 }
 
 function resolveActiveMemoryQmdSearchModeOverride(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   sessionKey?: string,
 ): "search" | "vsearch" | "query" | undefined {
   if (!isActiveMemorySessionKey(sessionKey)) {
@@ -226,8 +226,8 @@ async function executeMemoryReadResult<T>(params: {
 }
 
 export function createMemorySearchTool(options: {
-  config?: OpenClawConfig;
-  getConfig?: () => OpenClawConfig | undefined;
+  config?: AlienConfig;
+  getConfig?: () => AlienConfig | undefined;
   agentId?: string;
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -391,8 +391,8 @@ export function createMemorySearchTool(options: {
 }
 
 export function createMemoryGetTool(options: {
-  config?: OpenClawConfig;
-  getConfig?: () => OpenClawConfig | undefined;
+  config?: AlienConfig;
+  getConfig?: () => AlienConfig | undefined;
   agentId?: string;
   agentSessionKey?: string;
 }) {

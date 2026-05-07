@@ -6,7 +6,7 @@ import {
   FsSafeError,
   resolveAbsolutePathForRead,
   root as fsRoot,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 
 const DIR_FETCH_HARD_MAX_BYTES = 16 * 1024 * 1024;
 const DIR_FETCH_DEFAULT_MAX_BYTES = 8 * 1024 * 1024;

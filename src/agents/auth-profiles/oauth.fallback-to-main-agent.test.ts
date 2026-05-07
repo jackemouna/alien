@@ -49,8 +49,8 @@ function createUsableOAuthExpiry(): number {
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ALIEN_STATE_DIR",
+    "ALIEN_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tmpDir: string;
@@ -70,8 +70,8 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     await fs.mkdir(secondaryAgentDir, { recursive: true });
 
     // Set environment variables so the default agent dir resolves under tmpDir.
-    process.env.OPENCLAW_STATE_DIR = tmpDir;
-    process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
+    process.env.ALIEN_STATE_DIR = tmpDir;
+    process.env.ALIEN_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
     clearRuntimeAuthProfileStoreSnapshots();
   });

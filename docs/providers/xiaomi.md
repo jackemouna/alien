@@ -1,12 +1,12 @@
 ---
-summary: "Use Xiaomi MiMo models with OpenClaw"
+summary: "Use Xiaomi MiMo models with Alien"
 read_when:
-  - You want Xiaomi MiMo models in OpenClaw
+  - You want Xiaomi MiMo models in Alien
   - You need XIAOMI_API_KEY setup
 title: "Xiaomi MiMo"
 ---
 
-Xiaomi MiMo is the API platform for **MiMo** models. OpenClaw includes a bundled `xiaomi` plugin that registers both an OpenAI-compatible chat provider and a speech (TTS) provider against the same `XIAOMI_API_KEY`.
+Xiaomi MiMo is the API platform for **MiMo** models. Alien includes a bundled `xiaomi` plugin that registers both an OpenAI-compatible chat provider and a speech (TTS) provider against the same `XIAOMI_API_KEY`.
 
 | Property        | Value                                    |
 | --------------- | ---------------------------------------- |
@@ -29,19 +29,19 @@ Xiaomi MiMo is the API platform for **MiMo** models. OpenClaw includes a bundled
   </Step>
   <Step title="Run onboarding">
     ```bash
-    openclaw onboard --auth-choice xiaomi-api-key
+    alien onboard --auth-choice xiaomi-api-key
     ```
 
     Or pass the key directly:
 
     ```bash
-    openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
+    alien onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
     ```
 
   </Step>
   <Step title="Verify the model is available">
     ```bash
-    openclaw models list --provider xiaomi
+    alien models list --provider xiaomi
     ```
   </Step>
 </Steps>
@@ -95,7 +95,7 @@ an `assistant` message and optional style guidance as a `user` message.
 Supported built-in voices include `mimo_default`, `default_zh`, `default_en`,
 `Mia`, `Chloe`, `Milo`, and `Dean`. `mimo-v2-tts` is supported for older MiMo
 TTS accounts; the default uses the current MiMo-V2.5 TTS model. For voice-note
-targets such as Feishu and Telegram, OpenClaw transcodes Xiaomi output to 48kHz
+targets such as Feishu and Telegram, Alien transcodes Xiaomi output to 48kHz
 Opus with `ffmpeg` before delivery.
 
 ## Config example
@@ -164,10 +164,10 @@ Opus with `ffmpeg` before delivery.
 
   <Accordion title="Troubleshooting">
     - If models do not appear, confirm `XIAOMI_API_KEY` is set and valid.
-    - When the Gateway runs as a daemon, ensure the key is available to that process (for example in `~/.openclaw/.env` or via `env.shellEnv`).
+    - When the Gateway runs as a daemon, ensure the key is available to that process (for example in `~/.alien/.env` or via `env.shellEnv`).
 
     <Warning>
-    Keys set only in your interactive shell are not visible to daemon-managed gateway processes. Use `~/.openclaw/.env` or `env.shellEnv` config for persistent availability.
+    Keys set only in your interactive shell are not visible to daemon-managed gateway processes. Use `~/.alien/.env` or `env.shellEnv` config for persistent availability.
     </Warning>
 
   </Accordion>
@@ -180,7 +180,7 @@ Opus with `ffmpeg` before delivery.
     Choosing providers, model refs, and failover behavior.
   </Card>
   <Card title="Configuration reference" href="/gateway/configuration-reference" icon="gear">
-    Full OpenClaw configuration reference.
+    Full Alien configuration reference.
   </Card>
   <Card title="Xiaomi MiMo console" href="https://platform.xiaomimimo.com" icon="arrow-up-right-from-square">
     Xiaomi MiMo dashboard and API key management.

@@ -1,9 +1,9 @@
 import { collectDurableServiceEnvVars } from "../config/state-dir-dotenv.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { hasConfiguredSecretInput } from "../config/types.secrets.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
-type GatewayInstallAuthMode = NonNullable<NonNullable<OpenClawConfig["gateway"]>["auth"]>["mode"];
+type GatewayInstallAuthMode = NonNullable<NonNullable<AlienConfig["gateway"]>["auth"]>["mode"];
 
 function hasExplicitGatewayInstallAuthMode(
   mode: GatewayInstallAuthMode | undefined,
@@ -17,23 +17,23 @@ function hasExplicitGatewayInstallAuthMode(
   return undefined;
 }
 
-function hasConfiguredGatewayPasswordForInstall(cfg: OpenClawConfig): boolean {
+function hasConfiguredGatewayPasswordForInstall(cfg: AlienConfig): boolean {
   return hasConfiguredSecretInput(cfg.gateway?.auth?.password, cfg.secrets?.defaults);
 }
 
 function hasDurableGatewayPasswordEnvForInstall(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv,
 ): boolean {
   const durableServiceEnv = collectDurableServiceEnvVars({ env, config: cfg });
   return Boolean(
-    normalizeOptionalString(durableServiceEnv.OPENCLAW_GATEWAY_PASSWORD) ||
+    normalizeOptionalString(durableServiceEnv.ALIEN_GATEWAY_PASSWORD) ||
     normalizeOptionalString(durableServiceEnv.CLAWDBOT_GATEWAY_PASSWORD),
   );
 }
 
 export function shouldRequireGatewayTokenForInstall(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv,
 ): boolean {
   const explicitModeDecision = hasExplicitGatewayInstallAuthMode(cfg.gateway?.auth?.mode);

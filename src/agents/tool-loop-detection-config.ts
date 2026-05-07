@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
 import { resolveAgentConfig } from "./agent-scope.js";
 
 export function resolveToolLoopDetectionConfig(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentId?: string;
 }): ToolLoopDetectionConfig | undefined {
   const global = params.cfg?.tools?.loopDetection;

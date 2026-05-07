@@ -238,7 +238,7 @@ describe("augmentChatHistoryWithCanvasBlocks", () => {
       view: {
         backend: "canvas",
         id: "cv_user_text",
-        url: "/__openclaw__/canvas/documents/cv_user_text/index.html",
+        url: "/__alien__/canvas/documents/cv_user_text/index.html",
         title: "User pasted preview",
         preferred_height: 240,
       },
@@ -486,7 +486,7 @@ describe("projectRecentChatDisplayMessages", () => {
           },
         ],
         timestamp: 2,
-        __openclaw: { seq: 2 },
+        __alien: { seq: 2 },
       },
       {
         role: "toolResult",
@@ -501,7 +501,7 @@ describe("projectRecentChatDisplayMessages", () => {
       role: "assistant",
       content: [{ type: "text", text: "I will clean that up now." }],
       timestamp: 2,
-      __openclaw: { seq: 2 },
+      __alien: { seq: 2 },
     });
   });
 
@@ -2274,16 +2274,16 @@ describe("logs.tail", () => {
   });
 
   it("falls back to latest rolling log file when today is missing", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "openclaw-logs-"));
-    const older = path.join(tempDir, "openclaw-2026-01-20.log");
-    const newer = path.join(tempDir, "openclaw-2026-01-21.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "alien-logs-"));
+    const older = path.join(tempDir, "alien-2026-01-20.log");
+    const newer = path.join(tempDir, "alien-2026-01-21.log");
 
     await fsPromises.writeFile(older, '{"msg":"old"}\n');
     await fsPromises.writeFile(newer, '{"msg":"new"}\n');
     await fsPromises.utimes(older, new Date(0), new Date(0));
     await fsPromises.utimes(newer, new Date(), new Date());
 
-    setLoggerOverride({ file: path.join(tempDir, "openclaw-2026-01-22.log") });
+    setLoggerOverride({ file: path.join(tempDir, "alien-2026-01-22.log") });
 
     const respond = vi.fn();
     await logsHandlers["logs.tail"]({
@@ -2308,8 +2308,8 @@ describe("logs.tail", () => {
   });
 
   it("redacts sensitive CLI tokens from returned lines", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "openclaw-logs-"));
-    const file = path.join(tempDir, "openclaw-2026-01-22.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "alien-logs-"));
+    const file = path.join(tempDir, "alien-2026-01-22.log");
 
     await fsPromises.writeFile(
       file,

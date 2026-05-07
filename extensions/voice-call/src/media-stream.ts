@@ -13,14 +13,14 @@ import type {
   RealtimeTranscriptionProviderConfig,
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
-} from "openclaw/plugin-sdk/realtime-transcription";
+} from "alien/plugin-sdk/realtime-transcription";
 import {
   createTalkSessionController,
   recordTalkObservabilityEvent,
   type TalkEvent,
   type TalkEventInput,
   type TalkSessionController,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import { type RawData, WebSocket, WebSocketServer } from "ws";
 
 /**

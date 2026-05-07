@@ -4,7 +4,7 @@ import {
   FsSafeError,
   resolveAbsolutePathForRead,
   root,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import { mimeFromExtension } from "../shared/mime.js";
 
 export const DIR_LIST_DEFAULT_MAX_ENTRIES = 200;

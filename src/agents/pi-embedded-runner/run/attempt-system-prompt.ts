@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import type { ProviderTransformSystemPromptContext } from "../../../plugins/types.js";
 import { appendAgentBootstrapSystemPromptSupplement } from "../../system-prompt.js";
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "../system-prompt.js";
@@ -6,7 +6,7 @@ import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "../system
 type EmbeddedSystemPromptParams = Parameters<typeof buildEmbeddedSystemPrompt>[0];
 type ProviderSystemPromptTransform = (params: {
   provider: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir: string;
   context: ProviderTransformSystemPromptContext;
 }) => string;
@@ -18,7 +18,7 @@ export type BuildAttemptSystemPromptParams = {
   transformProviderSystemPrompt: ProviderSystemPromptTransform;
   providerTransform: {
     provider: string;
-    config?: OpenClawConfig;
+    config?: AlienConfig;
     workspaceDir: string;
     context: Omit<ProviderTransformSystemPromptContext, "systemPrompt">;
   };

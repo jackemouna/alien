@@ -1,9 +1,9 @@
-import { resolveApprovalOverGateway } from "openclaw/plugin-sdk/approval-gateway-runtime";
-import type { ExecApprovalReplyDecision } from "openclaw/plugin-sdk/approval-reply-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { resolveApprovalOverGateway } from "alien/plugin-sdk/approval-gateway-runtime";
+import type { ExecApprovalReplyDecision } from "alien/plugin-sdk/approval-reply-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export type ResolveTelegramExecApprovalParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   approvalId: string;
   decision: ExecApprovalReplyDecision;
   senderId?: string | null;

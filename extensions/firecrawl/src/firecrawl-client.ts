@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   DEFAULT_CACHE_TTL_MINUTES,
   markdownToText,
@@ -10,16 +10,16 @@ import {
   withSelfHostedWebToolsEndpoint,
   withStrictWebToolsEndpoint,
   writeCache,
-} from "openclaw/plugin-sdk/provider-web-fetch";
-import { normalizeSecretInput } from "openclaw/plugin-sdk/secret-input";
-import { wrapExternalContent, wrapWebContent } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/provider-web-fetch";
+import { normalizeSecretInput } from "alien/plugin-sdk/secret-input";
+import { wrapExternalContent, wrapWebContent } from "alien/plugin-sdk/security-runtime";
 import {
   SsrFBlockedError,
   isBlockedHostnameOrIp,
   isPrivateIpAddress,
   resolvePinnedHostnameWithPolicy,
   type LookupFn,
-} from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
 import {
   DEFAULT_FIRECRAWL_BASE_URL,
   resolveFirecrawlApiKey,
@@ -62,7 +62,7 @@ type FirecrawlSearchItem = {
 };
 
 export type FirecrawlSearchParams = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   query: string;
   count?: number;
   timeoutSeconds?: number;
@@ -72,7 +72,7 @@ export type FirecrawlSearchParams = {
 };
 
 export type FirecrawlScrapeParams = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   url: string;
   extractMode: "markdown" | "text";
   maxChars?: number;

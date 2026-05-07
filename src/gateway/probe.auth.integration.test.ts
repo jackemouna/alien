@@ -22,7 +22,7 @@ function requireGatewayToken(): string {
 }
 
 function statePath(...parts: string[]): string {
-  const stateDir = process.env.OPENCLAW_STATE_DIR;
+  const stateDir = process.env.ALIEN_STATE_DIR;
   expect(stateDir).toBeTruthy();
   return path.join(stateDir ?? "", ...parts);
 }

@@ -192,8 +192,8 @@ describe("resolveProviderHttpRequestConfig", () => {
     expect(resolved.allowPrivateNetwork).toBe(false);
     expect(resolved.headers.get("authorization")).toBe("Bearer override");
     expect(resolved.headers.get("x-default")).toBe("1");
-    expect(resolved.headers.get("user-agent")).toMatch(/^openclaw\//);
-    expect(resolved.headers.get("originator")).toBe("openclaw");
+    expect(resolved.headers.get("user-agent")).toMatch(/^alien\//);
+    expect(resolved.headers.get("originator")).toBe("alien");
     expect(resolved.headers.get("version")).toBeTruthy();
   });
 

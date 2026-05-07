@@ -1,15 +1,15 @@
 import fs from "node:fs";
 import type { App } from "@slack/bolt";
-import { expectChannelInboundContextContract as expectInboundContextContract } from "openclaw/plugin-sdk/channel-contract-testing";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { expectChannelInboundContextContract as expectInboundContextContract } from "alien/plugin-sdk/channel-contract-testing";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   registerSessionBindingAdapter,
   unregisterSessionBindingAdapter,
   type SessionBindingAdapter,
   type SessionBindingRecord,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/conversation-runtime";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "alien/plugin-sdk/routing";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ResolvedSlackAccount } from "../../accounts.js";
 import {
@@ -31,8 +31,8 @@ import { clearSlackSubteamMentionCacheForTest } from "./subteam-mentions.js";
 
 const enqueueSystemEventMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/system-event-runtime", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/system-event-runtime")>();
+vi.mock("alien/plugin-sdk/system-event-runtime", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("alien/plugin-sdk/system-event-runtime")>();
   return {
     ...actual,
     enqueueSystemEvent: (...args: unknown[]) => enqueueSystemEventMock(...args),
@@ -40,7 +40,7 @@ vi.mock("openclaw/plugin-sdk/system-event-runtime", async (importOriginal) => {
 });
 
 describe("slack prepareSlackMessage inbound contract", () => {
-  const storeFixture = createSlackSessionStoreFixture("openclaw-slack-thread-");
+  const storeFixture = createSlackSessionStoreFixture("alien-slack-thread-");
 
   beforeAll(() => {
     storeFixture.setup();
@@ -64,7 +64,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     const slackCtx = createInboundSlackCtx({
       cfg: {
         channels: { slack: { enabled: true } },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
     return slackCtx;
@@ -124,7 +124,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channels: {
           slack: { enabled: true },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { members } } as unknown as App["client"],
       defaultRequireMention: false,
     });
@@ -159,7 +159,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     );
   });
 
-  function createThreadSlackCtx(params: { cfg: OpenClawConfig; replies: unknown }) {
+  function createThreadSlackCtx(params: { cfg: AlienConfig; replies: unknown }) {
     return createInboundSlackCtx({
       cfg: params.cfg,
       appClient: { conversations: { replies: params.replies } } as App["client"],
@@ -244,7 +244,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             contextVisibility: "allowlist",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies } } as unknown as App["client"],
       defaultRequireMention: false,
       replyToMode: "all",
@@ -298,7 +298,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         channels: { slack: { enabled: true } },
         session: { dmScope: "main" },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
     // Simulate API returning correct type for DM channel
@@ -344,7 +344,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             ...(params?.groupPolicy ? { groupPolicy: params.groupPolicy } : {}),
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       replyToMode: "all",
       ...(params?.defaultRequireMention === undefined
         ? {}
@@ -382,7 +382,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
           statusReactions: { enabled: true },
         },
         channels: { slack: { enabled: true } },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
 
@@ -414,7 +414,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             replyToMode: "all",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       replyToMode: "all",
     });
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
@@ -524,7 +524,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channels: {
           slack: { enabled: true },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       defaultRequireMention: false,
     });
     slackCtx.resolveUserName = async () => ({ name: "Bot" }) as any;
@@ -588,7 +588,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channels: {
           slack: { enabled: true },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { members } } as unknown as App["client"],
       defaultRequireMention: false,
       channelsConfig: {
@@ -614,7 +614,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channels: {
           slack: { enabled: true },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { members } } as unknown as App["client"],
       defaultRequireMention: false,
     });
@@ -637,7 +637,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             enabled: true,
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       defaultRequireMention: false,
       channelsConfig: {
         C123: { systemPrompt: "Config prompt" },
@@ -773,7 +773,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             },
           ],
           channels: { slack: { enabled: true, groupPolicy: "open" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         defaultRequireMention: false,
       });
       slackCtx.resolveChannelName = async () => ({ name: "strategy", type: "channel" });
@@ -848,7 +848,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath },
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       replies,
     });
     slackCtx.resolveUserName = async (id: string) => ({
@@ -882,7 +882,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath },
         channels: { slack: { enabled: true, dmHistoryLimit: 2 } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { history } } as unknown as App["client"],
       dmHistoryLimit: 2,
     });
@@ -934,7 +934,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
           dms: { U1: { historyLimit: 1 } },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const history = vi.fn().mockResolvedValue({
       messages: [
         { text: "current", user: "U1", ts: "400.000" },
@@ -1083,7 +1083,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     const cfg = {
       session: { store: storePath },
       channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const route = resolveAgentRoute({
       cfg,
       channel: "slack",
@@ -1172,7 +1172,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath, dmScope: "per-channel-peer" },
         channels: { slack: { enabled: true, replyToMode: "all" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       replyToMode: "all",
     });
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
@@ -1230,7 +1230,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       const slackCtx = createThreadSlackCtx({
         cfg: {
           channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         replies,
       });
       slackCtx.resolveUserName = async () => ({ name: "Alice" });
@@ -1277,12 +1277,12 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath },
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies } } as unknown as App["client"],
       defaultRequireMention: true,
       replyToMode: "all",
     });
-    slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+    slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
     slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
     const root = await prepareSlackMessage({
@@ -1308,7 +1308,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channel: "C0AHZFCAS1K",
         channel_type: "channel",
         user: "U_BEK",
-        text: "https://github.com/openclaw/openclaw/issues/50621",
+        text: "https://github.com/alien/alien/issues/50621",
         ts: "1777244714.000100",
         thread_ts: rootTs,
       } as SlackMessageEvent,
@@ -1341,12 +1341,12 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath },
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies } } as unknown as App["client"],
       defaultRequireMention: true,
       replyToMode: "all",
     });
-    slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+    slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
     slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
     const root = await prepareSlackMessage({
@@ -1372,7 +1372,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channel: "C0AHZFCAS1K",
         channel_type: "channel",
         user: "U_BEK",
-        text: "https://github.com/openclaw/openclaw/issues/50621",
+        text: "https://github.com/alien/alien/issues/50621",
         ts: "1777244714.000100",
         thread_ts: rootTs,
       } as SlackMessageEvent,
@@ -1402,7 +1402,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             channels: { C0AGENTS: { requireMention: true } },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: {
         usergroups: { users: { list: usergroupsUsersList } },
       } as unknown as App["client"],
@@ -1447,7 +1447,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
             channels: { C0AGENTS: { requireMention: true } },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: {
         usergroups: { users: { list: usergroupsUsersList } },
       } as unknown as App["client"],
@@ -1496,12 +1496,12 @@ describe("slack prepareSlackMessage inbound contract", () => {
         session: { store: storePath },
         messages: { groupChat: { mentionPatterns: ["\\bbill\\b"] } },
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies } } as unknown as App["client"],
       defaultRequireMention: true,
       replyToMode: "all",
     });
-    slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+    slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
     slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
     const root = await prepareSlackMessage({
@@ -1527,7 +1527,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
         channel: "C0AHZFCAS1K",
         channel_type: "channel",
         user: "U_BEK",
-        text: "https://github.com/openclaw/openclaw/issues/50621",
+        text: "https://github.com/alien/alien/issues/50621",
         ts: "1777244714.000100",
         thread_ts: rootTs,
       } as SlackMessageEvent,
@@ -1579,11 +1579,11 @@ describe("slack prepareSlackMessage inbound contract", () => {
             ],
           },
           channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         defaultRequireMention: true,
         replyToMode: "all",
       });
-      slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+      slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
       slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
       const prepared = await prepareSlackMessage({
@@ -1609,7 +1609,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
           channel: "C0AHZFCAS1K",
           channel_type: "channel",
           user: "U_BEK",
-          text: "https://github.com/openclaw/openclaw/issues/50621",
+          text: "https://github.com/alien/alien/issues/50621",
           ts: "1777244714.000100",
           thread_ts: rootTs,
         } as SlackMessageEvent,
@@ -1668,11 +1668,11 @@ describe("slack prepareSlackMessage inbound contract", () => {
           session: { store: storePath },
           messages: { groupChat: { mentionPatterns: ["\\bbill\\b"] } },
           channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         defaultRequireMention: true,
         replyToMode: "all",
       });
-      slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+      slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
       slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
       const root = await prepareSlackMessage({
@@ -1698,7 +1698,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
           channel: "C0AHZFCAS1K",
           channel_type: "channel",
           user: "U_BEK",
-          text: "https://github.com/openclaw/openclaw/issues/50621",
+          text: "https://github.com/alien/alien/issues/50621",
           ts: "1777244714.000100",
           thread_ts: rootTs,
         } as SlackMessageEvent,
@@ -1736,12 +1736,12 @@ describe("slack prepareSlackMessage inbound contract", () => {
       cfg: {
         session: { store: storePath },
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies } } as unknown as App["client"],
       defaultRequireMention: true,
       replyToMode: "all",
     });
-    slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+    slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
     slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
     const prepared = await prepareSlackMessage({
@@ -1778,11 +1778,11 @@ describe("slack prepareSlackMessage inbound contract", () => {
         cfg: {
           session: { store: storePath },
           channels: { slack: { enabled: true, replyToMode, groupPolicy: "open" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         defaultRequireMention: true,
         replyToMode,
       });
-      slackCtx.resolveChannelName = async () => ({ name: "proj-openclaw", type: "channel" });
+      slackCtx.resolveChannelName = async () => ({ name: "proj-alien", type: "channel" });
       slackCtx.resolveUserName = async () => ({ name: "Bek" });
 
       const prepared = await prepareSlackMessage({
@@ -1818,7 +1818,7 @@ describe("prepareSlackMessage sender prefix", () => {
   }): SlackMonitorContext {
     return {
       cfg: {
-        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/openclaw" } },
+        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/alien" } },
         channels: { slack: params.channels },
       },
       accountId: "default",
@@ -1890,7 +1890,7 @@ describe("prepareSlackMessage sender prefix", () => {
   it("prefixes channel bodies with sender label and annotates Slack mention tokens", async () => {
     const ctx = createSenderPrefixCtx({
       channels: {},
-      slashCommand: { command: "/openclaw", enabled: true },
+      slashCommand: { command: "/alien", enabled: true },
     });
     ctx.resolveUserName = async (id: string) => ({ name: id === "U1" ? "Alice" : "Bek" }) as any;
 
@@ -1905,7 +1905,7 @@ describe("prepareSlackMessage sender prefix", () => {
   it("keeps raw Slack mention tokens when user lookup cannot resolve them", async () => {
     const ctx = createSenderPrefixCtx({
       channels: {},
-      slashCommand: { command: "/openclaw", enabled: true },
+      slashCommand: { command: "/alien", enabled: true },
     });
     ctx.resolveUserName = async (id: string) =>
       ({ name: id === "U1" ? "Alice" : undefined }) as any;
@@ -2010,7 +2010,7 @@ describe("prepareSlackMessage sender prefix", () => {
       useAccessGroups: true,
       slashCommand: {
         enabled: false,
-        name: "openclaw",
+        name: "alien",
         sessionPrefix: "slack:slash",
         ephemeral: true,
       },
@@ -2024,7 +2024,7 @@ describe("prepareSlackMessage sender prefix", () => {
 });
 
 describe("slack thread.requireExplicitMention", () => {
-  const storeFixture = createSlackSessionStoreFixture("openclaw-slack-explicit-mention-");
+  const storeFixture = createSlackSessionStoreFixture("alien-slack-explicit-mention-");
 
   beforeAll(() => {
     storeFixture.setup();
@@ -2039,7 +2039,7 @@ describe("slack thread.requireExplicitMention", () => {
       cfg: {
         channels: { slack: { enabled: true } },
         session: {},
-      } as OpenClawConfig,
+      } as AlienConfig,
       threadRequireExplicitMention: requireExplicitMention,
     });
     ctx.resolveUserName = async () => ({ name: "Alice" }) as any;
@@ -2050,7 +2050,7 @@ describe("slack thread.requireExplicitMention", () => {
     const ctx = createCtxWithExplicitMention(true);
     const { storePath } = storeFixture.makeTmpStorePath();
     vi.spyOn(
-      await import("openclaw/plugin-sdk/session-store-runtime"),
+      await import("alien/plugin-sdk/session-store-runtime"),
       "resolveStorePath",
     ).mockReturnValue(storePath);
     const account = createSlackTestAccount();
@@ -2077,7 +2077,7 @@ describe("slack thread.requireExplicitMention", () => {
     const ctx = createCtxWithExplicitMention(true);
     const { storePath } = storeFixture.makeTmpStorePath();
     vi.spyOn(
-      await import("openclaw/plugin-sdk/session-store-runtime"),
+      await import("alien/plugin-sdk/session-store-runtime"),
       "resolveStorePath",
     ).mockReturnValue(storePath);
     const account = createSlackTestAccount();
@@ -2104,7 +2104,7 @@ describe("slack thread.requireExplicitMention", () => {
     const ctx = createCtxWithExplicitMention(false);
     const { storePath } = storeFixture.makeTmpStorePath();
     vi.spyOn(
-      await import("openclaw/plugin-sdk/session-store-runtime"),
+      await import("alien/plugin-sdk/session-store-runtime"),
       "resolveStorePath",
     ).mockReturnValue(storePath);
     const account = createSlackTestAccount();

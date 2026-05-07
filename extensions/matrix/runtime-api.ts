@@ -38,22 +38,22 @@ export {
   ssrfPolicyFromAllowPrivateNetwork,
   type LookupFn,
   type SsrFPolicy,
-} from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
 export {
   setMatrixThreadBindingIdleTimeoutBySessionKey,
   setMatrixThreadBindingMaxAgeBySessionKey,
 } from "./src/matrix/thread-bindings-shared.js";
 export { setMatrixRuntime } from "./src/runtime.js";
-export { writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
+export { writeJsonFileAtomically } from "alien/plugin-sdk/json-store";
 export type {
   ChannelDirectoryEntry,
   ChannelMessageActionContext,
-} from "openclaw/plugin-sdk/channel-contract";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-export { formatZonedTimestamp } from "openclaw/plugin-sdk/time-runtime";
-export type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-export type { WizardPrompter } from "openclaw/plugin-sdk/setup";
+} from "alien/plugin-sdk/channel-contract";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
+export { formatZonedTimestamp } from "alien/plugin-sdk/time-runtime";
+export type { PluginRuntime, RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
+export type { WizardPrompter } from "alien/plugin-sdk/setup";
 
 export function chunkTextForOutbound(text: string, limit: number): string[] {
   const chunks: string[] = [];

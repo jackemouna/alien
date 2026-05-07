@@ -1,8 +1,8 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 
 export function createPerSenderSessionConfig(
-  overrides: Partial<NonNullable<OpenClawConfig["session"]>> = {},
-): NonNullable<OpenClawConfig["session"]> {
+  overrides: Partial<NonNullable<AlienConfig["session"]>> = {},
+): NonNullable<AlienConfig["session"]> {
   return {
     mainKey: "main",
     scope: "per-sender",

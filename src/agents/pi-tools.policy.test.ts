@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import {
   filterToolsByPolicy,
   isToolAllowedByPolicyName,
@@ -52,7 +52,7 @@ describe("pi-tools.policy", () => {
 });
 
 describe("resolveGroupToolPolicy group context validation", () => {
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     channels: {
       whatsapp: {
         groups: {
@@ -130,7 +130,7 @@ describe("resolveGroupToolPolicy group context validation", () => {
   });
 
   it("keeps specific session group policy ahead of trusted parent caller groupId", () => {
-    const scopedCfg: OpenClawConfig = {
+    const scopedCfg: AlienConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -169,7 +169,7 @@ describe("resolveGroupToolPolicy group context validation", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const policy = resolveGroupToolPolicy({
       config: channelCfg,
@@ -185,21 +185,21 @@ describe("resolveGroupToolPolicy group context validation", () => {
 describe("resolveSubagentToolPolicy depth awareness", () => {
   const baseCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as AlienConfig;
 
   const deepCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 3 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as AlienConfig;
 
   const leafCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 1 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as AlienConfig;
 
   it("applies subagent tools.alsoAllow to re-enable default-denied tools", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { alsoAllow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(true);
     expect(isToolAllowedByPolicyName("cron", policy)).toBe(false);
@@ -209,7 +209,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { allow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(true);
   });
@@ -220,7 +220,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
       tools: {
         subagents: { tools: { allow: ["sessions_spawn"], alsoAllow: ["sessions_send"] } },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(policy.allow).toEqual(["sessions_spawn", "sessions_send"]);
   });
@@ -237,7 +237,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(false);
   });
@@ -252,7 +252,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("memory_search", policy)).toBe(false);
     expect(isToolAllowedByPolicyName("memory_get", policy)).toBe(false);
@@ -262,7 +262,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { alsoAllow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(policy.allow).toBeUndefined();
     expect(isToolAllowedByPolicyName("subagents", policy)).toBe(true);
@@ -335,7 +335,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
   it("uses stored leaf role for flat depth-1 session keys", () => {
     const storePath = path.join(
       os.tmpdir(),
-      `openclaw-subagent-policy-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+      `alien-subagent-policy-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
     );
     fs.mkdirSync(path.dirname(storePath), { recursive: true });
     fs.writeFileSync(
@@ -360,7 +360,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
       session: {
         store: storePath,
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const policy = resolveSubagentToolPolicyForSession(cfg, "agent:main:subagent:flat-leaf");
     expect(isToolAllowedByPolicyName("sessions_spawn", policy)).toBe(false);
@@ -392,7 +392,7 @@ describe("resolveEffectiveToolPolicy", () => {
             [canonical]: { deny: ["exec"] },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = resolveEffectiveToolPolicy({ config: cfg, modelProvider: alias });
 
@@ -409,7 +409,7 @@ describe("resolveEffectiveToolPolicy", () => {
             [`${canonical}/claude-sonnet`]: { deny: ["exec"] },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       const result = resolveEffectiveToolPolicy({
         config: cfg,
@@ -429,7 +429,7 @@ describe("resolveEffectiveToolPolicy", () => {
           "amazon-bedrock": { deny: ["exec"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const canonicalFirst = {
       tools: {
         byProvider: {
@@ -437,7 +437,7 @@ describe("resolveEffectiveToolPolicy", () => {
           bedrock: { deny: ["read"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     expect(
       resolveEffectiveToolPolicy({ config: aliasFirst, modelProvider: "bedrock" })
@@ -457,7 +457,7 @@ describe("resolveEffectiveToolPolicy", () => {
           "amazon-bedrock/claude-sonnet": { deny: ["exec"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const canonicalFirst = {
       tools: {
         byProvider: {
@@ -465,7 +465,7 @@ describe("resolveEffectiveToolPolicy", () => {
           "bedrock/claude-sonnet": { deny: ["read"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const params = { modelProvider: "bedrock", modelId: "claude-sonnet" };
 
     expect(
@@ -484,7 +484,7 @@ describe("resolveEffectiveToolPolicy", () => {
           "openrouter/anthropic/claude-sonnet": { deny: ["read"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     expect(
       resolveEffectiveToolPolicy({
@@ -502,7 +502,7 @@ describe("resolveEffectiveToolPolicy", () => {
           "anthropic/claude-sonnet": { deny: ["exec"] },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     expect(
       resolveEffectiveToolPolicy({
@@ -519,7 +519,7 @@ describe("resolveEffectiveToolPolicy", () => {
         profile: "messaging",
         exec: { host: "sandbox" },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toBeUndefined();
   });
@@ -530,7 +530,7 @@ describe("resolveEffectiveToolPolicy", () => {
         profile: "messaging",
         fs: { workspaceOnly: false },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toBeUndefined();
   });
@@ -542,7 +542,7 @@ describe("resolveEffectiveToolPolicy", () => {
         alsoAllow: ["web_search"],
         exec: { host: "sandbox" },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toEqual(["web_search"]);
   });
@@ -562,7 +562,7 @@ describe("resolveEffectiveToolPolicy", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg, agentId: "coder" });
     expect(result.profileAlsoAllow).toBeUndefined();
   });
@@ -583,7 +583,7 @@ describe("resolveEffectiveToolPolicy", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg, agentId: "messenger" });
     expect(result.profileAlsoAllow).toEqual(["image"]);
     expect(result.profileAlsoAllow).not.toContain("exec");
@@ -597,7 +597,7 @@ describe("resolveEffectiveToolPolicy", () => {
         alsoAllow: ["exec", "process"],
         exec: { host: "sandbox" },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toEqual(["exec", "process"]);
   });

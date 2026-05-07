@@ -1,12 +1,12 @@
-import { spawn as startOpenClawCliProcess } from "node:child_process";
+import { spawn as startAlienCliProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { chmod, mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { redactSensitiveText } from "openclaw/plugin-sdk/logging-core";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { redactSensitiveText } from "alien/plugin-sdk/logging-core";
+import { resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
 
 export type MatrixQaCliRunResult = {
   args: string[];
@@ -57,10 +57,10 @@ export function redactMatrixQaCliOutput(text: string): string {
 }
 
 export function formatMatrixQaCliCommand(args: string[]) {
-  return `openclaw ${redactMatrixQaCliArgs(args).join(" ")}`;
+  return `alien ${redactMatrixQaCliArgs(args).join(" ")}`;
 }
 
-export function resolveMatrixQaOpenClawCliEntryPath(cwd: string): string {
+export function resolveMatrixQaAlienCliEntryPath(cwd: string): string {
   const mjsEntryPath = path.join(cwd, "dist", "index.mjs");
   if (existsSync(mjsEntryPath)) {
     return mjsEntryPath;
@@ -91,7 +91,7 @@ function formatMatrixQaCliExitError(result: MatrixQaCliRunResult) {
     .join("\n");
 }
 
-export function startMatrixQaOpenClawCli(params: {
+export function startMatrixQaAlienCli(params: {
   allowNonZero?: boolean;
   args: string[];
   cwd?: string;
@@ -100,7 +100,7 @@ export function startMatrixQaOpenClawCli(params: {
   timeoutMs: number;
 }): MatrixQaCliSession {
   const cwd = params.cwd ?? process.cwd();
-  const distEntryPath = resolveMatrixQaOpenClawCliEntryPath(cwd);
+  const distEntryPath = resolveMatrixQaAlienCliEntryPath(cwd);
   const stdout: Buffer[] = [];
   const stderr: Buffer[] = [];
   let closed = false;
@@ -113,7 +113,7 @@ export function startMatrixQaOpenClawCli(params: {
       }
     | undefined;
 
-  const child = startOpenClawCliProcess(process.execPath, [distEntryPath, ...params.args], {
+  const child = startAlienCliProcess(process.execPath, [distEntryPath, ...params.args], {
     cwd,
     env: params.env,
     stdio: ["pipe", "pipe", "pipe"],
@@ -254,7 +254,7 @@ export function startMatrixQaOpenClawCli(params: {
   };
 }
 
-export async function runMatrixQaOpenClawCli(params: {
+export async function runMatrixQaAlienCli(params: {
   allowNonZero?: boolean;
   args: string[];
   cwd?: string;
@@ -262,7 +262,7 @@ export async function runMatrixQaOpenClawCli(params: {
   stdin?: string;
   timeoutMs: number;
 }): Promise<MatrixQaCliRunResult> {
-  return await startMatrixQaOpenClawCli(params).wait();
+  return await startMatrixQaAlienCli(params).wait();
 }
 
 async function assertMatrixQaPrivatePathMode(pathToCheck: string, label: string) {
@@ -275,7 +275,7 @@ async function assertMatrixQaPrivatePathMode(pathToCheck: string, label: string)
   }
 }
 
-export async function createMatrixQaOpenClawCliRuntime(params: {
+export async function createMatrixQaAlienCliRuntime(params: {
   accountId: string;
   accessToken: string;
   artifactLabel: string;
@@ -287,7 +287,7 @@ export async function createMatrixQaOpenClawCliRuntime(params: {
   userId: string;
 }) {
   const rootDir = await mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-matrix-cli-qa-"),
+    path.join(resolvePreferredAlienTmpDir(), "alien-matrix-cli-qa-"),
   );
   const artifactDir = path.join(
     params.outputDir,
@@ -345,9 +345,9 @@ export async function createMatrixQaOpenClawCliRuntime(params: {
     ...params.runtimeEnv,
     FORCE_COLOR: "0",
     NO_COLOR: "1",
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_DISABLE_AUTO_UPDATE: "1",
-    OPENCLAW_STATE_DIR: stateDir,
+    ALIEN_CONFIG_PATH: configPath,
+    ALIEN_DISABLE_AUTO_UPDATE: "1",
+    ALIEN_STATE_DIR: stateDir,
   };
   return {
     artifactDir,
@@ -359,7 +359,7 @@ export async function createMatrixQaOpenClawCliRuntime(params: {
       args: string[],
       opts: { allowNonZero?: boolean; stdin?: string; timeoutMs: number },
     ): Promise<MatrixQaCliRunResult> =>
-      await runMatrixQaOpenClawCli({
+      await runMatrixQaAlienCli({
         allowNonZero: opts.allowNonZero,
         args,
         env,
@@ -367,7 +367,7 @@ export async function createMatrixQaOpenClawCliRuntime(params: {
         timeoutMs: opts.timeoutMs,
       }),
     start: (args: string[], opts: { allowNonZero?: boolean; timeoutMs: number }) =>
-      startMatrixQaOpenClawCli({
+      startMatrixQaAlienCli({
         allowNonZero: opts.allowNonZero,
         args,
         env,

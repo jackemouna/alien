@@ -9,9 +9,9 @@ vi.mock("./client.js", () => ({
   signalRpcRequest: (...args: unknown[]) => signalRpcRequestMock(...args),
 }));
 
-vi.mock("openclaw/plugin-sdk/media-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/media-runtime")>(
-    "openclaw/plugin-sdk/media-runtime",
+vi.mock("alien/plugin-sdk/media-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/media-runtime")>(
+    "alien/plugin-sdk/media-runtime",
   );
   return {
     ...actual,

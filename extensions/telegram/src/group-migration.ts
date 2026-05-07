@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { TelegramGroupConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { TelegramGroupConfig } from "alien/plugin-sdk/config-types";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 type TelegramGroups = Record<string, TelegramGroupConfig>;
 
@@ -14,7 +14,7 @@ type TelegramGroupMigrationResult = {
 };
 
 function resolveAccountGroups(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId?: string | null,
 ): { groups?: TelegramGroups } {
   if (!accountId) {
@@ -58,7 +58,7 @@ export function migrateTelegramGroupsInPlace(
 }
 
 export function migrateTelegramGroupConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   oldChatId: string;
   newChatId: string;

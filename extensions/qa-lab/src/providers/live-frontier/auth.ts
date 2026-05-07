@@ -1,14 +1,14 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   applyAuthProfileConfig,
   resolveEnvApiKey,
   validateAnthropicSetupToken,
-} from "openclaw/plugin-sdk/provider-auth";
+} from "alien/plugin-sdk/provider-auth";
 import { resolveQaAgentAuthDir, writeQaAuthProfiles } from "../shared/auth-store.js";
 
-export const QA_LIVE_ANTHROPIC_SETUP_TOKEN_ENV = "OPENCLAW_QA_LIVE_ANTHROPIC_SETUP_TOKEN";
-export const QA_LIVE_SETUP_TOKEN_VALUE_ENV = "OPENCLAW_LIVE_SETUP_TOKEN_VALUE";
-const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ENV = "OPENCLAW_QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE";
+export const QA_LIVE_ANTHROPIC_SETUP_TOKEN_ENV = "ALIEN_QA_LIVE_ANTHROPIC_SETUP_TOKEN";
+export const QA_LIVE_SETUP_TOKEN_VALUE_ENV = "ALIEN_LIVE_SETUP_TOKEN_VALUE";
+const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ENV = "ALIEN_QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE";
 const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ID = "anthropic:qa-setup-token";
 const QA_LIVE_API_KEY_AGENT_IDS = Object.freeze(["main", "qa"] as const);
 
@@ -36,10 +36,10 @@ function resolveQaLiveAnthropicSetupToken(env: NodeJS.ProcessEnv = process.env) 
 }
 
 export async function stageQaLiveAnthropicSetupToken(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   stateDir: string;
   env?: NodeJS.ProcessEnv;
-}): Promise<OpenClawConfig> {
+}): Promise<AlienConfig> {
   const resolved = resolveQaLiveAnthropicSetupToken(params.env);
   if (!resolved) {
     return params.cfg;
@@ -63,12 +63,12 @@ export async function stageQaLiveAnthropicSetupToken(params: {
 }
 
 export async function stageQaLiveApiKeyProfiles(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   stateDir: string;
   providerIds: readonly string[];
   env?: NodeJS.ProcessEnv;
   agentIds?: readonly string[];
-}): Promise<OpenClawConfig> {
+}): Promise<AlienConfig> {
   const env = params.env ?? process.env;
   const providerIds = [...new Set(params.providerIds.map((providerId) => providerId.trim()))]
     .filter((providerId) => providerId.length > 0)

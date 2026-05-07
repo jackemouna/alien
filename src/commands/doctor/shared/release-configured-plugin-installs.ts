@@ -4,8 +4,8 @@ import { normalizeChatChannelId } from "../../../channels/registry.js";
 import { isChannelConfigured } from "../../../config/channel-configured.js";
 import { collectConfiguredModelRefs } from "../../../config/model-refs.js";
 import { detectPluginAutoEnableCandidates } from "../../../config/plugin-auto-enable.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
-import { compareOpenClawVersions } from "../../../config/version.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
+import { compareAlienVersions } from "../../../config/version.js";
 import { isTruthyEnvValue } from "../../../infra/env.js";
 import { getOfficialExternalPluginCatalogEntry } from "../../../plugins/official-external-plugin-catalog.js";
 import { resolveProviderInstallCatalogEntries } from "../../../plugins/provider-install-catalog.js";
@@ -15,7 +15,7 @@ import { repairMissingPluginInstallsForIds } from "./missing-configured-plugin-i
 import { asObjectRecord } from "./object.js";
 
 export const CONFIGURED_PLUGIN_INSTALL_RELEASE_VERSION = "2026.5.2-beta.1";
-const UPDATE_IN_PROGRESS_ENV = "OPENCLAW_UPDATE_IN_PROGRESS";
+const UPDATE_IN_PROGRESS_ENV = "ALIEN_UPDATE_IN_PROGRESS";
 
 const AGENT_HARNESS_RUNTIME_PLUGIN_IDS: Readonly<Record<string, string>> = {
   // Codex can be selected as a harness for OpenAI models without a plugin entry.
@@ -31,16 +31,16 @@ function normalizeId(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-function isPluginsGloballyDisabled(cfg: OpenClawConfig): boolean {
+function isPluginsGloballyDisabled(cfg: AlienConfig): boolean {
   return cfg.plugins?.enabled === false;
 }
 
-function isDenied(cfg: OpenClawConfig, pluginId: string): boolean {
+function isDenied(cfg: AlienConfig, pluginId: string): boolean {
   const deny = cfg.plugins?.deny;
   return Array.isArray(deny) && deny.includes(pluginId);
 }
 
-function collectBlockedPluginIds(cfg: OpenClawConfig): string[] {
+function collectBlockedPluginIds(cfg: AlienConfig): string[] {
   const ids = new Set<string>();
   const deny = cfg.plugins?.deny;
   if (Array.isArray(deny)) {
@@ -60,17 +60,17 @@ function collectBlockedPluginIds(cfg: OpenClawConfig): string[] {
   return [...ids].toSorted((left, right) => left.localeCompare(right));
 }
 
-function isPluginEntryDisabled(cfg: OpenClawConfig, pluginId: string): boolean {
+function isPluginEntryDisabled(cfg: AlienConfig, pluginId: string): boolean {
   return cfg.plugins?.entries?.[pluginId]?.enabled === false;
 }
 
-function isChannelDisabled(cfg: OpenClawConfig, channelId: string): boolean {
+function isChannelDisabled(cfg: AlienConfig, channelId: string): boolean {
   const channels = asObjectRecord(cfg.channels);
   const entry = asObjectRecord(channels?.[channelId]);
   return entry?.enabled === false;
 }
 
-function isDisabled(cfg: OpenClawConfig, pluginId: string): boolean {
+function isDisabled(cfg: AlienConfig, pluginId: string): boolean {
   if (isPluginEntryDisabled(cfg, pluginId)) {
     return true;
   }
@@ -93,7 +93,7 @@ function hasMaterialPluginEntry(entry: unknown): boolean {
   );
 }
 
-function collectMaterialPluginEntryIds(cfg: OpenClawConfig): string[] {
+function collectMaterialPluginEntryIds(cfg: AlienConfig): string[] {
   const entries = asObjectRecord(cfg.plugins?.entries);
   if (!entries) {
     return [];
@@ -104,14 +104,14 @@ function collectMaterialPluginEntryIds(cfg: OpenClawConfig): string[] {
     .filter((pluginId) => pluginId);
 }
 
-function collectSlotPluginIds(cfg: OpenClawConfig): string[] {
+function collectSlotPluginIds(cfg: AlienConfig): string[] {
   const slots = asObjectRecord(cfg.plugins?.slots);
   return ["memory", "contextEngine"]
     .map((key) => normalizeId(slots?.[key]))
     .filter((pluginId): pluginId is string => !!pluginId && pluginId.toLowerCase() !== "none");
 }
 
-function collectConfiguredChannelIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string[] {
+function collectConfiguredChannelIds(cfg: AlienConfig, env: NodeJS.ProcessEnv): string[] {
   const ids = new Set<string>();
   const channels = asObjectRecord(cfg.channels);
   if (channels) {
@@ -139,7 +139,7 @@ function collectConfiguredChannelIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv
   return [...ids].toSorted((left, right) => left.localeCompare(right));
 }
 
-function collectConfiguredProviderIds(cfg: OpenClawConfig): Set<string> {
+function collectConfiguredProviderIds(cfg: AlienConfig): Set<string> {
   const ids = new Set<string>();
   const add = (value: unknown) => {
     const id = normalizeId(value);
@@ -164,7 +164,7 @@ function collectConfiguredProviderIds(cfg: OpenClawConfig): Set<string> {
   return ids;
 }
 
-function collectProviderPluginIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string[] {
+function collectProviderPluginIds(cfg: AlienConfig, env: NodeJS.ProcessEnv): string[] {
   const configuredProviders = collectConfiguredProviderIds(cfg);
   if (configuredProviders.size === 0) {
     return [];
@@ -183,7 +183,7 @@ function collectProviderPluginIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): 
 }
 
 function collectAgentHarnessRuntimePluginIds(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv,
 ): string[] {
   return collectConfiguredAgentHarnessRuntimes(cfg, env)
@@ -192,7 +192,7 @@ function collectAgentHarnessRuntimePluginIds(
     .toSorted((left, right) => left.localeCompare(right));
 }
 
-function collectWebSearchPluginIds(cfg: OpenClawConfig): string[] {
+function collectWebSearchPluginIds(cfg: AlienConfig): string[] {
   const providerId = cfg.tools?.web?.search?.provider;
   if (typeof providerId !== "string") {
     return [];
@@ -201,7 +201,7 @@ function collectWebSearchPluginIds(cfg: OpenClawConfig): string[] {
   return entry?.pluginId ? [entry.pluginId] : [];
 }
 
-function collectAcpRuntimePluginIds(cfg: OpenClawConfig): string[] {
+function collectAcpRuntimePluginIds(cfg: AlienConfig): string[] {
   const acp = asObjectRecord(cfg.acp);
   if (!acp) {
     return [];
@@ -215,7 +215,7 @@ function collectAcpRuntimePluginIds(cfg: OpenClawConfig): string[] {
   return ["acpx"];
 }
 
-function collectAllowOnlyOfficialPluginIds(cfg: OpenClawConfig): string[] {
+function collectAllowOnlyOfficialPluginIds(cfg: AlienConfig): string[] {
   const allow = cfg.plugins?.allow;
   if (!Array.isArray(allow) || allow.length === 0) {
     return [];
@@ -236,7 +236,7 @@ function collectAllowOnlyOfficialPluginIds(cfg: OpenClawConfig): string[] {
   return ids;
 }
 
-function addEligiblePluginId(cfg: OpenClawConfig, pluginIds: Set<string>, pluginId: string): void {
+function addEligiblePluginId(cfg: AlienConfig, pluginIds: Set<string>, pluginId: string): void {
   const normalized = pluginId.trim();
   if (!normalized || isDenied(cfg, normalized) || isDisabled(cfg, normalized)) {
     return;
@@ -250,19 +250,19 @@ export function shouldRunConfiguredPluginInstallReleaseStep(params: {
   releaseVersion?: string;
 }): boolean {
   const releaseVersion = params.releaseVersion ?? CONFIGURED_PLUGIN_INSTALL_RELEASE_VERSION;
-  const currentComparedToRelease = compareOpenClawVersions(
+  const currentComparedToRelease = compareAlienVersions(
     params.currentVersion ?? VERSION,
     releaseVersion,
   );
   if (currentComparedToRelease === null || currentComparedToRelease < 0) {
     return false;
   }
-  const touchedComparedToRelease = compareOpenClawVersions(params.touchedVersion, releaseVersion);
+  const touchedComparedToRelease = compareAlienVersions(params.touchedVersion, releaseVersion);
   return touchedComparedToRelease === null || touchedComparedToRelease < 0;
 }
 
 export function collectReleaseConfiguredPluginIds(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
 }): ReleaseConfiguredPluginIds {
   const env = params.env ?? process.env;
@@ -316,7 +316,7 @@ export function collectReleaseConfiguredPluginIds(params: {
 }
 
 export async function maybeRunConfiguredPluginInstallReleaseStep(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   touchedVersion?: string | null;
   currentVersion?: string | null;

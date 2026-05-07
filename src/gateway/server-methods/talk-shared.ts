@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.js";
+import type { AlienConfig } from "../../config/types.js";
 import { listRealtimeTranscriptionProviders } from "../../realtime-transcription/provider-registry.js";
 import type { RealtimeTranscriptionProviderConfig } from "../../realtime-transcription/provider-types.js";
 import {
@@ -59,7 +59,7 @@ function getRecord(value: unknown): Record<string, unknown> | undefined {
   return asRecord(value) ?? undefined;
 }
 
-function getVoiceCallRealtimeConfig(config: OpenClawConfig): {
+function getVoiceCallRealtimeConfig(config: AlienConfig): {
   provider?: string;
   providers?: Record<string, RealtimeVoiceProviderConfig>;
 } {
@@ -84,7 +84,7 @@ function getVoiceCallRealtimeConfig(config: OpenClawConfig): {
   };
 }
 
-export function getVoiceCallStreamingConfig(config: OpenClawConfig): {
+export function getVoiceCallStreamingConfig(config: AlienConfig): {
   provider?: string;
   providers?: Record<string, RealtimeTranscriptionProviderConfig>;
 } {
@@ -109,7 +109,7 @@ export function getVoiceCallStreamingConfig(config: OpenClawConfig): {
   };
 }
 
-export function buildTalkRealtimeConfig(config: OpenClawConfig, requestedProvider?: string) {
+export function buildTalkRealtimeConfig(config: AlienConfig, requestedProvider?: string) {
   const voiceCallRealtime = getVoiceCallRealtimeConfig(config);
   const talkRealtime = getRecord(config.talk?.realtime);
   const talkRealtimeProviderConfigs = talkRealtime?.providers as
@@ -133,7 +133,7 @@ export function buildTalkRealtimeConfig(config: OpenClawConfig, requestedProvide
   };
 }
 
-export function buildTalkTranscriptionConfig(config: OpenClawConfig, requestedProvider?: string) {
+export function buildTalkTranscriptionConfig(config: AlienConfig, requestedProvider?: string) {
   const streamingConfig = getVoiceCallStreamingConfig(config);
   return {
     provider: normalizeOptionalString(requestedProvider) ?? streamingConfig.provider,
@@ -176,7 +176,7 @@ export function configuredOrFalse(callback: () => boolean): boolean {
 }
 
 export function resolveConfiguredRealtimeTranscriptionProvider(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   configuredProviderId?: string;
   providerConfigs: Record<string, RealtimeTranscriptionProviderConfig>;
 }) {
@@ -211,7 +211,7 @@ export function resolveConfiguredRealtimeTranscriptionProvider(params: {
 }
 
 export function buildRealtimeInstructions(): string {
-  return `You are OpenClaw's realtime voice interface. Keep spoken replies concise. If the user asks for code, repository state, tools, files, current OpenClaw context, or deeper reasoning, call ${REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME} and then summarize the result naturally.`;
+  return `You are Alien's realtime voice interface. Keep spoken replies concise. If the user asks for code, repository state, tools, files, current Alien context, or deeper reasoning, call ${REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME} and then summarize the result naturally.`;
 }
 
 export function withRealtimeBrowserOverrides(

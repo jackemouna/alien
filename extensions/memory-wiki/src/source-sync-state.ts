@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "alien/plugin-sdk/json-store";
 
 export type MemoryWikiImportedSourceGroup = "bridge" | "unsafe-local";
 
@@ -24,7 +24,7 @@ const EMPTY_STATE: MemoryWikiImportedSourceState = {
 };
 
 function resolveMemoryWikiSourceSyncStatePath(vaultRoot: string): string {
-  return path.join(vaultRoot, ".openclaw-wiki", "source-sync.json");
+  return path.join(vaultRoot, ".alien-wiki", "source-sync.json");
 }
 
 export async function readMemoryWikiSourceSyncState(

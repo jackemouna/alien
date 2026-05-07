@@ -2,13 +2,13 @@ import path from "node:path";
 import { MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { tryReadJsonSync } from "../../infra/json-files.js";
 import { isPrereleaseSemverVersion, parseRegistryNpmSpec } from "../../infra/npm-registry-spec.js";
-import { resolveOpenClawPackageRootSync } from "../../infra/openclaw-root.js";
+import { resolveAlienPackageRootSync } from "../../infra/alien-root.js";
 import { listChannelCatalogEntries } from "../../plugins/channel-catalog-registry.js";
 import {
   describePluginInstallSource,
   type PluginInstallSourceInfo,
 } from "../../plugins/install-source-info.js";
-import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
+import type { AlienPackageManifest } from "../../plugins/manifest.js";
 import type { PluginPackageChannel, PluginPackageInstall } from "../../plugins/manifest.js";
 import { listOfficialExternalChannelCatalogEntries } from "../../plugins/official-external-plugin-catalog.js";
 import type { PluginOrigin } from "../../plugins/plugin-origin.types.js";
@@ -68,9 +68,9 @@ type ExternalCatalogEntry = {
   name?: string;
   version?: string;
   description?: string;
-} & Partial<Record<ManifestKey, OpenClawPackageManifest>>;
+} & Partial<Record<ManifestKey, AlienPackageManifest>>;
 
-const ENV_CATALOG_PATHS = ["OPENCLAW_PLUGIN_CATALOG_PATHS", "OPENCLAW_MPM_CATALOG_PATHS"];
+const ENV_CATALOG_PATHS = ["ALIEN_PLUGIN_CATALOG_PATHS", "ALIEN_MPM_CATALOG_PATHS"];
 const OFFICIAL_CHANNEL_CATALOG_RELATIVE_PATH = path.join("dist", "channel-catalog.json");
 const officialCatalogEntriesByPath = new Map<string, ExternalCatalogEntry[] | null>();
 
@@ -172,8 +172,8 @@ function resolveOfficialCatalogPaths(options: CatalogOptions): string[] {
   }
 
   const packageRoots = [
-    resolveOpenClawPackageRootSync({ cwd: process.cwd() }),
-    resolveOpenClawPackageRootSync({ moduleUrl: import.meta.url }),
+    resolveAlienPackageRootSync({ cwd: process.cwd() }),
+    resolveAlienPackageRootSync({ moduleUrl: import.meta.url }),
   ].filter((entry, index, all): entry is string => Boolean(entry) && all.indexOf(entry) === index);
 
   const candidates = packageRoots.map((packageRoot) =>
@@ -202,7 +202,7 @@ function loadOfficialCatalogEntries(options: CatalogOptions): ChannelPluginCatal
 }
 
 function toChannelMeta(params: {
-  channel: NonNullable<OpenClawPackageManifest["channel"]>;
+  channel: NonNullable<AlienPackageManifest["channel"]>;
   id: string;
 }): ChannelMeta | null {
   const label = params.channel.label?.trim();

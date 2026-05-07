@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { wrapFetchWithAbortSignal } from "openclaw/plugin-sdk/fetch-runtime";
+import { wrapFetchWithAbortSignal } from "alien/plugin-sdk/fetch-runtime";
 import {
   captureHttpExchange,
   resolveEffectiveDebugProxyUrl,
-} from "openclaw/plugin-sdk/proxy-capture";
-import { resolveRequestUrl } from "openclaw/plugin-sdk/request-url";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/proxy-capture";
+import { resolveRequestUrl } from "alien/plugin-sdk/request-url";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import { Agent, ProxyAgent, fetch as undiciFetch } from "undici";
 import { createDiscordDnsLookup } from "../network-config.js";
 import { withValidatedDiscordProxy } from "../proxy-fetch.js";

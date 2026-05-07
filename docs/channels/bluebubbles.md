@@ -8,16 +8,16 @@ title: "BlueBubbles"
 sidebarTitle: "BlueBubbles"
 ---
 
-Status: bundled legacy plugin that talks to the BlueBubbles macOS server over HTTP. Existing BlueBubbles setups continue to work, but new OpenClaw iMessage deployments should prefer the native [iMessage](/channels/imessage) plugin when its requirements fit your host.
+Status: bundled legacy plugin that talks to the BlueBubbles macOS server over HTTP. Existing BlueBubbles setups continue to work, but new Alien iMessage deployments should prefer the native [iMessage](/channels/imessage) plugin when its requirements fit your host.
 
 <Warning>
-BlueBubbles is deprecated for new OpenClaw setups.
+BlueBubbles is deprecated for new Alien setups.
 
-The upstream BlueBubbles ecosystem is still active, but OpenClaw depends on the BlueBubbles macOS server API. As of May 6, 2026, the official [`bluebubbles-server`](https://github.com/BlueBubblesApp/bluebubbles-server) development branch last changed on [January 22, 2026](https://github.com/BlueBubblesApp/bluebubbles-server/commit/88a4921bbd5a8111f1e9582b83715cf877171037), and the latest server release ([`v1.9.9`](https://github.com/BlueBubblesApp/bluebubbles-server/releases/tag/v1.9.9)) was published on May 16, 2025. The client app and helper repositories have newer activity, so this is not an abandonment claim; the deprecation is about reducing OpenClaw's dependency on an external HTTP server, webhooks, and private-API compatibility surface when the native `imsg` path keeps the integration on a local stdio contract.
+The upstream BlueBubbles ecosystem is still active, but Alien depends on the BlueBubbles macOS server API. As of May 6, 2026, the official [`bluebubbles-server`](https://github.com/BlueBubblesApp/bluebubbles-server) development branch last changed on [January 22, 2026](https://github.com/BlueBubblesApp/bluebubbles-server/commit/88a4921bbd5a8111f1e9582b83715cf877171037), and the latest server release ([`v1.9.9`](https://github.com/BlueBubblesApp/bluebubbles-server/releases/tag/v1.9.9)) was published on May 16, 2025. The client app and helper repositories have newer activity, so this is not an abandonment claim; the deprecation is about reducing Alien's dependency on an external HTTP server, webhooks, and private-API compatibility surface when the native `imsg` path keeps the integration on a local stdio contract.
 </Warning>
 
 <Note>
-Current OpenClaw releases bundle BlueBubbles, so normal packaged builds do not need a separate `openclaw plugins install` step.
+Current Alien releases bundle BlueBubbles, so normal packaged builds do not need a separate `alien plugins install` step.
 </Note>
 
 ## Overview
@@ -25,7 +25,7 @@ Current OpenClaw releases bundle BlueBubbles, so normal packaged builds do not n
 - Runs on macOS via the BlueBubbles helper app ([bluebubbles.app](https://bluebubbles.app)).
 - Legacy fallback for installations that already rely on BlueBubbles channel IDs, webhook state, group targets, cron delivery, or workspace routing.
 - Recommended/tested: macOS Sequoia (15). macOS Tahoe (26) works; edit is currently broken on Tahoe, and group icon updates may report success but not sync.
-- OpenClaw talks to it through its REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
+- Alien talks to it through its REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
 - Incoming messages arrive via webhooks; outgoing replies, typing indicators, read receipts, and tapbacks are REST calls.
 - Attachments and stickers are ingested as inbound media (and surfaced to the agent when possible).
 - Auto-TTS replies that synthesize MP3 or CAF audio are delivered as iMessage voice memo bubbles instead of plain file attachments.
@@ -42,8 +42,8 @@ Current OpenClaw releases bundle BlueBubbles, so normal packaged builds do not n
   <Step title="Enable the web API">
     In the BlueBubbles config, enable the web API and set a password.
   </Step>
-  <Step title="Configure OpenClaw">
-    Run `openclaw onboard` and select BlueBubbles, or configure manually:
+  <Step title="Configure Alien">
+    Run `alien onboard` and select BlueBubbles, or configure manually:
 
     ```json5
     {
@@ -71,7 +71,7 @@ Current OpenClaw releases bundle BlueBubbles, so normal packaged builds do not n
 **Security**
 
 - Always set a webhook password.
-- Webhook authentication is always required. OpenClaw rejects BlueBubbles webhook requests unless they include a password/guid that matches `channels.bluebubbles.password` (for example `?password=<password>` or `x-password`), regardless of loopback/proxy topology.
+- Webhook authentication is always required. Alien rejects BlueBubbles webhook requests unless they include a password/guid that matches `channels.bluebubbles.password` (for example `?password=<password>` or `x-password`), regardless of loopback/proxy topology.
 - Password authentication is checked before reading/parsing full webhook bodies.
 
 </Warning>
@@ -148,7 +148,7 @@ Some macOS VM / always-on setups can end up with Messages.app going "idle" (inco
 BlueBubbles is available in interactive onboarding:
 
 ```
-openclaw onboard
+alien onboard
 ```
 
 The wizard prompts for:
@@ -172,7 +172,7 @@ The wizard prompts for:
 You can also add BlueBubbles via CLI:
 
 ```
-openclaw channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
+alien channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
 ```
 
 ## Access control (DMs + groups)
@@ -182,8 +182,8 @@ openclaw channels add bluebubbles --http-url http://192.168.1.100:1234 --passwor
     - Default: `channels.bluebubbles.dmPolicy = "pairing"`.
     - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
     - Approve via:
-      - `openclaw pairing list bluebubbles`
-      - `openclaw pairing approve bluebubbles <CODE>`
+      - `alien pairing list bluebubbles`
+      - `alien pairing approve bluebubbles <CODE>`
     - Pairing is the default token exchange. Details: [Pairing](/channels/pairing)
 
   </Tab>
@@ -342,7 +342,7 @@ See [ACP Agents](/tools/acp-agents) for shared ACP binding behavior.
 
 - **Typing indicators**: Sent automatically before and during response generation.
 - **Read receipts**: Controlled by `channels.bluebubbles.sendReadReceipts` (default: `true`).
-- **Typing indicators**: OpenClaw sends typing start events; BlueBubbles clears typing automatically on send or timeout (manual stop via DELETE is unreliable).
+- **Typing indicators**: Alien sends typing start events; BlueBubbles clears typing automatically on send or timeout (manual stop via DELETE is unreliable).
 
 ```json5
 {
@@ -401,7 +401,7 @@ BlueBubbles supports advanced message actions when enabled in config:
 
 ### Message IDs (short vs full)
 
-OpenClaw may surface _short_ message IDs (e.g., `1`, `2`) to save tokens.
+Alien may surface _short_ message IDs (e.g., `1`, `2`) to save tokens.
 
 - `MessageSid` / `ReplyToId` can be short IDs.
 - `MessageSidFull` / `ReplyToIdFull` contain the provider full IDs.
@@ -424,7 +424,7 @@ When a user types a command and a URL together in iMessage - e.g. `Dump https://
 1. A text message (`"Dump"`).
 2. A URL-preview balloon (`"https://..."`) with OG-preview images as attachments.
 
-The two webhooks arrive at OpenClaw ~0.8-2.0 s apart on most setups. Without coalescing, the agent receives the command alone on turn 1, replies (often "send me the URL"), and only sees the URL on turn 2 - at which point the command context is already lost.
+The two webhooks arrive at Alien ~0.8-2.0 s apart on most setups. Without coalescing, the agent receives the command alone on turn 1, replies (often "send me the URL"), and only sees the URL on turn 2 - at which point the command context is already lost.
 
 `channels.bluebubbles.coalesceSameSenderDms` opts a DM into merging consecutive same-sender webhooks into a single agent turn. Group chats continue to key per-message so multi-user turn structure is preserved.
 
@@ -498,10 +498,10 @@ If the flag is on and split-sends still arrive as two turns, check each layer:
 <AccordionGroup>
   <Accordion title="Config actually loaded">
     ```
-    grep coalesceSameSenderDms ~/.openclaw/openclaw.json
+    grep coalesceSameSenderDms ~/.alien/alien.json
     ```
 
-    Then `openclaw gateway restart` - the flag is read at debouncer-registry creation.
+    Then `alien gateway restart` - the flag is read at debouncer-registry creation.
 
   </Accordion>
   <Accordion title="Debounce window wide enough for your setup">
@@ -515,10 +515,10 @@ If the flag is on and split-sends still arrive as two turns, check each layer:
 
   </Accordion>
   <Accordion title="Session JSONL timestamps ≠ webhook arrival">
-    Session event timestamps (`~/.openclaw/agents/<id>/sessions/*.jsonl`) reflect when the gateway hands a message to the agent, **not** when the webhook arrived. A queued-second message tagged `[Queued messages while agent was busy]` means the first turn was still running when the second webhook arrived - the coalesce bucket had already flushed. Tune the window against the BB server log, not the session log.
+    Session event timestamps (`~/.alien/agents/<id>/sessions/*.jsonl`) reflect when the gateway hands a message to the agent, **not** when the webhook arrived. A queued-second message tagged `[Queued messages while agent was busy]` means the first turn was still running when the second webhook arrived - the coalesce bucket had already flushed. Tune the window against the BB server log, not the session log.
   </Accordion>
   <Accordion title="Memory pressure slowing reply dispatch">
-    On smaller machines (8 GB), agent turns can take long enough that the coalesce bucket flushes before the reply completes, and the URL lands as a queued second turn. Check `memory_pressure` and `ps -o rss -p $(pgrep openclaw-gateway)`; if the gateway is over ~500 MB RSS and the compressor is active, close other heavy processes or bump to a larger host.
+    On smaller machines (8 GB), agent turns can take long enough that the coalesce bucket flushes before the reply completes, and the URL lands as a queued second turn. Check `memory_pressure` and `ps -o rss -p $(pgrep alien-gateway)`; if the gateway is over ~500 MB RSS and the compressor is active, close other heavy processes or bump to a larger host.
   </Accordion>
   <Accordion title="Reply-quote sends are a different path">
     If the user tapped `Dump` as a **reply** to an existing URL-balloon (iMessage shows a "1 Reply" badge on the Dump bubble), the URL lives in `replyToBody`, not in a second webhook. Coalescing does not apply - that's a skill/prompt concern, not a debouncer concern.
@@ -603,11 +603,11 @@ Prefer `chat_guid` for stable routing:
 - `chat_id:123`
 - `chat_identifier:...`
 - Direct handles: `+15555550123`, `user@example.com`
-  - If a direct handle does not have an existing DM chat, OpenClaw will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
+  - If a direct handle does not have an existing DM chat, Alien will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
 
 ### iMessage vs SMS routing
 
-When the same handle has both an iMessage and an SMS chat on the Mac (for example a phone number that is iMessage-registered but has also received green-bubble fallbacks), OpenClaw prefers the iMessage chat and never silently downgrades to SMS. To force the SMS chat, use an explicit `sms:` target prefix (for example `sms:+15555550123`). Handles without a matching iMessage chat still send through whatever chat BlueBubbles reports.
+When the same handle has both an iMessage and an SMS chat on the Mac (for example a phone number that is iMessage-registered but has also received green-bubble fallbacks), Alien prefers the iMessage chat and never silently downgrades to SMS. To force the SMS chat, use an explicit `sms:` target prefix (for example `sms:+15555550123`). Handles without a matching iMessage chat still send through whatever chat BlueBubbles reports.
 
 ## Security
 
@@ -619,13 +619,13 @@ When the same handle has both an iMessage and an SMS chat on the Mac (for exampl
 ## Troubleshooting
 
 - If typing/read events stop working, check the BlueBubbles webhook logs and verify the gateway path matches `channels.bluebubbles.webhookPath`.
-- Pairing codes expire after one hour; use `openclaw pairing list bluebubbles` and `openclaw pairing approve bluebubbles <code>`.
+- Pairing codes expire after one hour; use `alien pairing list bluebubbles` and `alien pairing approve bluebubbles <code>`.
 - Reactions require the BlueBubbles private API (`POST /api/v1/message/react`); ensure the server version exposes it.
 - Edit/unsend require macOS 13+ and a compatible BlueBubbles server version. On macOS 26 (Tahoe), edit is currently broken due to private API changes.
 - Group icon updates can be flaky on macOS 26 (Tahoe): the API may return success but the new icon does not sync.
-- OpenClaw auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
+- Alien auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
 - `coalesceSameSenderDms` enabled but split-sends (e.g. `Dump` + URL) still arrive as two turns: see the [split-send coalescing troubleshooting](#split-send-coalescing-troubleshooting) checklist - common causes are too-tight debounce window, session-log timestamps misread as webhook arrival, or a reply-quote send (which uses `replyToBody`, not a second webhook).
-- For status/health info: `openclaw status --all` or `openclaw status --deep`.
+- For status/health info: `alien status --all` or `alien status --deep`.
 
 For general channel workflow reference, see [Channels](/channels) and the [Plugins](/tools/plugin) guide.
 

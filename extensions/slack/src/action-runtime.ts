@@ -1,6 +1,6 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { isSingleUseReplyToMode } from "openclaw/plugin-sdk/reply-reference";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { isSingleUseReplyToMode } from "alien/plugin-sdk/reply-reference";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { parseSlackBlocksInput } from "./blocks-input.js";
 import {
   createActionGate,
@@ -9,7 +9,7 @@ import {
   readNumberParam,
   readReactionParams,
   readStringParam,
-  type OpenClawConfig,
+  type AlienConfig,
   withNormalizedTimestamp,
 } from "./runtime-api.js";
 import { parseSlackTarget, resolveSlackChannelId } from "./targets.js";
@@ -147,7 +147,7 @@ function isImageContentType(value: string | undefined): boolean {
 
 export async function handleSlackAction(
   params: Record<string, unknown>,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   context?: SlackActionContext,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>

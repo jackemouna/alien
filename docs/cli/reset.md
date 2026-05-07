@@ -1,12 +1,12 @@
 ---
-summary: "CLI reference for `openclaw reset` (reset local state/config)"
+summary: "CLI reference for `alien reset` (reset local state/config)"
 read_when:
   - You want to wipe local state while keeping the CLI installed
   - You want a dry-run of what would be removed
 title: "Reset"
 ---
 
-# `openclaw reset`
+# `alien reset`
 
 Reset local config/state (keeps the CLI installed).
 
@@ -20,18 +20,18 @@ Options:
 Examples:
 
 ```bash
-openclaw backup create
-openclaw reset
-openclaw reset --dry-run
-openclaw reset --scope config --yes --non-interactive
-openclaw reset --scope config+creds+sessions --yes --non-interactive
-openclaw reset --scope full --yes --non-interactive
+alien backup create
+alien reset
+alien reset --dry-run
+alien reset --scope config --yes --non-interactive
+alien reset --scope config+creds+sessions --yes --non-interactive
+alien reset --scope full --yes --non-interactive
 ```
 
 Notes:
 
-- Run `openclaw backup create` first if you want a restorable snapshot before removing local state.
-- If you omit `--scope`, `openclaw reset` uses an interactive prompt to choose what to remove.
+- Run `alien backup create` first if you want a restorable snapshot before removing local state.
+- If you omit `--scope`, `alien reset` uses an interactive prompt to choose what to remove.
 - `--non-interactive` is only valid when both `--scope` and `--yes` are set.
 
 ## Related

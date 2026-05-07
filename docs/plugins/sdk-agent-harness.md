@@ -8,7 +8,7 @@ read_when:
   - You need to understand how the Codex plugin relates to model providers
 ---
 
-An **agent harness** is the low level executor for one prepared OpenClaw agent
+An **agent harness** is the low level executor for one prepared Alien agent
 turn. It is not a model provider, not a channel, and not a tool registry.
 For the user-facing mental model, see [Agent runtimes](/concepts/agent-runtimes).
 
@@ -19,13 +19,13 @@ embedded runner.
 ## When to use a harness
 
 Register an agent harness when a model family has its own native session
-runtime and the normal OpenClaw provider transport is the wrong abstraction.
+runtime and the normal Alien provider transport is the wrong abstraction.
 
 Examples:
 
 - a native coding-agent server that owns threads and compaction
 - a local CLI or daemon that must stream native plan/reasoning/tool events
-- a model runtime that needs its own resume id in addition to the OpenClaw
+- a model runtime that needs its own resume id in addition to the Alien
   session transcript
 
 Do **not** register a harness just to add a new LLM API. For normal HTTP or
@@ -33,12 +33,12 @@ WebSocket model APIs, build a [provider plugin](/plugins/sdk-provider-plugins).
 
 ## What core still owns
 
-Before a harness is selected, OpenClaw has already resolved:
+Before a harness is selected, Alien has already resolved:
 
 - provider and model
 - runtime auth state
 - thinking level and context budget
-- the OpenClaw transcript/session file
+- the Alien transcript/session file
 - workspace, sandbox, and tool policy
 - channel reply callbacks and streaming callbacks
 - model fallback and live model switching policy
@@ -46,7 +46,7 @@ Before a harness is selected, OpenClaw has already resolved:
 That split is intentional. A harness runs a prepared attempt; it does not pick
 providers, replace channel delivery, or silently switch models.
 
-The prepared attempt also includes `params.runtimePlan`, an OpenClaw-owned
+The prepared attempt also includes `params.runtimePlan`, an Alien-owned
 policy bundle for runtime decisions that must stay shared across PI and native
 harnesses:
 
@@ -65,11 +65,11 @@ switch providers/models inside a turn.
 
 ## Register a harness
 
-**Import:** `openclaw/plugin-sdk/agent-harness`
+**Import:** `alien/plugin-sdk/agent-harness`
 
 ```typescript
-import type { AgentHarness } from "openclaw/plugin-sdk/agent-harness";
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import type { AgentHarness } from "alien/plugin-sdk/agent-harness";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
 
 const myHarness: AgentHarness = {
   id: "my-harness",
@@ -101,21 +101,21 @@ export default definePluginEntry({
 
 ## Selection policy
 
-OpenClaw chooses a harness after provider/model resolution:
+Alien chooses a harness after provider/model resolution:
 
 1. An existing session's recorded harness id wins, so config/env changes do not
    hot-switch that transcript to another runtime.
-2. `OPENCLAW_AGENT_RUNTIME=<id>` forces a registered harness with that id for
+2. `ALIEN_AGENT_RUNTIME=<id>` forces a registered harness with that id for
    sessions that are not already pinned.
-3. `OPENCLAW_AGENT_RUNTIME=pi` forces the built-in PI harness.
-4. `OPENCLAW_AGENT_RUNTIME=auto` asks registered harnesses if they support the
+3. `ALIEN_AGENT_RUNTIME=pi` forces the built-in PI harness.
+4. `ALIEN_AGENT_RUNTIME=auto` asks registered harnesses if they support the
    resolved provider/model.
-5. If no registered harness matches, OpenClaw uses PI unless PI fallback is
+5. If no registered harness matches, Alien uses PI unless PI fallback is
    disabled.
 
 Plugin harness failures surface as run failures. In `auto` mode, PI fallback is
 only used when no registered plugin harness supports the resolved
-provider/model. Once a plugin harness has claimed a run, OpenClaw does not
+provider/model. Once a plugin harness has claimed a run, Alien does not
 replay that same turn through PI because that can change auth/runtime semantics
 or duplicate side effects.
 
@@ -137,7 +137,7 @@ or operator config, not in the shared runtime selector.
 
 Most harnesses should also register a provider. The provider makes model refs,
 auth status, model metadata, and `/model` selection visible to the rest of
-OpenClaw. The harness then claims that provider in `supports(...)`.
+Alien. The harness then claims that provider in `supports(...)`.
 
 The bundled Codex plugin follows this pattern:
 
@@ -148,22 +148,22 @@ The bundled Codex plugin follows this pattern:
 - harness id: `codex`
 - auth: synthetic provider availability, because the Codex harness owns the
   native Codex login/session
-- app-server request: OpenClaw sends the bare model id to Codex and lets the
+- app-server request: Alien sends the bare model id to Codex and lets the
   harness talk to the native app-server protocol
 
 The Codex plugin is additive. Plain `openai/gpt-*` refs continue to use the
-normal OpenClaw provider path unless you force the Codex harness with
+normal Alien provider path unless you force the Codex harness with
 `agentRuntime.id: "codex"`. Older `codex/gpt-*` refs still select the
 Codex provider and harness for compatibility.
 
 For operator setup, model prefix examples, and Codex-only configs, see
 [Codex Harness](/plugins/codex-harness).
 
-OpenClaw requires Codex app-server `0.125.0` or newer. The Codex plugin checks
+Alien requires Codex app-server `0.125.0` or newer. The Codex plugin checks
 the app-server initialize handshake and blocks older or unversioned servers so
-OpenClaw only runs against the protocol surface it has been tested with. The
+Alien only runs against the protocol surface it has been tested with. The
 `0.125.0` floor includes the native MCP hook payload support that landed in
-Codex `0.124.0`, while pinning OpenClaw to the newer tested stable line.
+Codex `0.124.0`, while pinning Alien to the newer tested stable line.
 
 ### Tool-result middleware
 
@@ -183,15 +183,15 @@ Pi tool-result transforms must use runtime-neutral middleware.
 
 Native harnesses that own their own protocol projection can use
 `classifyAgentHarnessTerminalOutcome(...)` from
-`openclaw/plugin-sdk/agent-harness-runtime` when a completed turn produced no
+`alien/plugin-sdk/agent-harness-runtime` when a completed turn produced no
 visible assistant text. The helper returns `empty`, `reasoning-only`, or
-`planning-only` so OpenClaw's fallback policy can decide whether to retry on a
+`planning-only` so Alien's fallback policy can decide whether to retry on a
 different model. It intentionally leaves prompt errors, in-flight turns, and
 intentional silent replies such as `NO_REPLY` unclassified.
 
 ### Native Codex harness mode
 
-The bundled `codex` harness is the native Codex mode for embedded OpenClaw
+The bundled `codex` harness is the native Codex mode for embedded Alien
 agent turns. Enable the bundled `codex` plugin first, and include `codex` in
 `plugins.allow` if your config uses a restrictive allowlist. Native app-server
 configs should use `openai/gpt-*` with `agentRuntime.id: "codex"`.
@@ -199,7 +199,7 @@ Use `openai-codex/*` for Codex OAuth through PI instead. Legacy `codex/*`
 model refs remain compatibility aliases for the native harness.
 
 When this mode runs, Codex owns the native thread id, resume behavior,
-compaction, and app-server execution. OpenClaw still owns the chat channel,
+compaction, and app-server execution. Alien still owns the chat channel,
 visible transcript mirror, tool policy, approvals, media delivery, and session
 selection. Use `agentRuntime.id: "codex"` when you need to prove that only the
 Codex app-server path can claim the run. Explicit plugin runtimes fail closed;
@@ -208,13 +208,13 @@ PI.
 
 ## Runtime strictness
 
-By default, OpenClaw runs embedded agents with OpenClaw Pi. In `auto` mode,
+By default, Alien runs embedded agents with Alien Pi. In `auto` mode,
 registered plugin harnesses can claim a provider/model pair, and PI handles the
 turn when none match. Use an explicit plugin runtime such as
 `agentRuntime.id: "codex"` when missing harness selection should fail instead
 of routing through PI. Selected plugin harness failures always fail hard. This
 does not block an explicit `agentRuntime.id: "pi"` or
-`OPENCLAW_AGENT_RUNTIME=pi`.
+`ALIEN_AGENT_RUNTIME=pi`.
 
 For Codex-only embedded runs:
 
@@ -265,10 +265,10 @@ Per-agent overrides use the same shape:
 }
 ```
 
-`OPENCLAW_AGENT_RUNTIME` still overrides the configured runtime.
+`ALIEN_AGENT_RUNTIME` still overrides the configured runtime.
 
 ```bash
-OPENCLAW_AGENT_RUNTIME=codex openclaw gateway run
+ALIEN_AGENT_RUNTIME=codex alien gateway run
 ```
 
 With an explicit plugin runtime, a session fails early when the requested
@@ -283,22 +283,22 @@ image, video, music, TTS, PDF, or other provider-specific model routing.
 ## Native sessions and transcript mirror
 
 A harness may keep a native session id, thread id, or daemon-side resume token.
-Keep that binding explicitly associated with the OpenClaw session, and keep
-mirroring user-visible assistant/tool output into the OpenClaw transcript.
+Keep that binding explicitly associated with the Alien session, and keep
+mirroring user-visible assistant/tool output into the Alien transcript.
 
-The OpenClaw transcript remains the compatibility layer for:
+The Alien transcript remains the compatibility layer for:
 
 - channel-visible session history
 - transcript search and indexing
 - switching back to the built-in PI harness on a later turn
 - generic `/new`, `/reset`, and session deletion behavior
 
-If your harness stores a sidecar binding, implement `reset(...)` so OpenClaw can
-clear it when the owning OpenClaw session is reset.
+If your harness stores a sidecar binding, implement `reset(...)` so Alien can
+clear it when the owning Alien session is reset.
 
 ## Tool and media results
 
-Core constructs the OpenClaw tool list and passes it into the prepared attempt.
+Core constructs the Alien tool list and passes it into the prepared attempt.
 When a harness executes a dynamic tool call, return the tool result back through
 the harness result shape instead of sending channel media yourself.
 

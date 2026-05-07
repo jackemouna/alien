@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { VoiceCallRealtimeFastContextConfig } from "./config.js";
 
@@ -6,13 +6,13 @@ const mocks = vi.hoisted(() => ({
   resolveRealtimeVoiceFastContextConsult: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/realtime-voice", () => ({
+vi.mock("alien/plugin-sdk/realtime-voice", () => ({
   resolveRealtimeVoiceFastContextConsult: mocks.resolveRealtimeVoiceFastContextConsult,
 }));
 
 import { resolveRealtimeFastContextConsult } from "./realtime-fast-context.js";
 
-const cfg = {} as OpenClawConfig;
+const cfg = {} as AlienConfig;
 
 function createFastContextConfig(
   overrides: Partial<VoiceCallRealtimeFastContextConfig> = {},
@@ -67,7 +67,7 @@ describe("resolveRealtimeFastContextConsult", () => {
       logger,
       labels: {
         audienceLabel: "caller",
-        contextName: "OpenClaw memory or session context",
+        contextName: "Alien memory or session context",
       },
     });
   });

@@ -1,13 +1,13 @@
-import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { adaptScopedAccountAccessor } from "alien/plugin-sdk/channel-config-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   createSetupWizardAdapter,
   createTestWizardPrompter,
   runSetupWizardConfigure,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
-import type { WizardPrompter } from "openclaw/plugin-sdk/plugin-test-runtime";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/routing";
-import { isPrivateNetworkOptInEnabled } from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/plugin-test-runtime";
+import type { WizardPrompter } from "alien/plugin-sdk/plugin-test-runtime";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/routing";
+import { isPrivateNetworkOptInEnabled } from "alien/plugin-sdk/ssrf-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { BlueBubblesConfigSchema } from "./config-schema.js";
@@ -201,7 +201,7 @@ describe("bluebubbles setup surface", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(blueBubblesSetupWizard.dmPolicy?.getCurrent(cfg)).toBe("allowlist");
     expect(blueBubblesSetupWizard.dmPolicy?.resolveConfigKeys?.(cfg)).toEqual({
@@ -236,7 +236,7 @@ describe("bluebubbles setup surface", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(resolved.accountId).toBe("work");
@@ -265,7 +265,7 @@ describe("bluebubbles setup surface", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(configured).toBe(false);

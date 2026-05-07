@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { DirectoryConfigParams } from "openclaw/plugin-sdk/directory-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { DirectoryConfigParams } from "alien/plugin-sdk/directory-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listDiscordDirectoryGroupsLive, listDiscordDirectoryPeersLive } from "./directory-live.js";
 
@@ -11,7 +11,7 @@ function makeParams(overrides: Partial<DirectoryConfigParams> = {}): DirectoryCo
           token: "test-token",
         },
       },
-    } as OpenClawConfig,
+    } as AlienConfig,
     accountId: "default",
     ...overrides,
   };
@@ -41,7 +41,7 @@ describe("discord directory live lookups", () => {
   it("returns empty group directory when token is missing", async () => {
     const rows = await listDiscordDirectoryGroupsLive({
       ...makeParams(),
-      cfg: { channels: { discord: { token: "" } } } as OpenClawConfig,
+      cfg: { channels: { discord: { token: "" } } } as AlienConfig,
       query: "general",
     });
 

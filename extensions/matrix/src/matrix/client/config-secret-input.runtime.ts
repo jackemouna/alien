@@ -1,1 +1,1 @@
-export { resolveConfiguredSecretInputString } from "openclaw/plugin-sdk/secret-input-runtime";
+export { resolveConfiguredSecretInputString } from "alien/plugin-sdk/secret-input-runtime";

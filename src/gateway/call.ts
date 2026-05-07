@@ -5,7 +5,7 @@ import {
   resolveGatewayPort as resolveGatewayPortFromPaths,
   resolveStateDir as resolveStateDirFromPaths,
 } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { loadOrCreateDeviceIdentity, type DeviceIdentity } from "../infra/device-identity.js";
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { isLoopbackIpAddress } from "../shared/net/ip.js";
@@ -49,7 +49,7 @@ type CallGatewayBaseOptions = {
   token?: string;
   password?: string;
   tlsFingerprint?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   method: string;
   params?: unknown;
   expectFinal?: boolean;
@@ -166,7 +166,7 @@ function resolveGatewayClientDisplayName(opts: CallGatewayBaseOptions): string |
   return method ? `gateway:${method}` : "gateway:request";
 }
 
-function loadGatewayConfig(): OpenClawConfig {
+function loadGatewayConfig(): AlienConfig {
   const loadConfigFn =
     typeof gatewayCallDeps.getRuntimeConfig === "function"
       ? gatewayCallDeps.getRuntimeConfig
@@ -192,7 +192,7 @@ function resolveGatewayConfigPath(env: NodeJS.ProcessEnv): string {
   return resolveConfigPathFn(env, resolveGatewayStateDir(env));
 }
 
-function resolveGatewayPortValue(config?: OpenClawConfig, env?: NodeJS.ProcessEnv): number {
+function resolveGatewayPortValue(config?: AlienConfig, env?: NodeJS.ProcessEnv): number {
   const resolveGatewayPortFn =
     typeof gatewayCallDeps.resolveGatewayPort === "function"
       ? gatewayCallDeps.resolveGatewayPort
@@ -202,7 +202,7 @@ function resolveGatewayPortValue(config?: OpenClawConfig, env?: NodeJS.ProcessEn
 
 export function buildGatewayConnectionDetails(
   options: {
-    config?: OpenClawConfig;
+    config?: AlienConfig;
     url?: string;
     configPath?: string;
     urlSource?: "cli" | "env";
@@ -351,7 +351,7 @@ type GatewayRemoteSettings = {
 };
 
 type ResolvedGatewayCallContext = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   configPath: string;
   isRemoteMode: boolean;
   remote?: GatewayRemoteSettings;
@@ -380,8 +380,8 @@ function resolveGatewayCallTimeout(
     Number.isFinite(configuredHandshakeTimeoutMs) &&
     configuredHandshakeTimeoutMs > 0;
   const hasEnvHandshakeTimeout =
-    Boolean(process.env.OPENCLAW_HANDSHAKE_TIMEOUT_MS) ||
-    Boolean(process.env.VITEST && process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS);
+    Boolean(process.env.ALIEN_HANDSHAKE_TIMEOUT_MS) ||
+    Boolean(process.env.VITEST && process.env.ALIEN_TEST_HANDSHAKE_TIMEOUT_MS);
   const resolvedHandshakeTimeoutMs =
     hasConfiguredHandshakeTimeout || hasEnvHandshakeTimeout
       ? resolvePreauthHandshakeTimeoutMs({ configuredTimeoutMs: configuredHandshakeTimeoutMs })
@@ -401,7 +401,7 @@ function resolveGatewayCallContext(opts: CallGatewayBaseOptions): ResolvedGatewa
   const explicitAuth = resolveExplicitGatewayAuth({ token: opts.token, password: opts.password });
   const envUrlOverride = cliUrlOverride
     ? undefined
-    : trimToUndefined(process.env.OPENCLAW_GATEWAY_URL);
+    : trimToUndefined(process.env.ALIEN_GATEWAY_URL);
   const urlOverride = cliUrlOverride ?? envUrlOverride;
   const urlOverrideSource = cliUrlOverride ? "cli" : envUrlOverride ? "env" : undefined;
   const canSkipConfigLoad = canSkipGatewayConfigLoad({
@@ -409,7 +409,7 @@ function resolveGatewayCallContext(opts: CallGatewayBaseOptions): ResolvedGatewa
     urlOverride,
     explicitAuth,
   });
-  const config = opts.config ?? (canSkipConfigLoad ? ({} as OpenClawConfig) : loadGatewayConfig());
+  const config = opts.config ?? (canSkipConfigLoad ? ({} as AlienConfig) : loadGatewayConfig());
   const configPath = opts.configPath ?? resolveGatewayConfigPath(process.env);
   const isRemoteMode = config.gateway?.mode === "remote";
   const remote = isRemoteMode
@@ -525,7 +525,7 @@ function formatGatewayCloseError(
       "\n- Gateway not yet ready to accept connections (retry after a moment)" +
       "\n- TLS mismatch (connecting with ws:// to a wss:// gateway, or vice versa)" +
       "\n- Gateway crashed or was terminated unexpectedly" +
-      "\nRun `openclaw doctor` for diagnostics.";
+      "\nRun `alien doctor` for diagnostics.";
   }
   return message;
 }

@@ -1,5 +1,5 @@
 ---
-summary: "Adds Amazon Bedrock model provider support to OpenClaw."
+summary: "Adds Amazon Bedrock model provider support to Alien."
 read_when:
   - You are installing, configuring, or auditing the amazon-bedrock plugin
 title: "Amazon Bedrock plugin"
@@ -7,12 +7,12 @@ title: "Amazon Bedrock plugin"
 
 # Amazon Bedrock plugin
 
-Adds Amazon Bedrock model provider support to OpenClaw.
+Adds Amazon Bedrock model provider support to Alien.
 
 ## Distribution
 
-- Package: `@openclaw/amazon-bedrock-provider`
-- Install route: included in OpenClaw
+- Package: `@alien/amazon-bedrock-provider`
+- Install route: included in Alien
 
 ## Surface
 

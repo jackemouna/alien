@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 
 const normalizeProviderModelIdWithPluginMock = vi.fn();
@@ -29,7 +29,7 @@ describe("gateway session list plugin runtime normalization", () => {
       agents: {
         defaults: { model: { primary: "custom-provider/custom-legacy-model" } },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const store = Object.fromEntries(
       Array.from({ length: 3 }, (_value, index) => [
         `session-${index}`,
@@ -67,7 +67,7 @@ describe("gateway session list plugin runtime normalization", () => {
       agents: {
         defaults: { model: { primary: "custom-provider/custom-legacy-model" } },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const row = buildGatewaySessionRow({
       cfg,

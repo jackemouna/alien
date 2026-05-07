@@ -1,9 +1,9 @@
 import {
   createMessageReceiptFromOutboundResults,
   verifyChannelMessageAdapterCapabilityProofs,
-} from "openclaw/plugin-sdk/channel-message";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createPluginSetupWizardStatus } from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/channel-message";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createPluginSetupWizardStatus } from "alien/plugin-sdk/plugin-test-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { signalPlugin } from "./channel.js";
 import * as clientModule from "./client.js";
@@ -203,7 +203,7 @@ describe("probeSignal", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       accountOverrides: {},
     });
 
@@ -242,7 +242,7 @@ describe("signal outbound", () => {
         proofs: {
           text: async () => {
             const result = await signalPlugin.message?.send?.text?.({
-              cfg: {} as OpenClawConfig,
+              cfg: {} as AlienConfig,
               to: "signal:+15555550123",
               text: "hello",
               deps,
@@ -258,7 +258,7 @@ describe("signal outbound", () => {
           },
           media: async () => {
             const result = await signalPlugin.message?.send?.media?.({
-              cfg: {} as OpenClawConfig,
+              cfg: {} as AlienConfig,
               to: "signal:+15555550123",
               text: "image",
               mediaUrl: "https://example.com/image.png",
@@ -389,7 +389,7 @@ describe("signal setup parsing", () => {
   });
 
   it("uses configured defaultAccount for omitted DM policy account context", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       channels: {
         signal: {
           defaultAccount: "work",
@@ -419,7 +419,7 @@ describe("signal setup parsing", () => {
   });
 
   it('writes open policy state to the named account and stores inherited allowFrom with "*"', () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       channels: {
         signal: {
           allowFrom: ["+15555550123"],

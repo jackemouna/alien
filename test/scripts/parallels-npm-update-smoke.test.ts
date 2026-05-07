@@ -26,9 +26,9 @@ describe("parallels npm update smoke", () => {
     const script = readFileSync(SCRIPT_PATH, "utf8");
 
     expect(script).toContain("--beta-validation [target]");
-    expect(script).toContain("resolveOpenClawRegistryVersion");
+    expect(script).toContain("resolveAlienRegistryVersion");
     expect(script).toContain("this.options.updateTarget = version");
-    expect(script).toContain("this.options.freshTargetSpec = `openclaw@${version}`");
+    expect(script).toContain("this.options.freshTargetSpec = `alien@${version}`");
     expect(script).toContain("runFreshTargetInstalls");
     expect(script).toContain("freshTargetStatus");
   });
@@ -49,8 +49,8 @@ describe("parallels npm update smoke", () => {
 
     expect(script).toContain("runWindowsBackgroundPowerShell");
     expect(transports).toContain("runWindowsBackgroundPowerShell");
-    expect(transports).toContain("__OPENCLAW_BACKGROUND_EXIT__");
-    expect(transports).toContain("__OPENCLAW_BACKGROUND_DONE__");
+    expect(transports).toContain("__ALIEN_BACKGROUND_EXIT__");
+    expect(transports).toContain("__ALIEN_BACKGROUND_DONE__");
     expect(transports).toContain("${options.label} timed out");
   });
 
@@ -68,17 +68,17 @@ describe("parallels npm update smoke", () => {
     expect(script).toContain("scrub_future_plugin_entries");
     expect(script).toContain("delete plugins.entries.feishu");
     expect(script).toContain("delete plugins.entries.whatsapp");
-    expect(script).toContain("Remove-FuturePluginEntries\nStop-OpenClawGatewayProcesses");
-    expect(script).toContain("scrub_future_plugin_entries\nstop_openclaw_gateway_processes");
-    expect(script).toContain("Invoke-WithScopedEnv @{ OPENCLAW_DISABLE_BUNDLED_PLUGINS = '1'");
+    expect(script).toContain("Remove-FuturePluginEntries\nStop-AlienGatewayProcesses");
+    expect(script).toContain("scrub_future_plugin_entries\nstop_alien_gateway_processes");
+    expect(script).toContain("Invoke-WithScopedEnv @{ ALIEN_DISABLE_BUNDLED_PLUGINS = '1'");
     expect(script).toContain(
-      "OPENCLAW_DISABLE_BUNDLED_PLUGINS=1 /opt/homebrew/bin/openclaw update --tag",
+      "ALIEN_DISABLE_BUNDLED_PLUGINS=1 /opt/homebrew/bin/alien update --tag",
     );
-    expect(script).toContain("OPENCLAW_DISABLE_BUNDLED_PLUGINS=1 openclaw update --tag");
+    expect(script).toContain("ALIEN_DISABLE_BUNDLED_PLUGINS=1 alien update --tag");
     expect(script).toContain(
-      "OPENCLAW_DISABLE_BUNDLED_PLUGINS=1 /opt/homebrew/bin/openclaw gateway stop",
+      "ALIEN_DISABLE_BUNDLED_PLUGINS=1 /opt/homebrew/bin/alien gateway stop",
     );
-    expect(script).toContain("OPENCLAW_DISABLE_BUNDLED_PLUGINS=1 openclaw gateway stop");
+    expect(script).toContain("ALIEN_DISABLE_BUNDLED_PLUGINS=1 alien gateway stop");
   });
 
   it("reenables bundled plugins before Windows post-update verification", () => {
@@ -88,11 +88,11 @@ describe("parallels npm update smoke", () => {
       updateTarget: "2026.5.3-beta.2",
     });
 
-    const updateIndex = script.indexOf("Invoke-OpenClaw update --tag");
-    const scopedIndex = script.indexOf("Invoke-WithScopedEnv @{ OPENCLAW_DISABLE_BUNDLED_PLUGINS");
-    const versionIndex = script.indexOf("Invoke-OpenClaw --version", scopedIndex);
-    const restartIndex = script.indexOf("Invoke-OpenClaw gateway restart");
-    const agentIndex = script.indexOf("Invoke-OpenClaw agent --local");
+    const updateIndex = script.indexOf("Invoke-Alien update --tag");
+    const scopedIndex = script.indexOf("Invoke-WithScopedEnv @{ ALIEN_DISABLE_BUNDLED_PLUGINS");
+    const versionIndex = script.indexOf("Invoke-Alien --version", scopedIndex);
+    const restartIndex = script.indexOf("Invoke-Alien gateway restart");
+    const agentIndex = script.indexOf("Invoke-Alien agent --local");
 
     expect(updateIndex).toBeGreaterThanOrEqual(0);
     expect(scopedIndex).toBeGreaterThanOrEqual(0);
@@ -100,7 +100,7 @@ describe("parallels npm update smoke", () => {
     expect(versionIndex).toBeGreaterThan(updateIndex);
     expect(restartIndex).toBeGreaterThan(updateIndex);
     expect(agentIndex).toBeGreaterThan(updateIndex);
-    expect(script).not.toContain("$env:OPENCLAW_DISABLE_BUNDLED_PLUGINS = '1'");
+    expect(script).not.toContain("$env:ALIEN_DISABLE_BUNDLED_PLUGINS = '1'");
   });
 
   it("generates a .NET-safe Windows stale import regex in the update-failure guard", () => {
@@ -122,13 +122,13 @@ describe("parallels npm update smoke", () => {
     expect(staleImportLine).toContain("$updateText -match 'ERR_MODULE_NOT_FOUND'");
     expect(staleImportLine).toContain(`$updateText -match '${staleImportPattern}'`);
     expect(staleImportPattern).toBe(
-      String.raw`node_modules\\openclaw\\dist\\[^\\]+-[A-Za-z0-9_-]+\.js`,
+      String.raw`node_modules\\alien\\dist\\[^\\]+-[A-Za-z0-9_-]+\.js`,
     );
-    expect(staleImportPattern).not.toContain("node_modules\\openclaw\\dist\\");
+    expect(staleImportPattern).not.toContain("node_modules\\alien\\dist\\");
     expect(staleImportPattern.match(/\\\\/g)).toHaveLength(4);
-    const representativeUpdateFailure = String.raw`Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\runner\AppData\Roaming\npm\node_modules\openclaw\dist\main-a1_B2.js' imported from C:\Users\runner\AppData\Roaming\npm\node_modules\openclaw\dist\cli.js`;
+    const representativeUpdateFailure = String.raw`Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\runner\AppData\Roaming\npm\node_modules\alien\dist\main-a1_B2.js' imported from C:\Users\runner\AppData\Roaming\npm\node_modules\alien\dist\cli.js`;
     const generatedRegex = new RegExp(staleImportPattern);
     expect(generatedRegex.test(representativeUpdateFailure)).toBe(true);
-    expect(generatedRegex.test(String.raw`node_modules\openclaw\dist\main.js`)).toBe(false);
+    expect(generatedRegex.test(String.raw`node_modules\alien\dist\main.js`)).toBe(false);
   });
 });

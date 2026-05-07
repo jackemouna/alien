@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 
 const pdfMetadataPlugins = vi.hoisted(() => [
   {
@@ -138,7 +138,7 @@ describe("pdf-tool.helpers", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     expect(coercePdfModelConfig(cfg)).toEqual({
       primary: ANTHROPIC_PDF_MODEL,
       fallbacks: ["google/gemini-2.5-pro"],

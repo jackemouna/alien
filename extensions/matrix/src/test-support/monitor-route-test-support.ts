@@ -1,10 +1,10 @@
 export {
   registerSessionBindingAdapter,
   __testing,
-} from "openclaw/plugin-sdk/session-binding-runtime";
-export { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/session-binding-runtime";
+export { resolveAgentRoute } from "alien/plugin-sdk/routing";
 export {
   createTestRegistry,
   setActivePluginRegistry,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/plugin-test-runtime";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";

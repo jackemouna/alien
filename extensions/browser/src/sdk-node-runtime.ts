@@ -10,19 +10,19 @@ export {
   resolveGatewayAuth,
   resolveNodeCommandAllowlist,
   safeParseJson,
-} from "openclaw/plugin-sdk/gateway-runtime";
+} from "alien/plugin-sdk/gateway-runtime";
 export type {
   GatewayRequestHandlers,
   GatewayRpcOpts,
   NodeSession,
-} from "openclaw/plugin-sdk/gateway-runtime";
-export { runCommandWithRuntime } from "openclaw/plugin-sdk/cli-runtime";
-export type { OpenClawPluginService } from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/gateway-runtime";
+export { runCommandWithRuntime } from "alien/plugin-sdk/cli-runtime";
+export type { AlienPluginService } from "alien/plugin-sdk/plugin-entry";
 export {
   startLazyPluginServiceModule,
   type LazyPluginServiceHandle,
-} from "openclaw/plugin-sdk/plugin-runtime";
-export { defaultRuntime } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/plugin-runtime";
+export { defaultRuntime } from "alien/plugin-sdk/runtime-env";
 
 export async function withTimeout<T>(
   work: (signal: AbortSignal | undefined) => Promise<T>,

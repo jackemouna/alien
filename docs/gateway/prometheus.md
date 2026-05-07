@@ -1,14 +1,14 @@
 ---
-summary: "Expose OpenClaw diagnostics as Prometheus text metrics through the diagnostics-prometheus plugin"
+summary: "Expose Alien diagnostics as Prometheus text metrics through the diagnostics-prometheus plugin"
 title: "Prometheus metrics"
 sidebarTitle: "Prometheus"
 read_when:
-  - You want Prometheus, Grafana, VictoriaMetrics, or another scraper to collect OpenClaw Gateway metrics
+  - You want Prometheus, Grafana, VictoriaMetrics, or another scraper to collect Alien Gateway metrics
   - You need the Prometheus metric names and label policy for dashboards or alerts
   - You want metrics without running an OpenTelemetry collector
 ---
 
-OpenClaw can expose diagnostics metrics through the official `diagnostics-prometheus` plugin. It listens to trusted internal diagnostics and renders a Prometheus text endpoint at:
+Alien can expose diagnostics metrics through the official `diagnostics-prometheus` plugin. It listens to trusted internal diagnostics and renders a Prometheus text endpoint at:
 
 ```text
 GET /api/diagnostics/prometheus
@@ -27,7 +27,7 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
 <Steps>
   <Step title="Install the plugin">
     ```bash
-    openclaw plugins install clawhub:@openclaw/diagnostics-prometheus
+    alien plugins install clawhub:@alien/diagnostics-prometheus
     ```
   </Step>
   <Step title="Enable the plugin">
@@ -49,7 +49,7 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
       </Tab>
       <Tab title="CLI">
         ```bash
-        openclaw plugins enable diagnostics-prometheus
+        alien plugins enable diagnostics-prometheus
         ```
       </Tab>
     </Tabs>
@@ -61,7 +61,7 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
     Send the same gateway auth your operator clients use:
 
     ```bash
-    curl -H "Authorization: Bearer $OPENCLAW_GATEWAY_TOKEN" \
+    curl -H "Authorization: Bearer $ALIEN_GATEWAY_TOKEN" \
       http://127.0.0.1:18789/api/diagnostics/prometheus
     ```
 
@@ -70,13 +70,13 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
     ```yaml
     # prometheus.yml
     scrape_configs:
-      - job_name: openclaw
+      - job_name: alien
         scrape_interval: 30s
         metrics_path: /api/diagnostics/prometheus
         authorization:
-          credentials_file: /etc/prometheus/openclaw-gateway-token
+          credentials_file: /etc/prometheus/alien-gateway-token
         static_configs:
-          - targets: ["openclaw-gateway:18789"]
+          - targets: ["alien-gateway:18789"]
     ```
   </Step>
 </Steps>
@@ -89,36 +89,36 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
 
 | Metric                                        | Type      | Labels                                                                                    |
 | --------------------------------------------- | --------- | ----------------------------------------------------------------------------------------- |
-| `openclaw_run_completed_total`                | counter   | `channel`, `model`, `outcome`, `provider`, `trigger`                                      |
-| `openclaw_run_duration_seconds`               | histogram | `channel`, `model`, `outcome`, `provider`, `trigger`                                      |
-| `openclaw_model_call_total`                   | counter   | `api`, `error_category`, `model`, `outcome`, `provider`, `transport`                      |
-| `openclaw_model_call_duration_seconds`        | histogram | `api`, `error_category`, `model`, `outcome`, `provider`, `transport`                      |
-| `openclaw_model_tokens_total`                 | counter   | `agent`, `channel`, `model`, `provider`, `token_type`                                     |
-| `openclaw_gen_ai_client_token_usage`          | histogram | `model`, `provider`, `token_type`                                                         |
-| `openclaw_model_cost_usd_total`               | counter   | `agent`, `channel`, `model`, `provider`                                                   |
-| `openclaw_tool_execution_total`               | counter   | `error_category`, `outcome`, `params_kind`, `tool`                                        |
-| `openclaw_tool_execution_duration_seconds`    | histogram | `error_category`, `outcome`, `params_kind`, `tool`                                        |
-| `openclaw_harness_run_total`                  | counter   | `channel`, `error_category`, `harness`, `model`, `outcome`, `phase`, `plugin`, `provider` |
-| `openclaw_harness_run_duration_seconds`       | histogram | `channel`, `error_category`, `harness`, `model`, `outcome`, `phase`, `plugin`, `provider` |
-| `openclaw_message_processed_total`            | counter   | `channel`, `outcome`, `reason`                                                            |
-| `openclaw_message_processed_duration_seconds` | histogram | `channel`, `outcome`, `reason`                                                            |
-| `openclaw_message_delivery_started_total`     | counter   | `channel`, `delivery_kind`                                                                |
-| `openclaw_message_delivery_total`             | counter   | `channel`, `delivery_kind`, `error_category`, `outcome`                                   |
-| `openclaw_message_delivery_duration_seconds`  | histogram | `channel`, `delivery_kind`, `error_category`, `outcome`                                   |
-| `openclaw_talk_event_total`                   | counter   | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
-| `openclaw_talk_event_duration_seconds`        | histogram | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
-| `openclaw_talk_audio_bytes`                   | histogram | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
-| `openclaw_queue_lane_size`                    | gauge     | `lane`                                                                                    |
-| `openclaw_queue_lane_wait_seconds`            | histogram | `lane`                                                                                    |
-| `openclaw_session_state_total`                | counter   | `reason`, `state`                                                                         |
-| `openclaw_session_queue_depth`                | gauge     | `state`                                                                                   |
-| `openclaw_session_recovery_total`             | counter   | `action`, `active_work_kind`, `state`, `status`                                           |
-| `openclaw_session_recovery_age_seconds`       | histogram | `action`, `active_work_kind`, `state`, `status`                                           |
-| `openclaw_memory_bytes`                       | gauge     | `kind`                                                                                    |
-| `openclaw_memory_rss_bytes`                   | histogram | none                                                                                      |
-| `openclaw_memory_pressure_total`              | counter   | `level`, `reason`                                                                         |
-| `openclaw_telemetry_exporter_total`           | counter   | `exporter`, `reason`, `signal`, `status`                                                  |
-| `openclaw_prometheus_series_dropped_total`    | counter   | none                                                                                      |
+| `alien_run_completed_total`                | counter   | `channel`, `model`, `outcome`, `provider`, `trigger`                                      |
+| `alien_run_duration_seconds`               | histogram | `channel`, `model`, `outcome`, `provider`, `trigger`                                      |
+| `alien_model_call_total`                   | counter   | `api`, `error_category`, `model`, `outcome`, `provider`, `transport`                      |
+| `alien_model_call_duration_seconds`        | histogram | `api`, `error_category`, `model`, `outcome`, `provider`, `transport`                      |
+| `alien_model_tokens_total`                 | counter   | `agent`, `channel`, `model`, `provider`, `token_type`                                     |
+| `alien_gen_ai_client_token_usage`          | histogram | `model`, `provider`, `token_type`                                                         |
+| `alien_model_cost_usd_total`               | counter   | `agent`, `channel`, `model`, `provider`                                                   |
+| `alien_tool_execution_total`               | counter   | `error_category`, `outcome`, `params_kind`, `tool`                                        |
+| `alien_tool_execution_duration_seconds`    | histogram | `error_category`, `outcome`, `params_kind`, `tool`                                        |
+| `alien_harness_run_total`                  | counter   | `channel`, `error_category`, `harness`, `model`, `outcome`, `phase`, `plugin`, `provider` |
+| `alien_harness_run_duration_seconds`       | histogram | `channel`, `error_category`, `harness`, `model`, `outcome`, `phase`, `plugin`, `provider` |
+| `alien_message_processed_total`            | counter   | `channel`, `outcome`, `reason`                                                            |
+| `alien_message_processed_duration_seconds` | histogram | `channel`, `outcome`, `reason`                                                            |
+| `alien_message_delivery_started_total`     | counter   | `channel`, `delivery_kind`                                                                |
+| `alien_message_delivery_total`             | counter   | `channel`, `delivery_kind`, `error_category`, `outcome`                                   |
+| `alien_message_delivery_duration_seconds`  | histogram | `channel`, `delivery_kind`, `error_category`, `outcome`                                   |
+| `alien_talk_event_total`                   | counter   | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
+| `alien_talk_event_duration_seconds`        | histogram | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
+| `alien_talk_audio_bytes`                   | histogram | `brain`, `event_type`, `mode`, `provider`, `transport`                                    |
+| `alien_queue_lane_size`                    | gauge     | `lane`                                                                                    |
+| `alien_queue_lane_wait_seconds`            | histogram | `lane`                                                                                    |
+| `alien_session_state_total`                | counter   | `reason`, `state`                                                                         |
+| `alien_session_queue_depth`                | gauge     | `state`                                                                                   |
+| `alien_session_recovery_total`             | counter   | `action`, `active_work_kind`, `state`, `status`                                           |
+| `alien_session_recovery_age_seconds`       | histogram | `action`, `active_work_kind`, `state`, `status`                                           |
+| `alien_memory_bytes`                       | gauge     | `kind`                                                                                    |
+| `alien_memory_rss_bytes`                   | histogram | none                                                                                      |
+| `alien_memory_pressure_total`              | counter   | `level`, `reason`                                                                         |
+| `alien_telemetry_exporter_total`           | counter   | `exporter`, `reason`, `signal`, `status`                                                  |
+| `alien_prometheus_series_dropped_total`    | counter   | none                                                                                      |
 
 ## Label policy
 
@@ -126,11 +126,11 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
   <Accordion title="Bounded, low-cardinality labels">
     Prometheus labels stay bounded and low-cardinality. The exporter does not emit raw diagnostic identifiers such as `runId`, `sessionKey`, `sessionId`, `callId`, `toolCallId`, message IDs, chat IDs, or provider request IDs.
 
-    Label values are redacted and must match OpenClaw's low-cardinality character policy. Values that fail the policy are replaced with `unknown`, `other`, or `none`, depending on the metric.
+    Label values are redacted and must match Alien's low-cardinality character policy. Values that fail the policy are replaced with `unknown`, `other`, or `none`, depending on the metric.
 
   </Accordion>
   <Accordion title="Series cap and overflow accounting">
-    The exporter caps retained time series in memory at **2048** series across counters, gauges, and histograms combined. New series beyond that cap are dropped, and `openclaw_prometheus_series_dropped_total` increments by one each time.
+    The exporter caps retained time series in memory at **2048** series across counters, gauges, and histograms combined. New series beyond that cap are dropped, and `alien_prometheus_series_dropped_total` increments by one each time.
 
     Watch this counter as a hard signal that an attribute upstream is leaking high-cardinality values. The exporter never lifts the cap automatically; if it climbs, fix the source rather than disabling the cap.
 
@@ -149,35 +149,35 @@ For traces, logs, OTLP push, and OpenTelemetry GenAI semantic attributes, see [O
 
 ```promql
 # Tokens per minute, split by provider
-sum by (provider) (rate(openclaw_model_tokens_total[1m]))
+sum by (provider) (rate(alien_model_tokens_total[1m]))
 
 # Spend (USD) over the last hour, by model
-sum by (model) (increase(openclaw_model_cost_usd_total[1h]))
+sum by (model) (increase(alien_model_cost_usd_total[1h]))
 
 # 95th percentile model run duration
 histogram_quantile(
   0.95,
   sum by (le, provider, model)
-    (rate(openclaw_run_duration_seconds_bucket[5m]))
+    (rate(alien_run_duration_seconds_bucket[5m]))
 )
 
 # Queue wait time SLO (95p under 2s)
 histogram_quantile(
   0.95,
-  sum by (le, lane) (rate(openclaw_queue_lane_wait_seconds_bucket[5m]))
+  sum by (le, lane) (rate(alien_queue_lane_wait_seconds_bucket[5m]))
 ) < 2
 
 # Dropped Prometheus series (cardinality alarm)
-increase(openclaw_prometheus_series_dropped_total[15m]) > 0
+increase(alien_prometheus_series_dropped_total[15m]) > 0
 ```
 
 <Tip>
-Prefer `gen_ai_client_token_usage` for cross-provider dashboards: it follows the OpenTelemetry GenAI semantic conventions and is consistent with metrics from non-OpenClaw GenAI services.
+Prefer `gen_ai_client_token_usage` for cross-provider dashboards: it follows the OpenTelemetry GenAI semantic conventions and is consistent with metrics from non-Alien GenAI services.
 </Tip>
 
 ## Choosing between Prometheus and OpenTelemetry export
 
-OpenClaw supports both surfaces independently. You can run either, both, or neither.
+Alien supports both surfaces independently. You can run either, both, or neither.
 
 <Tabs>
   <Tab title="diagnostics-prometheus">
@@ -189,7 +189,7 @@ OpenClaw supports both surfaces independently. You can run either, both, or neit
 
   </Tab>
   <Tab title="diagnostics-otel">
-    - **Push** model: OpenClaw sends OTLP/HTTP to a collector or OTLP-compatible backend.
+    - **Push** model: Alien sends OTLP/HTTP to a collector or OTLP-compatible backend.
     - Surface includes metrics, traces, and logs.
     - Bridges to Prometheus through an OpenTelemetry Collector (`prometheus` or `prometheusremotewrite` exporter) when you need both.
     - See [OpenTelemetry export](/gateway/opentelemetry) for the full catalog.
@@ -202,14 +202,14 @@ OpenClaw supports both surfaces independently. You can run either, both, or neit
 <AccordionGroup>
   <Accordion title="Empty response body">
     - Check `diagnostics.enabled: true` in config.
-    - Confirm the plugin is enabled and loaded with `openclaw plugins list --enabled`.
+    - Confirm the plugin is enabled and loaded with `alien plugins list --enabled`.
     - Generate some traffic; counters and histograms only emit lines after at least one event.
 
   </Accordion>
   <Accordion title="401 / unauthorized">
     The endpoint requires the Gateway operator scope (`auth: "gateway"` with `gatewayRuntimeScopeSurface: "trusted-operator"`). Use the same token or password Prometheus uses for any other Gateway operator route. There is no public unauthenticated mode.
   </Accordion>
-  <Accordion title="`openclaw_prometheus_series_dropped_total` is climbing">
+  <Accordion title="`alien_prometheus_series_dropped_total` is climbing">
     A new attribute is exceeding the **2048**-series cap. Inspect recent metrics for an unexpectedly high-cardinality label and fix it at the source. The exporter intentionally drops new series instead of silently rewriting labels.
   </Accordion>
   <Accordion title="Prometheus shows stale series after a restart">

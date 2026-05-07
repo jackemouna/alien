@@ -52,7 +52,7 @@ async function callPluginToolsMcp(params: {
     cwd: params.env.gateway.tempRoot,
     env: transportEnv,
   });
-  const client = new Client({ name: "openclaw-qa-suite", version: "0.0.0" }, {});
+  const client = new Client({ name: "alien-qa-suite", version: "0.0.0" }, {});
   try {
     await client.connect(transport);
     const listed = await client.listTools();

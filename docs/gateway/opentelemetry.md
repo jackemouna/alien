@@ -1,13 +1,13 @@
 ---
-summary: "Export OpenClaw diagnostics to any OpenTelemetry collector via the diagnostics-otel plugin (OTLP/HTTP)"
+summary: "Export Alien diagnostics to any OpenTelemetry collector via the diagnostics-otel plugin (OTLP/HTTP)"
 title: "OpenTelemetry export"
 read_when:
-  - You want to send OpenClaw model usage, message flow, or session metrics to an OpenTelemetry collector
+  - You want to send Alien model usage, message flow, or session metrics to an OpenTelemetry collector
   - You are wiring traces, metrics, or logs into Grafana, Datadog, Honeycomb, New Relic, Tempo, or another OTLP backend
   - You need the exact metric names, span names, or attribute shapes to build dashboards or alerts
 ---
 
-OpenClaw exports diagnostics through the official `diagnostics-otel` plugin
+Alien exports diagnostics through the official `diagnostics-otel` plugin
 using **OTLP/HTTP (protobuf)**. Any collector or backend that accepts OTLP/HTTP
 works without code changes. For local file logs and how to read them, see
 [Logging](/logging).
@@ -19,7 +19,7 @@ works without code changes. For local file logs and how to read them, see
   and exec.
 - **`diagnostics-otel` plugin** subscribes to those events and exports them as
   OpenTelemetry **metrics**, **traces**, and **logs** over OTLP/HTTP.
-- **Provider calls** receive a W3C `traceparent` header from OpenClaw's
+- **Provider calls** receive a W3C `traceparent` header from Alien's
   trusted model-call span context when the provider transport accepts custom
   headers. Plugin-emitted trace context is not propagated.
 - Exporters only attach when both the diagnostics surface and the plugin are
@@ -30,7 +30,7 @@ works without code changes. For local file logs and how to read them, see
 For packaged installs, install the plugin first:
 
 ```bash
-openclaw plugins install clawhub:@openclaw/diagnostics-otel
+alien plugins install clawhub:@alien/diagnostics-otel
 ```
 
 ```json5
@@ -47,7 +47,7 @@ openclaw plugins install clawhub:@openclaw/diagnostics-otel
       enabled: true,
       endpoint: "http://otel-collector:4318",
       protocol: "http/protobuf",
-      serviceName: "openclaw-gateway",
+      serviceName: "alien-gateway",
       traces: true,
       metrics: true,
       logs: true,
@@ -61,7 +61,7 @@ openclaw plugins install clawhub:@openclaw/diagnostics-otel
 You can also enable the plugin from the CLI:
 
 ```bash
-openclaw plugins enable diagnostics-otel
+alien plugins enable diagnostics-otel
 ```
 
 <Note>
@@ -92,7 +92,7 @@ when `diagnostics.otel.enabled` is true.
       metricsEndpoint: "http://otel-collector:4318/v1/metrics",
       logsEndpoint: "http://otel-collector:4318/v1/logs",
       protocol: "http/protobuf", // grpc is ignored
-      serviceName: "openclaw-gateway",
+      serviceName: "alien-gateway",
       headers: { "x-collector-token": "..." },
       traces: true,
       metrics: true,
@@ -121,7 +121,7 @@ when `diagnostics.otel.enabled` is true.
 | `OTEL_SERVICE_NAME`                                                                                               | Override `diagnostics.otel.serviceName`.                                                                                                                                                                                                   |
 | `OTEL_EXPORTER_OTLP_PROTOCOL`                                                                                     | Override the wire protocol (only `http/protobuf` is honored today).                                                                                                                                                                        |
 | `OTEL_SEMCONV_STABILITY_OPT_IN`                                                                                   | Set to `gen_ai_latest_experimental` to emit the latest experimental GenAI span attribute (`gen_ai.provider.name`) instead of the legacy `gen_ai.system`. GenAI metrics always use bounded, low-cardinality semantic attributes regardless. |
-| `OPENCLAW_OTEL_PRELOADED`                                                                                         | Set to `1` when another preload or host process already registered the global OpenTelemetry SDK. The plugin then skips its own NodeSDK lifecycle but still wires diagnostic listeners and honors `traces`/`metrics`/`logs`.                |
+| `ALIEN_OTEL_PRELOADED`                                                                                         | Set to `1` when another preload or host process already registered the global OpenTelemetry SDK. The plugin then skips its own NodeSDK lifecycle but still wires diagnostic listeners and honors `traces`/`metrics`/`logs`.                |
 
 ## Privacy and content capture
 
@@ -134,7 +134,7 @@ provider, and event type. They do not include transcripts, audio payloads,
 session ids, turn ids, call ids, room ids, or handoff tokens.
 
 Outbound model requests may include a W3C `traceparent` header. That header is
-generated only from OpenClaw-owned diagnostic trace context for the active model
+generated only from Alien-owned diagnostic trace context for the active model
 call. Existing caller-supplied `traceparent` headers are replaced, so plugins or
 custom provider options cannot spoof cross-service trace ancestry.
 
@@ -149,7 +149,7 @@ text. Each subkey is opt-in independently:
 - `systemPrompt` - assembled system/developer prompt.
 
 When any subkey is enabled, model and tool spans get bounded, redacted
-`openclaw.content.*` attributes for that class only.
+`alien.content.*` attributes for that class only.
 
 ## Sampling and flushing
 
@@ -172,57 +172,57 @@ When any subkey is enabled, model and tool spans get bounded, redacted
 
 ### Model usage
 
-- `openclaw.tokens` (counter, attrs: `openclaw.token`, `openclaw.channel`, `openclaw.provider`, `openclaw.model`, `openclaw.agent`)
-- `openclaw.cost.usd` (counter, attrs: `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
-- `openclaw.run.duration_ms` (histogram, attrs: `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
-- `openclaw.context.tokens` (histogram, attrs: `openclaw.context`, `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
+- `alien.tokens` (counter, attrs: `alien.token`, `alien.channel`, `alien.provider`, `alien.model`, `alien.agent`)
+- `alien.cost.usd` (counter, attrs: `alien.channel`, `alien.provider`, `alien.model`)
+- `alien.run.duration_ms` (histogram, attrs: `alien.channel`, `alien.provider`, `alien.model`)
+- `alien.context.tokens` (histogram, attrs: `alien.context`, `alien.channel`, `alien.provider`, `alien.model`)
 - `gen_ai.client.token.usage` (histogram, GenAI semantic-conventions metric, attrs: `gen_ai.token.type` = `input`/`output`, `gen_ai.provider.name`, `gen_ai.operation.name`, `gen_ai.request.model`)
 - `gen_ai.client.operation.duration` (histogram, seconds, GenAI semantic-conventions metric, attrs: `gen_ai.provider.name`, `gen_ai.operation.name`, `gen_ai.request.model`, optional `error.type`)
-- `openclaw.model_call.duration_ms` (histogram, attrs: `openclaw.provider`, `openclaw.model`, `openclaw.api`, `openclaw.transport`, plus `openclaw.errorCategory` and `openclaw.failureKind` on classified errors)
-- `openclaw.model_call.request_bytes` (histogram, UTF-8 byte size of the final model request payload; no raw payload content)
-- `openclaw.model_call.response_bytes` (histogram, UTF-8 byte size of streamed model response events; no raw response content)
-- `openclaw.model_call.time_to_first_byte_ms` (histogram, elapsed time before the first streamed response event)
+- `alien.model_call.duration_ms` (histogram, attrs: `alien.provider`, `alien.model`, `alien.api`, `alien.transport`, plus `alien.errorCategory` and `alien.failureKind` on classified errors)
+- `alien.model_call.request_bytes` (histogram, UTF-8 byte size of the final model request payload; no raw payload content)
+- `alien.model_call.response_bytes` (histogram, UTF-8 byte size of streamed model response events; no raw response content)
+- `alien.model_call.time_to_first_byte_ms` (histogram, elapsed time before the first streamed response event)
 
 ### Message flow
 
-- `openclaw.webhook.received` (counter, attrs: `openclaw.channel`, `openclaw.webhook`)
-- `openclaw.webhook.error` (counter, attrs: `openclaw.channel`, `openclaw.webhook`)
-- `openclaw.webhook.duration_ms` (histogram, attrs: `openclaw.channel`, `openclaw.webhook`)
-- `openclaw.message.queued` (counter, attrs: `openclaw.channel`, `openclaw.source`)
-- `openclaw.message.processed` (counter, attrs: `openclaw.channel`, `openclaw.outcome`)
-- `openclaw.message.duration_ms` (histogram, attrs: `openclaw.channel`, `openclaw.outcome`)
-- `openclaw.message.delivery.started` (counter, attrs: `openclaw.channel`, `openclaw.delivery.kind`)
-- `openclaw.message.delivery.duration_ms` (histogram, attrs: `openclaw.channel`, `openclaw.delivery.kind`, `openclaw.outcome`, `openclaw.errorCategory`)
+- `alien.webhook.received` (counter, attrs: `alien.channel`, `alien.webhook`)
+- `alien.webhook.error` (counter, attrs: `alien.channel`, `alien.webhook`)
+- `alien.webhook.duration_ms` (histogram, attrs: `alien.channel`, `alien.webhook`)
+- `alien.message.queued` (counter, attrs: `alien.channel`, `alien.source`)
+- `alien.message.processed` (counter, attrs: `alien.channel`, `alien.outcome`)
+- `alien.message.duration_ms` (histogram, attrs: `alien.channel`, `alien.outcome`)
+- `alien.message.delivery.started` (counter, attrs: `alien.channel`, `alien.delivery.kind`)
+- `alien.message.delivery.duration_ms` (histogram, attrs: `alien.channel`, `alien.delivery.kind`, `alien.outcome`, `alien.errorCategory`)
 
 ### Talk
 
-- `openclaw.talk.event` (counter, attrs: `openclaw.talk.event_type`, `openclaw.talk.mode`, `openclaw.talk.transport`, `openclaw.talk.brain`, `openclaw.talk.provider`)
-- `openclaw.talk.event.duration_ms` (histogram, attrs: same as `openclaw.talk.event`; emitted when a Talk event reports duration)
-- `openclaw.talk.audio.bytes` (histogram, attrs: same as `openclaw.talk.event`; emitted for Talk audio frame events that report byte length)
+- `alien.talk.event` (counter, attrs: `alien.talk.event_type`, `alien.talk.mode`, `alien.talk.transport`, `alien.talk.brain`, `alien.talk.provider`)
+- `alien.talk.event.duration_ms` (histogram, attrs: same as `alien.talk.event`; emitted when a Talk event reports duration)
+- `alien.talk.audio.bytes` (histogram, attrs: same as `alien.talk.event`; emitted for Talk audio frame events that report byte length)
 
 ### Queues and sessions
 
-- `openclaw.queue.lane.enqueue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.lane.dequeue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.depth` (histogram, attrs: `openclaw.lane` or `openclaw.channel=heartbeat`)
-- `openclaw.queue.wait_ms` (histogram, attrs: `openclaw.lane`)
-- `openclaw.session.state` (counter, attrs: `openclaw.state`, `openclaw.reason`)
-- `openclaw.session.stuck` (counter, attrs: `openclaw.state`; emitted only for stale session bookkeeping with no active work)
-- `openclaw.session.stuck_age_ms` (histogram, attrs: `openclaw.state`; emitted only for stale session bookkeeping with no active work)
-- `openclaw.session.recovery.requested` (counter, attrs: `openclaw.state`, `openclaw.action`, `openclaw.active_work_kind`, `openclaw.reason`)
-- `openclaw.session.recovery.completed` (counter, attrs: `openclaw.state`, `openclaw.action`, `openclaw.status`, `openclaw.active_work_kind`, `openclaw.reason`)
-- `openclaw.session.recovery.age_ms` (histogram, attrs: same as the matching recovery counter)
-- `openclaw.run.attempt` (counter, attrs: `openclaw.attempt`)
+- `alien.queue.lane.enqueue` (counter, attrs: `alien.lane`)
+- `alien.queue.lane.dequeue` (counter, attrs: `alien.lane`)
+- `alien.queue.depth` (histogram, attrs: `alien.lane` or `alien.channel=heartbeat`)
+- `alien.queue.wait_ms` (histogram, attrs: `alien.lane`)
+- `alien.session.state` (counter, attrs: `alien.state`, `alien.reason`)
+- `alien.session.stuck` (counter, attrs: `alien.state`; emitted only for stale session bookkeeping with no active work)
+- `alien.session.stuck_age_ms` (histogram, attrs: `alien.state`; emitted only for stale session bookkeeping with no active work)
+- `alien.session.recovery.requested` (counter, attrs: `alien.state`, `alien.action`, `alien.active_work_kind`, `alien.reason`)
+- `alien.session.recovery.completed` (counter, attrs: `alien.state`, `alien.action`, `alien.status`, `alien.active_work_kind`, `alien.reason`)
+- `alien.session.recovery.age_ms` (histogram, attrs: same as the matching recovery counter)
+- `alien.run.attempt` (counter, attrs: `alien.attempt`)
 
 ### Session liveness telemetry
 
 `diagnostics.stuckSessionWarnMs` is the no-progress age threshold for session
 liveness diagnostics. A `processing` session does not age toward this threshold
-while OpenClaw observes reply, tool, status, block, or ACP runtime progress.
+while Alien observes reply, tool, status, block, or ACP runtime progress.
 Typing keepalives are not counted as progress, so a silent model or harness can
 still be detected.
 
-OpenClaw classifies sessions by the work it can still observe:
+Alien classifies sessions by the work it can still observe:
 
 - `session.long_running`: active embedded work, model calls, or tool calls are
   still making progress.
@@ -240,8 +240,8 @@ Recovery emits structured `session.recovery.requested` and
 only after a mutating recovery outcome (`aborted` or `released`) and only if the
 same processing generation is still current.
 
-Only `session.stuck` emits the `openclaw.session.stuck` counter, the
-`openclaw.session.stuck_age_ms` histogram, and the `openclaw.session.stuck`
+Only `session.stuck` emits the `alien.session.stuck` counter, the
+`alien.session.stuck_age_ms` histogram, and the `alien.session.stuck`
 span. Repeated `session.stuck` diagnostics back off while the session remains
 unchanged, so dashboards should alert on sustained increases rather than every
 heartbeat tick. For the config knob and defaults, see
@@ -249,62 +249,62 @@ heartbeat tick. For the config knob and defaults, see
 
 ### Harness lifecycle
 
-- `openclaw.harness.duration_ms` (histogram, attrs: `openclaw.harness.id`, `openclaw.harness.plugin`, `openclaw.outcome`, `openclaw.harness.phase` on errors)
+- `alien.harness.duration_ms` (histogram, attrs: `alien.harness.id`, `alien.harness.plugin`, `alien.outcome`, `alien.harness.phase` on errors)
 
 ### Exec
 
-- `openclaw.exec.duration_ms` (histogram, attrs: `openclaw.exec.target`, `openclaw.exec.mode`, `openclaw.outcome`, `openclaw.failureKind`)
+- `alien.exec.duration_ms` (histogram, attrs: `alien.exec.target`, `alien.exec.mode`, `alien.outcome`, `alien.failureKind`)
 
 ### Diagnostics internals (memory and tool loop)
 
-- `openclaw.memory.heap_used_bytes` (histogram, attrs: `openclaw.memory.kind`)
-- `openclaw.memory.rss_bytes` (histogram)
-- `openclaw.memory.pressure` (counter, attrs: `openclaw.memory.level`)
-- `openclaw.tool.loop.iterations` (counter, attrs: `openclaw.toolName`, `openclaw.outcome`)
-- `openclaw.tool.loop.duration_ms` (histogram, attrs: `openclaw.toolName`, `openclaw.outcome`)
+- `alien.memory.heap_used_bytes` (histogram, attrs: `alien.memory.kind`)
+- `alien.memory.rss_bytes` (histogram)
+- `alien.memory.pressure` (counter, attrs: `alien.memory.level`)
+- `alien.tool.loop.iterations` (counter, attrs: `alien.toolName`, `alien.outcome`)
+- `alien.tool.loop.duration_ms` (histogram, attrs: `alien.toolName`, `alien.outcome`)
 
 ## Exported spans
 
-- `openclaw.model.usage`
-  - `openclaw.channel`, `openclaw.provider`, `openclaw.model`
-  - `openclaw.tokens.*` (input/output/cache_read/cache_write/total)
+- `alien.model.usage`
+  - `alien.channel`, `alien.provider`, `alien.model`
+  - `alien.tokens.*` (input/output/cache_read/cache_write/total)
   - `gen_ai.system` by default, or `gen_ai.provider.name` when the latest GenAI semantic conventions are opted in
   - `gen_ai.request.model`, `gen_ai.operation.name`, `gen_ai.usage.*`
-- `openclaw.run`
-  - `openclaw.outcome`, `openclaw.channel`, `openclaw.provider`, `openclaw.model`, `openclaw.errorCategory`
-- `openclaw.model.call`
+- `alien.run`
+  - `alien.outcome`, `alien.channel`, `alien.provider`, `alien.model`, `alien.errorCategory`
+- `alien.model.call`
   - `gen_ai.system` by default, or `gen_ai.provider.name` when the latest GenAI semantic conventions are opted in
-  - `gen_ai.request.model`, `gen_ai.operation.name`, `openclaw.provider`, `openclaw.model`, `openclaw.api`, `openclaw.transport`
-  - `openclaw.errorCategory` and optional `openclaw.failureKind` on errors
-  - `openclaw.model_call.request_bytes`, `openclaw.model_call.response_bytes`, `openclaw.model_call.time_to_first_byte_ms`
-  - `openclaw.provider.request_id_hash` (bounded SHA-based hash of the upstream provider request id; raw ids are not exported)
-- `openclaw.harness.run`
-  - `openclaw.harness.id`, `openclaw.harness.plugin`, `openclaw.outcome`, `openclaw.provider`, `openclaw.model`, `openclaw.channel`
-  - On completion: `openclaw.harness.result_classification`, `openclaw.harness.yield_detected`, `openclaw.harness.items.started`, `openclaw.harness.items.completed`, `openclaw.harness.items.active`
-  - On error: `openclaw.harness.phase`, `openclaw.errorCategory`, optional `openclaw.harness.cleanup_failed`
-- `openclaw.tool.execution`
-  - `gen_ai.tool.name`, `openclaw.toolName`, `openclaw.errorCategory`, `openclaw.tool.params.*`
-- `openclaw.exec`
-  - `openclaw.exec.target`, `openclaw.exec.mode`, `openclaw.outcome`, `openclaw.failureKind`, `openclaw.exec.command_length`, `openclaw.exec.exit_code`, `openclaw.exec.timed_out`
-- `openclaw.webhook.processed`
-  - `openclaw.channel`, `openclaw.webhook`
-- `openclaw.webhook.error`
-  - `openclaw.channel`, `openclaw.webhook`, `openclaw.error`
-- `openclaw.message.processed`
-  - `openclaw.channel`, `openclaw.outcome`, `openclaw.reason`
-- `openclaw.message.delivery`
-  - `openclaw.channel`, `openclaw.delivery.kind`, `openclaw.outcome`, `openclaw.errorCategory`, `openclaw.delivery.result_count`
-- `openclaw.session.stuck`
-  - `openclaw.state`, `openclaw.ageMs`, `openclaw.queueDepth`
-- `openclaw.context.assembled`
-  - `openclaw.prompt.size`, `openclaw.history.size`, `openclaw.context.tokens`, `openclaw.errorCategory` (no prompt, history, response, or session-key content)
-- `openclaw.tool.loop`
-  - `openclaw.toolName`, `openclaw.outcome`, `openclaw.iterations`, `openclaw.errorCategory` (no loop messages, params, or tool output)
-- `openclaw.memory.pressure`
-  - `openclaw.memory.level`, `openclaw.memory.heap_used_bytes`, `openclaw.memory.rss_bytes`
+  - `gen_ai.request.model`, `gen_ai.operation.name`, `alien.provider`, `alien.model`, `alien.api`, `alien.transport`
+  - `alien.errorCategory` and optional `alien.failureKind` on errors
+  - `alien.model_call.request_bytes`, `alien.model_call.response_bytes`, `alien.model_call.time_to_first_byte_ms`
+  - `alien.provider.request_id_hash` (bounded SHA-based hash of the upstream provider request id; raw ids are not exported)
+- `alien.harness.run`
+  - `alien.harness.id`, `alien.harness.plugin`, `alien.outcome`, `alien.provider`, `alien.model`, `alien.channel`
+  - On completion: `alien.harness.result_classification`, `alien.harness.yield_detected`, `alien.harness.items.started`, `alien.harness.items.completed`, `alien.harness.items.active`
+  - On error: `alien.harness.phase`, `alien.errorCategory`, optional `alien.harness.cleanup_failed`
+- `alien.tool.execution`
+  - `gen_ai.tool.name`, `alien.toolName`, `alien.errorCategory`, `alien.tool.params.*`
+- `alien.exec`
+  - `alien.exec.target`, `alien.exec.mode`, `alien.outcome`, `alien.failureKind`, `alien.exec.command_length`, `alien.exec.exit_code`, `alien.exec.timed_out`
+- `alien.webhook.processed`
+  - `alien.channel`, `alien.webhook`
+- `alien.webhook.error`
+  - `alien.channel`, `alien.webhook`, `alien.error`
+- `alien.message.processed`
+  - `alien.channel`, `alien.outcome`, `alien.reason`
+- `alien.message.delivery`
+  - `alien.channel`, `alien.delivery.kind`, `alien.outcome`, `alien.errorCategory`, `alien.delivery.result_count`
+- `alien.session.stuck`
+  - `alien.state`, `alien.ageMs`, `alien.queueDepth`
+- `alien.context.assembled`
+  - `alien.prompt.size`, `alien.history.size`, `alien.context.tokens`, `alien.errorCategory` (no prompt, history, response, or session-key content)
+- `alien.tool.loop`
+  - `alien.toolName`, `alien.outcome`, `alien.iterations`, `alien.errorCategory` (no loop messages, params, or tool output)
+- `alien.memory.pressure`
+  - `alien.memory.level`, `alien.memory.heap_used_bytes`, `alien.memory.rss_bytes`
 
 When content capture is explicitly enabled, model and tool spans can also
-include bounded, redacted `openclaw.content.*` attributes for the specific
+include bounded, redacted `alien.content.*` attributes for the specific
 content classes you opted into.
 
 ## Diagnostic event catalog
@@ -372,7 +372,7 @@ flags. Flags are case-insensitive and support wildcards (e.g. `telegram.*` or
 Or as a one-off env override:
 
 ```bash
-OPENCLAW_DIAGNOSTICS=telegram.http,telegram.payload openclaw gateway
+ALIEN_DIAGNOSTICS=telegram.http,telegram.payload alien gateway
 ```
 
 Flag output goes to the standard log file (`logging.file`) and is still
@@ -388,7 +388,7 @@ redacted by `logging.redactSensitive`. Full guide:
 ```
 
 You can also leave `diagnostics-otel` out of `plugins.allow`, or run
-`openclaw plugins disable diagnostics-otel`.
+`alien plugins disable diagnostics-otel`.
 
 ## Related
 

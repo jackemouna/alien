@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { bundledPluginRoot } from "openclaw/plugin-sdk/test-fixtures";
+import { bundledPluginRoot } from "alien/plugin-sdk/test-fixtures";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildOfficialChannelCatalog,
@@ -26,12 +26,12 @@ afterEach(() => {
 
 describe("buildOfficialChannelCatalog", () => {
   it("includes publishable official channel plugins and skips non-publishable entries", () => {
-    const repoRoot = makeRepoRoot("openclaw-official-channel-catalog-");
+    const repoRoot = makeRepoRoot("alien-official-channel-catalog-");
     writeJson(path.join(repoRoot, "extensions", "whatsapp", "package.json"), {
-      name: "@openclaw/whatsapp",
+      name: "@alien/whatsapp",
       version: "2026.3.23",
-      description: "OpenClaw WhatsApp channel plugin",
-      openclaw: {
+      description: "Alien WhatsApp channel plugin",
+      alien: {
         channel: {
           id: "whatsapp",
           label: "WhatsApp",
@@ -41,7 +41,7 @@ describe("buildOfficialChannelCatalog", () => {
           blurb: "works with your own number; recommend a separate phone + eSIM.",
         },
         install: {
-          npmSpec: "@openclaw/whatsapp",
+          npmSpec: "@alien/whatsapp",
           localPath: bundledPluginRoot("whatsapp"),
           defaultChoice: "npm",
         },
@@ -51,8 +51,8 @@ describe("buildOfficialChannelCatalog", () => {
       },
     });
     writeJson(path.join(repoRoot, "extensions", "local-only", "package.json"), {
-      name: "@openclaw/local-only",
-      openclaw: {
+      name: "@alien/local-only",
+      alien: {
         channel: {
           id: "local-only",
           label: "Local Only",
@@ -72,10 +72,10 @@ describe("buildOfficialChannelCatalog", () => {
     expect(buildOfficialChannelCatalog({ repoRoot }).entries).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: "@wecom/wecom-openclaw-plugin",
-          openclaw: expect.objectContaining({
+          name: "@wecom/wecom-alien-plugin",
+          alien: expect.objectContaining({
             plugin: {
-              id: "wecom-openclaw-plugin",
+              id: "wecom-alien-plugin",
               label: "WeCom",
             },
             channel: expect.objectContaining({
@@ -83,7 +83,7 @@ describe("buildOfficialChannelCatalog", () => {
               label: "WeCom",
             }),
             install: {
-              npmSpec: "@wecom/wecom-openclaw-plugin@2026.4.23",
+              npmSpec: "@wecom/wecom-alien-plugin@2026.4.23",
               defaultChoice: "npm",
               expectedIntegrity:
                 "sha512-bnzfdIEEu1/LFvcdyjaTkyxt27w6c7dqhkPezU62OWaqmcdFsUGR3T55USK/O9pIKsNcnL1Tnu1pqKYCWHFgWQ==",
@@ -91,10 +91,10 @@ describe("buildOfficialChannelCatalog", () => {
           }),
         }),
         expect.objectContaining({
-          name: "openclaw-plugin-yuanbao",
-          openclaw: expect.objectContaining({
+          name: "alien-plugin-yuanbao",
+          alien: expect.objectContaining({
             plugin: {
-              id: "openclaw-plugin-yuanbao",
+              id: "alien-plugin-yuanbao",
               label: "Yuanbao",
             },
             channel: expect.objectContaining({
@@ -102,7 +102,7 @@ describe("buildOfficialChannelCatalog", () => {
               label: "Yuanbao",
             }),
             install: {
-              npmSpec: "openclaw-plugin-yuanbao@2.11.0",
+              npmSpec: "alien-plugin-yuanbao@2.11.0",
               defaultChoice: "npm",
               expectedIntegrity:
                 "sha512-lYmBrU71ox3v7dzRqaltvzTXPcMjjgYrNqpBj5HIBkXgEFkXRRG8wplXg9Fub41/FjsSPn3WAbYpdTc+k+jsHg==",
@@ -110,10 +110,10 @@ describe("buildOfficialChannelCatalog", () => {
           }),
         }),
         expect.objectContaining({
-          name: "@openclaw/whatsapp",
-          description: "OpenClaw WhatsApp channel plugin",
+          name: "@alien/whatsapp",
+          description: "Alien WhatsApp channel plugin",
           source: "official",
-          openclaw: expect.objectContaining({
+          alien: expect.objectContaining({
             channel: expect.objectContaining({
               id: "whatsapp",
               label: "WhatsApp",
@@ -122,7 +122,7 @@ describe("buildOfficialChannelCatalog", () => {
               docsPath: "/channels/whatsapp",
             }),
             install: expect.objectContaining({
-              npmSpec: "@openclaw/whatsapp",
+              npmSpec: "@alien/whatsapp",
               defaultChoice: "npm",
             }),
           }),
@@ -132,47 +132,47 @@ describe("buildOfficialChannelCatalog", () => {
   });
 
   it("keeps third-party official external catalog npm sources exactly pinned", () => {
-    const repoRoot = makeRepoRoot("openclaw-official-channel-catalog-policy-");
+    const repoRoot = makeRepoRoot("alien-official-channel-catalog-policy-");
     const entries = buildOfficialChannelCatalog({ repoRoot }).entries.filter(
-      (entry) => entry.source === "external" && !entry.name?.startsWith("@openclaw/"),
+      (entry) => entry.source === "external" && !entry.name?.startsWith("@alien/"),
     );
 
     expect(entries.length).toBeGreaterThan(0);
     for (const entry of entries) {
-      const installSource = describePluginInstallSource(entry.openclaw?.install ?? {});
+      const installSource = describePluginInstallSource(entry.alien?.install ?? {});
       expect(installSource.warnings).toEqual([]);
       expect(installSource.npm?.pinState).toBe("exact-with-integrity");
     }
   });
 
-  it("allows official OpenClaw channel npm specs without integrity during launch", () => {
-    const repoRoot = makeRepoRoot("openclaw-official-channel-catalog-openclaw-policy-");
+  it("allows official Alien channel npm specs without integrity during launch", () => {
+    const repoRoot = makeRepoRoot("alien-official-channel-catalog-alien-policy-");
     const twitch = buildOfficialChannelCatalog({ repoRoot }).entries.find(
-      (entry) => entry.openclaw?.channel?.id === "twitch",
+      (entry) => entry.alien?.channel?.id === "twitch",
     );
 
     expect(twitch).toEqual(
       expect.objectContaining({
-        name: "@openclaw/twitch",
-        openclaw: expect.objectContaining({
+        name: "@alien/twitch",
+        alien: expect.objectContaining({
           install: {
-            npmSpec: "@openclaw/twitch",
+            npmSpec: "@alien/twitch",
             defaultChoice: "npm",
             minHostVersion: ">=2026.4.10",
           },
         }),
       }),
     );
-    const installSource = describePluginInstallSource(twitch?.openclaw?.install ?? {});
+    const installSource = describePluginInstallSource(twitch?.alien?.install ?? {});
     expect(installSource.npm?.pinState).toBe("floating-without-integrity");
     expect(installSource.warnings).toEqual(["npm-spec-floating", "npm-spec-missing-integrity"]);
   });
 
   it("preserves ClawHub specs when generating publishable channel catalog entries", () => {
-    const repoRoot = makeRepoRoot("openclaw-official-channel-catalog-clawhub-");
+    const repoRoot = makeRepoRoot("alien-official-channel-catalog-clawhub-");
     writeJson(path.join(repoRoot, "extensions", "storepack-chat", "package.json"), {
-      name: "@openclaw/storepack-chat",
-      openclaw: {
+      name: "@alien/storepack-chat",
+      alien: {
         channel: {
           id: "storepack-chat",
           label: "Storepack Chat",
@@ -181,8 +181,8 @@ describe("buildOfficialChannelCatalog", () => {
           blurb: "storepack-first channel",
         },
         install: {
-          clawhubSpec: "clawhub:@openclaw/storepack-chat",
-          npmSpec: "@openclaw/storepack-chat",
+          clawhubSpec: "clawhub:@alien/storepack-chat",
+          npmSpec: "@alien/storepack-chat",
           defaultChoice: "clawhub",
         },
         release: {
@@ -192,21 +192,21 @@ describe("buildOfficialChannelCatalog", () => {
     });
 
     const entry = buildOfficialChannelCatalog({ repoRoot }).entries.find(
-      (candidate) => candidate.openclaw?.channel?.id === "storepack-chat",
+      (candidate) => candidate.alien?.channel?.id === "storepack-chat",
     );
 
-    expect(entry?.openclaw?.install).toEqual({
-      clawhubSpec: "clawhub:@openclaw/storepack-chat",
-      npmSpec: "@openclaw/storepack-chat",
+    expect(entry?.alien?.install).toEqual({
+      clawhubSpec: "clawhub:@alien/storepack-chat",
+      npmSpec: "@alien/storepack-chat",
       defaultChoice: "clawhub",
     });
   });
 
   it("writes the official catalog under dist", () => {
-    const repoRoot = makeRepoRoot("openclaw-official-channel-catalog-write-");
+    const repoRoot = makeRepoRoot("alien-official-channel-catalog-write-");
     writeJson(path.join(repoRoot, "extensions", "whatsapp", "package.json"), {
-      name: "@openclaw/whatsapp",
-      openclaw: {
+      name: "@alien/whatsapp",
+      alien: {
         channel: {
           id: "whatsapp",
           label: "WhatsApp",
@@ -215,7 +215,7 @@ describe("buildOfficialChannelCatalog", () => {
           blurb: "wa",
         },
         install: {
-          npmSpec: "@openclaw/whatsapp",
+          npmSpec: "@alien/whatsapp",
         },
         release: {
           publishToNpm: true,
@@ -230,15 +230,15 @@ describe("buildOfficialChannelCatalog", () => {
     expect(JSON.parse(fs.readFileSync(outputPath, "utf8")).entries).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: "@wecom/wecom-openclaw-plugin",
+          name: "@wecom/wecom-alien-plugin",
         }),
         expect.objectContaining({
-          name: "openclaw-plugin-yuanbao",
+          name: "alien-plugin-yuanbao",
         }),
         expect.objectContaining({
-          name: "@openclaw/whatsapp",
+          name: "@alien/whatsapp",
           source: "official",
-          openclaw: expect.objectContaining({
+          alien: expect.objectContaining({
             channel: expect.objectContaining({
               id: "whatsapp",
               label: "WhatsApp",
@@ -246,7 +246,7 @@ describe("buildOfficialChannelCatalog", () => {
               docsPath: "/channels/whatsapp",
             }),
             install: expect.objectContaining({
-              npmSpec: "@openclaw/whatsapp",
+              npmSpec: "@alien/whatsapp",
               defaultChoice: "npm",
             }),
           }),
@@ -254,8 +254,8 @@ describe("buildOfficialChannelCatalog", () => {
       ]),
     );
     const whatsappEntries = JSON.parse(fs.readFileSync(outputPath, "utf8")).entries.filter(
-      (entry: { openclaw?: { channel?: { id?: string } } }) =>
-        entry.openclaw?.channel?.id === "whatsapp",
+      (entry: { alien?: { channel?: { id?: string } } }) =>
+        entry.alien?.channel?.id === "whatsapp",
     );
     expect(whatsappEntries).toHaveLength(1);
   });

@@ -334,7 +334,7 @@ async function atomicWrite(filePath: string, content: string, dirMode = 0o700): 
     content,
     dirMode,
     mode: 0o600,
-    tempPrefix: ".openclaw-cron",
+    tempPrefix: ".alien-cron",
     renameMaxRetries: 3,
     copyFallbackOnPermissionError: true,
   });

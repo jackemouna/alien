@@ -33,7 +33,7 @@ function profileContext(tabs: Array<{ targetId: string; url: string }>) {
   return {
     profile: {
       cdpIsLoopback: true,
-      driver: "openclaw",
+      driver: "alien",
     },
     listTabs: async () => tabs,
   };

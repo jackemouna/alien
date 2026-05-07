@@ -2,9 +2,9 @@ import fsSync from "node:fs";
 import {
   createMessageReceiptFromOutboundResults,
   listMessageReceiptPlatformIds,
-} from "openclaw/plugin-sdk/channel-message";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { sleep } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-message";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { sleep } from "alien/plugin-sdk/text-runtime";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { loadWebMedia } from "../media.js";
 import { cacheInboundMessageMeta } from "../quoted-message.js";
@@ -14,9 +14,9 @@ const hoisted = vi.hoisted(() => ({
   runFfmpeg: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/media-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/media-runtime")>(
-    "openclaw/plugin-sdk/media-runtime",
+vi.mock("alien/plugin-sdk/media-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/media-runtime")>(
+    "alien/plugin-sdk/media-runtime",
   );
   return {
     ...actual,
@@ -24,9 +24,9 @@ vi.mock("openclaw/plugin-sdk/media-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("alien/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/runtime-env")>(
+    "alien/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -35,9 +35,9 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/text-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/text-runtime")>(
-    "openclaw/plugin-sdk/text-runtime",
+vi.mock("alien/plugin-sdk/text-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/text-runtime")>(
+    "alien/plugin-sdk/text-runtime",
   );
   return {
     ...actual,

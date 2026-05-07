@@ -1,44 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source scripts/lib/openclaw-e2e-instance.sh
-openclaw_e2e_eval_test_state_from_b64 "${OPENCLAW_TEST_STATE_FUNCTION_B64:?missing OPENCLAW_TEST_STATE_FUNCTION_B64}"
+source scripts/lib/alien-e2e-instance.sh
+alien_e2e_eval_test_state_from_b64 "${ALIEN_TEST_STATE_FUNCTION_B64:?missing ALIEN_TEST_STATE_FUNCTION_B64}"
 
 # Keep logs focused; the npm global install step can emit noisy deprecation warnings.
 export npm_config_loglevel=error
 export npm_config_fund=false
 export npm_config_audit=false
-export OPENCLAW_DISABLE_BUNDLED_PLUGINS=1
+export ALIEN_DISABLE_BUNDLED_PLUGINS=1
 
 # Stub systemd/loginctl so doctor + daemon flows work in Docker.
-export PATH="/tmp/openclaw-bin:$PATH"
-mkdir -p /tmp/openclaw-bin
-cp scripts/e2e/lib/doctor-install-switch/shims/systemctl /tmp/openclaw-bin/systemctl
-cp scripts/e2e/lib/doctor-install-switch/shims/loginctl /tmp/openclaw-bin/loginctl
-chmod +x /tmp/openclaw-bin/systemctl /tmp/openclaw-bin/loginctl
+export PATH="/tmp/alien-bin:$PATH"
+mkdir -p /tmp/alien-bin
+cp scripts/e2e/lib/doctor-install-switch/shims/systemctl /tmp/alien-bin/systemctl
+cp scripts/e2e/lib/doctor-install-switch/shims/loginctl /tmp/alien-bin/loginctl
+chmod +x /tmp/alien-bin/systemctl /tmp/alien-bin/loginctl
 
-package_tgz="${OPENCLAW_CURRENT_PACKAGE_TGZ:?missing OPENCLAW_CURRENT_PACKAGE_TGZ}"
-git_root="/tmp/openclaw-git"
+package_tgz="${ALIEN_CURRENT_PACKAGE_TGZ:?missing ALIEN_CURRENT_PACKAGE_TGZ}"
+git_root="/tmp/alien-git"
 mkdir -p "$git_root"
 # The git-style install fixture is unpacked from the tarball so this lane does
 # not depend on checkout source files being present in the Docker image.
 tar -xzf "$package_tgz" -C "$git_root" --strip-components=1
 (
   cd "$git_root"
-  npm install --omit=optional --no-fund --no-audit >/tmp/openclaw-git-install.log 2>&1
+  npm install --omit=optional --no-fund --no-audit >/tmp/alien-git-install.log 2>&1
   git init -q
-  git config user.email "docker-e2e@openclaw.local"
-  git config user.name "OpenClaw Docker E2E"
+  git config user.email "docker-e2e@alien.local"
+  git config user.name "Alien Docker E2E"
   git add -A
   git commit -qm "test fixture"
 )
-npm_log="/tmp/openclaw-doctor-switch-npm-install.log"
+npm_log="/tmp/alien-doctor-switch-npm-install.log"
 if ! npm install -g --prefix /tmp/npm-prefix --omit=optional "$package_tgz" >"$npm_log" 2>&1; then
   cat "$npm_log"
   exit 1
 fi
 
-npm_bin="/tmp/npm-prefix/bin/openclaw"
-npm_root="/tmp/npm-prefix/lib/node_modules/openclaw"
+npm_bin="/tmp/npm-prefix/bin/alien"
+npm_root="/tmp/npm-prefix/lib/node_modules/alien"
 if [ -f "$npm_root/dist/index.mjs" ]; then
   npm_entry="$npm_root/dist/index.mjs"
 else
@@ -50,7 +50,7 @@ if [ -f "$git_root/dist/index.mjs" ]; then
 else
   git_entry="$git_root/dist/index.js"
 fi
-git_cli="$git_root/openclaw.mjs"
+git_cli="$git_root/alien.mjs"
 
 package_version="$(node -p "require(\"$npm_root/package.json\").version")"
 is_legacy_package_acceptance_compat() {
@@ -127,12 +127,12 @@ run_flow() {
   local install_expected="$3"
   local doctor_cmd="$4"
   local doctor_expected="$5"
-  local install_log="/tmp/openclaw-doctor-switch-${name}-install.log"
-  local doctor_log="/tmp/openclaw-doctor-switch-${name}-doctor.log"
-  local command_timeout="${OPENCLAW_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
+  local install_log="/tmp/alien-doctor-switch-${name}-install.log"
+  local doctor_log="/tmp/alien-doctor-switch-${name}-doctor.log"
+  local command_timeout="${ALIEN_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
 
   echo "== Flow: $name =="
-  openclaw_test_state_create "switch-${name}" empty
+  alien_test_state_create "switch-${name}" empty
   export USER="testuser"
 
   if ! timeout "$command_timeout" bash -c "$install_cmd" >"$install_log" 2>&1; then
@@ -142,7 +142,7 @@ run_flow() {
   rm -f "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile"
   rm -rf "$HOME/.config/fish" "$HOME/.config/powershell"
 
-  unit_path="$HOME/.config/systemd/user/openclaw-gateway.service"
+  unit_path="$HOME/.config/systemd/user/alien-gateway.service"
   if [ ! -f "$unit_path" ]; then
     echo "Missing unit file: $unit_path"
     exit 1
@@ -161,27 +161,27 @@ run_flow \
   "npm-to-git" \
   "$npm_bin daemon install --force" \
   "$npm_entry" \
-  "OPENCLAW_UPDATE_IN_PROGRESS=1 node $git_cli doctor --repair --force --yes --non-interactive" \
+  "ALIEN_UPDATE_IN_PROGRESS=1 node $git_cli doctor --repair --force --yes --non-interactive" \
   "$git_entry"
 
 run_flow \
   "git-to-npm" \
   "node $git_cli daemon install --force" \
   "$git_entry" \
-  "OPENCLAW_UPDATE_IN_PROGRESS=1 $npm_bin doctor --repair --force --yes --non-interactive" \
+  "ALIEN_UPDATE_IN_PROGRESS=1 $npm_bin doctor --repair --force --yes --non-interactive" \
   "$npm_entry"
 
 run_proxy_env_flow() {
   local name="proxy-env-cleanup"
-  local install_log="/tmp/openclaw-doctor-switch-${name}-install.log"
-  local doctor_log="/tmp/openclaw-doctor-switch-${name}-doctor.log"
-  local command_timeout="${OPENCLAW_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
+  local install_log="/tmp/alien-doctor-switch-${name}-install.log"
+  local doctor_log="/tmp/alien-doctor-switch-${name}-doctor.log"
+  local command_timeout="${ALIEN_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
 
   echo "== Flow: $name =="
-  openclaw_test_state_create "switch-${name}" empty
+  alien_test_state_create "switch-${name}" empty
   export USER="testuser"
 
-  unit_path="$HOME/.config/systemd/user/openclaw-gateway.service"
+  unit_path="$HOME/.config/systemd/user/alien-gateway.service"
   if ! timeout "$command_timeout" env \
     HTTP_PROXY="http://proxy.local:7890" \
     HTTPS_PROXY="https://proxy.local:7890" \
@@ -198,7 +198,7 @@ run_proxy_env_flow() {
     printf "%s\n" "Environment=HTTP_PROXY=http://stale-proxy.local:7890"
     printf "%s\n" "Environment=HTTPS_PROXY=https://stale-proxy.local:7890"
   } >>"$unit_path"
-  if ! timeout "$command_timeout" env OPENCLAW_UPDATE_IN_PROGRESS=1 \
+  if ! timeout "$command_timeout" env ALIEN_UPDATE_IN_PROGRESS=1 \
     node "$git_cli" doctor --repair --force --yes --non-interactive >"$doctor_log" 2>&1; then
     cat "$doctor_log"
     exit 1
@@ -211,24 +211,24 @@ run_proxy_env_flow
 
 run_wrapper_flow() {
   local name="wrapper-persistence"
-  local install_log="/tmp/openclaw-doctor-switch-${name}-install.log"
-  local reinstall_log="/tmp/openclaw-doctor-switch-${name}-reinstall.log"
-  local env_repair_log="/tmp/openclaw-doctor-switch-${name}-env-repair.log"
-  local doctor_log="/tmp/openclaw-doctor-switch-${name}-doctor.log"
-  local clear_log="/tmp/openclaw-doctor-switch-${name}-clear.log"
-  local command_timeout="${OPENCLAW_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
+  local install_log="/tmp/alien-doctor-switch-${name}-install.log"
+  local reinstall_log="/tmp/alien-doctor-switch-${name}-reinstall.log"
+  local env_repair_log="/tmp/alien-doctor-switch-${name}-env-repair.log"
+  local doctor_log="/tmp/alien-doctor-switch-${name}-doctor.log"
+  local clear_log="/tmp/alien-doctor-switch-${name}-clear.log"
+  local command_timeout="${ALIEN_DOCKER_DOCTOR_SWITCH_COMMAND_TIMEOUT:-900s}"
 
   echo "== Flow: $name =="
-  openclaw_test_state_create "switch-${name}" empty
+  alien_test_state_create "switch-${name}" empty
   export USER="testuser"
   mkdir -p "$HOME/.local/bin"
-  local wrapper="$HOME/.local/bin/openclaw-wrapper"
+  local wrapper="$HOME/.local/bin/alien-wrapper"
   node scripts/e2e/lib/doctor-install-switch/write-wrapper.mjs \
     "$wrapper" \
     "$npm_bin" \
-    "$HOME/openclaw-wrapper-argv.log"
+    "$HOME/alien-wrapper-argv.log"
 
-  local unit_path="$HOME/.config/systemd/user/openclaw-gateway.service"
+  local unit_path="$HOME/.config/systemd/user/alien-gateway.service"
 
   if ! timeout "$command_timeout" "$npm_bin" gateway install --wrapper "$wrapper" --force >"$install_log" 2>&1; then
     cat "$install_log"
@@ -236,7 +236,7 @@ run_wrapper_flow() {
   fi
   assert_exec_arg "$unit_path" 1 "$wrapper"
   assert_exec_arg "$unit_path" 2 "gateway"
-  assert_env_value "$unit_path" "OPENCLAW_WRAPPER" "$wrapper"
+  assert_env_value "$unit_path" "ALIEN_WRAPPER" "$wrapper"
 
   if ! timeout "$command_timeout" "$npm_bin" gateway install --force >"$reinstall_log" 2>&1; then
     cat "$reinstall_log"
@@ -244,41 +244,41 @@ run_wrapper_flow() {
   fi
   assert_exec_arg "$unit_path" 1 "$wrapper"
   assert_exec_arg "$unit_path" 2 "gateway"
-  assert_env_value "$unit_path" "OPENCLAW_WRAPPER" "$wrapper"
+  assert_env_value "$unit_path" "ALIEN_WRAPPER" "$wrapper"
 
-  sed -i "/^Environment=OPENCLAW_WRAPPER=/d" "$unit_path"
+  sed -i "/^Environment=ALIEN_WRAPPER=/d" "$unit_path"
   if ! timeout "$command_timeout" "$npm_bin" gateway install --wrapper "$wrapper" >"$env_repair_log" 2>&1; then
     cat "$env_repair_log"
     exit 1
   fi
   assert_exec_arg "$unit_path" 1 "$wrapper"
-  assert_env_value "$unit_path" "OPENCLAW_WRAPPER" "$wrapper"
+  assert_env_value "$unit_path" "ALIEN_WRAPPER" "$wrapper"
 
-  sed -i "s#^Environment=OPENCLAW_WRAPPER=.*#Environment=OPENCLAW_WRAPPER=/tmp/stale-openclaw-wrapper#" "$unit_path"
+  sed -i "s#^Environment=ALIEN_WRAPPER=.*#Environment=ALIEN_WRAPPER=/tmp/stale-alien-wrapper#" "$unit_path"
   if ! timeout "$command_timeout" "$npm_bin" gateway install --wrapper "$wrapper" >"$env_repair_log" 2>&1; then
     cat "$env_repair_log"
     exit 1
   fi
   assert_exec_arg "$unit_path" 1 "$wrapper"
-  assert_env_value "$unit_path" "OPENCLAW_WRAPPER" "$wrapper"
+  assert_env_value "$unit_path" "ALIEN_WRAPPER" "$wrapper"
 
   if ! timeout "$command_timeout" node "$git_cli" doctor --repair --force --yes >"$doctor_log" 2>&1; then
     cat "$doctor_log"
     exit 1
   fi
-  if ! grep -Fq "Gateway service invokes OPENCLAW_WRAPPER:" "$doctor_log"; then
+  if ! grep -Fq "Gateway service invokes ALIEN_WRAPPER:" "$doctor_log"; then
     echo "Expected doctor to report active wrapper"
     cat "$doctor_log"
     exit 1
   fi
   assert_exec_arg "$unit_path" 1 "$wrapper"
-  assert_env_value "$unit_path" "OPENCLAW_WRAPPER" "$wrapper"
+  assert_env_value "$unit_path" "ALIEN_WRAPPER" "$wrapper"
 
-  if ! timeout "$command_timeout" env OPENCLAW_WRAPPER= "$npm_bin" gateway install --force >"$clear_log" 2>&1; then
+  if ! timeout "$command_timeout" env ALIEN_WRAPPER= "$npm_bin" gateway install --force >"$clear_log" 2>&1; then
     cat "$clear_log"
     exit 1
   fi
-  assert_no_env_key "$unit_path" "OPENCLAW_WRAPPER"
+  assert_no_env_key "$unit_path" "ALIEN_WRAPPER"
   assert_entrypoint "$unit_path" "$npm_entry"
 }
 

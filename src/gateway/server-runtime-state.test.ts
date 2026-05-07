@@ -78,7 +78,7 @@ describe("createGatewayRuntimeState", () => {
   });
 
   it("creates the canvas host without logging it before HTTP bind", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-canvas-runtime-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "alien-canvas-runtime-"));
     tempDirs.push(root);
     const registry = createEmptyPluginRegistry();
     const logCanvas = { info: vi.fn(), warn: vi.fn() };

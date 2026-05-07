@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   hasBundledChannelPackageState,
   listBundledChannelIdsForPackageState,
@@ -10,7 +10,7 @@ export function listBundledChannelIdsWithPersistedAuthState(): string[] {
 
 export function hasBundledChannelPersistedAuthState(params: {
   channelId: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
 }): boolean {
   return hasBundledChannelPackageState({

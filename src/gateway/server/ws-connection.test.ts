@@ -227,7 +227,7 @@ describe("attachGatewayWsConnectionHandler", () => {
 
     const registered = passed.setClient({
       socket,
-      connect: { client: { id: "openclaw-control-ui", mode: "webchat" } },
+      connect: { client: { id: "alien-control-ui", mode: "webchat" } },
       connId: "late-client",
       usesSharedGatewayAuth: false,
     });
@@ -295,7 +295,7 @@ describe("attachGatewayWsConnectionHandler", () => {
     expect(
       passed.setClient({
         socket,
-        connect: { client: { id: "openclaw-control-ui", mode: "webchat" } },
+        connect: { client: { id: "alien-control-ui", mode: "webchat" } },
         connId: "ping-client",
         usesSharedGatewayAuth: false,
       }),

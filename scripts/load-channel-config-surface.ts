@@ -12,7 +12,7 @@ import {
 
 type CreateJiti = typeof createJiti;
 
-const jitiFactoryOverrideKey = Symbol.for("openclaw.channelConfigSurfaceJitiFactoryOverride");
+const jitiFactoryOverrideKey = Symbol.for("alien.channelConfigSurfaceJitiFactoryOverride");
 const requireForJiti = createRequire(import.meta.url);
 let createJitiLoaderFactory: CreateJiti | undefined;
 
@@ -100,9 +100,9 @@ export async function loadChannelConfigSurfaceModule(
     const script = `
       import { pathToFileURL } from "node:url";
       const { buildChannelConfigSchema } = await import(${JSON.stringify(bunBuildChannelConfigSchemaUrl)});
-      const modulePath = process.env.OPENCLAW_CONFIG_SURFACE_MODULE;
+      const modulePath = process.env.ALIEN_CONFIG_SURFACE_MODULE;
       if (!modulePath) {
-        throw new Error("missing OPENCLAW_CONFIG_SURFACE_MODULE");
+        throw new Error("missing ALIEN_CONFIG_SURFACE_MODULE");
       }
       const imported = await import(pathToFileURL(modulePath).href);
       const isBuilt = (value) => Boolean(
@@ -132,7 +132,7 @@ export async function loadChannelConfigSurfaceModule(
       encoding: "utf8",
       env: {
         ...process.env,
-        OPENCLAW_CONFIG_SURFACE_MODULE: path.resolve(candidatePath),
+        ALIEN_CONFIG_SURFACE_MODULE: path.resolve(candidatePath),
       },
     });
     if (result.error) {
@@ -158,7 +158,7 @@ export async function loadChannelConfigSurfaceModule(
       pluginSdkResolution: "src",
     });
     const aliasMap = {
-      ...(pluginSdkAlias ? { "openclaw/plugin-sdk": pluginSdkAlias } : {}),
+      ...(pluginSdkAlias ? { "alien/plugin-sdk": pluginSdkAlias } : {}),
       ...resolvePluginSdkScopedAliasMap({
         modulePath: resolvedPath,
         pluginSdkResolution: "src",

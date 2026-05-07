@@ -1,5 +1,5 @@
 ---
-summary: "Adds the Twitch channel surface for sending and receiving OpenClaw messages."
+summary: "Adds the Twitch channel surface for sending and receiving Alien messages."
 read_when:
   - You are installing, configuring, or auditing the twitch plugin
 title: "Twitch plugin"
@@ -7,11 +7,11 @@ title: "Twitch plugin"
 
 # Twitch plugin
 
-Adds the Twitch channel surface for sending and receiving OpenClaw messages.
+Adds the Twitch channel surface for sending and receiving Alien messages.
 
 ## Distribution
 
-- Package: `@openclaw/twitch`
+- Package: `@alien/twitch`
 - Install route: npm; ClawHub
 
 ## Surface

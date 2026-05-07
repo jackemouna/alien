@@ -1,6 +1,6 @@
-import { runTasksWithConcurrency } from "openclaw/plugin-sdk/concurrency-runtime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { runTasksWithConcurrency } from "alien/plugin-sdk/concurrency-runtime";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { formatSlackFileReference } from "../../file-reference.js";
 import type { SlackFile, SlackMessageEvent } from "../../types.js";
 import { MAX_SLACK_MEDIA_FILES, type SlackMediaResult } from "../media-types.js";

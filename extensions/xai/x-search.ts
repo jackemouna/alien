@@ -6,8 +6,8 @@ import {
   resolveCacheTtlMs,
   resolveTimeoutSeconds,
   writeCache,
-} from "openclaw/plugin-sdk/provider-web-search";
-import { getRuntimeConfigSnapshot } from "openclaw/plugin-sdk/runtime-config-snapshot";
+} from "alien/plugin-sdk/provider-web-search";
+import { getRuntimeConfigSnapshot } from "alien/plugin-sdk/runtime-config-snapshot";
 import { isXaiToolEnabled, resolveXaiToolApiKey } from "./src/tool-auth-shared.js";
 import { resolveEffectiveXSearchConfig } from "./src/x-search-config.js";
 import {
@@ -31,7 +31,7 @@ class PluginToolInputError extends Error {
   }
 }
 
-const X_SEARCH_CACHE_KEY = Symbol.for("openclaw.xai.x-search.cache");
+const X_SEARCH_CACHE_KEY = Symbol.for("alien.xai.x-search.cache");
 
 type XSearchCacheEntry = {
   expiresAt: number;

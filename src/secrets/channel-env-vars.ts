@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { loadPluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
 export { isSafeChannelEnvVarTriggerName } from "./channel-env-var-names.js";
 
 type ChannelEnvVarLookupParams = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 };

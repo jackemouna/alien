@@ -34,7 +34,7 @@ describe("config observe recovery", () => {
   }
 
   beforeAll(async () => {
-    fixtureRoot = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-config-observe-recovery-"));
+    fixtureRoot = await fsp.mkdtemp(path.join(os.tmpdir(), "alien-config-observe-recovery-"));
   });
 
   afterAll(async () => {
@@ -151,7 +151,7 @@ describe("config observe recovery", () => {
     auditPath: string;
     warn: ReturnType<typeof vi.fn>;
   } {
-    const configPath = path.join(home, ".openclaw", "openclaw.json");
+    const configPath = path.join(home, ".alien", "alien.json");
     return {
       deps: {
         fs,
@@ -161,7 +161,7 @@ describe("config observe recovery", () => {
         logger: { warn },
       },
       configPath,
-      auditPath: path.join(home, ".openclaw", "logs", "config-audit.jsonl"),
+      auditPath: path.join(home, ".alien", "logs", "config-audit.jsonl"),
       warn,
     };
   }
@@ -492,7 +492,7 @@ describe("config observe recovery", () => {
     await withSuiteHome(async (home) => {
       const { deps, configPath, warn } = makeDeps(home);
       const snapshot = await makeSnapshot(configPath, recoverableTelegramConfig);
-      const healthPath = path.join(home, ".openclaw", "logs", "config-health.json");
+      const healthPath = path.join(home, ".alien", "logs", "config-health.json");
 
       await expect(
         promoteConfigSnapshotToLastKnownGood({
@@ -513,7 +513,7 @@ describe("config observe recovery", () => {
   it("logs sync health-state write failures", async () => {
     await withSuiteHome(async (home) => {
       const { deps, configPath, warn } = makeDeps(home);
-      const healthPath = path.join(home, ".openclaw", "logs", "config-health.json");
+      const healthPath = path.join(home, ".alien", "logs", "config-health.json");
       await seedConfigBackup(configPath, recoverableTelegramConfig);
       await writeClobberedUpdateChannel(configPath);
 
@@ -675,7 +675,7 @@ describe("config observe recovery", () => {
             {
               path: "plugins.entries.feishu",
               message:
-                "plugin feishu: plugin requires OpenClaw >=2026.4.23, but this host is 2026.4.22; skipping load",
+                "plugin feishu: plugin requires Alien >=2026.4.23, but this host is 2026.4.22; skipping load",
             },
           ],
         },

@@ -1,7 +1,7 @@
 import type { Block, KnownBlock, WebClient } from "@slack/web-api";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import { resolveSlackAccount } from "./accounts.js";
 import { validateSlackBlocksArray } from "./blocks-input.js";
 import { createSlackWebClient, getSlackWriteClient } from "./client.js";
@@ -12,7 +12,7 @@ import { sendMessageSlack } from "./send.js";
 import { resolveSlackBotToken } from "./token.js";
 
 export type SlackActionClientOpts = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   accountId?: string;
   token?: string;
   client?: WebClient;
@@ -43,7 +43,7 @@ export type SlackPin = {
   file?: { id?: string; name?: string };
 };
 
-function resolveToken(explicit?: string, accountId?: string, cfg?: OpenClawConfig): string {
+function resolveToken(explicit?: string, accountId?: string, cfg?: AlienConfig): string {
   if (explicit?.trim()) {
     const token = resolveSlackBotToken(explicit);
     if (token) {
@@ -198,7 +198,7 @@ export async function sendSlackMessage(
   to: string,
   content: string,
   opts: Omit<SlackActionClientOpts, "cfg"> & {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     mediaUrl?: string;
     mediaAccess?: {
       localRoots?: readonly string[];

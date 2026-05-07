@@ -32,12 +32,12 @@ describe("diagnostics-prometheus service", () => {
 
     const rendered = __test__.renderPrometheusMetrics(store);
 
-    expect(rendered).toContain("# TYPE openclaw_run_completed_total counter");
+    expect(rendered).toContain("# TYPE alien_run_completed_total counter");
     expect(rendered).toContain(
-      'openclaw_run_completed_total{channel="discord",model="gpt-5.4",outcome="completed",provider="openai",trigger="message"} 1',
+      'alien_run_completed_total{channel="discord",model="gpt-5.4",outcome="completed",provider="openai",trigger="message"} 1',
     );
     expect(rendered).toContain(
-      'openclaw_run_duration_seconds_sum{channel="discord",model="gpt-5.4",outcome="completed",provider="openai",trigger="message"} 1.5',
+      'alien_run_duration_seconds_sum{channel="discord",model="gpt-5.4",outcome="completed",provider="openai",trigger="message"} 1.5',
     );
     expect(rendered).not.toContain("run-should-not-export");
     expect(rendered).not.toContain("session-should-not-export");
@@ -67,7 +67,7 @@ describe("diagnostics-prometheus service", () => {
     const rendered = __test__.renderPrometheusMetrics(store);
 
     expect(rendered).toContain(
-      'openclaw_run_completed_total{blocked_by="policy-plugin",channel="slack",model="gpt-5.4",outcome="blocked",provider="openai",trigger="message"} 1',
+      'alien_run_completed_total{blocked_by="policy-plugin",channel="slack",model="gpt-5.4",outcome="blocked",provider="openai",trigger="message"} 1',
     );
     expect(rendered).not.toContain("run-should-not-export");
     expect(rendered).not.toContain("session-should-not-export");
@@ -112,7 +112,7 @@ describe("diagnostics-prometheus service", () => {
     const rendered = __test__.renderPrometheusMetrics(store);
 
     expect(rendered).toContain(
-      'openclaw_tool_execution_total{error_category="other",outcome="error",params_kind="unknown",tool="tool"} 1',
+      'alien_tool_execution_total{error_category="other",outcome="error",params_kind="unknown",tool="tool"} 1',
     );
     expect(rendered).not.toContain("Bearer");
     expect(rendered).not.toContain("sk-secret");
@@ -162,13 +162,13 @@ describe("diagnostics-prometheus service", () => {
     const rendered = __test__.renderPrometheusMetrics(store);
 
     expect(rendered).toContain(
-      'openclaw_message_delivery_started_total{channel="matrix",delivery_kind="text"} 1',
+      'alien_message_delivery_started_total{channel="matrix",delivery_kind="text"} 1',
     );
     expect(rendered).toContain(
-      'openclaw_message_processed_total{channel="unknown",outcome="completed",reason="none"} 1',
+      'alien_message_processed_total{channel="unknown",outcome="completed",reason="none"} 1',
     );
     expect(rendered).toContain(
-      'openclaw_message_delivery_total{channel="unknown",delivery_kind="other",error_category="TimeoutError",outcome="error"} 1',
+      'alien_message_delivery_total{channel="unknown",delivery_kind="other",error_category="TimeoutError",outcome="error"} 1',
     );
     expect(rendered).not.toContain("chat-should-not-export");
     expect(rendered).not.toContain("message-should-not-export");
@@ -218,16 +218,16 @@ describe("diagnostics-prometheus service", () => {
     const rendered = __test__.renderPrometheusMetrics(store);
 
     expect(rendered).toContain(
-      'openclaw_session_recovery_total{action="abort-active-run",active_work_kind="tool_call",state="processing",status="released"} 1',
+      'alien_session_recovery_total{action="abort-active-run",active_work_kind="tool_call",state="processing",status="released"} 1',
     );
     expect(rendered).toContain(
-      'openclaw_session_recovery_age_seconds_sum{action="abort-active-run",active_work_kind="tool_call",state="processing",status="released"} 12',
+      'alien_session_recovery_age_seconds_sum{action="abort-active-run",active_work_kind="tool_call",state="processing",status="released"} 12',
     );
     expect(rendered).toContain(
-      'openclaw_talk_event_total{brain="agent-consult",event_type="input.audio.delta",mode="realtime",provider="openai",transport="gateway-relay"} 1',
+      'alien_talk_event_total{brain="agent-consult",event_type="input.audio.delta",mode="realtime",provider="openai",transport="gateway-relay"} 1',
     );
     expect(rendered).toContain(
-      'openclaw_talk_audio_bytes_sum{brain="agent-consult",event_type="input.audio.delta",mode="realtime",provider="openai",transport="gateway-relay"} 320',
+      'alien_talk_audio_bytes_sum{brain="agent-consult",event_type="input.audio.delta",mode="realtime",provider="openai",transport="gateway-relay"} 320',
     );
     expect(rendered).not.toContain("session-should-not-export");
     expect(rendered).not.toContain("key-should-not-export");
@@ -256,8 +256,8 @@ describe("diagnostics-prometheus service", () => {
 
     const rendered = __test__.renderPrometheusMetrics(store);
 
-    expect(rendered).toContain("# TYPE openclaw_prometheus_series_dropped_total counter");
-    expect(rendered).toContain("openclaw_prometheus_series_dropped_total ");
+    expect(rendered).toContain("# TYPE alien_prometheus_series_dropped_total counter");
+    expect(rendered).toContain("alien_prometheus_series_dropped_total ");
   });
 
   it("subscribes to internal diagnostics and renders scrape text", () => {
@@ -270,7 +270,7 @@ describe("diagnostics-prometheus service", () => {
 
     exporter.service.start({
       config: {} as never,
-      stateDir: "/tmp/openclaw-prometheus-test",
+      stateDir: "/tmp/alien-prometheus-test",
       logger: {
         info: vi.fn(),
         warn: vi.fn(),
@@ -306,7 +306,7 @@ describe("diagnostics-prometheus service", () => {
       }),
     );
     expect(exporter.render()).toContain(
-      'openclaw_model_tokens_total{agent="unknown",channel="unknown",model="gpt-5.4",provider="openai",token_type="input"} 12',
+      'alien_model_tokens_total{agent="unknown",channel="unknown",model="gpt-5.4",provider="openai",token_type="input"} 12',
     );
 
     exporter.service.stop?.();

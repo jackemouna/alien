@@ -17,7 +17,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("openclaw-bundle-manifest", tempDirs);
+  return makeTrackedTempDir("alien-bundle-manifest", tempDirs);
 }
 
 const mkdirSafe = mkdirSafeDir;
@@ -133,9 +133,9 @@ afterEach(() => {
 });
 
 describe("bundle manifest parsing", () => {
-  it("does not treat openclaw.bundle.json as a bundle manifest", () => {
+  it("does not treat alien.bundle.json as a bundle manifest", () => {
     const rootDir = makeTempDir();
-    writeBundleManifest(rootDir, "openclaw.bundle.json", {
+    writeBundleManifest(rootDir, "alien.bundle.json", {
       name: "Not Real",
       skills: ["skills"],
     });

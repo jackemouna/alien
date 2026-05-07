@@ -17,7 +17,7 @@ describe("resolveFileWithinRoot", () => {
   });
 
   it("opens directory index files through the fs-safe root", async () => {
-    const root = await tempDirs.make("openclaw-canvas-resolver-");
+    const root = await tempDirs.make("alien-canvas-resolver-");
     await fs.mkdir(path.join(root, "docs"), { recursive: true });
     await fs.writeFile(path.join(root, "docs", "index.html"), "<h1>docs</h1>");
 
@@ -31,14 +31,14 @@ describe("resolveFileWithinRoot", () => {
   });
 
   it("rejects traversal paths", async () => {
-    const root = await tempDirs.make("openclaw-canvas-resolver-");
+    const root = await tempDirs.make("alien-canvas-resolver-");
 
     await expect(resolveFileWithinRoot(root, "/../outside.txt")).resolves.toBeNull();
   });
 
   it.runIf(process.platform !== "win32")("rejects symlink entries", async () => {
-    const root = await tempDirs.make("openclaw-canvas-resolver-");
-    const outside = await tempDirs.make("openclaw-canvas-resolver-outside-");
+    const root = await tempDirs.make("alien-canvas-resolver-");
+    const outside = await tempDirs.make("alien-canvas-resolver-outside-");
     const target = path.join(outside, "outside.html");
     const link = path.join(root, "link.html");
     await fs.writeFile(target, "outside");

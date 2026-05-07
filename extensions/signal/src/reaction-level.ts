@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveReactionLevel,
   type ReactionLevel,
   type ResolvedReactionLevel,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 
 export type SignalReactionLevel = ReactionLevel;
@@ -19,7 +19,7 @@ export type ResolvedSignalReactionLevel = ResolvedReactionLevel;
  * - "extensive": Agent can react liberally
  */
 export function resolveSignalReactionLevel(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
 }): ResolvedSignalReactionLevel {
   const account = resolveSignalAccount({

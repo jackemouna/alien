@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 
 vi.mock("../plugins/provider-hook-runtime.js", () => ({
   resolveProviderRuntimePlugin: vi.fn(({ provider }: { provider?: string }) =>
@@ -21,19 +21,19 @@ const MISTRAL_PLUGIN_CONFIG = {
       mistral: { enabled: true },
     },
   },
-} as OpenClawConfig;
+} as AlienConfig;
 
 function createProviderRuntimeSmokeContext(): {
-  config: OpenClawConfig;
+  config: AlienConfig;
   env: NodeJS.ProcessEnv;
   workspaceDir: string;
 } {
   const env = { ...process.env };
-  delete env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-  delete env.OPENCLAW_SKIP_PROVIDERS;
-  delete env.OPENCLAW_SKIP_CHANNELS;
-  delete env.OPENCLAW_SKIP_CRON;
-  delete env.OPENCLAW_TEST_MINIMAL_GATEWAY;
+  delete env.ALIEN_BUNDLED_PLUGINS_DIR;
+  delete env.ALIEN_SKIP_PROVIDERS;
+  delete env.ALIEN_SKIP_CHANNELS;
+  delete env.ALIEN_SKIP_CRON;
+  delete env.ALIEN_TEST_MINIMAL_GATEWAY;
   return {
     config: {},
     env,

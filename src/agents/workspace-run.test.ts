@@ -1,6 +1,6 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { resolveRunWorkspaceDir } from "./workspace-run.js";
 import { resolveDefaultAgentWorkspaceDir } from "./workspace.js";
 
@@ -25,7 +25,7 @@ describe("resolveRunWorkspaceDir", () => {
         defaults: { workspace: defaultWorkspace },
         list: [{ id: "research", workspace: researchWorkspace }],
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     const result = resolveRunWorkspaceDir({
       workspaceDir: undefined,
@@ -45,7 +45,7 @@ describe("resolveRunWorkspaceDir", () => {
       agents: {
         defaults: { workspace: defaultWorkspace },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     const result = resolveRunWorkspaceDir({
       workspaceDir: "   ",
@@ -86,8 +86,8 @@ describe("resolveRunWorkspaceDir", () => {
     const env = {
       ...process.env,
       HOME: "/home/runner",
-      OPENCLAW_HOME: undefined,
-      OPENCLAW_STATE_DIR: "/tmp/openclaw-state",
+      ALIEN_HOME: undefined,
+      ALIEN_STATE_DIR: "/tmp/alien-state",
     } satisfies NodeJS.ProcessEnv;
     const result = resolveRunWorkspaceDir({
       workspaceDir: undefined,
@@ -99,7 +99,7 @@ describe("resolveRunWorkspaceDir", () => {
 
     expect(result.agentId).toBe("research");
     expect(result.agentIdSource).toBe("explicit");
-    expect(result.workspaceDir).toBe(path.resolve("/tmp/openclaw-state", "workspace-research"));
+    expect(result.workspaceDir).toBe(path.resolve("/tmp/alien-state", "workspace-research"));
   });
 
   it("throws for malformed agent session keys even when config has a default agent", () => {
@@ -113,7 +113,7 @@ describe("resolveRunWorkspaceDir", () => {
           { id: "research", workspace: researchWorkspace, default: true },
         ],
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     expect(() =>
       resolveRunWorkspaceDir({
@@ -130,7 +130,7 @@ describe("resolveRunWorkspaceDir", () => {
       agents: {
         defaults: { workspace: fallbackWorkspace },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     const result = resolveRunWorkspaceDir({
       workspaceDir: undefined,

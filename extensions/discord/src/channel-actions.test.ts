@@ -1,6 +1,6 @@
-import type { ChannelMessageActionContext } from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { withEnv } from "openclaw/plugin-sdk/test-env";
+import type { ChannelMessageActionContext } from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { withEnv } from "alien/plugin-sdk/test-env";
 import { describe, expect, it, vi } from "vitest";
 
 const handleDiscordMessageActionMock = vi.hoisted(() =>
@@ -23,7 +23,7 @@ describe("discordMessageActions", () => {
               enabled: true,
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       });
 
       expect(discovery).toEqual({
@@ -49,7 +49,7 @@ describe("discordMessageActions", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(discovery?.capabilities).toEqual(["presentation"]);
@@ -81,7 +81,7 @@ describe("discordMessageActions", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as AlienConfig,
     });
 
     expect(discovery?.capabilities).toEqual(["presentation"]);
@@ -110,7 +110,7 @@ describe("discordMessageActions", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as AlienConfig,
       accountId: "ops",
     });
 
@@ -140,7 +140,7 @@ describe("discordMessageActions", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const defaultDiscovery = discordMessageActions.describeMessageTool?.({
       cfg,
@@ -171,7 +171,7 @@ describe("discordMessageActions", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(discovery?.actions).toContain("send");
@@ -189,7 +189,7 @@ describe("discordMessageActions", () => {
             token: "Bot token-main",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
     expect(discovery?.schema).toBeUndefined();
   });
@@ -234,7 +234,7 @@ describe("discordMessageActions", () => {
       ctx: {
         channel: "discord",
         action: "send",
-        cfg: {} as OpenClawConfig,
+        cfg: {} as AlienConfig,
         params: {
           components: {
             text: "Choose",
@@ -270,7 +270,7 @@ describe("discordMessageActions", () => {
       ctx: {
         channel: "discord",
         action: "send",
-        cfg: {} as OpenClawConfig,
+        cfg: {} as AlienConfig,
         params: {
           components: () => [],
         },
@@ -289,7 +289,7 @@ describe("discordMessageActions", () => {
           token: "Bot token-main",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const toolContext: ChannelMessageActionContext["toolContext"] = {
       currentChannelProvider: "discord",
     };

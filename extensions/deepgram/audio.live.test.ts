@@ -1,8 +1,8 @@
 import {
   runRealtimeSttLiveTest,
   synthesizeElevenLabsLiveSpeech,
-} from "openclaw/plugin-sdk/provider-test-contracts";
-import { isLiveTestEnabled } from "openclaw/plugin-sdk/test-env";
+} from "alien/plugin-sdk/provider-test-contracts";
+import { isLiveTestEnabled } from "alien/plugin-sdk/test-env";
 import { describe, expect, it } from "vitest";
 import { transcribeDeepgramAudio } from "./audio.js";
 import { buildDeepgramRealtimeTranscriptionProvider } from "./realtime-transcription-provider.js";
@@ -53,7 +53,7 @@ describeLive("deepgram live", () => {
       throw new Error("ELEVENLABS_API_KEY required to synthesize live realtime STT input");
     }
     const provider = buildDeepgramRealtimeTranscriptionProvider();
-    const phrase = "Testing OpenClaw Deepgram realtime transcription integration OK.";
+    const phrase = "Testing Alien Deepgram realtime transcription integration OK.";
     const speech = await synthesizeElevenLabsLiveSpeech({
       text: phrase,
       apiKey: ELEVENLABS_KEY,

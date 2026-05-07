@@ -1,5 +1,5 @@
-import { installChannelActionsContractSuite } from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { installChannelActionsContractSuite } from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe } from "vitest";
 import { discordPlugin } from "../api.js";
 
@@ -36,7 +36,7 @@ describe("discord actions contract", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         expectedActions: ["send", "poll", "react", "reactions", "emoji-list"],
         expectedCapabilities: ["presentation"],
       },

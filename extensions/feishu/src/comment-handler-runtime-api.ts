@@ -1,3 +1,3 @@
-export type { OpenClawConfig as ClawdbotConfig } from "openclaw/plugin-sdk/config-types";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+export type { AlienConfig as ClawdbotConfig } from "alien/plugin-sdk/config-types";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime";
+export { createChannelPairingController } from "alien/plugin-sdk/channel-pairing";

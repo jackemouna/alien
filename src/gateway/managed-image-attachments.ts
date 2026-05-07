@@ -278,7 +278,7 @@ function buildOutgoingVariantUrl(sessionKey: string, attachmentId: string, varia
 }
 
 function resolveRequesterSessionKey(req: IncomingMessage) {
-  const raw = req.headers["x-openclaw-requester-session-key"];
+  const raw = req.headers["x-alien-requester-session-key"];
   if (Array.isArray(raw)) {
     return raw[0]?.trim() || null;
   }
@@ -722,7 +722,7 @@ async function getSessionManagedOutgoingAttachmentIndex(
   });
   const index: SessionManagedOutgoingAttachmentIndex = new Set();
   for (const message of messages) {
-    const meta = (message as { __openclaw?: { id?: string } } | null)?.__openclaw;
+    const meta = (message as { __alien?: { id?: string } } | null)?.__alien;
     const messageId = meta?.id;
     if (typeof messageId !== "string" || !messageId) {
       continue;

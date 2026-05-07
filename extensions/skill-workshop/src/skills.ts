@@ -4,7 +4,7 @@ import {
   pathExists,
   replaceFileAtomic,
   resolvePathWithinRoot,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import { bumpSkillsSnapshotVersion } from "../api.js";
 import { assertSkillContentSafe, scanSkillContent } from "./scanner.js";
 import type { SkillProposal, SkillScanFinding } from "./types.js";

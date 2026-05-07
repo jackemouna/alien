@@ -1,9 +1,9 @@
 import fs from "node:fs";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { replaceFileAtomicSync } from "openclaw/plugin-sdk/security-runtime";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { replaceFileAtomicSync } from "alien/plugin-sdk/security-runtime";
 
 const MAX_ENTRIES = 2_048;
-const TOPIC_NAME_CACHE_STATE_KEY = Symbol.for("openclaw.telegramTopicNameCacheState");
+const TOPIC_NAME_CACHE_STATE_KEY = Symbol.for("alien.telegramTopicNameCacheState");
 const DEFAULT_TOPIC_NAME_CACHE_KEY = "__default__";
 
 type TopicEntry = {

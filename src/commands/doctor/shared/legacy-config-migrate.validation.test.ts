@@ -9,7 +9,7 @@ describe("legacy config migrate validation", () => {
         groupChat: {
           requireMention: false,
           historyLimit: 8,
-          mentionPatterns: ["@openclaw"],
+          mentionPatterns: ["@alien"],
         },
       },
       channels: {
@@ -30,7 +30,7 @@ describe("legacy config migrate validation", () => {
     });
     expect(res.config?.messages?.groupChat).toEqual({
       historyLimit: 8,
-      mentionPatterns: ["@openclaw"],
+      mentionPatterns: ["@alien"],
     });
     expect(res.changes).toContain(
       'Moved routing.groupChat.requireMention → channels.telegram.groups."*".requireMention.',

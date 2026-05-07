@@ -1,8 +1,8 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { normalizeSecretInputString, resolveSecretInputRef } from "../config/types.secrets.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
-const GATEWAY_ENV_TOKEN = "OPENCLAW_GATEWAY_TOKEN";
+const GATEWAY_ENV_TOKEN = "ALIEN_GATEWAY_TOKEN";
 
 export type GatewayAuthTokenSourceConflict = {
   checkId: "gateway.env_token_overrides_config";
@@ -14,10 +14,10 @@ export type GatewayAuthTokenSourceConflict = {
 };
 
 export function resolveGatewayAuthTokenSourceConflict(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env: NodeJS.ProcessEnv;
 }): GatewayAuthTokenSourceConflict | null {
-  const envToken = normalizeOptionalString(params.env.OPENCLAW_GATEWAY_TOKEN);
+  const envToken = normalizeOptionalString(params.env.ALIEN_GATEWAY_TOKEN);
   if (!envToken) {
     return null;
   }

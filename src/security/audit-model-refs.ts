@@ -8,12 +8,12 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 export type AuditModelRef = { id: string; source: string };
 
 function resolveAuditModelId(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   raw: string,
   aliasIndex: ReturnType<typeof buildModelAliasIndex>,
 ): string {
@@ -29,7 +29,7 @@ function resolveAuditModelId(
 
 function addModelRef(params: {
   out: AuditModelRef[];
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   aliasIndex: ReturnType<typeof buildModelAliasIndex>;
   raw: unknown;
   source: string;
@@ -47,7 +47,7 @@ function addModelRef(params: {
   });
 }
 
-export function collectAuditModelRefs(cfg: OpenClawConfig): AuditModelRef[] {
+export function collectAuditModelRefs(cfg: AlienConfig): AuditModelRef[] {
   const aliasIndex = buildModelAliasIndex({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,

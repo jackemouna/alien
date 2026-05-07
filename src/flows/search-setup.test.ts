@@ -8,7 +8,7 @@ const mockGrokProvider = vi.hoisted(() => ({
   pluginId: "xai",
   label: "Grok",
   hint: "Search with xAI",
-  docsUrl: "https://docs.openclaw.ai/tools/web",
+  docsUrl: "https://docs.alien.ai/tools/web",
   requiresCredential: true,
   credentialLabel: "xAI API key",
   placeholder: "xai-...",
@@ -115,7 +115,7 @@ const ensureOnboardingPluginInstalled = vi.hoisted(() =>
             [entry.pluginId]: {
               source: "npm",
               spec: entry.install.npmSpec,
-              installPath: `/tmp/openclaw-plugins/${entry.pluginId}`,
+              installPath: `/tmp/alien-plugins/${entry.pluginId}`,
             },
           },
         },
@@ -305,7 +305,7 @@ describe("runSearchSetupFlow", () => {
           label: "Brave",
           trustedSourceLinkedOfficialInstall: true,
           install: expect.objectContaining({
-            npmSpec: "@openclaw/brave-plugin",
+            npmSpec: "@alien/brave-plugin",
           }),
         }),
         autoConfirmSingleSource: true,
@@ -320,7 +320,7 @@ describe("runSearchSetupFlow", () => {
     });
     expect(next.plugins?.installs?.brave).toMatchObject({
       source: "npm",
-      spec: "@openclaw/brave-plugin",
+      spec: "@alien/brave-plugin",
     });
   });
 
@@ -354,7 +354,7 @@ describe("runSearchSetupFlow", () => {
           label: "Brave",
           trustedSourceLinkedOfficialInstall: true,
           install: expect.objectContaining({
-            npmSpec: "@openclaw/brave-plugin",
+            npmSpec: "@alien/brave-plugin",
           }),
         }),
         autoConfirmSingleSource: true,
@@ -370,7 +370,7 @@ describe("runSearchSetupFlow", () => {
     expect(next.plugins?.entries?.brave?.enabled).toBeUndefined();
     expect(next.plugins?.installs?.brave).toMatchObject({
       source: "npm",
-      spec: "@openclaw/brave-plugin",
+      spec: "@alien/brave-plugin",
     });
   });
 });

@@ -6,7 +6,7 @@ import {
   FsSafeError,
   resolveAbsolutePathForWrite,
   root,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 
 const MAX_CONTENT_BYTES = 16 * 1024 * 1024; // 16 MB
 

@@ -1,10 +1,10 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { ChannelMessageActionContext } from "openclaw/plugin-sdk/channel-contract";
+import type { ChannelMessageActionContext } from "alien/plugin-sdk/channel-contract";
 import {
   normalizeInteractiveReply,
   normalizeMessagePresentation,
-} from "openclaw/plugin-sdk/interactive-runtime";
-import { readNumberParam, readStringParam } from "openclaw/plugin-sdk/param-readers";
+} from "alien/plugin-sdk/interactive-runtime";
+import { readNumberParam, readStringParam } from "alien/plugin-sdk/param-readers";
 import {
   buildSlackInteractiveBlocks,
   buildSlackPresentationBlocks,

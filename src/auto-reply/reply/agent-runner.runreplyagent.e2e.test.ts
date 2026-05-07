@@ -99,7 +99,7 @@ beforeEach(() => {
   vi.mocked(enqueueFollowupRun).mockClear();
   vi.mocked(refreshQueuedFollowupSession).mockClear();
   vi.mocked(scheduleFollowupDrain).mockClear();
-  vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+  vi.stubEnv("ALIEN_TEST_FAST", "1");
 });
 
 function createMinimalRun(params?: {
@@ -153,7 +153,7 @@ function createMinimalRun(params?: {
       },
       timeoutMs: 1_000,
       blockReplyBreak: "message_end",
-      skipProviderRuntimeHints: process.env.OPENCLAW_TEST_FAST === "1",
+      skipProviderRuntimeHints: process.env.ALIEN_TEST_FAST === "1",
       ...params?.runOverrides,
     },
   } as unknown as FollowupRun;
@@ -284,7 +284,7 @@ describe("runReplyAgent heartbeat followup guard", () => {
 
 describe("runReplyAgent pending final delivery capture", () => {
   async function createSessionStoreFile(entry: SessionEntry) {
-    const dir = await mkdtemp(join(tmpdir(), "openclaw-agent-runner-pending-"));
+    const dir = await mkdtemp(join(tmpdir(), "alien-agent-runner-pending-"));
     const storePath = join(dir, "sessions.json");
     await writeFile(storePath, JSON.stringify({ main: entry }), "utf8");
     return storePath;

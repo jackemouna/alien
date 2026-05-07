@@ -1,4 +1,4 @@
-import { expectPairingReplyText } from "openclaw/plugin-sdk/channel-test-helpers";
+import { expectPairingReplyText } from "alien/plugin-sdk/channel-test-helpers";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { captureEnv } from "../test-utils/env.js";
 import { buildPairingReply } from "./pairing-messages.js";
@@ -7,9 +7,9 @@ describe("buildPairingReply", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["OPENCLAW_CONTAINER_HINT", "OPENCLAW_PROFILE"]);
-    delete process.env.OPENCLAW_CONTAINER_HINT;
-    process.env.OPENCLAW_PROFILE = "isolated";
+    envSnapshot = captureEnv(["ALIEN_CONTAINER_HINT", "ALIEN_PROFILE"]);
+    delete process.env.ALIEN_CONTAINER_HINT;
+    process.env.ALIEN_PROFILE = "isolated";
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe("buildPairingReply", () => {
 
   function expectPairingApproveCommand(text: string, testCase: (typeof pairingReplyCases)[number]) {
     const commandRe = new RegExp(
-      `(?:openclaw|openclaw) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
+      `(?:alien|alien) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
     );
     expect(text).toMatch(commandRe);
   }

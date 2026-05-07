@@ -17,7 +17,7 @@ import {
   type HeartbeatToolResponse,
   type MessagingToolSend,
   type ToolProgressDetailMode,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import { readCodexTurn } from "./protocol-validators.js";
 import {
   isJsonObject,
@@ -221,7 +221,7 @@ export class CodexAppServerEventProjector {
       ),
     ];
     // Codex owns the canonical thread. These mirror records keep enough local
-    // context for OpenClaw history, search, and future harness switching.
+    // context for Alien history, search, and future harness switching.
     if (reasoningText) {
       messagesSnapshot.push(
         attachCodexMirrorIdentity(
@@ -1172,7 +1172,7 @@ function shouldSuppressChannelProgressForItem(item: CodexThreadItem): boolean {
   if (shouldSynthesizeToolProgressForItem(item)) {
     return true;
   }
-  // Dynamic OpenClaw tool requests are emitted at the item/tool/call request
+  // Dynamic Alien tool requests are emitted at the item/tool/call request
   // boundary in run-attempt.ts. Re-emitting item notifications to channels can
   // duplicate start/result progress when the app-server sends both signals.
   return item.type === "dynamicToolCall";

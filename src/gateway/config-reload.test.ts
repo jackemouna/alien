@@ -9,7 +9,7 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type {
   ConfigFileSnapshot,
   ConfigWriteNotification,
-  OpenClawConfig,
+  AlienConfig,
 } from "../config/config.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import {
@@ -527,7 +527,7 @@ function makeSnapshot(partial: Partial<ConfigFileSnapshot> = {}): ConfigFileSnap
     {}) as ConfigFileSnapshot["sourceConfig"];
   const runtimeConfig = partial.runtimeConfig ?? partial.config ?? {};
   return {
-    path: "/tmp/openclaw.json",
+    path: "/tmp/alien.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -563,7 +563,7 @@ function makeZeroDebounceHookSnapshot(hash: string): ConfigFileSnapshot {
 
 function makeZeroDebounceHookWrite(persistedHash: string): ConfigWriteNotification {
   return {
-    configPath: "/tmp/openclaw.json",
+    configPath: "/tmp/alien.json",
     sourceConfig: { gateway: { reload: { debounceMs: 0 } }, hooks: { enabled: true } },
     runtimeConfig: {
       gateway: { reload: { debounceMs: 0 } },
@@ -580,7 +580,7 @@ function makeZeroDebounceHookWrite(persistedHash: string): ConfigWriteNotificati
 function createReloaderHarness(
   readSnapshot: () => Promise<ConfigFileSnapshot>,
   options: {
-    initialCompareConfig?: OpenClawConfig;
+    initialCompareConfig?: AlienConfig;
     initialInternalWriteHash?: string | null;
     promoteSnapshot?: (snapshot: ConfigFileSnapshot, reason: string) => Promise<boolean>;
     initialPluginInstallRecords?: Record<string, PluginInstallRecord>;
@@ -617,7 +617,7 @@ function createReloaderHarness(
     onHotReload,
     onRestart,
     log,
-    watchPath: "/tmp/openclaw.json",
+    watchPath: "/tmp/alien.json",
   });
   return {
     watcher,
@@ -765,7 +765,7 @@ describe("startGatewayConfigReloader", () => {
   });
 
   it("skips plugin-local invalid reloads without degraded mode", async () => {
-    const activeConfig: OpenClawConfig = {
+    const activeConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       agents: { defaults: { model: "gpt-5.4" } },
       plugins: {
@@ -796,7 +796,7 @@ describe("startGatewayConfigReloader", () => {
       .fn<() => Promise<ConfigFileSnapshot>>()
       .mockResolvedValueOnce(invalidSnapshot);
     const promoteSnapshot = vi.fn(async () => true);
-    const previousConfig: OpenClawConfig = {
+    const previousConfig: AlienConfig = {
       ...activeConfig,
       plugins: {
         entries: {
@@ -1018,7 +1018,7 @@ describe("startGatewayConfigReloader", () => {
       installedAt: "2026-04-22T00:00:00.000Z",
       resolvedAt: "2026-04-22T00:00:00.000Z",
     };
-    const sourceConfig: OpenClawConfig = {
+    const sourceConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 }, auth: { mode: "token" } },
       plugins: {
         installs: {
@@ -1046,7 +1046,7 @@ describe("startGatewayConfigReloader", () => {
     const harness = createReloaderHarness(readSnapshot, { initialCompareConfig: sourceConfig });
 
     harness.emitWrite({
-      configPath: "/tmp/openclaw.json",
+      configPath: "/tmp/alien.json",
       sourceConfig: {
         ...sourceConfig,
         plugins: {
@@ -1098,7 +1098,7 @@ describe("startGatewayConfigReloader", () => {
   });
 
   it("does not suppress functional install changes that collide with timestamp paths", async () => {
-    const sourceConfig: OpenClawConfig = {
+    const sourceConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         installs: {
@@ -1109,7 +1109,7 @@ describe("startGatewayConfigReloader", () => {
         },
       },
     };
-    const nextSourceConfig: OpenClawConfig = {
+    const nextSourceConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         installs: {
@@ -1134,7 +1134,7 @@ describe("startGatewayConfigReloader", () => {
     const harness = createReloaderHarness(readSnapshot, { initialCompareConfig: sourceConfig });
 
     harness.emitWrite({
-      configPath: "/tmp/openclaw.json",
+      configPath: "/tmp/alien.json",
       sourceConfig: nextSourceConfig,
       runtimeConfig: nextSourceConfig,
       persistedHash: "plugin-collision-1",
@@ -1174,7 +1174,7 @@ describe("startGatewayConfigReloader", () => {
   });
 
   it("queues restart when an external plugin source write only changes the managed index", async () => {
-    const activeConfig: OpenClawConfig = {
+    const activeConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         allow: ["lossless-claw"],
@@ -1195,7 +1195,7 @@ describe("startGatewayConfigReloader", () => {
       "lossless-claw": {
         source: "npm",
         spec: "@martian-engineering/lossless-claw",
-        installPath: "/tmp/openclaw/plugins/lossless-claw",
+        installPath: "/tmp/alien/plugins/lossless-claw",
         installedAt: "2026-04-22T00:00:00.000Z",
       },
     } satisfies Record<string, PluginInstallRecord>);
@@ -1223,7 +1223,7 @@ describe("startGatewayConfigReloader", () => {
   });
 
   it("keeps external plugin policy-only writes on the hot reload path", async () => {
-    const previousConfig: OpenClawConfig = {
+    const previousConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         entries: {
@@ -1231,7 +1231,7 @@ describe("startGatewayConfigReloader", () => {
         },
       },
     };
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         entries: {
@@ -1242,8 +1242,8 @@ describe("startGatewayConfigReloader", () => {
     const installRecords = {
       telegram: {
         source: "npm",
-        spec: "@openclaw/telegram",
-        installPath: "/tmp/openclaw/plugins/telegram",
+        spec: "@alien/telegram",
+        installPath: "/tmp/alien/plugins/telegram",
       },
     } satisfies Record<string, PluginInstallRecord>;
     const readSnapshot = vi.fn<() => Promise<ConfigFileSnapshot>>().mockResolvedValueOnce(
@@ -1280,13 +1280,13 @@ describe("startGatewayConfigReloader", () => {
   });
 
   it("queues restart when an external plugin source write also changes plugin config", async () => {
-    const previousConfig: OpenClawConfig = {
+    const previousConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         allow: ["lossless-claw"],
       },
     };
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: AlienConfig = {
       gateway: { reload: { debounceMs: 0 } },
       plugins: {
         allow: ["lossless-claw"],
@@ -1307,7 +1307,7 @@ describe("startGatewayConfigReloader", () => {
       "lossless-claw": {
         source: "npm",
         spec: "@martian-engineering/lossless-claw",
-        installPath: "/tmp/openclaw/plugins/lossless-claw",
+        installPath: "/tmp/alien/plugins/lossless-claw",
         installedAt: "2026-04-22T00:00:00.000Z",
       },
     } satisfies Record<string, PluginInstallRecord>);

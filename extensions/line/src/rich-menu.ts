@@ -1,9 +1,9 @@
 import { messagingApi } from "@line/bot-sdk";
-import { getAgentScopedMediaLocalRoots } from "openclaw/plugin-sdk/agent-media-payload";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
-import { loadWebMediaRaw } from "openclaw/plugin-sdk/web-media";
+import { getAgentScopedMediaLocalRoots } from "alien/plugin-sdk/agent-media-payload";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
+import { loadWebMediaRaw } from "alien/plugin-sdk/web-media";
 import { resolveLineAccount } from "./accounts.js";
 import { datetimePickerAction, messageAction, postbackAction, uriAction } from "./actions.js";
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
@@ -38,7 +38,7 @@ export interface CreateRichMenuParams {
 }
 
 interface RichMenuOpts {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channelAccessToken?: string;
   accountId?: string;
   verbose?: boolean;

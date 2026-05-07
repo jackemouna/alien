@@ -163,8 +163,8 @@ describe("toSanitizedMarkdownHtml", () => {
     });
 
     it("links http:// URLs", () => {
-      const html = toSanitizedMarkdownHtml("Visit http://github.com/openclaw");
-      expect(html).toContain('<a href="http://github.com/openclaw"');
+      const html = toSanitizedMarkdownHtml("Visit http://github.com/alien");
+      expect(html).toContain('<a href="http://github.com/alien"');
     });
 
     it("links email addresses", () => {
@@ -202,9 +202,9 @@ describe("toSanitizedMarkdownHtml", () => {
     });
 
     it("does NOT rewrite explicit markdown links with CJK display text", () => {
-      const html = toSanitizedMarkdownHtml("[OpenClaw中文](https://docs.openclaw.ai)");
-      expect(html).toContain('href="https://docs.openclaw.ai"');
-      expect(html).toContain("OpenClaw中文</a>");
+      const html = toSanitizedMarkdownHtml("[Alien中文](https://docs.alien.ai)");
+      expect(html).toContain('href="https://docs.alien.ai"');
+      expect(html).toContain("Alien中文</a>");
     });
 
     it("preserves mailto: scheme when trimming CJK from email links", () => {

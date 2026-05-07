@@ -8,9 +8,9 @@
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
-} from "openclaw/plugin-sdk/channel-message";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+} from "alien/plugin-sdk/channel-message";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import { getClientManager as getRegistryClientManager } from "./client-manager-registry.js";
 import { resolveTwitchAccountContext } from "./config.js";
 import { stripMarkdownForTwitch } from "./utils/markdown.js";
@@ -55,12 +55,12 @@ function createTwitchSendReceipt(params: {
 /**
  * Internal send function used by the outbound adapter.
  *
- * This function has access to the full OpenClaw config and handles
+ * This function has access to the full Alien config and handles
  * account resolution, markdown stripping, and actual message sending.
  *
  * @param channel - The channel name
  * @param text - The message text
- * @param cfg - Full OpenClaw configuration
+ * @param cfg - Full Alien configuration
  * @param accountId - Account ID to use
  * @param stripMarkdown - Whether to strip markdown (default: true)
  * @param logger - Logger instance
@@ -70,7 +70,7 @@ function createTwitchSendReceipt(params: {
  * const result = await sendMessageTwitchInternal(
  *   "#mychannel",
  *   "Hello Twitch!",
- *   openclawConfig,
+ *   alienConfig,
  *   "default",
  *   true,
  *   console,
@@ -79,7 +79,7 @@ function createTwitchSendReceipt(params: {
 export async function sendMessageTwitchInternal(
   channel: string,
   text: string,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId?: string,
   stripMarkdown: boolean = true,
   logger: Console = console,

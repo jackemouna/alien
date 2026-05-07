@@ -1,8 +1,8 @@
 import {
   ToolPolicySchema,
   buildChannelConfigSchema,
-} from "openclaw/plugin-sdk/channel-config-schema";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "alien/plugin-sdk/channel-config-schema";
+import { z } from "alien/plugin-sdk/zod";
 
 const QaChannelActionConfigSchema = z
   .object({

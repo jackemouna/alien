@@ -1,10 +1,10 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { ProviderWrapStreamFnContext } from "openclaw/plugin-sdk/plugin-entry";
-import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
+import type { ProviderWrapStreamFnContext } from "alien/plugin-sdk/plugin-entry";
+import { normalizeProviderId } from "alien/plugin-sdk/provider-model-shared";
 import {
   createPayloadPatchStreamWrapper,
   isOpenAICompatibleThinkingEnabled,
-} from "openclaw/plugin-sdk/provider-stream-shared";
+} from "alien/plugin-sdk/provider-stream-shared";
 
 type QwenThinkingLevel = ProviderWrapStreamFnContext["thinkingLevel"];
 

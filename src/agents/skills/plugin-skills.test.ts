@@ -6,7 +6,7 @@ import {
   __testing as acpRuntimeTesting,
   registerAcpRuntimeBackend,
 } from "../../acp/runtime/registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import type { PluginManifestRegistry } from "../../plugins/manifest-registry.js";
 import { createTrackedTempDirs } from "../../test-utils/tracked-temp-dirs.js";
 import { __testing } from "./plugin-skills.js";
@@ -64,7 +64,7 @@ function buildRegistry(params: { acpxRoot: string; helperRoot: string }): Plugin
         origin: "workspace",
         rootDir: params.acpxRoot,
         source: params.acpxRoot,
-        manifestPath: path.join(params.acpxRoot, "openclaw.plugin.json"),
+        manifestPath: path.join(params.acpxRoot, "alien.plugin.json"),
       },
       {
         id: "helper",
@@ -77,7 +77,7 @@ function buildRegistry(params: { acpxRoot: string; helperRoot: string }): Plugin
         origin: "workspace",
         rootDir: params.helperRoot,
         source: params.helperRoot,
-        manifestPath: path.join(params.helperRoot, "openclaw.plugin.json"),
+        manifestPath: path.join(params.helperRoot, "alien.plugin.json"),
       },
     ],
   };
@@ -86,7 +86,7 @@ function buildRegistry(params: { acpxRoot: string; helperRoot: string }): Plugin
 function createSinglePluginRegistry(params: {
   pluginRoot: string;
   skills: string[];
-  format?: "openclaw" | "bundle";
+  format?: "alien" | "bundle";
   legacyPluginIds?: string[];
 }): PluginManifestRegistry {
   return {
@@ -105,16 +105,16 @@ function createSinglePluginRegistry(params: {
         origin: "workspace",
         rootDir: params.pluginRoot,
         source: params.pluginRoot,
-        manifestPath: path.join(params.pluginRoot, "openclaw.plugin.json"),
+        manifestPath: path.join(params.pluginRoot, "alien.plugin.json"),
       },
     ],
   };
 }
 
 async function setupAcpxAndHelperRegistry() {
-  const workspaceDir = await tempDirs.make("openclaw-");
-  const acpxRoot = await tempDirs.make("openclaw-acpx-plugin-");
-  const helperRoot = await tempDirs.make("openclaw-helper-plugin-");
+  const workspaceDir = await tempDirs.make("alien-");
+  const acpxRoot = await tempDirs.make("alien-acpx-plugin-");
+  const helperRoot = await tempDirs.make("alien-helper-plugin-");
   await fs.mkdir(path.join(acpxRoot, "skills"), { recursive: true });
   await fs.mkdir(path.join(helperRoot, "skills"), { recursive: true });
   hoisted.loadPluginManifestRegistryForInstalledIndex.mockReturnValue(
@@ -124,9 +124,9 @@ async function setupAcpxAndHelperRegistry() {
 }
 
 async function setupPluginOutsideSkills() {
-  const workspaceDir = await tempDirs.make("openclaw-");
-  const pluginRoot = await tempDirs.make("openclaw-plugin-");
-  const outsideDir = await tempDirs.make("openclaw-outside-");
+  const workspaceDir = await tempDirs.make("alien-");
+  const pluginRoot = await tempDirs.make("alien-plugin-");
+  const outsideDir = await tempDirs.make("alien-outside-");
   const outsideSkills = path.join(outsideDir, "skills");
   return { workspaceDir, pluginRoot, outsideSkills };
 }
@@ -217,7 +217,7 @@ describe("resolvePluginSkillDirs", () => {
             helper: { enabled: true },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(dirs).toEqual(expectedDirs({ acpxRoot, helperRoot }));
@@ -244,7 +244,7 @@ describe("resolvePluginSkillDirs", () => {
             helper: { enabled: true },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(dirs).toEqual([path.resolve(pluginRoot, "skills")]);
@@ -275,14 +275,14 @@ describe("resolvePluginSkillDirs", () => {
             helper: { enabled: true },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(dirs).toEqual([]);
   });
 
   it("cleans up generated plugin skill links when the plugin registry is empty", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-");
+    const workspaceDir = await tempDirs.make("alien-");
     const pluginSkillsDir = await tempDirs.make("managed-plugin-skills-");
     const staleRoot = await tempDirs.make("stale-plugin-skills-");
     const staleSkill = path.join(staleRoot, "stale-skill");
@@ -296,7 +296,7 @@ describe("resolvePluginSkillDirs", () => {
 
     const dirs = resolvePluginSkillDirs({
       workspaceDir,
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       pluginSkillsDir,
     });
 
@@ -307,8 +307,8 @@ describe("resolvePluginSkillDirs", () => {
   });
 
   it("resolves Claude bundle command roots through the normal plugin skill path", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-");
-    const pluginRoot = await tempDirs.make("openclaw-claude-bundle-");
+    const workspaceDir = await tempDirs.make("alien-");
+    const pluginRoot = await tempDirs.make("alien-claude-bundle-");
     await fs.mkdir(path.join(pluginRoot, "commands"), { recursive: true });
     await fs.mkdir(path.join(pluginRoot, "skills"), { recursive: true });
 
@@ -328,7 +328,7 @@ describe("resolvePluginSkillDirs", () => {
             helper: { enabled: true },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(dirs).toEqual([
@@ -338,8 +338,8 @@ describe("resolvePluginSkillDirs", () => {
   });
 
   it("resolves enabled plugin skills through legacy manifest aliases", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-");
-    const pluginRoot = await tempDirs.make("openclaw-legacy-plugin-");
+    const workspaceDir = await tempDirs.make("alien-");
+    const pluginRoot = await tempDirs.make("alien-legacy-plugin-");
     await fs.mkdir(path.join(pluginRoot, "skills"), { recursive: true });
 
     hoisted.loadPluginManifestRegistryForInstalledIndex.mockReturnValue(
@@ -358,7 +358,7 @@ describe("resolvePluginSkillDirs", () => {
             "helper-legacy": { enabled: true },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(dirs).toEqual([path.resolve(pluginRoot, "skills")]);

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 import type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
 import type {
@@ -12,22 +12,22 @@ import type {
   MigrationProviderContext,
   MigrationProviderPlugin,
   MigrationSummary,
-  OpenClawPluginApi,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginConfigSchema,
-  OpenClawPluginDefinition,
-  OpenClawPluginHttpRouteHandler,
-  OpenClawPluginNodeHostCommand,
-  OpenClawPluginNodeInvokePolicy,
-  OpenClawPluginNodeInvokePolicyContext,
-  OpenClawPluginNodeInvokePolicyResult,
-  OpenClawPluginReloadRegistration,
-  OpenClawPluginSecurityAuditCollector,
-  OpenClawPluginSecurityAuditContext,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
-  OpenClawPluginToolContext,
-  OpenClawPluginToolFactory,
+  AlienPluginApi,
+  AlienPluginCommandDefinition,
+  AlienPluginConfigSchema,
+  AlienPluginDefinition,
+  AlienPluginHttpRouteHandler,
+  AlienPluginNodeHostCommand,
+  AlienPluginNodeInvokePolicy,
+  AlienPluginNodeInvokePolicyContext,
+  AlienPluginNodeInvokePolicyResult,
+  AlienPluginReloadRegistration,
+  AlienPluginSecurityAuditCollector,
+  AlienPluginSecurityAuditContext,
+  AlienPluginService,
+  AlienPluginServiceContext,
+  AlienPluginToolContext,
+  AlienPluginToolFactory,
   PluginLogger,
   ProviderAugmentModelCatalogContext,
   ProviderAuthContext,
@@ -79,8 +79,8 @@ import type {
   ProviderValidateReplayTurnsContext,
   ProviderWebSocketSessionPolicy,
   ProviderWrapStreamFnContext,
-  OpenClawGatewayDiscoveryAdvertiseContext,
-  OpenClawGatewayDiscoveryService,
+  AlienGatewayDiscoveryAdvertiseContext,
+  AlienGatewayDiscoveryService,
   SpeechProviderPlugin,
   PluginCommandContext,
   PluginCommandResult,
@@ -117,16 +117,16 @@ export type {
   MigrationProviderContext,
   MigrationProviderPlugin,
   MigrationSummary,
-  OpenClawPluginApi,
-  OpenClawPluginNodeHostCommand,
-  OpenClawPluginNodeInvokePolicy,
-  OpenClawPluginNodeInvokePolicyContext,
-  OpenClawPluginNodeInvokePolicyResult,
-  OpenClawPluginReloadRegistration,
-  OpenClawPluginSecurityAuditCollector,
-  OpenClawPluginSecurityAuditContext,
-  OpenClawPluginToolContext,
-  OpenClawPluginToolFactory,
+  AlienPluginApi,
+  AlienPluginNodeHostCommand,
+  AlienPluginNodeInvokePolicy,
+  AlienPluginNodeInvokePolicyContext,
+  AlienPluginNodeInvokePolicyResult,
+  AlienPluginReloadRegistration,
+  AlienPluginSecurityAuditCollector,
+  AlienPluginSecurityAuditContext,
+  AlienPluginToolContext,
+  AlienPluginToolFactory,
   PluginCommandContext,
   PluginCommandResult,
   PluginAgentEventSubscriptionRegistration,
@@ -148,8 +148,8 @@ export type {
   PluginSessionExtensionProjection,
   PluginToolMetadataRegistration,
   PluginTrustedToolPolicyRegistration,
-  OpenClawPluginConfigSchema,
-  OpenClawPluginHttpRouteHandler,
+  AlienPluginConfigSchema,
+  AlienPluginHttpRouteHandler,
   ProviderDiscoveryContext,
   ProviderCatalogContext,
   ProviderCatalogResult,
@@ -196,17 +196,17 @@ export type {
   ProviderValidateReplayTurnsContext,
   ProviderWebSocketSessionPolicy,
   ProviderWrapStreamFnContext,
-  OpenClawGatewayDiscoveryAdvertiseContext,
-  OpenClawGatewayDiscoveryService,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
+  AlienGatewayDiscoveryAdvertiseContext,
+  AlienGatewayDiscoveryService,
+  AlienPluginService,
+  AlienPluginServiceContext,
   ProviderAuthContext,
   ProviderAuthDoctorHintContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderAuthMethod,
   ProviderAuthResult,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginDefinition,
+  AlienPluginCommandDefinition,
+  AlienPluginDefinition,
   PluginLogger,
 };
 export type {
@@ -221,7 +221,7 @@ export type {
   PluginHookInboundClaimResult,
 } from "../plugins/hook-types.js";
 export type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
-export type { OpenClawConfig };
+export type { AlienConfig };
 
 export {
   buildJsonPluginConfigSchema,
@@ -235,27 +235,27 @@ type DefinePluginEntryOptions = {
   name: string;
   description: string;
   /**
-   * @deprecated Declare exclusive plugin kind in `openclaw.plugin.json` via
+   * @deprecated Declare exclusive plugin kind in `alien.plugin.json` via
    * manifest `kind`. Runtime-entry `kind` remains only as a compatibility
    * fallback for older plugins.
    */
-  kind?: OpenClawPluginDefinition["kind"];
-  configSchema?: OpenClawPluginConfigSchema | (() => OpenClawPluginConfigSchema);
-  reload?: OpenClawPluginDefinition["reload"];
-  nodeHostCommands?: OpenClawPluginDefinition["nodeHostCommands"];
-  securityAuditCollectors?: OpenClawPluginDefinition["securityAuditCollectors"];
-  register: (api: OpenClawPluginApi) => void;
+  kind?: AlienPluginDefinition["kind"];
+  configSchema?: AlienPluginConfigSchema | (() => AlienPluginConfigSchema);
+  reload?: AlienPluginDefinition["reload"];
+  nodeHostCommands?: AlienPluginDefinition["nodeHostCommands"];
+  securityAuditCollectors?: AlienPluginDefinition["securityAuditCollectors"];
+  register: (api: AlienPluginApi) => void;
 };
 
-/** Normalized object shape that OpenClaw loads from a plugin entry module. */
+/** Normalized object shape that Alien loads from a plugin entry module. */
 type DefinedPluginEntry = {
   id: string;
   name: string;
   description: string;
-  configSchema: OpenClawPluginConfigSchema;
-  register: NonNullable<OpenClawPluginDefinition["register"]>;
+  configSchema: AlienPluginConfigSchema;
+  register: NonNullable<AlienPluginDefinition["register"]>;
 } & Pick<
-  OpenClawPluginDefinition,
+  AlienPluginDefinition,
   "kind" | "reload" | "nodeHostCommands" | "securityAuditCollectors"
 >;
 
@@ -264,7 +264,7 @@ type DefinedPluginEntry = {
  *
  * Use this for provider, tool, command, service, memory, and context-engine
  * plugins. Channel plugins should use `defineChannelPluginEntry(...)` from
- * `openclaw/plugin-sdk/core` so they inherit the channel capability wiring.
+ * `alien/plugin-sdk/core` so they inherit the channel capability wiring.
  */
 export function definePluginEntry({
   id,

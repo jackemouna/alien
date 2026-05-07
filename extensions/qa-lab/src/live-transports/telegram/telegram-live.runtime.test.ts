@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   LIVE_TRANSPORT_BASELINE_STANDARD_SCENARIO_IDS,
@@ -16,9 +16,9 @@ const fetchWithSsrFGuardMock = vi.hoisted(() =>
   })),
 );
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/ssrf-runtime")>(
-    "openclaw/plugin-sdk/ssrf-runtime",
+vi.mock("alien/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/ssrf-runtime")>(
+    "alien/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -36,9 +36,9 @@ describe("telegram live qa runtime", () => {
   it("resolves required Telegram QA env vars", () => {
     expect(
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "-100123",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
-        OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
+        ALIEN_QA_TELEGRAM_GROUP_ID: "-100123",
+        ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
       }),
     ).toEqual({
       groupId: "-100123",
@@ -50,20 +50,20 @@ describe("telegram live qa runtime", () => {
   it("fails when a required Telegram QA env var is missing", () => {
     expect(() =>
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "-100123",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ALIEN_QA_TELEGRAM_GROUP_ID: "-100123",
+        ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
       }),
-    ).toThrow("OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN");
+    ).toThrow("ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN");
   });
 
   it("fails when the Telegram group id is not numeric", () => {
     expect(() =>
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "qa-group",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
-        OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
+        ALIEN_QA_TELEGRAM_GROUP_ID: "qa-group",
+        ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
       }),
-    ).toThrow("OPENCLAW_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
+    ).toThrow("ALIEN_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
   });
 
   it("parses Telegram live progress env booleans", () => {
@@ -79,23 +79,23 @@ describe("telegram live qa runtime", () => {
     expect(__testing.shouldLogTelegramQaLiveProgress({ CI: "false" })).toBe(false);
   });
 
-  it("applies OPENCLAW_QA_SUITE_PROGRESS override to Telegram live logging", () => {
+  it("applies ALIEN_QA_SUITE_PROGRESS override to Telegram live logging", () => {
     expect(
       __testing.shouldLogTelegramQaLiveProgress({
         CI: "false",
-        OPENCLAW_QA_SUITE_PROGRESS: "true",
+        ALIEN_QA_SUITE_PROGRESS: "true",
       }),
     ).toBe(true);
     expect(
       __testing.shouldLogTelegramQaLiveProgress({
         CI: "true",
-        OPENCLAW_QA_SUITE_PROGRESS: "false",
+        ALIEN_QA_SUITE_PROGRESS: "false",
       }),
     ).toBe(false);
     expect(
       __testing.shouldLogTelegramQaLiveProgress({
         CI: "true",
-        OPENCLAW_QA_SUITE_PROGRESS: "definitely",
+        ALIEN_QA_SUITE_PROGRESS: "definitely",
       }),
     ).toBe(true);
   });
@@ -104,12 +104,12 @@ describe("telegram live qa runtime", () => {
     expect(__testing.resolveTelegramQaCanaryTimeoutMs({})).toBe(30_000);
     expect(
       __testing.resolveTelegramQaCanaryTimeoutMs({
-        OPENCLAW_QA_TELEGRAM_CANARY_TIMEOUT_MS: "90000",
+        ALIEN_QA_TELEGRAM_CANARY_TIMEOUT_MS: "90000",
       }),
     ).toBe(90_000);
     expect(
       __testing.resolveTelegramQaCanaryTimeoutMs({
-        OPENCLAW_QA_TELEGRAM_CANARY_TIMEOUT_MS: "nope",
+        ALIEN_QA_TELEGRAM_CANARY_TIMEOUT_MS: "nope",
       }),
     ).toBe(30_000);
   });
@@ -118,12 +118,12 @@ describe("telegram live qa runtime", () => {
     expect(__testing.resolveTelegramQaScenarioTimeoutMs(45_000, {})).toBe(45_000);
     expect(
       __testing.resolveTelegramQaScenarioTimeoutMs(45_000, {
-        OPENCLAW_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: "180000",
+        ALIEN_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: "180000",
       }),
     ).toBe(180_000);
     expect(
       __testing.resolveTelegramQaScenarioTimeoutMs(45_000, {
-        OPENCLAW_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: "nope",
+        ALIEN_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: "nope",
       }),
     ).toBe(45_000);
   });
@@ -164,7 +164,7 @@ describe("telegram live qa runtime", () => {
   });
 
   it("injects a temporary Telegram account into the QA gateway config", () => {
-    const baseCfg: OpenClawConfig = {
+    const baseCfg: AlienConfig = {
       plugins: {
         allow: ["memory-core", "qa-channel"],
         entries: {
@@ -176,8 +176,8 @@ describe("telegram live qa runtime", () => {
         "qa-channel": {
           enabled: true,
           baseUrl: "http://127.0.0.1:43123",
-          botUserId: "openclaw",
-          botDisplayName: "OpenClaw QA",
+          botUserId: "alien",
+          botDisplayName: "Alien QA",
           allowFrom: ["*"],
         },
       },

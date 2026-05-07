@@ -2,16 +2,16 @@ import {
   createUnionActionGate,
   listTokenSourcedAccounts,
   resolveReactionMessageId,
-} from "openclaw/plugin-sdk/channel-actions";
+} from "alien/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
   ChannelMessageToolSchemaContribution,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { TelegramActionConfig } from "openclaw/plugin-sdk/config-types";
-import { readStringValue } from "openclaw/plugin-sdk/text-runtime";
-import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
+} from "alien/plugin-sdk/channel-contract";
+import type { TelegramActionConfig } from "alien/plugin-sdk/config-types";
+import { readStringValue } from "alien/plugin-sdk/text-runtime";
+import { extractToolSend } from "alien/plugin-sdk/tool-send";
 import {
   createTelegramActionGate,
   listEnabledTelegramAccounts,

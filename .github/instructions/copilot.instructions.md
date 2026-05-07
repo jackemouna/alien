@@ -1,4 +1,4 @@
-# OpenClaw Codebase Patterns
+# Alien Codebase Patterns
 
 **Always reuse existing code - no redundancy!**
 
@@ -55,7 +55,7 @@
 ## Stack & Commands
 
 - **Package manager**: pnpm (`pnpm install`)
-- **Dev**: `pnpm openclaw ...` or `pnpm dev`
+- **Dev**: `pnpm alien ...` or `pnpm dev`
 - **Type-check**: `pnpm tsgo` (core production), `pnpm tsgo:prod` (core + extension production), `pnpm check:test-types` (tests)
 - **Lint/format**: `pnpm check`
 - **Tests**: `pnpm test`

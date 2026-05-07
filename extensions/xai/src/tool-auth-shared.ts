@@ -1,17 +1,17 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { canResolveEnvSecretRefInReadOnlyPath } from "openclaw/plugin-sdk/extension-shared";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { canResolveEnvSecretRefInReadOnlyPath } from "alien/plugin-sdk/extension-shared";
 import {
   coerceSecretRef,
   resolveNonEnvSecretRefApiKeyMarker,
-} from "openclaw/plugin-sdk/provider-auth";
+} from "alien/plugin-sdk/provider-auth";
 import {
   readProviderEnvValue,
   resolveProviderWebSearchPluginConfig,
-} from "openclaw/plugin-sdk/provider-web-search";
+} from "alien/plugin-sdk/provider-web-search";
 import {
   normalizeSecretInputString,
   resolveSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
+} from "alien/plugin-sdk/secret-input";
 
 type XaiFallbackAuth = {
   apiKey: string;
@@ -33,7 +33,7 @@ function readConfiguredOrManagedApiKey(value: unknown): string | undefined {
   return ref ? resolveNonEnvSecretRefApiKeyMarker(ref.source) : undefined;
 }
 
-function readLegacyGrokFallbackAuth(cfg?: OpenClawConfig): XaiFallbackAuth | undefined {
+function readLegacyGrokFallbackAuth(cfg?: AlienConfig): XaiFallbackAuth | undefined {
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return undefined;
@@ -48,7 +48,7 @@ function readLegacyGrokFallbackAuth(cfg?: OpenClawConfig): XaiFallbackAuth | und
 function readConfiguredRuntimeApiKey(
   value: unknown,
   path: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): ConfiguredRuntimeApiKeyResolution {
   const resolved = resolveSecretInputString({
     value,
@@ -82,7 +82,7 @@ function readConfiguredRuntimeApiKey(
   return envValue ? { status: "available", value: envValue } : { status: "missing" };
 }
 
-function readLegacyGrokApiKeyResult(cfg?: OpenClawConfig): ConfiguredRuntimeApiKeyResolution {
+function readLegacyGrokApiKeyResult(cfg?: AlienConfig): ConfiguredRuntimeApiKeyResolution {
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return { status: "missing" };
@@ -96,7 +96,7 @@ function readLegacyGrokApiKeyResult(cfg?: OpenClawConfig): ConfiguredRuntimeApiK
 }
 
 function readPluginXaiWebSearchApiKeyResult(
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): ConfiguredRuntimeApiKeyResolution {
   return readConfiguredRuntimeApiKey(
     resolveProviderWebSearchPluginConfig(cfg as Record<string, unknown> | undefined, "xai")?.apiKey,
@@ -105,7 +105,7 @@ function readPluginXaiWebSearchApiKeyResult(
   );
 }
 
-export function resolveFallbackXaiAuth(cfg?: OpenClawConfig): XaiFallbackAuth | undefined {
+export function resolveFallbackXaiAuth(cfg?: AlienConfig): XaiFallbackAuth | undefined {
   const pluginApiKey = readConfiguredOrManagedApiKey(
     resolveProviderWebSearchPluginConfig(cfg as Record<string, unknown> | undefined, "xai")?.apiKey,
   );
@@ -118,7 +118,7 @@ export function resolveFallbackXaiAuth(cfg?: OpenClawConfig): XaiFallbackAuth | 
   return readLegacyGrokFallbackAuth(cfg);
 }
 
-export function resolveFallbackXaiApiKey(cfg?: OpenClawConfig): string | undefined {
+export function resolveFallbackXaiApiKey(cfg?: AlienConfig): string | undefined {
   const plugin = readPluginXaiWebSearchApiKeyResult(cfg);
   if (plugin.status === "available") {
     return plugin.value;
@@ -131,8 +131,8 @@ export function resolveFallbackXaiApiKey(cfg?: OpenClawConfig): string | undefin
 }
 
 export function resolveXaiToolApiKey(params: {
-  runtimeConfig?: OpenClawConfig;
-  sourceConfig?: OpenClawConfig;
+  runtimeConfig?: AlienConfig;
+  sourceConfig?: AlienConfig;
 }): string | undefined {
   const runtimePlugin = readPluginXaiWebSearchApiKeyResult(params.runtimeConfig);
   if (runtimePlugin.status === "available") {
@@ -167,8 +167,8 @@ export function resolveXaiToolApiKey(params: {
 
 export function isXaiToolEnabled(params: {
   enabled?: boolean;
-  runtimeConfig?: OpenClawConfig;
-  sourceConfig?: OpenClawConfig;
+  runtimeConfig?: AlienConfig;
+  sourceConfig?: AlienConfig;
 }): boolean {
   if (params.enabled === false) {
     return false;

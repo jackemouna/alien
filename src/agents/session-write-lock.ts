@@ -30,8 +30,8 @@ export type SessionLockInspection = {
 
 const CLEANUP_SIGNALS = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
 type CleanupSignal = (typeof CLEANUP_SIGNALS)[number];
-const CLEANUP_STATE_KEY = Symbol.for("openclaw.sessionWriteLockCleanupState");
-const WATCHDOG_STATE_KEY = Symbol.for("openclaw.sessionWriteLockWatchdogState");
+const CLEANUP_STATE_KEY = Symbol.for("alien.sessionWriteLockCleanupState");
+const WATCHDOG_STATE_KEY = Symbol.for("alien.sessionWriteLockWatchdogState");
 
 const DEFAULT_STALE_MS = 30 * 60 * 1000;
 const DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000;
@@ -60,7 +60,7 @@ type LockInspectionDetails = Pick<
   "pid" | "pidAlive" | "createdAt" | "ageMs" | "stale" | "staleReasons"
 >;
 
-const SESSION_LOCKS = createFileLockManager("openclaw.session-write-lock");
+const SESSION_LOCKS = createFileLockManager("alien.session-write-lock");
 
 export type SessionWriteLockAcquireTimeoutConfig = {
   session?: {
@@ -179,7 +179,7 @@ function stopWatchdogTimer(): void {
 }
 
 function shouldStartBackgroundWatchdog(): boolean {
-  return process.env.VITEST !== "true" || process.env.OPENCLAW_TEST_SESSION_LOCK_WATCHDOG === "1";
+  return process.env.VITEST !== "true" || process.env.ALIEN_TEST_SESSION_LOCK_WATCHDOG === "1";
 }
 
 function ensureWatchdogStarted(intervalMs: number): void {

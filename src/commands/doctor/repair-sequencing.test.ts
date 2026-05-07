@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import { runDoctorRepairSequence } from "./repair-sequencing.js";
 
 const mocks = vi.hoisted(() => ({
@@ -46,7 +46,7 @@ vi.mock("../../plugins/installed-plugin-index.js", async (importOriginal) => ({
 }));
 
 vi.mock("./shared/channel-doctor.js", () => ({
-  collectChannelDoctorRepairMutations: ({ cfg }: { cfg: OpenClawConfig }) => {
+  collectChannelDoctorRepairMutations: ({ cfg }: { cfg: AlienConfig }) => {
     const allowFrom = cfg.channels?.discord?.allowFrom as unknown[] | undefined;
     if (allowFrom?.[0] === 123) {
       return [
@@ -85,28 +85,28 @@ vi.mock("./shared/channel-doctor.js", () => ({
 }));
 
 vi.mock("./shared/empty-allowlist-scan.js", () => ({
-  scanEmptyAllowlistPolicyWarnings: (cfg: OpenClawConfig) =>
+  scanEmptyAllowlistPolicyWarnings: (cfg: AlienConfig) =>
     cfg.channels?.signal
       ? ["channels.signal.accounts.ops\u001B[31m-team\u001B[0m\r\nnext.dmPolicy warning"]
       : [],
 }));
 
 vi.mock("./shared/allowlist-policy-repair.js", () => ({
-  maybeRepairAllowlistPolicyAllowFrom: async (cfg: OpenClawConfig) => ({
+  maybeRepairAllowlistPolicyAllowFrom: async (cfg: AlienConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/bundled-plugin-load-paths.js", () => ({
-  maybeRepairBundledPluginLoadPaths: (cfg: OpenClawConfig) => ({
+  maybeRepairBundledPluginLoadPaths: (cfg: AlienConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/open-policy-allowfrom.js", () => ({
-  maybeRepairOpenPolicyAllowFrom: (cfg: OpenClawConfig) => ({
+  maybeRepairOpenPolicyAllowFrom: (cfg: AlienConfig) => ({
     config: cfg,
     changes: [],
   }),
@@ -117,14 +117,14 @@ vi.mock("./shared/stale-plugin-config.js", () => ({
 }));
 
 vi.mock("./shared/invalid-plugin-config.js", () => ({
-  maybeRepairInvalidPluginConfig: (cfg: OpenClawConfig) => ({
+  maybeRepairInvalidPluginConfig: (cfg: AlienConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/legacy-tools-by-sender.js", () => ({
-  maybeRepairLegacyToolsBySenderKeys: (cfg: OpenClawConfig) => {
+  maybeRepairLegacyToolsBySenderKeys: (cfg: AlienConfig) => {
     const channels = cfg.channels as Record<string, unknown> | undefined;
     const tools = channels?.tools as
       | { exec?: { toolsBySender?: Record<string, unknown> } }
@@ -161,7 +161,7 @@ vi.mock("./shared/legacy-tools-by-sender.js", () => ({
 }));
 
 vi.mock("./shared/exec-safe-bins.js", () => ({
-  maybeRepairExecSafeBinProfiles: (cfg: OpenClawConfig) => ({
+  maybeRepairExecSafeBinProfiles: (cfg: AlienConfig) => ({
     config: cfg,
     changes: [],
   }),
@@ -170,7 +170,7 @@ vi.mock("./shared/exec-safe-bins.js", () => ({
 describe("doctor repair sequencing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.applyPluginAutoEnable.mockImplementation((params: { config: OpenClawConfig }) => ({
+    mocks.applyPluginAutoEnable.mockImplementation((params: { config: AlienConfig }) => ({
       config: params.config,
       changes: [],
     }));
@@ -192,7 +192,7 @@ describe("doctor repair sequencing", () => {
     });
     mocks.resolveAuthProfileOrder.mockReturnValue([]);
     mocks.resolveProfileUnusableUntilForDisplay.mockReturnValue(null);
-    mocks.maybeRepairStalePluginConfig.mockImplementation((cfg: OpenClawConfig) => ({
+    mocks.maybeRepairStalePluginConfig.mockImplementation((cfg: AlienConfig) => ({
       config: cfg,
       changes: [],
     }));
@@ -221,7 +221,7 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as unknown as OpenClawConfig,
+        } as unknown as AlienConfig,
         candidate: {
           channels: {
             discord: {
@@ -242,11 +242,11 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as unknown as OpenClawConfig,
+        } as unknown as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(result.state.pendingChanges).toBe(true);
@@ -290,18 +290,18 @@ describe("doctor repair sequencing", () => {
               "google-meet": { enabled: true },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         candidate: {
           plugins: {
             entries: {
               "google-meet": { enabled: true },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(events).toEqual(["cleanup", "missing-installs"]);
@@ -328,18 +328,18 @@ describe("doctor repair sequencing", () => {
               allowFrom: [106232522769186816],
             },
           },
-        } as unknown as OpenClawConfig,
+        } as unknown as AlienConfig,
         candidate: {
           channels: {
             discord: {
               allowFrom: [106232522769186816],
             },
           },
-        } as unknown as OpenClawConfig,
+        } as unknown as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(result.changeNotes).toEqual([]);
@@ -352,10 +352,10 @@ describe("doctor repair sequencing", () => {
 
   it("auto-enables newly installed configured plugins after doctor repair", async () => {
     mocks.repairMissingConfiguredPluginInstalls.mockResolvedValueOnce({
-      changes: ['Installed missing configured plugin "brave" from @openclaw/brave-plugin.'],
+      changes: ['Installed missing configured plugin "brave" from @alien/brave-plugin.'],
       warnings: [],
     });
-    mocks.applyPluginAutoEnable.mockImplementationOnce((params: { config: OpenClawConfig }) => ({
+    mocks.applyPluginAutoEnable.mockImplementationOnce((params: { config: AlienConfig }) => ({
       config: {
         ...params.config,
         plugins: {
@@ -375,15 +375,15 @@ describe("doctor repair sequencing", () => {
         cfg: {
           tools: { web: { search: { provider: "brave" } } },
           plugins: { allow: ["telegram"] },
-        } as OpenClawConfig,
+        } as AlienConfig,
         candidate: {
           tools: { web: { search: { provider: "brave" } } },
           plugins: { allow: ["telegram"] },
-        } as OpenClawConfig,
+        } as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(result.state.pendingChanges).toBe(true);
@@ -391,7 +391,7 @@ describe("doctor repair sequencing", () => {
     expect(result.state.candidate.plugins?.entries?.brave?.enabled).toBe(true);
     expect(result.changeNotes).toEqual(
       expect.arrayContaining([
-        'Installed missing configured plugin "brave" from @openclaw/brave-plugin.',
+        'Installed missing configured plugin "brave" from @alien/brave-plugin.',
         "brave web search provider selected, enabled automatically.",
       ]),
     );
@@ -399,7 +399,7 @@ describe("doctor repair sequencing", () => {
 
   it("moves legacy Codex routes to PI before missing plugin install repair when Codex is not ready", async () => {
     mocks.repairMissingConfiguredPluginInstalls.mockImplementationOnce(
-      async (params: { cfg: OpenClawConfig }) => {
+      async (params: { cfg: AlienConfig }) => {
         expect(params.cfg.agents?.defaults?.model).toBe("openai/gpt-5.5");
         expect(params.cfg.agents?.defaults?.agentRuntime).toEqual({ id: "pi" });
         return {
@@ -417,18 +417,18 @@ describe("doctor repair sequencing", () => {
               model: "openai-codex/gpt-5.5",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         candidate: {
           agents: {
             defaults: {
               model: "openai-codex/gpt-5.5",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
       env: {},
     });
 
@@ -444,11 +444,11 @@ describe("doctor repair sequencing", () => {
   it("does not remove deferred configured plugins during the package update doctor pass", async () => {
     mocks.repairMissingConfiguredPluginInstalls.mockResolvedValueOnce({
       changes: [
-        'Skipped package-manager repair for configured plugin "brave" during package update; rerun "openclaw doctor --fix" after the update completes.',
+        'Skipped package-manager repair for configured plugin "brave" during package update; rerun "alien doctor --fix" after the update completes.',
       ],
       warnings: [],
     });
-    mocks.maybeRepairStalePluginConfig.mockImplementationOnce((cfg: OpenClawConfig) => ({
+    mocks.maybeRepairStalePluginConfig.mockImplementationOnce((cfg: AlienConfig) => ({
       config: {
         ...cfg,
         plugins: {
@@ -480,7 +480,7 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         candidate: {
           plugins: {
             allow: ["brave"],
@@ -499,13 +499,13 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
       env: {
-        OPENCLAW_UPDATE_IN_PROGRESS: "1",
+        ALIEN_UPDATE_IN_PROGRESS: "1",
       },
     });
 
@@ -513,7 +513,7 @@ describe("doctor repair sequencing", () => {
     expect(result.state.candidate.plugins?.allow).toEqual(["brave"]);
     expect(result.state.candidate.plugins?.entries?.brave?.enabled).toBe(true);
     expect(result.changeNotes).toContain(
-      'Skipped package-manager repair for configured plugin "brave" during package update; rerun "openclaw doctor --fix" after the update completes.',
+      'Skipped package-manager repair for configured plugin "brave" during package update; rerun "alien doctor --fix" after the update completes.',
     );
   });
 
@@ -521,10 +521,10 @@ describe("doctor repair sequencing", () => {
     mocks.repairMissingConfiguredPluginInstalls.mockResolvedValueOnce({
       changes: [],
       warnings: [
-        'Failed to install missing configured plugin "brave" from @openclaw/brave-plugin: package install failed',
+        'Failed to install missing configured plugin "brave" from @alien/brave-plugin: package install failed',
       ],
     });
-    mocks.maybeRepairStalePluginConfig.mockImplementationOnce((cfg: OpenClawConfig) => ({
+    mocks.maybeRepairStalePluginConfig.mockImplementationOnce((cfg: AlienConfig) => ({
       config: {
         ...cfg,
         plugins: {
@@ -556,7 +556,7 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         candidate: {
           plugins: {
             allow: ["brave"],
@@ -575,11 +575,11 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(mocks.maybeRepairStalePluginConfig).not.toHaveBeenCalled();
@@ -587,7 +587,7 @@ describe("doctor repair sequencing", () => {
     expect(result.state.candidate.plugins?.entries?.brave?.enabled).toBe(true);
     expect(result.state.pendingChanges).toBe(false);
     expect(result.warningNotes).toContain(
-      'Failed to install missing configured plugin "brave" from @openclaw/brave-plugin: package install failed',
+      'Failed to install missing configured plugin "brave" from @alien/brave-plugin: package install failed',
     );
   });
 });

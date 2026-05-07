@@ -1,25 +1,25 @@
 import path from "node:path";
-import { withTempHome as withTempHomeBase } from "openclaw/plugin-sdk/test-env";
+import { withTempHome as withTempHomeBase } from "alien/plugin-sdk/test-env";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveAgentRuntimeConfig } from "../agents/agent-runtime-config.js";
 import { resolveSession } from "../agents/command/session.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { createThrowingTestRuntime } from "./test-runtime-config-helpers.js";
 
 type ConfigSnapshotForWrite = {
-  snapshot: { valid: boolean; resolved: OpenClawConfig };
+  snapshot: { valid: boolean; resolved: AlienConfig };
   writeOptions: Record<string, never>;
 };
 
 type ResolveCommandConfigParams = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   commandName: string;
   targetIds: Set<string>;
   runtime: RuntimeEnv;
 };
 
-const loadConfigMock = vi.hoisted(() => vi.fn<() => OpenClawConfig>());
+const loadConfigMock = vi.hoisted(() => vi.fn<() => AlienConfig>());
 const readConfigFileSnapshotForWriteMock = vi.hoisted(() =>
   vi.fn<() => Promise<ConfigSnapshotForWrite>>(),
 );
@@ -38,7 +38,7 @@ vi.mock("../cli/command-secret-targets.js", () => ({
 }));
 
 const setRuntimeConfigSnapshotMock = vi.hoisted(() =>
-  vi.fn<(cfg: OpenClawConfig, sourceConfig: OpenClawConfig) => void>(),
+  vi.fn<(cfg: AlienConfig, sourceConfig: AlienConfig) => void>(),
 );
 vi.mock("../config/runtime-snapshot.js", () => ({
   setRuntimeConfigSnapshot: setRuntimeConfigSnapshotMock,
@@ -47,8 +47,8 @@ vi.mock("../config/runtime-snapshot.js", () => ({
 const resolveCommandConfigWithSecretsMock = vi.hoisted(() =>
   vi.fn<
     (params: ResolveCommandConfigParams) => Promise<{
-      resolvedConfig: OpenClawConfig;
-      effectiveConfig: OpenClawConfig;
+      resolvedConfig: AlienConfig;
+      effectiveConfig: AlienConfig;
       diagnostics: never[];
     }>
   >(),
@@ -60,20 +60,20 @@ vi.mock("../cli/command-config-resolution.runtime.js", () => ({
 const runtime = createThrowingTestRuntime();
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "openclaw-agent-" });
+  return withTempHomeBase(fn, { prefix: "alien-agent-" });
 }
 
-function mockConfig(home: string, storePath: string): OpenClawConfig {
+function mockConfig(home: string, storePath: string): AlienConfig {
   const cfg = {
     agents: {
       defaults: {
         model: { primary: "anthropic/claude-opus-4-6" },
         models: { "anthropic/claude-opus-4-6": {} },
-        workspace: path.join(home, "openclaw"),
+        workspace: path.join(home, "alien"),
       },
     },
     session: { store: storePath, mainKey: "main" },
-  } as OpenClawConfig;
+  } as AlienConfig;
   loadConfigMock.mockReturnValue(cfg);
   return cfg;
 }
@@ -81,7 +81,7 @@ function mockConfig(home: string, storePath: string): OpenClawConfig {
 beforeEach(() => {
   vi.clearAllMocks();
   readConfigFileSnapshotForWriteMock.mockResolvedValue({
-    snapshot: { valid: false, resolved: {} as OpenClawConfig },
+    snapshot: { valid: false, resolved: {} as AlienConfig },
     writeOptions: {},
   });
 });
@@ -95,7 +95,7 @@ describe("agentCommand runtime config", () => {
           defaults: {
             model: { primary: "anthropic/claude-opus-4-6" },
             models: { "anthropic/claude-opus-4-6": {} },
-            workspace: path.join(home, "openclaw"),
+            workspace: path.join(home, "alien"),
           },
         },
         session: { store, mainKey: "main" },
@@ -108,7 +108,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
       const sourceConfig = {
         ...loadedConfig,
         models: {
@@ -120,7 +120,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
       const resolvedConfig = {
         ...loadedConfig,
         models: {
@@ -132,7 +132,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as AlienConfig;
 
       loadConfigMock.mockReturnValue(loadedConfig);
       readConfigFileSnapshotForWriteMock.mockResolvedValue({
@@ -171,7 +171,7 @@ describe("agentCommand runtime config", () => {
         telegram: {
           botToken: { source: "env", provider: "default", id: "TELEGRAM_BOT_TOKEN" },
         },
-      } as unknown as OpenClawConfig["channels"];
+      } as unknown as AlienConfig["channels"];
       resolveCommandConfigWithSecretsMock.mockResolvedValueOnce({
         resolvedConfig: loadedConfig,
         effectiveConfig: loadedConfig,

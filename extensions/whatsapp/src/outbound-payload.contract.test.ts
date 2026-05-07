@@ -2,11 +2,11 @@ import {
   installChannelOutboundPayloadContractSuite,
   primeChannelOutboundSendMock,
   type OutboundPayloadHarnessParams,
-} from "openclaw/plugin-sdk/channel-contract-testing";
+} from "alien/plugin-sdk/channel-contract-testing";
 import {
   verifyChannelMessageAdapterCapabilityProofs,
   verifyDurableFinalCapabilityProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import { describe, expect, it, vi } from "vitest";
 import { whatsappMessageAdapter } from "./channel-outbound.js";
 import { whatsappOutbound } from "./outbound-adapter.js";

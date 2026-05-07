@@ -1,6 +1,6 @@
 import type { App } from "@slack/bolt";
-import { resolveEnvelopeFormatOptions } from "openclaw/plugin-sdk/channel-inbound";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { resolveEnvelopeFormatOptions } from "alien/plugin-sdk/channel-inbound";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContextData } from "./prepare-thread-context.js";
@@ -11,7 +11,7 @@ import {
 } from "./prepare.test-helpers.js";
 
 describe("resolveSlackThreadContextData", () => {
-  const storeFixture = createSlackSessionStoreFixture("openclaw-slack-thread-context-");
+  const storeFixture = createSlackSessionStoreFixture("alien-slack-thread-context-");
 
   beforeAll(() => {
     storeFixture.setup();
@@ -25,7 +25,7 @@ describe("resolveSlackThreadContextData", () => {
     return createInboundSlackTestContext({
       cfg: {
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       appClient: { conversations: { replies: params.replies } } as App["client"],
       defaultRequireMention: false,
       replyToMode: "all",
@@ -75,7 +75,7 @@ describe("resolveSlackThreadContextData", () => {
       allowFromLower: params.allowFromLower,
       allowNameMatching: params.allowNameMatching,
       contextVisibilityMode: "allowlist",
-      envelopeOptions: resolveEnvelopeFormatOptions({} as OpenClawConfig),
+      envelopeOptions: resolveEnvelopeFormatOptions({} as AlienConfig),
       effectiveDirectMedia: null,
     });
 

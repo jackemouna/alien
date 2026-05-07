@@ -1,4 +1,4 @@
-import type { OpenClawPluginApi } from "../runtime-api.js";
+import type { AlienPluginApi } from "../runtime-api.js";
 import type { LobsterEnvelope, LobsterRunner, LobsterRunnerParams } from "./lobster-runner.js";
 
 type JsonLike =
@@ -12,7 +12,7 @@ type JsonLike =
     };
 
 type BoundTaskFlow = ReturnType<
-  NonNullable<OpenClawPluginApi["runtime"]>["tasks"]["managedFlows"]["bindSession"]
+  NonNullable<AlienPluginApi["runtime"]>["tasks"]["managedFlows"]["bindSession"]
 >;
 
 type FlowRecord = ReturnType<BoundTaskFlow["createManaged"]>;

@@ -1,12 +1,12 @@
-# OpenClaw Installer for Windows (PowerShell)
-# Usage: iwr -useb https://openclaw.ai/install.ps1 | iex
-# Or: & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -NoOnboard
+# Alien Installer for Windows (PowerShell)
+# Usage: iwr -useb https://alien.ai/install.ps1 | iex
+# Or: & ([scriptblock]::Create((iwr -useb https://alien.ai/install.ps1))) -NoOnboard
 
 param(
     [ValidateSet("npm", "git")]
     [string]$InstallMethod = "npm",
     [string]$Tag = "latest",
-    [string]$GitDir = "$env:USERPROFILE\openclaw",
+    [string]$GitDir = "$env:USERPROFILE\alien",
     [switch]$NoOnboard,
     [switch]$NoGitUpdate,
     [switch]$DryRun
@@ -35,8 +35,8 @@ function Write-Host {
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "${ACCENT}  🦞 OpenClaw Installer$NC" -Level info
-    Write-Host "${MUTED}  All your chats, one OpenClaw.$NC" -Level info
+    Write-Host "${ACCENT}  👾 Alien Installer$NC" -Level info
+    Write-Host "${MUTED}  All your chats, one Alien.$NC" -Level info
     Write-Host ""
 }
 
@@ -279,17 +279,17 @@ function Invoke-NativeCommandCapture {
 }
 
 function Get-NpmWorkingDirectory {
-    $workingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "openclaw-installer"
+    $workingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "alien-installer"
     New-Item -ItemType Directory -Path $workingDirectory -Force | Out-Null
     return $workingDirectory
 }
 
-function Install-OpenClawNpm {
+function Install-AlienNpm {
     param([string]$Target = "latest")
 
     $installSpec = Resolve-PackageInstallSpec -Target $Target
     
-    Write-Host "Installing OpenClaw ($installSpec)..." -Level info
+    Write-Host "Installing Alien ($installSpec)..." -Level info
     
     try {
         # Run npm out-of-process so warning chatter on stderr does not get
@@ -311,7 +311,7 @@ function Install-OpenClawNpm {
             Write-Host "npm install failed with exit code $($installResult.ExitCode)" -Level error
             return $false
         }
-        Write-Host "OpenClaw installed" -Level success
+        Write-Host "Alien installed" -Level success
         return $true
     } catch {
         Write-Host "npm install failed: $_" -Level error
@@ -319,14 +319,14 @@ function Install-OpenClawNpm {
     }
 }
 
-function Install-OpenClawGit {
+function Install-AlienGit {
     param([string]$RepoDir, [switch]$Update)
     
-    Write-Host "Installing OpenClaw from git..." -Level info
+    Write-Host "Installing Alien from git..." -Level info
     
     if (!(Test-Path $RepoDir)) {
         Write-Host "  Cloning repository..." -Level info
-        git clone https://github.com/openclaw/openclaw.git $RepoDir 2>&1
+        git clone https://github.com/alien/alien.git $RepoDir 2>&1
     } elseif ($Update) {
         Write-Host "  Updating repository..." -Level info
         git -C $RepoDir pull --rebase 2>&1
@@ -356,10 +356,10 @@ function Install-OpenClawGit {
     @"
 @echo off
 node "$entryPath" %*
-"@ | Out-File -FilePath "$wrapperDir\openclaw.cmd" -Encoding ASCII -Force
+"@ | Out-File -FilePath "$wrapperDir\alien.cmd" -Encoding ASCII -Force
     Add-ToPath -Path $wrapperDir
     
-    Write-Host "OpenClaw installed" -Level success
+    Write-Host "Alien installed" -Level success
     return $true
 }
 
@@ -380,15 +380,15 @@ function Resolve-PackageInstallSpec {
 
     $trimmed = $Target.Trim()
     if ([string]::IsNullOrWhiteSpace($trimmed)) {
-        return "openclaw@latest"
+        return "alien@latest"
     }
     if ($trimmed.ToLowerInvariant() -eq "main") {
-        return "github:openclaw/openclaw#main"
+        return "github:alien/alien#main"
     }
     if (Test-ExplicitPackageInstallSpec -Target $trimmed) {
         return $trimmed
     }
-    return "openclaw@$trimmed"
+    return "alien@$trimmed"
 }
 
 function Add-ToPath {
@@ -421,7 +421,7 @@ function Complete-Install {
         exit $script:InstallExitCode
     }
 
-    throw "OpenClaw installation failed with exit code $($script:InstallExitCode)."
+    throw "Alien installation failed with exit code $($script:InstallExitCode)."
 }
 
 # Main
@@ -447,12 +447,12 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install OpenClaw from git to $GitDir" -Level info
+            Write-Host "[DRY RUN] Would install Alien from git to $GitDir" -Level info
         } else {
             try {
-                npm uninstall -g openclaw 2>$null | Out-Null
+                npm uninstall -g alien 2>$null | Out-Null
             } catch { }
-            if (!(Install-OpenClawGit -RepoDir $GitDir -Update:(-not $NoGitUpdate))) {
+            if (!(Install-AlienGit -RepoDir $GitDir -Update:(-not $NoGitUpdate))) {
                 return (Fail-Install)
             }
         }
@@ -463,14 +463,14 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install OpenClaw via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
+            Write-Host "[DRY RUN] Would install Alien via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
         } else {
-            $gitWrapper = "$env:USERPROFILE\.local\bin\openclaw.cmd"
+            $gitWrapper = "$env:USERPROFILE\.local\bin\alien.cmd"
             if (Test-Path $gitWrapper) {
                 Remove-Item -Force $gitWrapper
                 Write-Host "Removed git wrapper (switching to npm)" -Level info
             }
-            if (!(Install-OpenClawNpm -Target $Tag)) {
+            if (!(Install-AlienNpm -Target $Tag)) {
                 return (Fail-Install)
             }
         }
@@ -491,11 +491,11 @@ function Main {
     
     if (!$NoOnboard -and !$DryRun) {
         Write-Host ""
-        Write-Host "Run 'openclaw onboard' to complete setup" -Level info
+        Write-Host "Run 'alien onboard' to complete setup" -Level info
     }
     
     Write-Host ""
-    Write-Host "🦞 OpenClaw installed successfully!" -Level success
+    Write-Host "👾 Alien installed successfully!" -Level success
     return $true
 }
 

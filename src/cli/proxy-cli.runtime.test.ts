@@ -38,11 +38,11 @@ vi.mock("../infra/net/proxy/proxy-validation.js", () => ({
 
 describe("proxy cli runtime", () => {
   const envKeys = [
-    "OPENCLAW_DEBUG_PROXY_DB_PATH",
-    "OPENCLAW_DEBUG_PROXY_BLOB_DIR",
-    "OPENCLAW_DEBUG_PROXY_CERT_DIR",
-    "OPENCLAW_DEBUG_PROXY_SESSION_ID",
-    "OPENCLAW_DEBUG_PROXY_ENABLED",
+    "ALIEN_DEBUG_PROXY_DB_PATH",
+    "ALIEN_DEBUG_PROXY_BLOB_DIR",
+    "ALIEN_DEBUG_PROXY_CERT_DIR",
+    "ALIEN_DEBUG_PROXY_SESSION_ID",
+    "ALIEN_DEBUG_PROXY_ENABLED",
     "FORCE_COLOR",
     "NO_COLOR",
   ] as const;
@@ -50,12 +50,12 @@ describe("proxy cli runtime", () => {
   let tempDir = "";
 
   beforeEach(() => {
-    tempDir = mkdtempSync(path.join(os.tmpdir(), "openclaw-proxy-cli-runtime-"));
-    process.env.OPENCLAW_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    process.env.OPENCLAW_DEBUG_PROXY_CERT_DIR = path.join(tempDir, "certs");
-    delete process.env.OPENCLAW_DEBUG_PROXY_ENABLED;
-    delete process.env.OPENCLAW_DEBUG_PROXY_SESSION_ID;
+    tempDir = mkdtempSync(path.join(os.tmpdir(), "alien-proxy-cli-runtime-"));
+    process.env.ALIEN_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ALIEN_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ALIEN_DEBUG_PROXY_CERT_DIR = path.join(tempDir, "certs");
+    delete process.env.ALIEN_DEBUG_PROXY_ENABLED;
+    delete process.env.ALIEN_DEBUG_PROXY_SESSION_ID;
     delete process.env.FORCE_COLOR;
     process.env.NO_COLOR = "1";
     getRuntimeConfigMock.mockReset();
@@ -222,7 +222,7 @@ describe("proxy cli runtime", () => {
         "Problems\n" +
         "  - proxy validation requires proxy.enabled to be true for configured proxy URLs\n\n" +
         "Next steps\n" +
-        "  Enable proxy.enabled with proxy.proxyUrl or OPENCLAW_PROXY_URL, or pass --proxy-url for an explicit one-off validation.\n",
+        "  Enable proxy.enabled with proxy.proxyUrl or ALIEN_PROXY_URL, or pass --proxy-url for an explicit one-off validation.\n",
     );
   });
 
@@ -233,7 +233,7 @@ describe("proxy cli runtime", () => {
         enabled: false,
         source: "disabled",
         errors: [
-          "proxy validation requires proxy.enabled=true with proxy.proxyUrl or OPENCLAW_PROXY_URL, or --proxy-url",
+          "proxy validation requires proxy.enabled=true with proxy.proxyUrl or ALIEN_PROXY_URL, or --proxy-url",
         ],
       },
       checks: [],
@@ -248,9 +248,9 @@ describe("proxy cli runtime", () => {
         "  Source: disabled\n" +
         "  URL:    not configured\n\n" +
         "Problems\n" +
-        "  - proxy validation requires proxy.enabled=true with proxy.proxyUrl or OPENCLAW_PROXY_URL, or --proxy-url\n\n" +
+        "  - proxy validation requires proxy.enabled=true with proxy.proxyUrl or ALIEN_PROXY_URL, or --proxy-url\n\n" +
         "Next steps\n" +
-        "  Enable proxy.enabled with proxy.proxyUrl or OPENCLAW_PROXY_URL, or pass --proxy-url for an explicit one-off validation.\n",
+        "  Enable proxy.enabled with proxy.proxyUrl or ALIEN_PROXY_URL, or pass --proxy-url for an explicit one-off validation.\n",
     );
     expect(process.exitCode).toBe(1);
   });
@@ -278,7 +278,7 @@ describe("proxy cli runtime", () => {
         "Problems\n" +
         "  - proxyUrl must use http://\n\n" +
         "Next steps\n" +
-        "  Fix proxy.proxyUrl, OPENCLAW_PROXY_URL, or --proxy-url so it uses a reachable http:// proxy.\n",
+        "  Fix proxy.proxyUrl, ALIEN_PROXY_URL, or --proxy-url so it uses a reachable http:// proxy.\n",
     );
   });
 
@@ -424,7 +424,7 @@ describe("proxy cli runtime", () => {
       config: {
         enabled: true,
         source: "missing",
-        errors: ["proxy validation requires proxy.proxyUrl, --proxy-url, or OPENCLAW_PROXY_URL"],
+        errors: ["proxy validation requires proxy.proxyUrl, --proxy-url, or ALIEN_PROXY_URL"],
       },
       checks: [],
     });
@@ -440,7 +440,7 @@ describe("proxy cli runtime", () => {
             enabled: true,
             source: "missing",
             errors: [
-              "proxy validation requires proxy.proxyUrl, --proxy-url, or OPENCLAW_PROXY_URL",
+              "proxy validation requires proxy.proxyUrl, --proxy-url, or ALIEN_PROXY_URL",
             ],
           },
           checks: [],
@@ -473,8 +473,8 @@ describe("proxy cli runtime", () => {
     expect(serverStopSpy).toHaveBeenCalledTimes(1);
 
     const store = getDebugProxyCaptureStore(
-      process.env.OPENCLAW_DEBUG_PROXY_DB_PATH!,
-      process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR!,
+      process.env.ALIEN_DEBUG_PROXY_DB_PATH!,
+      process.env.ALIEN_DEBUG_PROXY_BLOB_DIR!,
     );
     const [session] = store.listSessions(5);
     expect(session?.mode).toBe("proxy-run");

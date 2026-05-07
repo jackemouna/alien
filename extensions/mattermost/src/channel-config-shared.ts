@@ -1,10 +1,10 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "openclaw/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-config-helpers";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { resolveMattermostGatewayAuthBypassPaths } from "./gateway-auth-bypass.js";
 import {
   listMattermostAccountIds,

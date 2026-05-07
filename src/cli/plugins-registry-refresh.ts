@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { loadInstalledPluginIndexInstallRecords } from "../plugins/installed-plugin-index-records.js";
 import type { InstalledPluginIndexRefreshReason } from "../plugins/installed-plugin-index.js";
@@ -10,7 +10,7 @@ export type PluginRegistryRefreshLogger = {
 };
 
 export async function refreshPluginRegistryAfterConfigMutation(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   reason: InstalledPluginIndexRefreshReason;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;

@@ -1,4 +1,4 @@
-import { getChatChannelMeta } from "openclaw/plugin-sdk/channel-plugin-common";
+import { getChatChannelMeta } from "alien/plugin-sdk/channel-plugin-common";
 import {
   listQaChannelAccountIds,
   resolveDefaultQaChannelAccountId,

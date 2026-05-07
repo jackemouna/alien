@@ -4,7 +4,7 @@ import {
   getRuntimeConfig,
   getRuntimeConfigSourceSnapshot,
   projectConfigOntoRuntimeSourceSnapshot,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "../config/config.js";
 import { createConfigRuntimeEnv } from "../config/env-vars.js";
 import { privateFileStore } from "../infra/private-file-store.js";
@@ -17,7 +17,7 @@ import {
   resolveDefaultAgentId,
 } from "./agent-scope.js";
 import { MODELS_JSON_STATE } from "./models-config-state.js";
-import { planOpenClawModelsJson } from "./models-config.plan.js";
+import { planAlienModelsJson } from "./models-config.plan.js";
 
 export { resetModelsJsonReadyCacheForTest } from "./models-config-state.js";
 
@@ -46,8 +46,8 @@ function stableStringify(value: unknown): string {
 }
 
 async function buildModelsJsonFingerprint(params: {
-  config: OpenClawConfig;
-  sourceConfigForSecrets: OpenClawConfig;
+  config: AlienConfig;
+  sourceConfigForSecrets: AlienConfig;
   agentDir: string;
   workspaceDir?: string;
   pluginMetadataSnapshot?: Pick<PluginMetadataSnapshot, "index">;
@@ -120,9 +120,9 @@ export async function writeModelsFileAtomicForModelsJson(
   await privateFileStore(path.dirname(targetPath)).writeText(path.basename(targetPath), contents);
 }
 
-function resolveModelsConfigInput(config?: OpenClawConfig): {
-  config: OpenClawConfig;
-  sourceConfigForSecrets: OpenClawConfig;
+function resolveModelsConfigInput(config?: AlienConfig): {
+  config: AlienConfig;
+  sourceConfigForSecrets: AlienConfig;
 } {
   const runtimeSource = getRuntimeConfigSourceSnapshot();
   if (!config) {
@@ -166,8 +166,8 @@ async function withModelsJsonWriteLock<T>(targetPath: string, run: () => Promise
   }
 }
 
-export async function ensureOpenClawModelsJson(
-  config?: OpenClawConfig,
+export async function ensureAlienModelsJson(
+  config?: AlienConfig,
   agentDirOverride?: string,
   options: {
     pluginMetadataSnapshot?: Pick<PluginMetadataSnapshot, "index" | "manifestRegistry" | "owners">;
@@ -221,7 +221,7 @@ export async function ensureOpenClawModelsJson(
     // are available to provider discovery without mutating process.env.
     const env = createConfigRuntimeEnv(cfg);
     const existingModelsFile = await readExistingModelsFile(targetPath);
-    const plan = await planOpenClawModelsJson({
+    const plan = await planAlienModelsJson({
       cfg,
       sourceConfigForSecrets: resolved.sourceConfigForSecrets,
       agentDir,

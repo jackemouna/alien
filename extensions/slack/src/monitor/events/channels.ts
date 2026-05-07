@@ -1,10 +1,10 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
-import { resolveChannelConfigWrites } from "openclaw/plugin-sdk/channel-config-writes";
-import { replaceConfigFile } from "openclaw/plugin-sdk/config-mutation";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
-import { danger, warn } from "openclaw/plugin-sdk/runtime-env";
-import { enqueueSystemEvent } from "openclaw/plugin-sdk/system-event-runtime";
+import { resolveChannelConfigWrites } from "alien/plugin-sdk/channel-config-writes";
+import { replaceConfigFile } from "alien/plugin-sdk/config-mutation";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { getRuntimeConfig } from "alien/plugin-sdk/runtime-config-snapshot";
+import { danger, warn } from "alien/plugin-sdk/runtime-env";
+import { enqueueSystemEvent } from "alien/plugin-sdk/system-event-runtime";
 import { migrateSlackChannelConfig } from "../../channel-migration.js";
 import { resolveSlackChannelLabel } from "../channel-config.js";
 import type { SlackMonitorContext } from "../context.js";

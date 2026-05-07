@@ -1,4 +1,4 @@
-import { installedPluginRoot } from "openclaw/plugin-sdk/test-fixtures";
+import { installedPluginRoot } from "alien/plugin-sdk/test-fixtures";
 import { describe, expect, it, vi } from "vitest";
 import { PLUGIN_INSTALL_ERROR_CODE } from "../plugins/install.js";
 import {
@@ -14,7 +14,7 @@ describe("plugin install plan helpers", () => {
     const findBundledSource = vi.fn().mockReturnValue({
       pluginId: "voice-call",
       localPath: installedPluginRoot("/tmp", "voice-call"),
-      npmSpec: "@openclaw/voice-call",
+      npmSpec: "@alien/voice-call",
     });
 
     const result = resolveBundledInstallPlanBeforeNpm({
@@ -30,7 +30,7 @@ describe("plugin install plan helpers", () => {
   it("skips bundled pre-plan for scoped npm specs", () => {
     const findBundledSource = vi.fn();
     const result = resolveBundledInstallPlanBeforeNpm({
-      rawSpec: "@openclaw/voice-call",
+      rawSpec: "@alien/voice-call",
       findBundledSource,
     });
 
@@ -41,7 +41,7 @@ describe("plugin install plan helpers", () => {
   it("resolves exact official external plugin ids before npm fallback", () => {
     const findOfficialExternalPlugin = vi.fn().mockReturnValue({
       pluginId: "brave",
-      npmSpec: "@openclaw/brave-plugin",
+      npmSpec: "@alien/brave-plugin",
       expectedIntegrity: "sha512-brave",
     });
 
@@ -53,7 +53,7 @@ describe("plugin install plan helpers", () => {
     expect(findOfficialExternalPlugin).toHaveBeenCalledWith("brave");
     expect(result).toEqual({
       pluginId: "brave",
-      npmSpec: "@openclaw/brave-plugin",
+      npmSpec: "@alien/brave-plugin",
       expectedIntegrity: "sha512-brave",
     });
   });
@@ -69,7 +69,7 @@ describe("plugin install plan helpers", () => {
     ).toBeNull();
     expect(
       resolveOfficialExternalInstallPlanBeforeNpm({
-        rawSpec: "@openclaw/brave-plugin",
+        rawSpec: "@alien/brave-plugin",
         findOfficialExternalPlugin,
       }),
     ).toBeNull();
@@ -90,15 +90,15 @@ describe("plugin install plan helpers", () => {
   it("trusts exact official external npm packages without remapping the spec", () => {
     const findOfficialExternalPackage = vi.fn().mockReturnValue({
       pluginId: "discord",
-      npmSpec: "@openclaw/discord",
+      npmSpec: "@alien/discord",
     });
 
     const result = resolveOfficialExternalNpmPackageTrust({
-      npmSpec: "@openclaw/discord",
+      npmSpec: "@alien/discord",
       findOfficialExternalPackage,
     });
 
-    expect(findOfficialExternalPackage).toHaveBeenCalledWith("@openclaw/discord");
+    expect(findOfficialExternalPackage).toHaveBeenCalledWith("@alien/discord");
     expect(result).toEqual({
       pluginId: "discord",
       trustedSourceLinkedOfficialInstall: true,
@@ -125,7 +125,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "voice-call",
             localPath: installedPluginRoot("/tmp", "voice-call"),
-            npmSpec: "@openclaw/voice-call",
+            npmSpec: "@alien/voice-call",
           };
         }
         return undefined;
@@ -133,7 +133,7 @@ describe("plugin install plan helpers", () => {
 
     const result = resolveBundledInstallPlanForCatalogEntry({
       pluginId: "voice-call",
-      npmSpec: "@openclaw/voice-call",
+      npmSpec: "@alien/voice-call",
       findBundledSource,
     });
 
@@ -149,7 +149,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "not-voice-call",
             localPath: installedPluginRoot("/tmp", "not-voice-call"),
-            npmSpec: "@openclaw/voice-call",
+            npmSpec: "@alien/voice-call",
           };
         }
         return undefined;
@@ -157,7 +157,7 @@ describe("plugin install plan helpers", () => {
 
     const result = resolveBundledInstallPlanForCatalogEntry({
       pluginId: "voice-call",
-      npmSpec: "@openclaw/voice-call",
+      npmSpec: "@alien/voice-call",
       findBundledSource,
     });
 
@@ -172,7 +172,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "whatsapp",
             localPath: installedPluginRoot("/tmp", "whatsapp"),
-            npmSpec: "@openclaw/whatsapp",
+            npmSpec: "@alien/whatsapp",
           };
         }
         return undefined;
@@ -191,17 +191,17 @@ describe("plugin install plan helpers", () => {
     const findBundledSource = vi.fn().mockReturnValue({
       pluginId: "voice-call",
       localPath: installedPluginRoot("/tmp", "voice-call"),
-      npmSpec: "@openclaw/voice-call",
+      npmSpec: "@alien/voice-call",
     });
     const result = resolveBundledInstallPlanForNpmFailure({
-      rawSpec: "@openclaw/voice-call",
+      rawSpec: "@alien/voice-call",
       code: PLUGIN_INSTALL_ERROR_CODE.NPM_PACKAGE_NOT_FOUND,
       findBundledSource,
     });
 
     expect(findBundledSource).toHaveBeenCalledWith({
       kind: "npmSpec",
-      value: "@openclaw/voice-call",
+      value: "@alien/voice-call",
     });
     expect(result?.warning).toContain("npm package unavailable");
   });
@@ -209,7 +209,7 @@ describe("plugin install plan helpers", () => {
   it("skips fallback for non-not-found npm failures", () => {
     const findBundledSource = vi.fn();
     const result = resolveBundledInstallPlanForNpmFailure({
-      rawSpec: "@openclaw/voice-call",
+      rawSpec: "@alien/voice-call",
       code: "INSTALL_FAILED",
       findBundledSource,
     });

@@ -1,10 +1,10 @@
 import {
   normalizeAccountId,
   resolveMergedAccountConfig,
-} from "openclaw/plugin-sdk/account-resolution";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/core";
-import { evaluateSenderGroupAccessForPolicy } from "openclaw/plugin-sdk/group-access";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/account-resolution";
+import type { AlienConfig } from "alien/plugin-sdk/core";
+import { evaluateSenderGroupAccessForPolicy } from "alien/plugin-sdk/group-access";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import type { AllowlistMatch, ChannelGroupContext } from "../runtime-api.js";
 import { detectIdType } from "./targets.js";
 import type { FeishuConfig } from "./types.js";
@@ -198,7 +198,7 @@ export function isFeishuGroupAllowed(params: {
 
 export function resolveFeishuReplyPolicy(params: {
   isDirectMessage: boolean;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   groupId?: string | null;
   /**

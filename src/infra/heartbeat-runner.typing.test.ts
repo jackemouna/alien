@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.public.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
@@ -33,9 +33,9 @@ function installHeartbeatTypingPlugin(params: {
 function createHeartbeatConfig(params: {
   tmpDir: string;
   storePath: string;
-  session?: OpenClawConfig["session"];
+  session?: AlienConfig["session"];
   channelHeartbeat?: Record<string, unknown>;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     agents: {
       defaults: {
@@ -53,10 +53,10 @@ function createHeartbeatConfig(params: {
       store: params.storePath,
       ...params.session,
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
-async function seedTelegramSession(storePath: string, cfg: OpenClawConfig) {
+async function seedTelegramSession(storePath: string, cfg: AlienConfig) {
   await seedMainSessionStore(storePath, cfg, {
     lastChannel: "telegram",
     lastProvider: "telegram",

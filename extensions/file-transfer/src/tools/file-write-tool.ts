@@ -5,8 +5,8 @@ import {
   resolveNodeIdFromList,
   type AnyAgentTool,
   type NodeListNode,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
-import { readMediaBuffer } from "openclaw/plugin-sdk/media-store";
+} from "alien/plugin-sdk/agent-harness-runtime";
+import { readMediaBuffer } from "alien/plugin-sdk/media-store";
 import { appendFileTransferAudit } from "../shared/audit.js";
 import { throwFromNodePayload } from "../shared/errors.js";
 import {

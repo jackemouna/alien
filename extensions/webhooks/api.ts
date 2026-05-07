@@ -1,6 +1,6 @@
 export {
   definePluginEntry,
-  type OpenClawPluginApi,
+  type AlienPluginApi,
   type PluginLogger,
   type PluginRuntime,
-} from "openclaw/plugin-sdk/core";
+} from "alien/plugin-sdk/core";

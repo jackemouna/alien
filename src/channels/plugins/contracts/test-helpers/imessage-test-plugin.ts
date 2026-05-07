@@ -1,5 +1,5 @@
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-contract";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/channel-plugin-common";
+import type { ChannelOutboundAdapter } from "alien/plugin-sdk/channel-contract";
+import type { ChannelPlugin } from "alien/plugin-sdk/channel-plugin-common";
 import { loadBundledPluginTestApiSync } from "../../../../test-utils/bundled-plugin-public-surface.js";
 
 type CreateIMessageTestPlugin = (params?: { outbound?: ChannelOutboundAdapter }) => ChannelPlugin;

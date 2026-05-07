@@ -1,8 +1,8 @@
-import { resolveDefaultAgentDir } from "openclaw/plugin-sdk/agent-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
-import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
-import { isLiveTestEnabled } from "openclaw/plugin-sdk/test-env";
+import { resolveDefaultAgentDir } from "alien/plugin-sdk/agent-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
+import { getRuntimeConfig } from "alien/plugin-sdk/runtime-config-snapshot";
+import { isLiveTestEnabled } from "alien/plugin-sdk/test-env";
 import { beforeAll, describe, expect, it } from "vitest";
 import plugin from "./index.js";
 import { getComfyConfig, isComfyCapabilityConfigured } from "./workflow-runtime.js";
@@ -32,7 +32,7 @@ function withPluginsEnabled<T>(cfg: T): T {
 }
 
 describeLive("comfy live", () => {
-  let cfg = {} as OpenClawConfig;
+  let cfg = {} as AlienConfig;
   let agentDir = "";
   const imageProviders: Array<{ id: string; generateImage: Function; isConfigured?: Function }> =
     [];

@@ -35,7 +35,7 @@ export const RUNNER_LABELS = {
   },
 };
 
-const DEFAULT_REPOSITORY = "openclaw/openclaw";
+const DEFAULT_REPOSITORY = "alien/alien";
 const DEFAULT_QUEUE_THRESHOLD = 1;
 const MAX_RUNS_TO_SCAN = 8;
 const MAX_JOB_PAGES_PER_RUN = 2;
@@ -154,9 +154,9 @@ function writeOutputs(outputs) {
 async function main() {
   const repository = process.env.GITHUB_REPOSITORY || DEFAULT_REPOSITORY;
   const canonicalRepository = repository === DEFAULT_REPOSITORY;
-  const fallbackEnabled = parseBoolean(process.env.OPENCLAW_CI_BLACKSMITH_FALLBACK, true);
+  const fallbackEnabled = parseBoolean(process.env.ALIEN_CI_BLACKSMITH_FALLBACK, true);
   const queueThreshold = parsePositiveInteger(
-    process.env.OPENCLAW_CI_BLACKSMITH_QUEUE_FALLBACK_THRESHOLD,
+    process.env.ALIEN_CI_BLACKSMITH_QUEUE_FALLBACK_THRESHOLD,
     DEFAULT_QUEUE_THRESHOLD,
   );
   let queuedCountsByLabel = {};

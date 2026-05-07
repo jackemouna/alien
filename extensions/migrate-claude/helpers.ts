@@ -4,9 +4,9 @@ import path from "node:path";
 import {
   markMigrationItemError,
   MIGRATION_REASON_MISSING_SOURCE_OR_TARGET,
-} from "openclaw/plugin-sdk/migration";
-import type { MigrationItem } from "openclaw/plugin-sdk/plugin-entry";
-import { appendRegularFile, pathExists } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/migration";
+import type { MigrationItem } from "alien/plugin-sdk/plugin-entry";
+import { appendRegularFile, pathExists } from "alien/plugin-sdk/security-runtime";
 
 export function resolveHomePath(input: string): string {
   if (input === "~") {

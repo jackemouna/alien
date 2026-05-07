@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 export type EffectiveToolSource = "core" | "plugin" | "channel";
 
@@ -35,7 +35,7 @@ export type EffectiveToolInventoryResult = {
 };
 
 export type ResolveEffectiveToolInventoryParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId?: string;
   sessionKey?: string;
   workspaceDir?: string;

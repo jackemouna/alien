@@ -1,10 +1,10 @@
 import { GatewayClient } from "../../../src/gateway/client.js";
 import { EventHub } from "./event-hub.js";
 import type {
-  ConnectableOpenClawTransport,
+  ConnectableAlienTransport,
   GatewayEvent,
   GatewayRequestOptions,
-  OpenClawTransport,
+  AlienTransport,
 } from "./types.js";
 
 type GatewayClientLike = {
@@ -66,7 +66,7 @@ function toGatewayEvent(event: unknown): GatewayEvent {
   };
 }
 
-export class GatewayClientTransport implements ConnectableOpenClawTransport {
+export class GatewayClientTransport implements ConnectableAlienTransport {
   private readonly eventsHub = new EventHub<GatewayEvent>({
     replayLimit: RAW_EVENT_REPLAY_LIMIT,
   });
@@ -148,7 +148,7 @@ export class GatewayClientTransport implements ConnectableOpenClawTransport {
 }
 
 export function isConnectableTransport(
-  transport: OpenClawTransport,
-): transport is ConnectableOpenClawTransport {
+  transport: AlienTransport,
+): transport is ConnectableAlienTransport {
   return typeof (transport as { connect?: unknown }).connect === "function";
 }

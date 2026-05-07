@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   resolveGatewayStartupPluginPlanFromRegistry,
   type GatewayStartupPluginPlan,
@@ -39,8 +39,8 @@ export type PluginLookUpTable = PluginMetadataSnapshot & {
 };
 
 export type LoadPluginLookUpTableParams = {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: AlienConfig;
+  activationSourceConfig?: AlienConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
   index?: PluginRegistrySnapshot;

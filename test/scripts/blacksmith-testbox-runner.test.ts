@@ -21,20 +21,20 @@ describe("blacksmith testbox runner", () => {
 
   it("splits runner args from the remote command", () => {
     expect(
-      splitRunnerArgs(["--id", "tbx_abc123", "--", "OPENCLAW_TESTBOX=1", "pnpm", "check:changed"]),
+      splitRunnerArgs(["--id", "tbx_abc123", "--", "ALIEN_TESTBOX=1", "pnpm", "check:changed"]),
     ).toEqual({
       runnerArgs: ["--id", "tbx_abc123"],
-      commandArgs: ["OPENCLAW_TESTBOX=1", "pnpm", "check:changed"],
+      commandArgs: ["ALIEN_TESTBOX=1", "pnpm", "check:changed"],
     });
   });
 
   it("builds blacksmith run arguments", () => {
     expect(
       buildBlacksmithRunArgs({
-        commandArgs: ["OPENCLAW_TESTBOX=1", "pnpm", "check:changed"],
+        commandArgs: ["ALIEN_TESTBOX=1", "pnpm", "check:changed"],
         testboxId: "tbx_abc123",
       }),
-    ).toEqual(["testbox", "run", "--id", "tbx_abc123", "OPENCLAW_TESTBOX=1 pnpm check:changed"]);
+    ).toEqual(["testbox", "run", "--id", "tbx_abc123", "ALIEN_TESTBOX=1 pnpm check:changed"]);
   });
 
   it("refuses to run a remote-visible id without a local private key", async () => {
@@ -42,7 +42,7 @@ describe("blacksmith testbox runner", () => {
     const stderr = { write: (value: string) => value.length };
     const code = await runBlacksmithTestboxRunner({
       argv: ["--id", "tbx_01kqap50t9fqggzw1akg5dtmmq", "--", "pnpm", "check:changed"],
-      env: { OPENCLAW_BLACKSMITH_TESTBOX_STATE_DIR: "/state/testboxes" },
+      env: { ALIEN_BLACKSMITH_TESTBOX_STATE_DIR: "/state/testboxes" },
       spawn: () => {
         spawned = true;
         return { status: 0 };
@@ -55,7 +55,7 @@ describe("blacksmith testbox runner", () => {
   });
 
   it("refuses to run a keyed id that was not claimed by this checkout", async () => {
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-testbox-runner-"));
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-testbox-runner-"));
     tempDirs.push(stateDir);
     const testboxDir = path.join(stateDir, "tbx_01kqap50t9fqggzw1akg5dtmmq");
     fs.mkdirSync(testboxDir, { recursive: true });
@@ -65,7 +65,7 @@ describe("blacksmith testbox runner", () => {
     let stderrText = "";
     const code = await runBlacksmithTestboxRunner({
       argv: ["--id", "tbx_01kqap50t9fqggzw1akg5dtmmq", "--", "pnpm", "check:changed"],
-      env: { ...process.env, OPENCLAW_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
+      env: { ...process.env, ALIEN_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
       spawn: () => {
         spawned = true;
         return { status: 0 };
@@ -75,14 +75,14 @@ describe("blacksmith testbox runner", () => {
 
     expect(code).toBe(2);
     expect(spawned).toBe(false);
-    expect(stderrText).toContain("OpenClaw Testbox claim missing");
+    expect(stderrText).toContain("Alien Testbox claim missing");
   });
 
   it("claims a keyed id without spawning when no remote command is supplied", async () => {
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-testbox-runner-"));
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-testbox-runner-"));
     tempDirs.push(stateDir);
     const testboxDir = path.join(stateDir, "tbx_01kqap50t9fqggzw1akg5dtmmq");
-    const claimPath = path.join(testboxDir, "openclaw-runner.json");
+    const claimPath = path.join(testboxDir, "alien-runner.json");
     fs.mkdirSync(testboxDir, { recursive: true });
     fs.writeFileSync(path.join(testboxDir, "id_ed25519"), "test-key\n");
 
@@ -90,7 +90,7 @@ describe("blacksmith testbox runner", () => {
     let stdoutText = "";
     const code = await runBlacksmithTestboxRunner({
       argv: ["--claim", "--id", "tbx_01kqap50t9fqggzw1akg5dtmmq"],
-      env: { ...process.env, OPENCLAW_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
+      env: { ...process.env, ALIEN_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
       spawn: () => {
         spawned = true;
         return { status: 0 };
@@ -100,18 +100,18 @@ describe("blacksmith testbox runner", () => {
 
     expect(code).toBe(0);
     expect(spawned).toBe(false);
-    expect(stdoutText).toContain("OpenClaw Testbox claim written");
+    expect(stdoutText).toContain("Alien Testbox claim written");
     expect(JSON.parse(fs.readFileSync(claimPath, "utf8")).repoRoot).toBe(process.cwd());
   });
 
   it("defaults the Testbox sync timeout and accepts disable override", () => {
     expect(resolveTestboxSyncTimeoutMs({})).toBe(300000);
-    expect(resolveTestboxSyncTimeoutMs({ OPENCLAW_TESTBOX_SYNC_TIMEOUT_MS: "0" })).toBe(0);
-    expect(resolveTestboxSyncTimeoutMs({ OPENCLAW_TESTBOX_SYNC_TIMEOUT_MS: "2500" })).toBe(2500);
+    expect(resolveTestboxSyncTimeoutMs({ ALIEN_TESTBOX_SYNC_TIMEOUT_MS: "0" })).toBe(0);
+    expect(resolveTestboxSyncTimeoutMs({ ALIEN_TESTBOX_SYNC_TIMEOUT_MS: "2500" })).toBe(2500);
   });
 
   it("terminates a Testbox run that stalls in sync", async () => {
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-testbox-runner-"));
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-testbox-runner-"));
     tempDirs.push(stateDir);
     const testboxId = "tbx_01kqap50t9fqggzw1akg5dtmmq";
     const testboxDir = path.join(stateDir, testboxId);
@@ -119,7 +119,7 @@ describe("blacksmith testbox runner", () => {
     fs.writeFileSync(path.join(testboxDir, "id_ed25519"), "test-key\n");
     await runBlacksmithTestboxRunner({
       argv: ["--claim", "--id", testboxId],
-      env: { ...process.env, OPENCLAW_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
+      env: { ...process.env, ALIEN_BLACKSMITH_TESTBOX_STATE_DIR: stateDir },
       stdout: { write: () => 0 },
     });
 
@@ -145,8 +145,8 @@ describe("blacksmith testbox runner", () => {
       argv: ["--id", testboxId, "--", "pnpm", "check:changed"],
       env: {
         ...process.env,
-        OPENCLAW_BLACKSMITH_TESTBOX_STATE_DIR: stateDir,
-        OPENCLAW_TESTBOX_SYNC_TIMEOUT_MS: "1",
+        ALIEN_BLACKSMITH_TESTBOX_STATE_DIR: stateDir,
+        ALIEN_TESTBOX_SYNC_TIMEOUT_MS: "1",
       },
       spawn: fakeSpawn,
       stderr: { write: (value: string) => (stderrText += value) },

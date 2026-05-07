@@ -10,7 +10,7 @@ import {
   readJsonDurableQueueEntry,
   resolveJsonDurableQueueEntryPaths,
   writeJsonDurableQueueEntry,
-} from "@openclaw/fs-safe/store";
+} from "@alien/fs-safe/store";
 import type { ChatType } from "../channels/chat-type.js";
 import { resolveStateDir } from "../config/paths.js";
 import { generateSecureUuid } from "./secure-random.js";

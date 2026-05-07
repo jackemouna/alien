@@ -8,7 +8,7 @@ import { isNixMode } from "../config/paths.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { applyConfigOverrides } from "../config/runtime-overrides.js";
 import type { GatewayAuthConfig, GatewayTailscaleConfig } from "../config/types.gateway.js";
-import type { ConfigFileSnapshot, OpenClawConfig } from "../config/types.openclaw.js";
+import type { ConfigFileSnapshot, AlienConfig } from "../config/types.alien.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
 import {
@@ -32,7 +32,7 @@ type GatewayStartupLog = {
 type GatewaySecretsStateEventCode = "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED";
 
 export type ActivateRuntimeSecrets = (
-  config: OpenClawConfig,
+  config: AlienConfig,
   params: { reason: "startup" | "reload" | "restart-check"; activate: boolean },
 ) => Promise<
   Awaited<ReturnType<typeof import("../secrets/runtime.js").prepareSecretsRuntimeSnapshot>>
@@ -116,7 +116,7 @@ export async function loadGatewayStartupConfigSnapshot(params: {
 
 function withRuntimeConfig(
   snapshot: ConfigFileSnapshot,
-  runtimeConfig: OpenClawConfig,
+  runtimeConfig: AlienConfig,
 ): ConfigFileSnapshot {
   return {
     ...snapshot,
@@ -130,7 +130,7 @@ export function createRuntimeSecretsActivator(params: {
   emitStateEvent: (
     code: GatewaySecretsStateEventCode,
     message: string,
-    cfg: OpenClawConfig,
+    cfg: AlienConfig,
   ) => void;
   prepareRuntimeSecretsSnapshot?: PrepareRuntimeSecretsSnapshot;
   activateRuntimeSecretsSnapshot?: ActivateRuntimeSecretsSnapshot;
@@ -230,7 +230,7 @@ export function assertValidGatewayStartupConfigSnapshot(
       ? formatConfigIssueLines(snapshot.issues, "", { normalizeRoot: true }).join("\n")
       : "Unknown validation issue.";
   const doctorHint = options.includeDoctorHint
-    ? `\nRun "${formatCliCommand("openclaw doctor --fix")}" to repair, then retry.`
+    ? `\nRun "${formatCliCommand("alien doctor --fix")}" to repair, then retry.`
     : "";
   throw new Error(`Invalid config at ${snapshot.path}.\n${issues}${doctorHint}`);
 }
@@ -296,7 +296,7 @@ export async function prepareGatewayStartupConfig(params: {
   };
 }
 
-function hasActiveGatewayAuthSecretRef(config: OpenClawConfig): boolean {
+function hasActiveGatewayAuthSecretRef(config: AlienConfig): boolean {
   const states = evaluateGatewayAuthSurfaceStates({
     config,
     defaults: config.secrets?.defaults,
@@ -308,10 +308,10 @@ function hasActiveGatewayAuthSecretRef(config: OpenClawConfig): boolean {
   });
 }
 
-function pruneSkippedStartupSecretSurfaces(config: OpenClawConfig): OpenClawConfig {
+function pruneSkippedStartupSecretSurfaces(config: AlienConfig): AlienConfig {
   const skipChannels =
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
+    isTruthyEnvValue(process.env.ALIEN_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ALIEN_SKIP_PROVIDERS);
   if (!skipChannels || !config.channels) {
     return config;
   }
@@ -321,7 +321,7 @@ function pruneSkippedStartupSecretSurfaces(config: OpenClawConfig): OpenClawConf
   };
 }
 
-function assertRuntimeGatewayAuthNotKnownWeak(config: OpenClawConfig): void {
+function assertRuntimeGatewayAuthNotKnownWeak(config: AlienConfig): void {
   assertGatewayAuthNotKnownWeak(
     resolveGatewayAuth({
       authConfig: config.gateway?.auth,
@@ -333,7 +333,7 @@ function assertRuntimeGatewayAuthNotKnownWeak(config: OpenClawConfig): void {
 
 function logGatewayAuthSurfaceDiagnostics(
   prepared: {
-    sourceConfig: OpenClawConfig;
+    sourceConfig: AlienConfig;
     warnings: Array<{ code: string; path: string; message: string }>;
   },
   logSecrets: GatewayStartupLog,
@@ -364,9 +364,9 @@ function logGatewayAuthSurfaceDiagnostics(
 }
 
 function applyGatewayAuthOverridesForStartupPreflight(
-  config: OpenClawConfig,
+  config: AlienConfig,
   overrides: GatewayStartupConfigOverrides,
-): OpenClawConfig {
+): AlienConfig {
   if (!overrides.auth && !overrides.tailscale) {
     return config;
   }

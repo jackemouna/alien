@@ -1,10 +1,10 @@
-import { createDirectoryTestRuntime } from "openclaw/plugin-sdk/channel-test-helpers";
+import { createDirectoryTestRuntime } from "alien/plugin-sdk/channel-test-helpers";
 import { describe, expect, it } from "vitest";
 import {
   listWhatsAppDirectoryGroupsFromConfig,
   listWhatsAppDirectoryPeersFromConfig,
 } from "./directory-config.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 
 describe("whatsapp directory", () => {
   const runtimeEnv = createDirectoryTestRuntime() as never;
@@ -25,7 +25,7 @@ describe("whatsapp directory", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     await expect(
       listWhatsAppDirectoryPeersFromConfig({

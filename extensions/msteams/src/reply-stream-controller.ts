@@ -5,7 +5,7 @@ import {
   deliverWithFinalizableLivePreviewAdapter,
   markLiveMessageFinalized,
   type LiveMessageState,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   createChannelProgressDraftGate,
   formatChannelProgressDraftText,
@@ -14,8 +14,8 @@ import {
   resolveChannelProgressDraftMaxLines,
   resolveChannelProgressDraftLabel,
   resolveChannelStreamingPreviewToolProgress,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import type { MSTeamsConfig, ReplyPayload } from "../runtime-api.js";
 import { formatUnknownError } from "./errors.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";

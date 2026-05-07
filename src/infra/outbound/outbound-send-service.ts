@@ -7,7 +7,7 @@ import type {
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { OutboundMediaAccess, OutboundMediaReadFile } from "../../media/load-options.js";
 import { resolveAgentScopedOutboundMediaAccess } from "../../media/read-capability.js";
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
@@ -29,7 +29,7 @@ export type OutboundGatewayContext = {
 };
 
 export type OutboundSendContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel: ChannelId;
   params: Record<string, unknown>;
   /** Active agent id for per-agent outbound media root scoping. */

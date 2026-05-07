@@ -26,11 +26,11 @@ const {
   })),
 }));
 
-vi.mock("openclaw/plugin-sdk/provider-auth-runtime", () => ({
+vi.mock("alien/plugin-sdk/provider-auth-runtime", () => ({
   resolveApiKeyForProvider: resolveApiKeyForProviderMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/provider-http", () => ({
+vi.mock("alien/plugin-sdk/provider-http", () => ({
   assertOkOrThrowHttpError: assertOkOrThrowHttpErrorMock,
   createProviderOperationDeadline: createProviderOperationDeadlineMock,
   postJsonRequest: postJsonRequestMock,

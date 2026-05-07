@@ -1,5 +1,5 @@
 import { getRuntimeConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type {
   PluginHookBeforeToolCallEvent,
   PluginHookBeforeToolCallResult,
@@ -12,16 +12,16 @@ import { getActivePluginRegistry } from "./runtime.js";
 export async function runTrustedToolPolicies(
   event: PluginHookBeforeToolCallEvent,
   ctx: PluginHookToolContext,
-  options?: { config?: OpenClawConfig },
+  options?: { config?: AlienConfig },
 ): Promise<PluginHookBeforeToolCallResult | undefined> {
   const policies = getActivePluginRegistry()?.trustedToolPolicies ?? [];
   let adjustedParams = event.params;
   let hasAdjustedParams = false;
   let approval: PluginHookBeforeToolCallResult["requireApproval"];
   const sessionExtensionStateCache = new Map<string, Record<string, PluginJsonValue> | undefined>();
-  let resolvedSessionConfig: OpenClawConfig | undefined = options?.config;
+  let resolvedSessionConfig: AlienConfig | undefined = options?.config;
   let didResolveSessionConfig = Boolean(options?.config);
-  const resolveSessionConfig = (): OpenClawConfig | undefined => {
+  const resolveSessionConfig = (): AlienConfig | undefined => {
     if (!didResolveSessionConfig) {
       didResolveSessionConfig = true;
       try {

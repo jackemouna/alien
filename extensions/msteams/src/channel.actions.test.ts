@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { msteamsPlugin } from "./channel.js";
 
@@ -242,7 +242,7 @@ describe("msteamsPlugin message actions", () => {
               tenantId: "tenant-id",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       })?.actions,
     ).toContain("upload-file");
   });
@@ -449,7 +449,7 @@ describe("msteamsPlugin message actions", () => {
             tenantId: "tenant-id",
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
     const schema = discovery?.schema;
     expect(schema).toBeTruthy();
@@ -691,7 +691,7 @@ describe("msteamsPlugin.threading.buildToolContext", () => {
       throw new Error("msteams threading.buildToolContext unavailable");
     }
     return build({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       accountId: undefined,
       context,
     });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ConfigFileSnapshot, OpenClawConfig } from "../config/config.js";
+import type { ConfigFileSnapshot, AlienConfig } from "../config/config.js";
 import {
   formatCrestodianOverview,
   formatCrestodianStartupMessage,
@@ -8,7 +8,7 @@ import {
 
 describe("loadCrestodianOverview", () => {
   it("summarizes config, agents, model, tools, and gateway", async () => {
-    const runtimeConfig: OpenClawConfig = {
+    const runtimeConfig: AlienConfig = {
       agents: {
         defaults: { model: { primary: "openai/gpt-5.2" } },
         list: [
@@ -19,7 +19,7 @@ describe("loadCrestodianOverview", () => {
       gateway: { port: 19001 },
     };
     const snapshot: ConfigFileSnapshot = {
-      path: "/tmp/openclaw.json",
+      path: "/tmp/alien.json",
       exists: true,
       raw: "{}",
       parsed: runtimeConfig,
@@ -34,10 +34,10 @@ describe("loadCrestodianOverview", () => {
       legacyIssues: [],
     };
     const overview = await loadCrestodianOverview({
-      env: { OPENCLAW_TEST_FAST: "1" },
+      env: { ALIEN_TEST_FAST: "1" },
       deps: {
         readConfigFileSnapshot: async () => snapshot,
-        resolveConfigPath: () => "/tmp/openclaw.json",
+        resolveConfigPath: () => "/tmp/alien.json",
         resolveGatewayPort: (cfg) => cfg?.gateway?.port ?? 8765,
         buildGatewayConnectionDetails: (input) => ({
           url: `ws://127.0.0.1:${input.config.gateway?.port ?? 8765}`,
@@ -66,7 +66,7 @@ describe("loadCrestodianOverview", () => {
       reachable: false,
     });
     expect(overview.references.docsPath).toMatch(/docs$/);
-    expect(overview.references.sourceUrl).toBe("https://github.com/openclaw/openclaw");
+    expect(overview.references.sourceUrl).toBe("https://github.com/alien/alien");
     expect(formatCrestodianOverview(overview)).toContain(
       'Next: run "gateway status" or "restart gateway"',
     );

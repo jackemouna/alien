@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   __resetDiscordDirectoryCacheForTest,
@@ -84,7 +84,7 @@ describe("resolveDiscordChannelId", () => {
 });
 
 describe("resolveDiscordTarget", () => {
-  const cfg = { channels: { discord: {} } } as OpenClawConfig;
+  const cfg = { channels: { discord: {} } } as AlienConfig;
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -128,7 +128,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       resolveDiscordTarget("123", { cfg, accountId: "default" }, { defaultKind: "channel" }),
@@ -147,7 +147,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       resolveDiscordTarget("456", { cfg, accountId: "default" }, { defaultKind: "channel" }),
@@ -166,7 +166,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       resolveDiscordTarget("456", { cfg, accountId: "default" }, { defaultKind: "channel" }),
@@ -185,7 +185,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       resolveDiscordTarget("456", { cfg, accountId: "work" }, { defaultKind: "channel" }),
@@ -207,7 +207,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     vi.spyOn(directoryLive, "listDiscordDirectoryPeersLive").mockResolvedValueOnce([
       { kind: "user", id: "user:999", name: "Jane" } as const,

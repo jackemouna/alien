@@ -1,6 +1,6 @@
-import type { ChatCommandDefinition } from "openclaw/plugin-sdk/command-auth";
-import * as commandRegistryModule from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { ChatCommandDefinition } from "alien/plugin-sdk/command-auth";
+import * as commandRegistryModule from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createDiscordCommandArgFallbackButton,
@@ -34,13 +34,13 @@ function createCommandDefinition(): ChatCommandDefinition {
 }
 
 function createContext(
-  discordConfig: NonNullable<OpenClawConfig["channels"]>["discord"],
+  discordConfig: NonNullable<AlienConfig["channels"]>["discord"],
 ): CommandArgContext {
   const cfg = {
     channels: {
       discord: discordConfig,
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
   return {
     cfg,
     discordConfig,

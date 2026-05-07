@@ -16,6 +16,6 @@ export {
   writeJson,
   writeJson as writeJsonAtomic,
   writeJsonSync,
-} from "@openclaw/fs-safe/json";
-export { writeTextAtomic } from "@openclaw/fs-safe/atomic";
-export { createAsyncLock } from "@openclaw/fs-safe/advanced";
+} from "@alien/fs-safe/json";
+export { writeTextAtomic } from "@alien/fs-safe/atomic";
+export { createAsyncLock } from "@alien/fs-safe/advanced";

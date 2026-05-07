@@ -1,4 +1,4 @@
-import type { RemoteShellSandboxHandle, SandboxBackendHandle } from "openclaw/plugin-sdk/sandbox";
+import type { RemoteShellSandboxHandle, SandboxBackendHandle } from "alien/plugin-sdk/sandbox";
 
 export type OpenShellFsBridgeContext = Parameters<
   NonNullable<SandboxBackendHandle["createFsBridge"]>

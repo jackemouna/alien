@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { withOpenClawTestState } from "../test-utils/openclaw-test-state.js";
+import { withAlienTestState } from "../test-utils/alien-test-state.js";
 import {
   findLatestTaskForRelatedSessionKeyForOwner,
   findTaskByRunIdForOwner,
@@ -8,22 +8,22 @@ import {
 } from "./task-owner-access.js";
 import { createTaskRecord, resetTaskRegistryForTests } from "./task-registry.js";
 
-const ORIGINAL_STATE_DIR = process.env.OPENCLAW_STATE_DIR;
+const ORIGINAL_STATE_DIR = process.env.ALIEN_STATE_DIR;
 
 afterEach(() => {
   resetTaskRegistryForTests({ persist: false });
   if (ORIGINAL_STATE_DIR == null) {
-    delete process.env.OPENCLAW_STATE_DIR;
+    delete process.env.ALIEN_STATE_DIR;
   } else {
-    process.env.OPENCLAW_STATE_DIR = ORIGINAL_STATE_DIR;
+    process.env.ALIEN_STATE_DIR = ORIGINAL_STATE_DIR;
   }
 });
 
 async function withTaskRegistryTempDir<T>(run: () => Promise<T> | T): Promise<T> {
-  return await withOpenClawTestState(
+  return await withAlienTestState(
     {
       layout: "state-only",
-      prefix: "openclaw-task-owner-access-",
+      prefix: "alien-task-owner-access-",
     },
     async () => {
       resetTaskRegistryForTests({ persist: false });

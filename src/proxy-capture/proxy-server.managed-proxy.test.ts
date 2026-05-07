@@ -18,7 +18,7 @@ async function cleanupTestDirs(): Promise<void> {
 }
 
 async function makeSettings() {
-  testRoot = await mkdtemp(join(tmpdir(), "openclaw-debug-proxy-managed-proxy-"));
+  testRoot = await mkdtemp(join(tmpdir(), "alien-debug-proxy-managed-proxy-"));
   return {
     enabled: true,
     required: false,
@@ -102,26 +102,26 @@ async function startCanaryOrigin(): Promise<{
 }
 
 describe("debug proxy managed-proxy direct upstream policy", () => {
-  const originalProxyActive = process.env["OPENCLAW_PROXY_ACTIVE"];
+  const originalProxyActive = process.env["ALIEN_PROXY_ACTIVE"];
   const originalAllowDirect =
-    process.env["OPENCLAW_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
+    process.env["ALIEN_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
 
   beforeEach(async () => {
     await cleanupTestDirs();
-    delete process.env["OPENCLAW_PROXY_ACTIVE"];
-    delete process.env["OPENCLAW_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
+    delete process.env["ALIEN_PROXY_ACTIVE"];
+    delete process.env["ALIEN_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
   });
 
   afterEach(async () => {
     if (originalProxyActive === undefined) {
-      delete process.env["OPENCLAW_PROXY_ACTIVE"];
+      delete process.env["ALIEN_PROXY_ACTIVE"];
     } else {
-      process.env["OPENCLAW_PROXY_ACTIVE"] = originalProxyActive;
+      process.env["ALIEN_PROXY_ACTIVE"] = originalProxyActive;
     }
     if (originalAllowDirect === undefined) {
-      delete process.env["OPENCLAW_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
+      delete process.env["ALIEN_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"];
     } else {
-      process.env["OPENCLAW_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"] =
+      process.env["ALIEN_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"] =
         originalAllowDirect;
     }
     await cleanupTestDirs();
@@ -132,7 +132,7 @@ describe("debug proxy managed-proxy direct upstream policy", () => {
   });
 
   it("rejects direct upstreams while managed proxy mode is active", () => {
-    process.env["OPENCLAW_PROXY_ACTIVE"] = "1";
+    process.env["ALIEN_PROXY_ACTIVE"] = "1";
 
     expect(() => assertDebugProxyDirectUpstreamAllowed()).toThrow(
       /Debug proxy direct upstream forwarding is disabled/,
@@ -140,7 +140,7 @@ describe("debug proxy managed-proxy direct upstream policy", () => {
   });
 
   it("uses shared truthy parsing for managed proxy mode", () => {
-    process.env["OPENCLAW_PROXY_ACTIVE"] = "true";
+    process.env["ALIEN_PROXY_ACTIVE"] = "true";
 
     expect(() => assertDebugProxyDirectUpstreamAllowed()).toThrow(
       /Debug proxy direct upstream forwarding is disabled/,
@@ -148,14 +148,14 @@ describe("debug proxy managed-proxy direct upstream policy", () => {
   });
 
   it("allows direct upstreams with explicit diagnostic override", () => {
-    process.env["OPENCLAW_PROXY_ACTIVE"] = "1";
-    process.env["OPENCLAW_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"] = "1";
+    process.env["ALIEN_PROXY_ACTIVE"] = "1";
+    process.env["ALIEN_DEBUG_PROXY_ALLOW_DIRECT_CONNECT_WITH_MANAGED_PROXY"] = "1";
 
     expect(() => assertDebugProxyDirectUpstreamAllowed()).not.toThrow();
   });
 
   it("rejects CONNECT upstreams before opening direct sockets while managed proxy mode is active", async () => {
-    process.env["OPENCLAW_PROXY_ACTIVE"] = "1";
+    process.env["ALIEN_PROXY_ACTIVE"] = "1";
     const server = await startDebugProxyServer({ settings: await makeSettings() });
     try {
       const response = await connectThroughProxy(server.proxyUrl);
@@ -169,7 +169,7 @@ describe("debug proxy managed-proxy direct upstream policy", () => {
   });
 
   it("rejects absolute-form HTTP proxy requests before opening direct upstreams while managed proxy mode is active", async () => {
-    process.env["OPENCLAW_PROXY_ACTIVE"] = "1";
+    process.env["ALIEN_PROXY_ACTIVE"] = "1";
     const origin = await startCanaryOrigin();
     const server = await startDebugProxyServer({ settings: await makeSettings() });
     try {

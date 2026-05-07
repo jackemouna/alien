@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import {
   createLazyFacadeObjectValue,
   loadActivatedBundledPluginPublicSurfaceModuleSync,
@@ -91,7 +91,7 @@ export type RepairShortTermPromotionArtifactsResult = {
 
 type MemoryIndexManagerFacade = {
   get(params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     agentId: string;
     purpose?: "default" | "status";
   }): Promise<MemorySearchManager | null>;
@@ -112,7 +112,7 @@ type FacadeModule = {
     providerId: string,
   ) => BuiltinMemoryEmbeddingProviderDoctorMetadata | null;
   getMemorySearchManager: (params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     agentId: string;
     purpose?: "default" | "status";
   }) => Promise<{

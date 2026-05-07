@@ -4,8 +4,8 @@ import {
   matchesMentionPatterns,
   matchesMentionWithExplicit,
   resolveInboundMentionDecision,
-} from "openclaw/plugin-sdk/channel-inbound";
-import type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";
+} from "alien/plugin-sdk/channel-inbound";
+import type { PluginRuntime } from "alien/plugin-sdk/runtime-store";
 
 type SessionRecord = {
   sessionKey: string;

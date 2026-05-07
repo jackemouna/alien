@@ -1,27 +1,27 @@
-import { formatAllowlistMatchMeta } from "openclaw/plugin-sdk/allow-from";
-import { resolveInboundMentionDecision } from "openclaw/plugin-sdk/channel-inbound";
+import { formatAllowlistMatchMeta } from "alien/plugin-sdk/allow-from";
+import { resolveInboundMentionDecision } from "alien/plugin-sdk/channel-inbound";
 import {
   logInboundDrop,
   resolveInboundSessionEnvelopeContext,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { resolveDualTextControlCommandGate } from "openclaw/plugin-sdk/command-gating";
+} from "alien/plugin-sdk/channel-inbound";
+import { resolveDualTextControlCommandGate } from "alien/plugin-sdk/command-gating";
 import {
   filterSupplementalContextItems,
   resolveChannelContextVisibilityMode,
   shouldIncludeSupplementalContext,
-} from "openclaw/plugin-sdk/context-visibility-runtime";
-import { evaluateSenderGroupAccessForPolicy } from "openclaw/plugin-sdk/group-access";
+} from "alien/plugin-sdk/context-visibility-runtime";
+import { evaluateSenderGroupAccessForPolicy } from "alien/plugin-sdk/group-access";
 import {
   dispatchReplyFromConfigWithSettledDispatcher,
   hasFinalInboundReplyDispatch,
   resolveInboundReplyDispatchCounts,
-} from "openclaw/plugin-sdk/inbound-reply-dispatch";
+} from "alien/plugin-sdk/inbound-reply-dispatch";
 import {
   buildPendingHistoryContextFromMap,
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
+} from "alien/plugin-sdk/reply-history";
 import {
   buildMSTeamsAttachmentPlaceholder,
   buildMSTeamsMediaPayload,

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { QueuedMessage } from "../gateway/message-queue.js";
 import type { GatewayAccount } from "../gateway/types.js";
@@ -45,8 +45,8 @@ describe("trySlashCommand", () => {
   });
 
   it("honors commands.allowFrom for pre-dispatch bot-streaming in open DM configs", async () => {
-    const writes: OpenClawConfig[] = [];
-    const config: OpenClawConfig = {
+    const writes: AlienConfig[] = [];
+    const config: AlienConfig = {
       commands: {
         allowFrom: {
           qqbot: ["TRUSTED_OPENID"],

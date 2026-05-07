@@ -19,7 +19,7 @@ const agentRuntimeMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./app-server/shared-client.js", () => sharedClientMocks);
-vi.mock("openclaw/plugin-sdk/agent-runtime", () => agentRuntimeMocks);
+vi.mock("alien/plugin-sdk/agent-runtime", () => agentRuntimeMocks);
 
 import {
   handleCodexConversationBindingResolved,
@@ -31,7 +31,7 @@ let tempDir: string;
 
 describe("codex conversation binding", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-binding-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-codex-binding-"));
   });
 
   afterEach(async () => {

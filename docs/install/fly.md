@@ -1,12 +1,12 @@
 ---
-summary: "Step-by-step Fly.io deployment for OpenClaw with persistent storage and HTTPS"
+summary: "Step-by-step Fly.io deployment for Alien with persistent storage and HTTPS"
 title: Fly.io
 read_when:
-  - Deploying OpenClaw on Fly.io
+  - Deploying Alien on Fly.io
   - Setting up Fly volumes, secrets, and first-run config
 ---
 
-**Goal:** OpenClaw Gateway running on a [Fly.io](https://fly.io) machine with persistent storage, automatic HTTPS, and Discord/channel access.
+**Goal:** Alien Gateway running on a [Fly.io](https://fly.io) machine with persistent storage, automatic HTTPS, and Discord/channel access.
 
 ## What you need
 
@@ -26,14 +26,14 @@ read_when:
   <Step title="Create the Fly app">
     ```bash
     # Clone the repo
-    git clone https://github.com/openclaw/openclaw.git
-    cd openclaw
+    git clone https://github.com/alien/alien.git
+    cd alien
 
     # Create a new Fly app (pick your own name)
-    fly apps create my-openclaw
+    fly apps create my-alien
 
     # Create a persistent volume (1GB is usually enough)
-    fly volumes create openclaw_data --size 1 --region iad
+    fly volumes create alien_data --size 1 --region iad
     ```
 
     **Tip:** Choose a region close to you. Common options: `lhr` (London), `iad` (Virginia), `sjc` (San Jose).
@@ -46,7 +46,7 @@ read_when:
     **Security note:** The default config exposes a public URL. For a hardened deployment with no public IP, see [Private Deployment](#private-deployment-hardened) or use `deploy/fly.private.toml`.
 
     ```toml
-    app = "my-openclaw"  # Your app name
+    app = "my-alien"  # Your app name
     primary_region = "iad"
 
     [build]
@@ -54,8 +54,8 @@ read_when:
 
     [env]
       NODE_ENV = "production"
-      OPENCLAW_PREFER_PNPM = "1"
-      OPENCLAW_STATE_DIR = "/data"
+      ALIEN_PREFER_PNPM = "1"
+      ALIEN_STATE_DIR = "/data"
       NODE_OPTIONS = "--max-old-space-size=1536"
 
     [processes]
@@ -74,7 +74,7 @@ read_when:
       memory = "2048mb"
 
     [mounts]
-      source = "openclaw_data"
+      source = "alien_data"
       destination = "/data"
     ```
 
@@ -84,16 +84,16 @@ read_when:
     | ------------------------------ | --------------------------------------------------------------------------- |
     | `--bind lan`                   | Binds to `0.0.0.0` so Fly's proxy can reach the gateway                     |
     | `--allow-unconfigured`         | Starts without a config file (you'll create one after)                      |
-    | `internal_port = 3000`         | Must match `--port 3000` (or `OPENCLAW_GATEWAY_PORT`) for Fly health checks |
+    | `internal_port = 3000`         | Must match `--port 3000` (or `ALIEN_GATEWAY_PORT`) for Fly health checks |
     | `memory = "2048mb"`            | 512MB is too small; 2GB recommended                                         |
-    | `OPENCLAW_STATE_DIR = "/data"` | Persists state on the volume                                                |
+    | `ALIEN_STATE_DIR = "/data"` | Persists state on the volume                                                |
 
   </Step>
 
   <Step title="Set secrets">
     ```bash
     # Required: Gateway token (for non-loopback binding)
-    fly secrets set OPENCLAW_GATEWAY_TOKEN=$(openssl rand -hex 32)
+    fly secrets set ALIEN_GATEWAY_TOKEN=$(openssl rand -hex 32)
 
     # Model provider API keys
     fly secrets set ANTHROPIC_API_KEY=sk-ant-...
@@ -108,9 +108,9 @@ read_when:
 
     **Notes:**
 
-    - Non-loopback binds (`--bind lan`) require a valid gateway auth path. This Fly.io example uses `OPENCLAW_GATEWAY_TOKEN`, but `gateway.auth.password` or a correctly configured non-loopback `trusted-proxy` deployment also satisfy the requirement.
+    - Non-loopback binds (`--bind lan`) require a valid gateway auth path. This Fly.io example uses `ALIEN_GATEWAY_TOKEN`, but `gateway.auth.password` or a correctly configured non-loopback `trusted-proxy` deployment also satisfy the requirement.
     - Treat these tokens like passwords.
-    - **Prefer env vars over config file** for all API keys and tokens. This keeps secrets out of `openclaw.json` where they could be accidentally exposed or logged.
+    - **Prefer env vars over config file** for all API keys and tokens. This keeps secrets out of `alien.json` where they could be accidentally exposed or logged.
 
   </Step>
 
@@ -148,7 +148,7 @@ read_when:
 
     ```bash
     mkdir -p /data
-    cat > /data/openclaw.json << 'EOF'
+    cat > /data/alien.json << 'EOF'
     {
       "agents": {
         "defaults": {
@@ -194,7 +194,7 @@ read_when:
         "bind": "auto",
         "controlUi": {
           "allowedOrigins": [
-            "https://my-openclaw.fly.dev",
+            "https://my-alien.fly.dev",
             "http://localhost:3000",
             "http://127.0.0.1:3000"
           ]
@@ -205,9 +205,9 @@ read_when:
     EOF
     ```
 
-    **Note:** With `OPENCLAW_STATE_DIR=/data`, the config path is `/data/openclaw.json`.
+    **Note:** With `ALIEN_STATE_DIR=/data`, the config path is `/data/alien.json`.
 
-    **Note:** Replace `https://my-openclaw.fly.dev` with your real Fly app
+    **Note:** Replace `https://my-alien.fly.dev` with your real Fly app
     origin. Gateway startup seeds local Control UI origins from the runtime
     `--bind` and `--port` values so first boot can proceed before config exists,
     but browser access through Fly still needs the exact HTTPS origin listed in
@@ -238,10 +238,10 @@ read_when:
     fly open
     ```
 
-    Or visit `https://my-openclaw.fly.dev/`
+    Or visit `https://my-alien.fly.dev/`
 
     Authenticate with the configured shared secret. This guide uses the gateway
-    token from `OPENCLAW_GATEWAY_TOKEN`; if you switched to password auth, use
+    token from `ALIEN_GATEWAY_TOKEN`; if you switched to password auth, use
     that password instead.
 
     ### Logs
@@ -272,7 +272,7 @@ The gateway is binding to `127.0.0.1` instead of `0.0.0.0`.
 
 Fly can't reach the gateway on the configured port.
 
-**Fix:** Ensure `internal_port` matches the gateway port (set `--port 3000` or `OPENCLAW_GATEWAY_PORT=3000`).
+**Fix:** Ensure `internal_port` matches the gateway port (set `--port 3000` or `ALIEN_GATEWAY_PORT=3000`).
 
 ### OOM / Memory Issues
 
@@ -310,12 +310,12 @@ The lock file is at `/data/gateway.*.lock` (not in a subdirectory).
 
 ### Config not being read
 
-`--allow-unconfigured` only bypasses the startup guard. It does not create or repair `/data/openclaw.json`, so make sure your real config exists and includes `gateway.mode="local"` when you want a normal local gateway start.
+`--allow-unconfigured` only bypasses the startup guard. It does not create or repair `/data/alien.json`, so make sure your real config exists and includes `gateway.mode="local"` when you want a normal local gateway start.
 
 Verify the config exists:
 
 ```bash
-fly ssh console --command "cat /data/openclaw.json"
+fly ssh console --command "cat /data/alien.json"
 ```
 
 ### Writing config via SSH
@@ -324,17 +324,17 @@ The `fly ssh console -C` command doesn't support shell redirection. To write a c
 
 ```bash
 # Use echo + tee (pipe from local to remote)
-echo '{"your":"config"}' | fly ssh console -C "tee /data/openclaw.json"
+echo '{"your":"config"}' | fly ssh console -C "tee /data/alien.json"
 
 # Or use sftp
 fly sftp shell
-> put /local/path/config.json /data/openclaw.json
+> put /local/path/config.json /data/alien.json
 ```
 
 **Note:** `fly sftp` may fail if the file already exists. Delete first:
 
 ```bash
-fly ssh console --command "rm /data/openclaw.json"
+fly ssh console --command "rm /data/alien.json"
 ```
 
 ### State not persisting
@@ -342,7 +342,7 @@ fly ssh console --command "rm /data/openclaw.json"
 If you lose auth profiles, channel/provider state, or sessions after a restart,
 the state dir is writing to the container filesystem.
 
-**Fix:** Ensure `OPENCLAW_STATE_DIR=/data` is set in `fly.toml` and redeploy.
+**Fix:** Ensure `ALIEN_STATE_DIR=/data` is set in `fly.toml` and redeploy.
 
 ## Updates
 
@@ -401,18 +401,18 @@ Or convert an existing deployment:
 
 ```bash
 # List current IPs
-fly ips list -a my-openclaw
+fly ips list -a my-alien
 
 # Release public IPs
-fly ips release <public-ipv4> -a my-openclaw
-fly ips release <public-ipv6> -a my-openclaw
+fly ips release <public-ipv4> -a my-alien
+fly ips release <public-ipv6> -a my-alien
 
 # Switch to private config so future deploys don't re-allocate public IPs
 # (remove [http_service] or deploy with the private template)
 fly deploy -c deploy/fly.private.toml
 
 # Allocate private-only IPv6
-fly ips allocate-v6 --private -a my-openclaw
+fly ips allocate-v6 --private -a my-alien
 ```
 
 After this, `fly ips list` should show only a `private` type IP:
@@ -430,7 +430,7 @@ Since there's no public URL, use one of these methods:
 
 ```bash
 # Forward local port 3000 to the app
-fly proxy 3000:3000 -a my-openclaw
+fly proxy 3000:3000 -a my-alien
 
 # Then open http://localhost:3000 in browser
 ```
@@ -448,7 +448,7 @@ fly wireguard create
 **Option 3: SSH only**
 
 ```bash
-fly ssh console -a my-openclaw
+fly ssh console -a my-alien
 ```
 
 ### Webhooks with private deployment
@@ -512,7 +512,7 @@ See [Fly.io pricing](https://fly.io/docs/about/pricing/) for details.
 
 - Set up messaging channels: [Channels](/channels)
 - Configure the Gateway: [Gateway configuration](/gateway/configuration)
-- Keep OpenClaw up to date: [Updating](/install/updating)
+- Keep Alien up to date: [Updating](/install/updating)
 
 ## Related
 

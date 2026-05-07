@@ -90,7 +90,7 @@ describe("resolveClaudeCliExecutionArgs", () => {
     ).toEqual(["-p", "--output-format", "stream-json"]);
   });
 
-  it("maps OpenClaw thinking levels to Claude effort args", () => {
+  it("maps Alien thinking levels to Claude effort args", () => {
     expect(
       resolveClaudeCliExecutionArgs({
         workspaceDir: "/tmp",
@@ -172,7 +172,7 @@ describe("normalizeClaudeBackendConfig", () => {
     expect(normalized.input).toBe("stdin");
   });
 
-  it("derives Claude bypass from OpenClaw YOLO policy and disables it for safer policy", () => {
+  it("derives Claude bypass from Alien YOLO policy and disables it for safer policy", () => {
     expect(resolveClaudePermissionMode({ backendId: "claude-cli" })).toEqual({
       mode: "bypassPermissions",
       overrideExisting: false,
@@ -185,7 +185,7 @@ describe("normalizeClaudeBackendConfig", () => {
     ).toEqual({ overrideExisting: false });
   });
 
-  it("derives Claude bypass from per-agent OpenClaw exec policy", () => {
+  it("derives Claude bypass from per-agent Alien exec policy", () => {
     expect(
       resolveClaudePermissionMode({
         backendId: "claude-cli",

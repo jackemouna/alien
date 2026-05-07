@@ -227,7 +227,7 @@ describe("buildExportSessionReply", () => {
     expect(html).not.toContain("{{SESSION_DATA}}");
     expect(html).not.toContain("{{MARKED_JS}}");
     expect(html).not.toContain("{{HIGHLIGHT_JS}}");
-    expect(html).not.toContain("data-openclaw-export-placeholder");
+    expect(html).not.toContain("data-alien-export-placeholder");
     expect(html).toContain(
       Buffer.from(
         JSON.stringify({
@@ -253,11 +253,11 @@ describe("buildExportSessionReply", () => {
 
     const expectedBase = path.join(
       "/tmp/workspace",
-      "openclaw-session-session--2026-05-05T10-11-12.html",
+      "alien-session-session--2026-05-05T10-11-12.html",
     );
     const expectedSuffix = path.join(
       "/tmp/workspace",
-      "openclaw-session-session--2026-05-05T10-11-12-2.html",
+      "alien-session-session--2026-05-05T10-11-12-2.html",
     );
     expect(hoisted.writeFileMock.mock.calls[0]?.[0]).toBe(expectedBase);
     expect(hoisted.writeFileMock.mock.calls[0]?.[2]).toMatchObject({
@@ -265,7 +265,7 @@ describe("buildExportSessionReply", () => {
       flag: "wx",
     });
     expect(hoisted.writeFileMock.mock.calls[1]?.[0]).toBe(expectedSuffix);
-    expect(reply.text).toContain("📄 File: openclaw-session-session--2026-05-05T10-11-12-2.html");
+    expect(reply.text).toContain("📄 File: alien-session-session--2026-05-05T10-11-12-2.html");
   });
 
   it("preserves replacement text with dollar sequences", async () => {
@@ -273,11 +273,11 @@ describe("buildExportSessionReply", () => {
     hoisted.exportHtmlTemplateContents.set(
       "template.html",
       [
-        '<style data-openclaw-export-placeholder="CSS"></style>',
-        '<script id="session-data" type="application/json" data-openclaw-export-placeholder="SESSION_DATA"></script>',
-        '<script data-openclaw-export-placeholder="MARKED_JS"></script>',
-        '<script data-openclaw-export-placeholder="HIGHLIGHT_JS"></script>',
-        '<script data-openclaw-export-placeholder="JS"></script>',
+        '<style data-alien-export-placeholder="CSS"></style>',
+        '<script id="session-data" type="application/json" data-alien-export-placeholder="SESSION_DATA"></script>',
+        '<script data-alien-export-placeholder="MARKED_JS"></script>',
+        '<script data-alien-export-placeholder="HIGHLIGHT_JS"></script>',
+        '<script data-alien-export-placeholder="JS"></script>',
       ].join(""),
     );
     hoisted.exportHtmlTemplateContents.set("template.css", "/* {{THEME_VARS}} */$&$1");

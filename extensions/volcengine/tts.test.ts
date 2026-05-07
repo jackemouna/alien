@@ -6,7 +6,7 @@ const { fetchWithSsrFGuardMock } = vi.hoisted(() => ({
   fetchWithSsrFGuardMock: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 

@@ -245,7 +245,7 @@ function limitLiveCommandOutput(output: string): string {
     output.slice(-LIVE_COMMAND_OUTPUT_MAX_CHARS),
     LIVE_COMMAND_OUTPUT_MAX_CHARS,
   );
-  return `[openclaw: live command output truncated to last ${tail.length} of ${output.length} chars]\n${tail}`;
+  return `[alien: live command output truncated to last ${tail.length} of ${output.length} chars]\n${tail}`;
 }
 
 function limitExecToolResultForLiveEvent(result: unknown): unknown {

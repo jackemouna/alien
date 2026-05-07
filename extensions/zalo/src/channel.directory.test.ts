@@ -1,9 +1,9 @@
 import {
   createDirectoryTestRuntime,
   expectDirectorySurface,
-} from "openclaw/plugin-sdk/channel-test-helpers";
+} from "alien/plugin-sdk/channel-test-helpers";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig, RuntimeEnv } from "../runtime-api.js";
+import type { AlienConfig, RuntimeEnv } from "../runtime-api.js";
 import { zaloPlugin } from "./channel.js";
 
 describe("zalo directory", () => {
@@ -17,7 +17,7 @@ describe("zalo directory", () => {
           allowFrom,
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     await expect(
       directory.listPeers({

@@ -11,19 +11,19 @@ Use this page when a node is visible in status but node tools fail.
 ## Command ladder
 
 ```bash
-openclaw status
-openclaw gateway status
-openclaw logs --follow
-openclaw doctor
-openclaw channels status --probe
+alien status
+alien gateway status
+alien logs --follow
+alien doctor
+alien channels status --probe
 ```
 
 Then run node specific checks:
 
 ```bash
-openclaw nodes status
-openclaw nodes describe --node <idOrNameOrIp>
-openclaw approvals get --node <idOrNameOrIp>
+alien nodes status
+alien nodes describe --node <idOrNameOrIp>
+alien approvals get --node <idOrNameOrIp>
 ```
 
 Healthy signals:
@@ -39,9 +39,9 @@ Healthy signals:
 Quick check and fix:
 
 ```bash
-openclaw nodes describe --node <idOrNameOrIp>
-openclaw nodes canvas snapshot --node <idOrNameOrIp>
-openclaw logs --follow
+alien nodes describe --node <idOrNameOrIp>
+alien nodes canvas snapshot --node <idOrNameOrIp>
+alien logs --follow
 ```
 
 If you see `NODE_BACKGROUND_UNAVAILABLE`, bring the node app to the foreground and retry.
@@ -66,17 +66,17 @@ These are different gates:
 Quick checks:
 
 ```bash
-openclaw devices list
-openclaw nodes status
-openclaw approvals get --node <idOrNameOrIp>
-openclaw approvals allowlist add --node <idOrNameOrIp> "/usr/bin/uname"
+alien devices list
+alien nodes status
+alien approvals get --node <idOrNameOrIp>
+alien approvals allowlist add --node <idOrNameOrIp> "/usr/bin/uname"
 ```
 
 If pairing is missing, approve the node device first.
 If `nodes describe` is missing a command, check the gateway node command policy and whether the node actually declared that command on connect.
 If pairing is fine but `system.run` fails, fix exec approvals/allowlist on that node.
 
-Node pairing is an identity/trust gate, not a per-command approval surface. For `system.run`, the per-node policy lives in that node's exec approvals file (`openclaw approvals get --node ...`), not in the gateway pairing record.
+Node pairing is an identity/trust gate, not a per-command approval surface. For `system.run`, the per-node policy lives in that node's exec approvals file (`alien approvals get --node ...`), not in the gateway pairing record.
 
 For approval-backed `host=node` runs, the gateway also binds execution to the
 prepared canonical `systemRunPlan`. If a later caller mutates command/cwd or
@@ -99,10 +99,10 @@ run as an approval mismatch instead of trusting the edited payload.
 ## Fast recovery loop
 
 ```bash
-openclaw nodes status
-openclaw nodes describe --node <idOrNameOrIp>
-openclaw approvals get --node <idOrNameOrIp>
-openclaw logs --follow
+alien nodes status
+alien nodes describe --node <idOrNameOrIp>
+alien approvals get --node <idOrNameOrIp>
+alien logs --follow
 ```
 
 If still stuck:

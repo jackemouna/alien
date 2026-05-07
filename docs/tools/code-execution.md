@@ -89,7 +89,7 @@ Do **not** use it when you need local files, your shell, your repo, or paired de
 
   <Step title="Restart the Gateway">
     ```bash
-    openclaw gateway restart
+    alien gateway restart
     ```
 
     `code_execution` shows up in the agent's tool list once the xAI plugin re-registers with `enabled: true`.
@@ -106,7 +106,7 @@ Use code_execution to calculate the 7-day moving average for these numbers: ...
 ```
 
 ```text
-Use x_search to find posts mentioning OpenClaw this week, then use code_execution to count them by day.
+Use x_search to find posts mentioning Alien this week, then use code_execution to count them by day.
 ```
 
 ```text
@@ -123,7 +123,7 @@ When the tool runs without auth, it returns a structured `missing_xai_api_key` e
 {
   "error": "missing_xai_api_key",
   "message": "code_execution needs an xAI API key. Set XAI_API_KEY in the Gateway environment, or configure plugins.entries.xai.config.webSearch.apiKey.",
-  "docs": "https://docs.openclaw.ai/tools/code-execution"
+  "docs": "https://docs.alien.ai/tools/code-execution"
 }
 ```
 

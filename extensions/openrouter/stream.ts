@@ -1,14 +1,14 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { ProviderWrapStreamFnContext } from "openclaw/plugin-sdk/plugin-entry";
-import { OPENROUTER_THINKING_STREAM_HOOKS } from "openclaw/plugin-sdk/provider-stream-family";
+import type { ProviderWrapStreamFnContext } from "alien/plugin-sdk/plugin-entry";
+import { OPENROUTER_THINKING_STREAM_HOOKS } from "alien/plugin-sdk/provider-stream-family";
 import {
   createDeepSeekV4OpenAICompatibleThinkingWrapper,
   type DeepSeekV4ReasoningEffort,
   type DeepSeekV4ThinkingLevel,
   createPayloadPatchStreamWrapper,
   stripTrailingAssistantPrefillMessages,
-} from "openclaw/plugin-sdk/provider-stream-shared";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/provider-stream-shared";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
 import { isOpenRouterDeepSeekV4ModelId } from "./models.js";
 import {
   isOpenRouterProxyReasoningUnsupportedModel,

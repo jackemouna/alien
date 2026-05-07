@@ -1,5 +1,5 @@
 ---
-summary: "Adds Fireworks model provider support to OpenClaw."
+summary: "Adds Fireworks model provider support to Alien."
 read_when:
   - You are installing, configuring, or auditing the fireworks plugin
 title: "Fireworks plugin"
@@ -7,12 +7,12 @@ title: "Fireworks plugin"
 
 # Fireworks plugin
 
-Adds Fireworks model provider support to OpenClaw.
+Adds Fireworks model provider support to Alien.
 
 ## Distribution
 
-- Package: `@openclaw/fireworks-provider`
-- Install route: included in OpenClaw
+- Package: `@alien/fireworks-provider`
+- Install route: included in Alien
 
 ## Surface
 

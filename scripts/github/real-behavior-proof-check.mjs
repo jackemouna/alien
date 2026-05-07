@@ -29,6 +29,6 @@ if (evaluation.passed) {
   process.exit(0);
 }
 
-const message = `${evaluation.reason} Add after-fix evidence from a real OpenClaw setup in the PR body. Screenshots, recordings, terminal screenshots, console output, redacted runtime logs, linked artifacts, or copied live output count. Unit tests, mocks, snapshots, lint, typechecks, and CI are supplemental only. A maintainer can apply proof: override when appropriate.`;
+const message = `${evaluation.reason} Add after-fix evidence from a real Alien setup in the PR body. Screenshots, recordings, terminal screenshots, console output, redacted runtime logs, linked artifacts, or copied live output count. Unit tests, mocks, snapshots, lint, typechecks, and CI are supplemental only. A maintainer can apply proof: override when appropriate.`;
 console.error(`::error title=Real behavior proof required::${escapeCommandValue(message)}`);
 process.exit(1);

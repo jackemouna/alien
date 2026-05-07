@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
 import {
   diagnosticErrorCategory,
@@ -51,7 +51,7 @@ export function isAbortSignalCancellation(err: unknown, signal?: AbortSignal): b
 
 export type HookContext = {
   agentId?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   sessionKey?: string;
   /** Ephemeral session UUID — regenerated on /new and /reset. */
   sessionId?: string;

@@ -19,20 +19,20 @@ function createAgentRuntime(payloads: Array<Record<string, unknown>>) {
     meta: { durationMs: 12, aborted: false },
   }));
   const resolveAgentDir = vi.fn((_cfg: CoreConfig, agentId: string) => {
-    return `/tmp/openclaw/agents/${agentId}`;
+    return `/tmp/alien/agents/${agentId}`;
   });
   const resolveAgentWorkspaceDir = vi.fn((_cfg: CoreConfig, agentId: string) => {
-    return `/tmp/openclaw/workspace/${agentId}`;
+    return `/tmp/alien/workspace/${agentId}`;
   });
   const resolveAgentIdentity = vi.fn((_cfg: CoreConfig, agentId: string) => ({
     name: `${agentId} tester`,
   }));
   const resolveStorePath = vi.fn((_store: string | undefined, params: { agentId?: string }) => {
-    return `/tmp/openclaw/${params.agentId ?? "main"}/sessions.json`;
+    return `/tmp/alien/${params.agentId ?? "main"}/sessions.json`;
   });
   const resolveSessionFilePath = vi.fn(
     (_sessionId: string, _entry: unknown, params: { agentId?: string }) => {
-      return `/tmp/openclaw/${params.agentId ?? "main"}/sessions/session.jsonl`;
+      return `/tmp/alien/${params.agentId ?? "main"}/sessions/session.jsonl`;
     },
   );
 
@@ -192,7 +192,7 @@ describe("generateVoiceResponse", () => {
       modelOverrideSource: "auto",
     });
     expect(updateSessionStore).toHaveBeenCalledWith(
-      "/tmp/openclaw/main/sessions.json",
+      "/tmp/alien/main/sessions.json",
       expect.any(Function),
     );
     expect(runEmbeddedPiAgent).toHaveBeenCalledWith(
@@ -266,11 +266,11 @@ describe("generateVoiceResponse", () => {
     });
     expect(runEmbeddedPiAgent).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw/agents/main",
+        agentDir: "/tmp/alien/agents/main",
         agentId: "main",
         sandboxSessionKey: "agent:main:voice:15550001111",
-        workspaceDir: "/tmp/openclaw/workspace/main",
-        sessionFile: "/tmp/openclaw/main/sessions/session.jsonl",
+        workspaceDir: "/tmp/alien/workspace/main",
+        sessionFile: "/tmp/alien/main/sessions/session.jsonl",
       }),
     );
   });
@@ -310,11 +310,11 @@ describe("generateVoiceResponse", () => {
     });
     expect(runEmbeddedPiAgent).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw/agents/voice",
+        agentDir: "/tmp/alien/agents/voice",
         agentId: "voice",
         sandboxSessionKey: "agent:voice:voice:15550001111",
-        workspaceDir: "/tmp/openclaw/workspace/voice",
-        sessionFile: "/tmp/openclaw/voice/sessions/session.jsonl",
+        workspaceDir: "/tmp/alien/workspace/voice",
+        sessionFile: "/tmp/alien/voice/sessions/session.jsonl",
       }),
     );
   });

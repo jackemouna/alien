@@ -1,7 +1,7 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import { createScopedDmSecurityResolver } from "openclaw/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createAccountStatusSink } from "openclaw/plugin-sdk/channel-lifecycle";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+import { createScopedDmSecurityResolver } from "alien/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createAccountStatusSink } from "alien/plugin-sdk/channel-lifecycle";
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
@@ -10,19 +10,19 @@ import {
   type ChannelMessageSendSuccessContext,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   createOpenGroupPolicyRestrictSendersWarningCollector,
   projectAccountWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
-import { buildProbeChannelStatusSummary } from "openclaw/plugin-sdk/channel-status";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
+} from "alien/plugin-sdk/channel-policy";
+import { buildProbeChannelStatusSummary } from "alien/plugin-sdk/channel-status";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   type ResolvedBlueBubblesAccount,
   resolveBlueBubblesEffectiveAllowPrivateNetwork,
@@ -116,7 +116,7 @@ function resolveBlueBubblesReplyToMessageGuid(params: {
 }
 
 async function sendBlueBubblesTextWithRuntime(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   to: string;
   text: string;
   accountId?: string;
@@ -135,7 +135,7 @@ async function sendBlueBubblesTextWithRuntime(params: {
 }
 
 async function sendBlueBubblesMediaWithRuntime(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   to: string;
   text?: string;
   mediaUrl: string;

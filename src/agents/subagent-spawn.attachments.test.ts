@@ -89,7 +89,7 @@ describe("decodeStrictBase64", () => {
 describe("spawnSubagentDirect filename validation", () => {
   beforeEach(async () => {
     workspaceDirOverride = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-subagent-attachments-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `alien-subagent-attachments-${process.pid}-${Date.now()}-`),
     );
     configOverride = createSubagentSpawnTestConfig(workspaceDirOverride);
     subagentSpawnModule.resetSubagentRegistryForTests();
@@ -212,7 +212,7 @@ describe("spawnSubagentDirect filename validation", () => {
 
     expect(result.status).toBe("error");
     expect(result.error).toContain("lineage patch failed");
-    const attachmentsRoot = path.join(workspaceDirOverride, ".openclaw", "attachments");
+    const attachmentsRoot = path.join(workspaceDirOverride, ".alien", "attachments");
     const retainedDirs = fs.existsSync(attachmentsRoot)
       ? fs.readdirSync(attachmentsRoot).filter((entry) => !entry.startsWith("."))
       : [];

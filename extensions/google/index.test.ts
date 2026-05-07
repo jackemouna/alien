@@ -2,14 +2,14 @@ import type { Context, Model } from "@mariozechner/pi-ai";
 import type {
   ProviderReplaySessionEntry,
   ProviderSanitizeReplayHistoryContext,
-} from "openclaw/plugin-sdk/plugin-entry";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+} from "alien/plugin-sdk/plugin-entry";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import {
   registerProviderPlugin,
   requireRegisteredProvider,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
-import { createCapturedThinkingConfigStream } from "openclaw/plugin-sdk/provider-test-contracts";
-import type { RealtimeVoiceProviderPlugin } from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/plugin-test-runtime";
+import { createCapturedThinkingConfigStream } from "alien/plugin-sdk/provider-test-contracts";
+import type { RealtimeVoiceProviderPlugin } from "alien/plugin-sdk/realtime-voice";
 import { describe, expect, it } from "vitest";
 import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
 import googlePlugin from "./index.js";

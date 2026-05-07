@@ -503,13 +503,13 @@ describe("applyExtraParamsToAgent", () => {
       undefined,
       "high",
       "cass",
-      "/tmp/openclaw-workspace",
+      "/tmp/alien-workspace",
       model,
-      "/tmp/openclaw-agent",
+      "/tmp/alien-agent",
     );
 
-    expect(capturedContext?.agentDir).toBe("/tmp/openclaw-agent");
-    expect(capturedContext?.workspaceDir).toBe("/tmp/openclaw-workspace");
+    expect(capturedContext?.agentDir).toBe("/tmp/alien-agent");
+    expect(capturedContext?.workspaceDir).toBe("/tmp/alien-workspace");
   });
 
   function runResponsesPayloadMutationCase(params: {

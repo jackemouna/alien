@@ -2,7 +2,7 @@ import {
   createDelegatedSetupWizardProxy,
   createPatchedAccountSetupAdapter,
   type ChannelSetupWizard,
-} from "openclaw/plugin-sdk/setup-runtime";
+} from "alien/plugin-sdk/setup-runtime";
 
 const channel = "zalouser" as const;
 

@@ -1,14 +1,14 @@
 import {
   createDefaultModelsPresetAppliers,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/provider-onboard";
+  type AlienConfig,
+} from "alien/plugin-sdk/provider-onboard";
 import { buildXiaomiProvider, XIAOMI_DEFAULT_MODEL_ID } from "./provider-catalog.js";
 
 export const XIAOMI_DEFAULT_MODEL_REF = `xiaomi/${XIAOMI_DEFAULT_MODEL_ID}`;
 
 const xiaomiPresetAppliers = createDefaultModelsPresetAppliers({
   primaryModelRef: XIAOMI_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: OpenClawConfig) => {
+  resolveParams: (_cfg: AlienConfig) => {
     const defaultProvider = buildXiaomiProvider();
     return {
       providerId: "xiaomi",
@@ -21,10 +21,10 @@ const xiaomiPresetAppliers = createDefaultModelsPresetAppliers({
   },
 });
 
-export function applyXiaomiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyXiaomiProviderConfig(cfg: AlienConfig): AlienConfig {
   return xiaomiPresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyXiaomiConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyXiaomiConfig(cfg: AlienConfig): AlienConfig {
   return xiaomiPresetAppliers.applyConfig(cfg);
 }

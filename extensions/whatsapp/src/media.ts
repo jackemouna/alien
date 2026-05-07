@@ -6,5 +6,5 @@ export {
   optimizeImageToJpeg,
   optimizeImageToPng,
   type WebMediaResult,
-} from "openclaw/plugin-sdk/web-media";
-export type { LocalMediaAccessErrorCode } from "openclaw/plugin-sdk/web-media";
+} from "alien/plugin-sdk/web-media";
+export type { LocalMediaAccessErrorCode } from "alien/plugin-sdk/web-media";

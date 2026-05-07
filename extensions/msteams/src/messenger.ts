@@ -2,14 +2,14 @@ import {
   isSilentReplyText,
   SILENT_REPLY_TOKEN,
   type ChunkMode,
-} from "openclaw/plugin-sdk/reply-chunking";
+} from "alien/plugin-sdk/reply-chunking";
 import {
   resolveSendableOutboundReplyParts,
   type ReplyPayload,
-} from "openclaw/plugin-sdk/reply-payload";
-import { normalizeOptionalLowercaseString, sleep } from "openclaw/plugin-sdk/text-runtime";
-import { loadWebMedia } from "openclaw/plugin-sdk/web-media";
-import type { MarkdownTableMode, MSTeamsReplyStyle, OpenClawConfig } from "../runtime-api.js";
+} from "alien/plugin-sdk/reply-payload";
+import { normalizeOptionalLowercaseString, sleep } from "alien/plugin-sdk/text-runtime";
+import { loadWebMedia } from "alien/plugin-sdk/web-media";
+import type { MarkdownTableMode, MSTeamsReplyStyle, AlienConfig } from "../runtime-api.js";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { classifyMSTeamsSendError } from "./errors.js";
@@ -238,7 +238,7 @@ export function renderReplyPayloadsToMessages(
   const tableMode =
     options.tableMode ??
     getMSTeamsRuntime().channel.text.resolveMarkdownTableMode({
-      cfg: getMSTeamsRuntime().config.current() as OpenClawConfig,
+      cfg: getMSTeamsRuntime().config.current() as AlienConfig,
       channel: "msteams",
     });
 

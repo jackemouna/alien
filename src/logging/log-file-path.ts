@@ -1,11 +1,11 @@
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import {
-  POSIX_OPENCLAW_TMP_DIR,
-  resolvePreferredOpenClawTmpDir,
-} from "../infra/tmp-openclaw-dir.js";
+  POSIX_ALIEN_TMP_DIR,
+  resolvePreferredAlienTmpDir,
+} from "../infra/tmp-alien-dir.js";
 
-const LOG_PREFIX = "openclaw";
+const LOG_PREFIX = "alien";
 const LOG_SUFFIX = ".log";
 
 function canUseNodeFs(): boolean {
@@ -32,10 +32,10 @@ function formatLocalDate(date: Date): string {
 }
 
 function resolveDefaultRollingLogFile(date = new Date()): string {
-  const logDir = canUseNodeFs() ? resolvePreferredOpenClawTmpDir() : POSIX_OPENCLAW_TMP_DIR;
+  const logDir = canUseNodeFs() ? resolvePreferredAlienTmpDir() : POSIX_ALIEN_TMP_DIR;
   return path.join(logDir, `${LOG_PREFIX}-${formatLocalDate(date)}${LOG_SUFFIX}`);
 }
 
-export function resolveConfiguredLogFilePath(config?: OpenClawConfig | null): string {
+export function resolveConfiguredLogFilePath(config?: AlienConfig | null): string {
   return config?.logging?.file ?? resolveDefaultRollingLogFile();
 }

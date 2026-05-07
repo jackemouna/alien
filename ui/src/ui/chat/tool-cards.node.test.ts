@@ -199,7 +199,7 @@ describe("tool-card extraction", () => {
           view: {
             backend: "canvas",
             id: "cv_inline",
-            url: "/__openclaw__/canvas/documents/cv_inline/index.html",
+            url: "/__alien__/canvas/documents/cv_inline/index.html",
           },
           presentation: {
             target: "assistant_message",
@@ -216,7 +216,7 @@ describe("tool-card extraction", () => {
       surface: "assistant_message",
       render: "url",
       viewId: "cv_inline",
-      url: "/__openclaw__/canvas/documents/cv_inline/index.html",
+      url: "/__alien__/canvas/documents/cv_inline/index.html",
       title: "Inline demo",
       preferredHeight: 420,
     });
@@ -232,7 +232,7 @@ describe("tool-card extraction", () => {
           view: {
             backend: "canvas",
             id: "cv_tool_card",
-            url: "/__openclaw__/canvas/documents/cv_tool_card/index.html",
+            url: "/__alien__/canvas/documents/cv_tool_card/index.html",
           },
           presentation: {
             target: "tool_card",

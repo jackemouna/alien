@@ -29,7 +29,7 @@
  */
 
 import type { FileHandle } from "node:fs/promises";
-import { FsSafeError, openLocalFileSafely } from "openclaw/plugin-sdk/security-runtime";
+import { FsSafeError, openLocalFileSafely } from "alien/plugin-sdk/security-runtime";
 import { MAX_UPLOAD_SIZE, formatFileSize, getMimeType } from "../utils/file-utils.js";
 
 // ============ Types ============

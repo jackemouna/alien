@@ -9,8 +9,8 @@ source "$ROOT_DIR/scripts/lib/docker-build.sh"
 resolve_default_smoke_platform() {
   local host_os
   local host_arch
-  if [[ -n "${OPENCLAW_INSTALL_SMOKE_PLATFORM:-}" ]]; then
-    printf "%s" "$OPENCLAW_INSTALL_SMOKE_PLATFORM"
+  if [[ -n "${ALIEN_INSTALL_SMOKE_PLATFORM:-}" ]]; then
+    printf "%s" "$ALIEN_INSTALL_SMOKE_PLATFORM"
     return
   fi
   if [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
@@ -70,11 +70,11 @@ const label = process.argv[2];
 const packJsonFile = process.argv[3];
 const raw = readFileSync(packJsonFile, "utf8") || "[]";
 const parsed = JSON.parse(raw);
-const budgetOverride = process.env.OPENCLAW_INSTALL_SMOKE_PACK_UNPACKED_BUDGET_BYTES;
+const budgetOverride = process.env.ALIEN_INSTALL_SMOKE_PACK_UNPACKED_BUDGET_BYTES;
 const budgetBytes = budgetOverride ? Number(budgetOverride) : undefined;
 if (budgetOverride && !Number.isFinite(budgetBytes)) {
   throw new Error(
-    `OPENCLAW_INSTALL_SMOKE_PACK_UNPACKED_BUDGET_BYTES must be numeric, got ${JSON.stringify(
+    `ALIEN_INSTALL_SMOKE_PACK_UNPACKED_BUDGET_BYTES must be numeric, got ${JSON.stringify(
       budgetOverride,
     )}`,
   );
@@ -137,25 +137,25 @@ console.log(
 ' "$baseline_pack_json_file" "$update_pack_json_file"
 }
 
-SMOKE_IMAGE="${OPENCLAW_INSTALL_SMOKE_IMAGE:-openclaw-install-smoke:local}"
-NONROOT_IMAGE="${OPENCLAW_INSTALL_NONROOT_IMAGE:-openclaw-install-nonroot:local}"
+SMOKE_IMAGE="${ALIEN_INSTALL_SMOKE_IMAGE:-alien-install-smoke:local}"
+NONROOT_IMAGE="${ALIEN_INSTALL_NONROOT_IMAGE:-alien-install-nonroot:local}"
 SMOKE_PLATFORM="$(resolve_default_smoke_platform)"
-NONROOT_PLATFORM="${OPENCLAW_INSTALL_NONROOT_PLATFORM:-$SMOKE_PLATFORM}"
-INSTALL_URL="${OPENCLAW_INSTALL_URL:-https://openclaw.bot/install.sh}"
-CLI_INSTALL_URL="${OPENCLAW_INSTALL_CLI_URL:-https://openclaw.bot/install-cli.sh}"
-PACKAGE_NAME="${OPENCLAW_INSTALL_PACKAGE:-openclaw}"
-SKIP_NONROOT="${OPENCLAW_INSTALL_SMOKE_SKIP_NONROOT:-0}"
-SKIP_SMOKE_IMAGE_BUILD="${OPENCLAW_INSTALL_SMOKE_SKIP_IMAGE_BUILD:-0}"
-SKIP_NONROOT_IMAGE_BUILD="${OPENCLAW_INSTALL_NONROOT_SKIP_IMAGE_BUILD:-0}"
-SKIP_UPDATE="${OPENCLAW_INSTALL_SMOKE_SKIP_UPDATE:-0}"
-SKIP_NPM_GLOBAL="${OPENCLAW_INSTALL_SMOKE_SKIP_NPM_GLOBAL:-0}"
-UPDATE_BASELINE_VERSION="${OPENCLAW_INSTALL_SMOKE_UPDATE_BASELINE:-latest}"
-UPDATE_PACKAGE_SPEC="${OPENCLAW_INSTALL_SMOKE_UPDATE_PACKAGE_SPEC:-}"
-UPDATE_DIST_IMAGE="${OPENCLAW_INSTALL_SMOKE_UPDATE_DIST_IMAGE:-}"
-UPDATE_SKIP_LOCAL_BUILD="${OPENCLAW_INSTALL_SMOKE_UPDATE_SKIP_LOCAL_BUILD:-0}"
-UPDATE_HOST_ALIAS="${OPENCLAW_INSTALL_SMOKE_UPDATE_HOST:-host.docker.internal}"
-UPDATE_PORT="${OPENCLAW_INSTALL_SMOKE_UPDATE_PORT:-}"
-UPDATE_EXPECT_VERSION="${OPENCLAW_INSTALL_SMOKE_UPDATE_EXPECT_VERSION:-}"
+NONROOT_PLATFORM="${ALIEN_INSTALL_NONROOT_PLATFORM:-$SMOKE_PLATFORM}"
+INSTALL_URL="${ALIEN_INSTALL_URL:-https://alien.bot/install.sh}"
+CLI_INSTALL_URL="${ALIEN_INSTALL_CLI_URL:-https://alien.bot/install-cli.sh}"
+PACKAGE_NAME="${ALIEN_INSTALL_PACKAGE:-alien}"
+SKIP_NONROOT="${ALIEN_INSTALL_SMOKE_SKIP_NONROOT:-0}"
+SKIP_SMOKE_IMAGE_BUILD="${ALIEN_INSTALL_SMOKE_SKIP_IMAGE_BUILD:-0}"
+SKIP_NONROOT_IMAGE_BUILD="${ALIEN_INSTALL_NONROOT_SKIP_IMAGE_BUILD:-0}"
+SKIP_UPDATE="${ALIEN_INSTALL_SMOKE_SKIP_UPDATE:-0}"
+SKIP_NPM_GLOBAL="${ALIEN_INSTALL_SMOKE_SKIP_NPM_GLOBAL:-0}"
+UPDATE_BASELINE_VERSION="${ALIEN_INSTALL_SMOKE_UPDATE_BASELINE:-latest}"
+UPDATE_PACKAGE_SPEC="${ALIEN_INSTALL_SMOKE_UPDATE_PACKAGE_SPEC:-}"
+UPDATE_DIST_IMAGE="${ALIEN_INSTALL_SMOKE_UPDATE_DIST_IMAGE:-}"
+UPDATE_SKIP_LOCAL_BUILD="${ALIEN_INSTALL_SMOKE_UPDATE_SKIP_LOCAL_BUILD:-0}"
+UPDATE_HOST_ALIAS="${ALIEN_INSTALL_SMOKE_UPDATE_HOST:-host.docker.internal}"
+UPDATE_PORT="${ALIEN_INSTALL_SMOKE_UPDATE_PORT:-}"
+UPDATE_EXPECT_VERSION="${ALIEN_INSTALL_SMOKE_UPDATE_EXPECT_VERSION:-}"
 LATEST_DIR="$(mktemp -d)"
 LATEST_FILE="${LATEST_DIR}/latest"
 UPDATE_DIR="$(mktemp -d)"
@@ -167,7 +167,7 @@ BASELINE_TAG_URL=""
 FRESH_TAG_URL=""
 UPDATE_TAG_URL=""
 UPDATE_DOCKER_HOST_ARGS=()
-NPM_CACHE_DIR="${OPENCLAW_INSTALL_SMOKE_NPM_CACHE_DIR:-}"
+NPM_CACHE_DIR="${ALIEN_INSTALL_SMOKE_NPM_CACHE_DIR:-}"
 NPM_CACHE_OWNED=0
 NPM_CACHE_DOCKER_ARGS=()
 
@@ -274,7 +274,7 @@ process.stdout.write(last.filename);
 ' "$pack_json_file"
   )"
   if [[ -z "$UPDATE_PACKAGE_SPEC" ]]; then
-    node scripts/check-openclaw-package-tarball.mjs "${UPDATE_DIR}/${UPDATE_TGZ_FILE}"
+    node scripts/check-alien-package-tarball.mjs "${UPDATE_DIR}/${UPDATE_TGZ_FILE}"
   fi
   print_pack_audit "update" "$pack_json_file"
   assert_pack_unpacked_size_budget "update" "$pack_json_file"
@@ -381,7 +381,7 @@ else
 fi
 
 if [[ "$SKIP_UPDATE" == "1" ]]; then
-  echo "==> Skip update smoke (OPENCLAW_INSTALL_SMOKE_SKIP_UPDATE=1)"
+  echo "==> Skip update smoke (ALIEN_INSTALL_SMOKE_SKIP_UPDATE=1)"
 else
   prepare_update_tarball
   prepare_update_host_access
@@ -394,14 +394,14 @@ else
     ${UPDATE_DOCKER_HOST_ARGS[@]+"${UPDATE_DOCKER_HOST_ARGS[@]}"} \
     "${NPM_CACHE_DOCKER_ARGS[@]}" \
     -v "${LATEST_DIR}:/out" \
-    -e OPENCLAW_INSTALL_URL="$INSTALL_URL" \
-    -e OPENCLAW_INSTALL_PACKAGE="$PACKAGE_NAME" \
-    -e OPENCLAW_INSTALL_METHOD=npm \
-    -e OPENCLAW_INSTALL_FRESH_VERSION="$UPDATE_EXPECT_VERSION" \
-    -e OPENCLAW_INSTALL_FRESH_TAG_URL="$FRESH_TAG_URL" \
-    -e OPENCLAW_INSTALL_LATEST_OUT="/out/latest" \
-    -e OPENCLAW_NO_ONBOARD=1 \
-    -e OPENCLAW_NO_PROMPT=1 \
+    -e ALIEN_INSTALL_URL="$INSTALL_URL" \
+    -e ALIEN_INSTALL_PACKAGE="$PACKAGE_NAME" \
+    -e ALIEN_INSTALL_METHOD=npm \
+    -e ALIEN_INSTALL_FRESH_VERSION="$UPDATE_EXPECT_VERSION" \
+    -e ALIEN_INSTALL_FRESH_TAG_URL="$FRESH_TAG_URL" \
+    -e ALIEN_INSTALL_LATEST_OUT="/out/latest" \
+    -e ALIEN_NO_ONBOARD=1 \
+    -e ALIEN_NO_PROMPT=1 \
     -e DEBIAN_FRONTEND=noninteractive \
     "$SMOKE_IMAGE"
 
@@ -415,33 +415,33 @@ else
     --platform "$SMOKE_PLATFORM" \
     ${UPDATE_DOCKER_HOST_ARGS[@]+"${UPDATE_DOCKER_HOST_ARGS[@]}"} \
     "${NPM_CACHE_DOCKER_ARGS[@]}" \
-    -e OPENCLAW_INSTALL_PACKAGE="$PACKAGE_NAME" \
-    -e OPENCLAW_INSTALL_SMOKE_MODE=update \
-    -e OPENCLAW_INSTALL_UPDATE_BASELINE="$UPDATE_BASELINE_VERSION" \
-    -e OPENCLAW_INSTALL_UPDATE_BASELINE_TAG_URL="$BASELINE_TAG_URL" \
-    -e OPENCLAW_INSTALL_UPDATE_EXPECT_VERSION="$UPDATE_EXPECT_VERSION" \
-    -e OPENCLAW_INSTALL_UPDATE_TAG_URL="$UPDATE_TAG_URL" \
-    -e OPENCLAW_NO_ONBOARD=1 \
-    -e OPENCLAW_NO_PROMPT=1 \
+    -e ALIEN_INSTALL_PACKAGE="$PACKAGE_NAME" \
+    -e ALIEN_INSTALL_SMOKE_MODE=update \
+    -e ALIEN_INSTALL_UPDATE_BASELINE="$UPDATE_BASELINE_VERSION" \
+    -e ALIEN_INSTALL_UPDATE_BASELINE_TAG_URL="$BASELINE_TAG_URL" \
+    -e ALIEN_INSTALL_UPDATE_EXPECT_VERSION="$UPDATE_EXPECT_VERSION" \
+    -e ALIEN_INSTALL_UPDATE_TAG_URL="$UPDATE_TAG_URL" \
+    -e ALIEN_NO_ONBOARD=1 \
+    -e ALIEN_NO_PROMPT=1 \
     -e DEBIAN_FRONTEND=noninteractive \
     "$SMOKE_IMAGE"
 
   if [[ "$SKIP_NPM_GLOBAL" == "1" ]]; then
-    echo "==> Skip direct npm global smoke (OPENCLAW_INSTALL_SMOKE_SKIP_NPM_GLOBAL=1)"
+    echo "==> Skip direct npm global smoke (ALIEN_INSTALL_SMOKE_SKIP_NPM_GLOBAL=1)"
   else
     echo "==> Run direct npm global smoke (${UPDATE_BASELINE_VERSION} -> ${UPDATE_EXPECT_VERSION})"
     docker run --rm -t \
       --platform "$SMOKE_PLATFORM" \
       ${UPDATE_DOCKER_HOST_ARGS[@]+"${UPDATE_DOCKER_HOST_ARGS[@]}"} \
       "${NPM_CACHE_DOCKER_ARGS[@]}" \
-      -e OPENCLAW_INSTALL_PACKAGE="$PACKAGE_NAME" \
-      -e OPENCLAW_INSTALL_SMOKE_MODE=npm-global \
-      -e OPENCLAW_INSTALL_UPDATE_BASELINE="$UPDATE_BASELINE_VERSION" \
-      -e OPENCLAW_INSTALL_UPDATE_BASELINE_TAG_URL="$BASELINE_TAG_URL" \
-      -e OPENCLAW_INSTALL_UPDATE_EXPECT_VERSION="$UPDATE_EXPECT_VERSION" \
-      -e OPENCLAW_INSTALL_UPDATE_TAG_URL="$UPDATE_TAG_URL" \
-      -e OPENCLAW_NO_ONBOARD=1 \
-      -e OPENCLAW_NO_PROMPT=1 \
+      -e ALIEN_INSTALL_PACKAGE="$PACKAGE_NAME" \
+      -e ALIEN_INSTALL_SMOKE_MODE=npm-global \
+      -e ALIEN_INSTALL_UPDATE_BASELINE="$UPDATE_BASELINE_VERSION" \
+      -e ALIEN_INSTALL_UPDATE_BASELINE_TAG_URL="$BASELINE_TAG_URL" \
+      -e ALIEN_INSTALL_UPDATE_EXPECT_VERSION="$UPDATE_EXPECT_VERSION" \
+      -e ALIEN_INSTALL_UPDATE_TAG_URL="$UPDATE_TAG_URL" \
+      -e ALIEN_NO_ONBOARD=1 \
+      -e ALIEN_NO_PROMPT=1 \
       -e DEBIAN_FRONTEND=noninteractive \
       "$SMOKE_IMAGE"
   fi
@@ -450,7 +450,7 @@ fi
 LATEST_VERSION="${LATEST_VERSION:-}"
 
 if [[ "$SKIP_NONROOT" == "1" ]]; then
-  echo "==> Skip non-root installer smoke (OPENCLAW_INSTALL_SMOKE_SKIP_NONROOT=1)"
+  echo "==> Skip non-root installer smoke (ALIEN_INSTALL_SMOKE_SKIP_NONROOT=1)"
 else
   if [[ "$SKIP_NONROOT_IMAGE_BUILD" == "1" ]]; then
     echo "==> Reuse prebuilt non-root image: $NONROOT_IMAGE"
@@ -466,18 +466,18 @@ else
   echo "==> Run installer non-root test: $INSTALL_URL"
   docker run --rm -t \
     --platform "$NONROOT_PLATFORM" \
-    -e OPENCLAW_INSTALL_URL="$INSTALL_URL" \
-    -e OPENCLAW_INSTALL_PACKAGE="$PACKAGE_NAME" \
-    -e OPENCLAW_INSTALL_METHOD=npm \
-    -e OPENCLAW_INSTALL_EXPECT_VERSION="$LATEST_VERSION" \
-    -e OPENCLAW_NO_ONBOARD=1 \
-    -e OPENCLAW_NO_PROMPT=1 \
+    -e ALIEN_INSTALL_URL="$INSTALL_URL" \
+    -e ALIEN_INSTALL_PACKAGE="$PACKAGE_NAME" \
+    -e ALIEN_INSTALL_METHOD=npm \
+    -e ALIEN_INSTALL_EXPECT_VERSION="$LATEST_VERSION" \
+    -e ALIEN_NO_ONBOARD=1 \
+    -e ALIEN_NO_PROMPT=1 \
     -e DEBIAN_FRONTEND=noninteractive \
     "$NONROOT_IMAGE"
 fi
 
-if [[ "${OPENCLAW_INSTALL_SMOKE_SKIP_CLI:-0}" == "1" ]]; then
-  echo "==> Skip CLI installer smoke (OPENCLAW_INSTALL_SMOKE_SKIP_CLI=1)"
+if [[ "${ALIEN_INSTALL_SMOKE_SKIP_CLI:-0}" == "1" ]]; then
+  echo "==> Skip CLI installer smoke (ALIEN_INSTALL_SMOKE_SKIP_CLI=1)"
   exit 0
 fi
 
@@ -490,9 +490,9 @@ echo "==> Run CLI installer non-root test (same image)"
 docker run --rm -t \
   --platform "$NONROOT_PLATFORM" \
   --entrypoint /bin/bash \
-  -e OPENCLAW_INSTALL_URL="$INSTALL_URL" \
-  -e OPENCLAW_INSTALL_CLI_URL="$CLI_INSTALL_URL" \
-  -e OPENCLAW_NO_ONBOARD=1 \
-  -e OPENCLAW_NO_PROMPT=1 \
+  -e ALIEN_INSTALL_URL="$INSTALL_URL" \
+  -e ALIEN_INSTALL_CLI_URL="$CLI_INSTALL_URL" \
+  -e ALIEN_NO_ONBOARD=1 \
+  -e ALIEN_NO_PROMPT=1 \
   -e DEBIAN_FRONTEND=noninteractive \
   "$NONROOT_IMAGE" -lc "curl -fsSL \"$CLI_INSTALL_URL\" | bash -s -- --set-npm-prefix --no-onboard"

@@ -89,7 +89,7 @@ describe("registerDirectoryCli", () => {
       configChanged: true,
     });
 
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
     registerDirectoryCli(program);
 
     await program.parseAsync(["directory", "self", "--channel", "demo-directory", "--json"], {
@@ -136,7 +136,7 @@ describe("registerDirectoryCli", () => {
       directory: { self },
     });
 
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
     registerDirectoryCli(program);
 
     await program.parseAsync(["directory", "self", "--json"], { from: "user" });
@@ -173,7 +173,7 @@ describe("registerDirectoryCli", () => {
       configChanged: false,
     });
 
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
     registerDirectoryCli(program);
 
     await program.parseAsync(
@@ -217,7 +217,7 @@ describe("registerDirectoryCli", () => {
       configChanged: false,
     });
 
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
     registerDirectoryCli(program);
 
     await program.parseAsync(["directory", "groups", "list", "--channel", "slack", "--json"], {
@@ -236,33 +236,33 @@ describe("registerDirectoryCli", () => {
 
   it("reports unsupported directory capability instead of continuing setup for installed plugins", async () => {
     mocks.resolveInstallableChannelPlugin.mockResolvedValue({
-      cfg: { channels: { "openclaw-weixin": {} } },
-      channelId: "openclaw-weixin",
+      cfg: { channels: { "alien-weixin": {} } },
+      channelId: "alien-weixin",
       plugin: {
-        id: "openclaw-weixin",
+        id: "alien-weixin",
       },
       configChanged: false,
       pluginInstalled: false,
     });
 
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
     registerDirectoryCli(program);
 
     await expect(
-      program.parseAsync(["directory", "peers", "list", "--channel", "openclaw-weixin"], {
+      program.parseAsync(["directory", "peers", "list", "--channel", "alien-weixin"], {
         from: "user",
       }),
     ).rejects.toThrow("exit:1");
 
     expect(mocks.resolveInstallableChannelPlugin).toHaveBeenCalledWith(
       expect.objectContaining({
-        rawChannel: "openclaw-weixin",
+        rawChannel: "alien-weixin",
         allowInstall: true,
       }),
     );
     expect(mocks.replaceConfigFile).not.toHaveBeenCalled();
     expect(runtimeState.defaultRuntime.error).toHaveBeenCalledWith(
-      expect.stringContaining("Channel openclaw-weixin does not support directory peers"),
+      expect.stringContaining("Channel alien-weixin does not support directory peers"),
     );
   });
 });

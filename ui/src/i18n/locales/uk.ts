@@ -410,7 +410,7 @@ export const uk: TranslationMap = {
     skills: "Навички та API-ключі.",
     nodes: "Спарені пристрої та команди.",
     chat: "Чат шлюзу для швидких втручань.",
-    config: "Редагування openclaw.json.",
+    config: "Редагування alien.json.",
     communications: "Канали, повідомлення та налаштування аудіо.",
     appearance: "Тема, інтерфейс і налаштування майстра налаштування.",
     automation: "Команди, хуки, cron і плагіни.",
@@ -486,7 +486,7 @@ export const uk: TranslationMap = {
       metadataUpgradeSummary:
         "Цей пристрій уже сполучено, але зміна метаданих очікує на схвалення.",
       mobileHint:
-        "На мобільному? Скопіюйте повний URL (включно з #token=...) з openclaw dashboard --no-open на вашому комп’ютері.",
+        "На мобільному? Скопіюйте повний URL (включно з #token=...) з alien dashboard --no-open на вашому комп’ютері.",
       docsTitle: "Документація щодо сполучення пристроїв (відкривається в новій вкладці)",
       docsLink: "Документація: Сполучення пристроїв",
     },
@@ -525,7 +525,7 @@ export const uk: TranslationMap = {
       modelAuthAttentionExpiredTitle: "Авторизація моделей прострочена",
       modelAuthAttentionExpiringTitle: "Термін авторизації моделей скоро спливає",
       modelAuthAttentionExpiredDesc:
-        "{providers} — повторно виконайте авторизацію через openclaw models auth",
+        "{providers} — повторно виконайте авторизацію через alien models auth",
       modelAuthAttentionExpiringEntry: "{provider} ({when})",
     },
     attention: {

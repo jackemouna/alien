@@ -2,13 +2,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 import type { SafeBinProfileFixture } from "../infra/exec-safe-bin-policy.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { resetProcessRegistryForTests } from "./bash-process-registry.js";
 
-let createOpenClawCodingTools: typeof import("./pi-tools.js").createOpenClawCodingTools;
+let createAlienCodingTools: typeof import("./pi-tools.js").createAlienCodingTools;
 
 const { mockExecApprovals, supervisorSpawnMock } = vi.hoisted(() => {
   const execApprovals = {
@@ -75,10 +75,10 @@ const { mockExecApprovals, supervisorSpawnMock } = vi.hoisted(() => {
 beforeAll(async () => {
   await withEnvAsync(
     {
-      OPENCLAW_BUNDLED_PLUGINS_DIR: path.join(os.tmpdir(), "openclaw-test-no-bundled-extensions"),
+      ALIEN_BUNDLED_PLUGINS_DIR: path.join(os.tmpdir(), "alien-test-no-bundled-extensions"),
     },
     async () => {
-      ({ createOpenClawCodingTools } = await import("./pi-tools.js"));
+      ({ createAlienCodingTools } = await import("./pi-tools.js"));
     },
   );
 });
@@ -112,8 +112,8 @@ vi.mock("./channel-tools.js", () => ({
   listChannelAgentTools: () => [],
 }));
 
-vi.mock("./openclaw-tools.js", () => ({
-  createOpenClawTools: () => [],
+vi.mock("./alien-tools.js", () => ({
+  createAlienTools: () => [],
 }));
 
 vi.mock("./bash-tools.exec-host-shared.js", async () => {
@@ -190,7 +190,7 @@ async function createSafeBinsExecTool(params: {
     fs.writeFileSync(path.join(tmpDir, file.name), file.contents, "utf8");
   }
 
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     tools: {
       exec: {
         host: "gateway",
@@ -202,7 +202,7 @@ async function createSafeBinsExecTool(params: {
     },
   };
 
-  const tools = createOpenClawCodingTools({
+  const tools = createAlienCodingTools({
     config: cfg,
     exec: {
       notifyOnExit: false,
@@ -229,7 +229,7 @@ async function withSafeBinsExecTool(
   try {
     await withEnvAsync(
       {
-        OPENCLAW_SHELL_ENV_TIMEOUT_MS: "1",
+        ALIEN_SHELL_ENV_TIMEOUT_MS: "1",
         PATH: "/usr/bin:/bin",
         SHELL: "/bin/sh",
       },
@@ -243,11 +243,11 @@ async function withSafeBinsExecTool(
   }
 }
 
-describe("createOpenClawCodingTools safeBins", () => {
+describe("createAlienCodingTools safeBins", () => {
   it("threads tools.exec.safeBins into exec allowlist checks", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-",
+        tmpPrefix: "alien-safe-bins-",
         safeBins: ["echo"],
         safeBinProfiles: {
           echo: { maxPositional: 1 },
@@ -272,7 +272,7 @@ describe("createOpenClawCodingTools safeBins", () => {
   it("rejects unprofiled custom safe-bin entries", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-unprofiled-",
+        tmpPrefix: "alien-safe-bins-unprofiled-",
         safeBins: ["echo"],
       },
       async ({ tmpDir, execTool }) => {
@@ -289,7 +289,7 @@ describe("createOpenClawCodingTools safeBins", () => {
   it("does not allow env var expansion to smuggle file args via safeBins", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-expand-",
+        tmpPrefix: "alien-safe-bins-expand-",
         safeBins: ["head", "wc"],
         files: [{ name: "secret.txt", contents: "TOP_SECRET\n" }],
       },
@@ -308,7 +308,7 @@ describe("createOpenClawCodingTools safeBins", () => {
   it("blocks sort output/compress bypass attempts in safeBins mode", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-sort-",
+        tmpPrefix: "alien-safe-bins-sort-",
         safeBins: ["sort"],
         files: [{ name: "existing.txt", contents: "x\n" }],
       },
@@ -355,7 +355,7 @@ describe("createOpenClawCodingTools safeBins", () => {
   it("blocks shell redirection metacharacters in safeBins mode", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-redirect-",
+        tmpPrefix: "alien-safe-bins-redirect-",
         safeBins: ["head"],
         files: [{ name: "source.txt", contents: "line1\nline2\n" }],
       },
@@ -374,7 +374,7 @@ describe("createOpenClawCodingTools safeBins", () => {
   it("blocks grep recursive flags from reading cwd via safeBins", async () => {
     await withSafeBinsExecTool(
       {
-        tmpPrefix: "openclaw-safe-bins-grep-",
+        tmpPrefix: "alien-safe-bins-grep-",
         safeBins: ["grep"],
         files: [{ name: "secret.txt", contents: "SAFE_BINS_RECURSIVE_SHOULD_NOT_LEAK\n" }],
       },

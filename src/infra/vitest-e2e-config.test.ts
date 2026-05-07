@@ -25,15 +25,15 @@ describe("e2e vitest config", () => {
     expect(e2eConfig.test?.isolate).toBe(false);
     expect(normalizeConfigPath(e2eConfig.test?.runner)).toBe("test/non-isolated-runner.ts");
     expect(normalizeConfigPaths(e2eConfig.test?.setupFiles)).toContain(
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-alien-runtime.ts",
     );
   });
 
   it("serializes default e2e runs while preserving explicit worker overrides", () => {
     expect(e2eConfig.test?.maxWorkers).toBe(1);
     expect(resolveE2EWorkerCount({})).toBe(1);
-    expect(resolveE2EWorkerCount({ OPENCLAW_E2E_WORKERS: "4" })).toBe(4);
-    expect(resolveE2EWorkerCount({ OPENCLAW_E2E_WORKERS: "99" })).toBe(16);
-    expect(resolveE2EWorkerCount({ OPENCLAW_E2E_WORKERS: "0" })).toBe(1);
+    expect(resolveE2EWorkerCount({ ALIEN_E2E_WORKERS: "4" })).toBe(4);
+    expect(resolveE2EWorkerCount({ ALIEN_E2E_WORKERS: "99" })).toBe(16);
+    expect(resolveE2EWorkerCount({ ALIEN_E2E_WORKERS: "0" })).toBe(1);
   });
 });

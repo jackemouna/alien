@@ -1,8 +1,8 @@
 import Foundation
 import Network
-import OpenClawKit
+import AlienKit
 import Testing
-@testable import OpenClaw
+@testable import Alien
 
 @Suite(.serialized) struct GatewayConnectionSecurityTests {
     @MainActor
@@ -17,7 +17,7 @@ import Testing
         gatewayPort: Int?,
         fingerprint: String?) -> GatewayDiscoveryModel.DiscoveredGateway
     {
-        let endpoint: NWEndpoint = .service(name: "Test", type: "_openclaw-gw._tcp", domain: "local.", interface: nil)
+        let endpoint: NWEndpoint = .service(name: "Test", type: "_alien-gw._tcp", domain: "local.", interface: nil)
         return GatewayDiscoveryModel.DiscoveredGateway(
             name: "Test",
             endpoint: endpoint,
@@ -122,7 +122,7 @@ import Testing
     @Test @MainActor func manualConnectionsAllowPrivateLanPlaintext() async {
         let controller = makeController()
 
-        #expect(controller._test_resolveManualUseTLS(host: "openclaw.local", useTLS: false) == false)
+        #expect(controller._test_resolveManualUseTLS(host: "alien.local", useTLS: false) == false)
         #expect(controller._test_resolveManualUseTLS(host: "192.168.1.20", useTLS: false) == false)
         #expect(controller._test_resolveManualUseTLS(host: "10.0.0.5", useTLS: false) == false)
         #expect(controller._test_resolveManualUseTLS(host: "172.16.1.5", useTLS: false) == false)

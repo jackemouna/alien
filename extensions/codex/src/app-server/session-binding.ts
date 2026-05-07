@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
-import { embeddedAgentLog } from "openclaw/plugin-sdk/agent-harness-runtime";
+import { embeddedAgentLog } from "alien/plugin-sdk/agent-harness-runtime";
 import {
   ensureAuthProfileStore,
   resolveDefaultAgentDir,
   resolveProviderIdForAuth,
   type AuthProfileStore,
-} from "openclaw/plugin-sdk/agent-runtime";
+} from "alien/plugin-sdk/agent-runtime";
 import type { CodexAppServerApprovalPolicy, CodexAppServerSandboxMode } from "./config.js";
 import type { CodexServiceTier } from "./protocol.js";
 

@@ -1,6 +1,6 @@
 import { monitorEventLoopDelay, performance } from "node:perf_hooks";
 import { getRuntimeConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   areDiagnosticsEnabledForProcess,
   emitDiagnosticEvent,
@@ -119,7 +119,7 @@ type SampleDiagnosticLiveness = (
 ) => DiagnosticLivenessSample | null;
 
 type StartDiagnosticHeartbeatOptions = {
-  getConfig?: () => OpenClawConfig;
+  getConfig?: () => AlienConfig;
   emitMemorySample?: EmitDiagnosticMemorySample;
   sampleLiveness?: SampleDiagnosticLiveness;
   recoverStuckSession?: RecoverStuckSession;
@@ -418,7 +418,7 @@ function formatDiagnosticWorkLabels(work: DiagnosticWorkSnapshot): string {
   return parts.join(" ");
 }
 
-export function resolveStuckSessionWarnMs(config?: OpenClawConfig): number {
+export function resolveStuckSessionWarnMs(config?: AlienConfig): number {
   const raw = config?.diagnostics?.stuckSessionWarnMs;
   if (typeof raw !== "number" || !Number.isFinite(raw)) {
     return DEFAULT_STUCK_SESSION_WARN_MS;
@@ -431,7 +431,7 @@ export function resolveStuckSessionWarnMs(config?: OpenClawConfig): number {
 }
 
 export function resolveStuckSessionAbortMs(
-  config: OpenClawConfig | undefined,
+  config: AlienConfig | undefined,
   stuckSessionWarnMs: number,
 ): number {
   const raw = config?.diagnostics?.stuckSessionAbortMs;
@@ -927,7 +927,7 @@ export function logActiveRuns() {
 let heartbeatInterval: NodeJS.Timeout | null = null;
 
 export function startDiagnosticHeartbeat(
-  config?: OpenClawConfig,
+  config?: AlienConfig,
   opts?: StartDiagnosticHeartbeatOptions,
 ) {
   if (!areDiagnosticsEnabledForProcess() || !isDiagnosticsEnabled(config)) {

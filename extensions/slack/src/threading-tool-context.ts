@@ -1,14 +1,14 @@
 import type {
   ChannelThreadingContext,
   ChannelThreadingToolContext,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveSlackAccount, resolveSlackReplyToMode } from "./accounts.js";
 import { normalizeSlackThreadTsCandidate } from "./thread-ts.js";
 
 export function buildSlackThreadingToolContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   context: ChannelThreadingContext;
   hasRepliedRef?: { value: boolean };

@@ -3,12 +3,12 @@ import path from "node:path";
 import {
   createPluginRegistryFixture,
   registerTestPlugin,
-} from "openclaw/plugin-sdk/plugin-test-contracts";
+} from "alien/plugin-sdk/plugin-test-contracts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadSessionStore, updateSessionStore } from "../../config/sessions.js";
 import { withTempConfig } from "../../gateway/test-temp-config.js";
 import { emitAgentEvent, resetAgentEventsForTest } from "../../infra/agent-events.js";
-import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../../infra/tmp-alien-dir.js";
 import { PLUGIN_HOST_CLEANUP_TIMEOUT_MS } from "../host-hook-cleanup-timeout.js";
 import { runPluginHostCleanup } from "../host-hook-cleanup.js";
 import {
@@ -23,7 +23,7 @@ import {
 import { createEmptyPluginRegistry } from "../registry-empty.js";
 import { setActivePluginRegistry } from "../runtime.js";
 import { createPluginRecord } from "../status.test-helpers.js";
-import type { OpenClawPluginApi } from "../types.js";
+import type { AlienPluginApi } from "../types.js";
 
 async function waitForPluginEventHandlers(): Promise<void> {
   await new Promise<void>((resolve) => {
@@ -41,7 +41,7 @@ describe("plugin run context lifecycle", () => {
 
   it("blocks stale plugin API run-context mutations after registry replacement", () => {
     const { config, registry } = createPluginRegistryFixture();
-    let capturedApi: OpenClawPluginApi | undefined;
+    let capturedApi: AlienPluginApi | undefined;
     registerTestPlugin({
       registry,
       config,
@@ -87,7 +87,7 @@ describe("plugin run context lifecycle", () => {
 
   it("allows run-context mutations after a previous registry is restored active", () => {
     const { config, registry } = createPluginRegistryFixture();
-    let capturedApi: OpenClawPluginApi | undefined;
+    let capturedApi: AlienPluginApi | undefined;
     registerTestPlugin({
       registry,
       config,
@@ -154,7 +154,7 @@ describe("plugin run context lifecycle", () => {
   it("keeps restored active registry state after stale async cleanup finishes", async () => {
     let releaseCleanup: (() => void) | undefined;
     let markCleanupStarted: (() => void) | undefined;
-    let capturedApi: OpenClawPluginApi | undefined;
+    let capturedApi: AlienPluginApi | undefined;
     const cleanupStarted = new Promise<void>((resolve) => {
       markCleanupStarted = resolve;
     });
@@ -668,15 +668,15 @@ describe("plugin run context lifecycle", () => {
     });
 
     const stateDir = await fs.mkdtemp(
-      path.join(resolvePreferredOpenClawTmpDir(), "openclaw-run-context-restart-state-"),
+      path.join(resolvePreferredAlienTmpDir(), "alien-run-context-restart-state-"),
     );
     const storePath = path.join(stateDir, "sessions.json");
     const tempConfig = {
       session: { store: storePath },
     };
-    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousStateDir = process.env.ALIEN_STATE_DIR;
     try {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ALIEN_STATE_DIR = stateDir;
       await withTempConfig({
         cfg: tempConfig,
         run: async () => {
@@ -730,9 +730,9 @@ describe("plugin run context lifecycle", () => {
       });
     } finally {
       if (previousStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ALIEN_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        process.env.ALIEN_STATE_DIR = previousStateDir;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
     }

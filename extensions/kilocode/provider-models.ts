@@ -1,10 +1,10 @@
-import type { ModelDefinitionConfig } from "openclaw/plugin-sdk/provider-model-shared";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
+import type { ModelDefinitionConfig } from "alien/plugin-sdk/provider-model-shared";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
 import {
   fetchWithSsrFGuard,
   ssrfPolicyFromHttpBaseUrlAllowedHostname,
-} from "openclaw/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("kilocode-models");
 

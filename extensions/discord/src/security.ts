@@ -1,5 +1,5 @@
-import { createScopedDmSecurityResolver } from "openclaw/plugin-sdk/channel-config-helpers";
-import { createOpenProviderConfiguredRouteWarningCollector } from "openclaw/plugin-sdk/channel-policy";
+import { createScopedDmSecurityResolver } from "alien/plugin-sdk/channel-config-helpers";
+import { createOpenProviderConfiguredRouteWarningCollector } from "alien/plugin-sdk/channel-policy";
 import {
   resolveDiscordAccountAllowFrom,
   resolveDiscordAccountDmPolicy,

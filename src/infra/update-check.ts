@@ -3,7 +3,7 @@ import path from "node:path";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { fetchWithTimeout } from "../utils/fetch-timeout.js";
 import { detectPackageManager as detectPackageManagerImpl } from "./detect-package-manager.js";
-import { compareOpenClawReleaseVersions } from "./npm-registry-spec.js";
+import { compareAlienReleaseVersions } from "./npm-registry-spec.js";
 import { compareComparableSemver, parseComparableSemver } from "./semver-compare.js";
 import { channelToNpmTag, type UpdateChannel } from "./update-channels.js";
 
@@ -326,7 +326,7 @@ export async function fetchNpmPackageTargetStatus(params: {
   const target = params.target;
   try {
     const res = await fetchWithTimeout(
-      `https://registry.npmjs.org/openclaw/${encodeURIComponent(target)}`,
+      `https://registry.npmjs.org/alien/${encodeURIComponent(target)}`,
       {},
       Math.max(250, timeoutMs),
     );
@@ -386,7 +386,7 @@ export async function resolveNpmChannelTag(params: {
 
 export function compareSemverStrings(a: string | null, b: string | null): number | null {
   if (a && b) {
-    const openClawReleaseCmp = compareOpenClawReleaseVersions(a, b);
+    const openClawReleaseCmp = compareAlienReleaseVersions(a, b);
     if (openClawReleaseCmp != null) {
       return openClawReleaseCmp;
     }

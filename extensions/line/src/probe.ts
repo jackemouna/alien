@@ -1,6 +1,6 @@
 import { messagingApi } from "@line/bot-sdk";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { withTimeout } from "openclaw/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { withTimeout } from "alien/plugin-sdk/text-runtime";
 import type { LineProbeResult } from "./types.js";
 
 export async function probeLineBot(

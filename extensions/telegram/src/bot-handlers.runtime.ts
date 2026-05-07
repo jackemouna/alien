@@ -1,39 +1,39 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import { parseExecApprovalCommandText } from "openclaw/plugin-sdk/approval-reply-runtime";
-import { resolveChannelConfigWrites } from "openclaw/plugin-sdk/channel-config-helpers";
-import { shouldDebounceTextInbound } from "openclaw/plugin-sdk/channel-inbound";
+import { parseExecApprovalCommandText } from "alien/plugin-sdk/approval-reply-runtime";
+import { resolveChannelConfigWrites } from "alien/plugin-sdk/channel-config-helpers";
+import { shouldDebounceTextInbound } from "alien/plugin-sdk/channel-inbound";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "openclaw/plugin-sdk/channel-inbound-debounce";
-import { resolveStoredModelOverride } from "openclaw/plugin-sdk/command-auth";
+} from "alien/plugin-sdk/channel-inbound-debounce";
+import { resolveStoredModelOverride } from "alien/plugin-sdk/command-auth";
 import {
   resolveCommandAuthorization,
   resolveCommandAuthorizedFromAuthorizers,
-} from "openclaw/plugin-sdk/command-auth-native";
-import { buildCommandsMessagePaginated } from "openclaw/plugin-sdk/command-status";
-import { replaceConfigFile } from "openclaw/plugin-sdk/config-mutation";
-import type { DmPolicy, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/command-auth-native";
+import { buildCommandsMessagePaginated } from "alien/plugin-sdk/command-status";
+import { replaceConfigFile } from "alien/plugin-sdk/config-mutation";
+import type { DmPolicy, AlienConfig } from "alien/plugin-sdk/config-types";
 import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/config-types";
 import {
   buildPluginBindingResolvedText,
   parsePluginBindingApprovalCustomId,
   resolvePluginConversationBindingApproval,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { applyModelOverrideToSessionEntry } from "openclaw/plugin-sdk/model-session-runtime";
-import { formatModelsAvailableHeader } from "openclaw/plugin-sdk/models-provider-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose, warn } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/conversation-runtime";
+import { applyModelOverrideToSessionEntry } from "alien/plugin-sdk/model-session-runtime";
+import { formatModelsAvailableHeader } from "alien/plugin-sdk/models-provider-runtime";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "alien/plugin-sdk/routing";
+import { danger, logVerbose, warn } from "alien/plugin-sdk/runtime-env";
 import {
   loadSessionStore,
   resolveSessionStoreEntry,
   updateSessionStore,
-} from "openclaw/plugin-sdk/session-store-runtime";
+} from "alien/plugin-sdk/session-store-runtime";
 import { resolveTelegramAccount, resolveTelegramMediaRuntimeOptions } from "./accounts.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {
@@ -820,7 +820,7 @@ export const registerTelegramHandlers = ({
     senderId: string;
     senderUsername: string;
     context: TelegramEventAuthorizationContext;
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
   }): boolean => {
     const { chatId, isGroup, senderId, senderUsername, context, cfg } = params;
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
@@ -1771,7 +1771,7 @@ export const registerTelegramHandlers = ({
               : `changed to <b>${escapeHtml(selection.provider)}/${escapeHtml(selection.model)}</b>`;
             const scopeText = isDefaultSelection
               ? "Session selection cleared. Runtime unchanged. New replies use the agent's configured default."
-              : `Session-only model selection. Runtime unchanged. Use /model ${escapeHtml(selection.provider)}/${escapeHtml(selection.model)} --runtime &lt;runtime&gt; to switch harnesses. The agent default in openclaw.json is unchanged; /reset or a new session may return to that default.`;
+              : `Session-only model selection. Runtime unchanged. Use /model ${escapeHtml(selection.provider)}/${escapeHtml(selection.model)} --runtime &lt;runtime&gt; to switch harnesses. The agent default in alien.json is unchanged; /reset or a new session may return to that default.`;
             await editMessageWithButtons(
               `✅ Model ${actionText}\n\n${scopeText}`,
               [], // Empty buttons = remove inline keyboard

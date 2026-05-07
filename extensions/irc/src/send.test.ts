@@ -1,5 +1,5 @@
-import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
-import { createSendCfgThreadingRuntime } from "openclaw/plugin-sdk/channel-test-helpers";
+import { verifyChannelMessageAdapterCapabilityProofs } from "alien/plugin-sdk/channel-message";
+import { createSendCfgThreadingRuntime } from "alien/plugin-sdk/channel-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { IrcClient } from "./client.js";
 import { setIrcRuntime } from "./runtime.js";
@@ -41,8 +41,8 @@ vi.mock("./protocol.js", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/plugin-config-runtime", async () => {
-  const original = (await vi.importActual("openclaw/plugin-sdk/plugin-config-runtime")) as Record<
+vi.mock("alien/plugin-sdk/plugin-config-runtime", async () => {
+  const original = (await vi.importActual("alien/plugin-sdk/plugin-config-runtime")) as Record<
     string,
     unknown
   >;
@@ -52,8 +52,8 @@ vi.mock("openclaw/plugin-sdk/plugin-config-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/text-runtime", async () => {
-  const original = (await vi.importActual("openclaw/plugin-sdk/text-runtime")) as Record<
+vi.mock("alien/plugin-sdk/text-runtime", async () => {
+  const original = (await vi.importActual("alien/plugin-sdk/text-runtime")) as Record<
     string,
     unknown
   >;
@@ -77,7 +77,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "openclaw",
+          nick: "alien",
           accounts: {
             work: {
               host: "irc.example.com",
@@ -145,7 +145,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "openclaw",
+          nick: "alien",
         },
       },
     } as unknown as CoreConfig;
@@ -174,7 +174,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "openclaw",
+          nick: "alien",
         },
       },
     } as unknown as CoreConfig;
@@ -206,7 +206,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "openclaw",
+          nick: "alien",
         },
       },
     } as unknown as CoreConfig;

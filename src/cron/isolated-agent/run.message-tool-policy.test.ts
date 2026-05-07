@@ -944,7 +944,7 @@ describe("runCronIsolatedAgentTurn delivery instruction", () => {
   });
 
   it("does not instruct the agent to summarize when delivery is requested", async () => {
-    // Regression for https://github.com/openclaw/openclaw/issues/58535:
+    // Regression for https://github.com/alien/alien/issues/58535:
     // "summary" caused LLMs to condense structured output and drop fields
     // non-deterministically on every run.
     mockRunCronFallbackPassthrough();

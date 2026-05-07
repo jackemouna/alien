@@ -18,7 +18,7 @@ export type CaptureSessionRecord = {
   startedAt: number;
   endedAt?: number;
   mode: string;
-  sourceScope: "openclaw";
+  sourceScope: "alien";
   sourceProcess: string;
   proxyUrl?: string;
   dbPath: string;
@@ -37,7 +37,7 @@ export type CaptureBlobRecord = {
 export type CaptureEventRecord = {
   sessionId: string;
   ts: number;
-  sourceScope: "openclaw";
+  sourceScope: "alien";
   sourceProcess: string;
   protocol: CaptureProtocol;
   direction: CaptureDirection;

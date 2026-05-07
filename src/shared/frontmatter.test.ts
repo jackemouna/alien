@@ -1,14 +1,14 @@
 import { describe, expect, it, test } from "vitest";
 import {
-  applyOpenClawManifestInstallCommonFields,
+  applyAlienManifestInstallCommonFields,
   getFrontmatterString,
   normalizeStringList,
   parseFrontmatterBool,
-  parseOpenClawManifestInstallBase,
-  resolveOpenClawManifestBlock,
-  resolveOpenClawManifestInstall,
-  resolveOpenClawManifestOs,
-  resolveOpenClawManifestRequires,
+  parseAlienManifestInstallBase,
+  resolveAlienManifestBlock,
+  resolveAlienManifestInstall,
+  resolveAlienManifestOs,
+  resolveAlienManifestRequires,
 } from "./frontmatter.js";
 
 describe("shared/frontmatter", () => {
@@ -30,28 +30,28 @@ describe("shared/frontmatter", () => {
     expect(parseFrontmatterBool("maybe", false)).toBe(false);
   });
 
-  test("resolveOpenClawManifestBlock reads current manifest keys and custom metadata fields", () => {
+  test("resolveAlienManifestBlock reads current manifest keys and custom metadata fields", () => {
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAlienManifestBlock({
         frontmatter: {
-          metadata: "{ openclaw: { foo: 1, bar: 'baz' } }",
+          metadata: "{ alien: { foo: 1, bar: 'baz' } }",
         },
       }),
     ).toEqual({ foo: 1, bar: "baz" });
 
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAlienManifestBlock({
         frontmatter: {
-          pluginMeta: "{ openclaw: { foo: 2 } }",
+          pluginMeta: "{ alien: { foo: 2 } }",
         },
         key: "pluginMeta",
       }),
     ).toEqual({ foo: 2 });
   });
 
-  test("resolveOpenClawManifestBlock reads legacy manifest keys", () => {
+  test("resolveAlienManifestBlock reads legacy manifest keys", () => {
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAlienManifestBlock({
         frontmatter: {
           metadata: "{ clawdbot: { requires: { bins: ['op'] }, install: [] } }",
         },
@@ -59,54 +59,54 @@ describe("shared/frontmatter", () => {
     ).toEqual({ requires: { bins: ["op"] }, install: [] });
   });
 
-  test("resolveOpenClawManifestBlock prefers current manifest keys over legacy keys", () => {
+  test("resolveAlienManifestBlock prefers current manifest keys over legacy keys", () => {
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAlienManifestBlock({
         frontmatter: {
           metadata:
-            "{ openclaw: { requires: { bins: ['current'] } }, clawdbot: { requires: { bins: ['legacy'] } } }",
+            "{ alien: { requires: { bins: ['current'] } }, clawdbot: { requires: { bins: ['legacy'] } } }",
         },
       }),
     ).toEqual({ requires: { bins: ["current"] } });
   });
 
-  test("resolveOpenClawManifestBlock returns undefined for invalid input", () => {
-    expect(resolveOpenClawManifestBlock({ frontmatter: {} })).toBeUndefined();
+  test("resolveAlienManifestBlock returns undefined for invalid input", () => {
+    expect(resolveAlienManifestBlock({ frontmatter: {} })).toBeUndefined();
     expect(
-      resolveOpenClawManifestBlock({ frontmatter: { metadata: "not-json5" } }),
+      resolveAlienManifestBlock({ frontmatter: { metadata: "not-json5" } }),
     ).toBeUndefined();
-    expect(resolveOpenClawManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
-    expect(resolveOpenClawManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
+    expect(resolveAlienManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
+    expect(resolveAlienManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
     expect(
-      resolveOpenClawManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
+      resolveAlienManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
     ).toBeUndefined();
   });
 
   it("normalizes manifest requirement and os lists", () => {
     expect(
-      resolveOpenClawManifestRequires({
+      resolveAlienManifestRequires({
         requires: {
           bins: "bun, node",
           anyBins: [" ffmpeg ", ""],
-          env: ["OPENCLAW_TOKEN", " OPENCLAW_URL "],
+          env: ["ALIEN_TOKEN", " ALIEN_URL "],
           config: null,
         },
       }),
     ).toEqual({
       bins: ["bun", "node"],
       anyBins: ["ffmpeg"],
-      env: ["OPENCLAW_TOKEN", "OPENCLAW_URL"],
+      env: ["ALIEN_TOKEN", "ALIEN_URL"],
       config: [],
     });
-    expect(resolveOpenClawManifestRequires({})).toBeUndefined();
-    expect(resolveOpenClawManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
+    expect(resolveAlienManifestRequires({})).toBeUndefined();
+    expect(resolveAlienManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
       "darwin",
       "linux",
     ]);
   });
 
   it("parses and applies install common fields", () => {
-    const parsed = parseOpenClawManifestInstallBase(
+    const parsed = parseAlienManifestInstallBase(
       {
         type: " Brew ",
         id: "brew.git",
@@ -128,9 +128,9 @@ describe("shared/frontmatter", () => {
       label: "Git",
       bins: ["git", "git"],
     });
-    expect(parseOpenClawManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
+    expect(parseAlienManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
     expect(
-      applyOpenClawManifestInstallCommonFields<{
+      applyAlienManifestInstallCommonFields<{
         extra: boolean;
         id?: string;
         label?: string;
@@ -145,7 +145,7 @@ describe("shared/frontmatter", () => {
   });
 
   it("prefers explicit kind, ignores invalid common fields, and leaves missing ones untouched", () => {
-    const parsed = parseOpenClawManifestInstallBase(
+    const parsed = parseAlienManifestInstallBase(
       {
         kind: " npm ",
         type: "brew",
@@ -167,7 +167,7 @@ describe("shared/frontmatter", () => {
       kind: "npm",
     });
     expect(
-      applyOpenClawManifestInstallCommonFields(
+      applyAlienManifestInstallCommonFields(
         { id: "keep", label: "Keep", bins: ["bun"] },
         parsed!,
       ),
@@ -180,7 +180,7 @@ describe("shared/frontmatter", () => {
 
   it("maps install entries through the parser and filters rejected specs", () => {
     expect(
-      resolveOpenClawManifestInstall(
+      resolveAlienManifestInstall(
         {
           install: [{ id: "keep" }, { id: "drop" }, "bad"],
         },

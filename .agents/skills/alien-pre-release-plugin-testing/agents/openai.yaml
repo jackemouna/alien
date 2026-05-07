@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alien Plugin Pre-Release Testing"
+  short_description: "Plan plugin release validation"
+  default_prompt: "Use $alien-pre-release-plugin-testing to plan or run pre-release Alien plugin validation across package, lifecycle, doctor, gateway, SDK, and live-ish proof."

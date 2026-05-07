@@ -1,8 +1,8 @@
 import {
   getRequiredHookHandler,
   registerHookHandlersForTest,
-} from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
+} from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienPluginApi } from "alien/plugin-sdk/core";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type ThreadBindingRecord = {
@@ -83,7 +83,7 @@ function registerHandlersForTest(
     },
   },
 ) {
-  return registerHookHandlersForTest<OpenClawPluginApi>({
+  return registerHookHandlersForTest<AlienPluginApi>({
     config,
     register: registerDiscordSubagentHooks,
   });

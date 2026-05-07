@@ -5,10 +5,10 @@ import {
   AUTH_PROFILE_RUNTIME_CONTRACT,
   createAuthAliasManifestRegistry,
   expectedForwardedAuthProfile,
-} from "openclaw/plugin-sdk/agent-runtime-test-contracts";
+} from "alien/plugin-sdk/agent-runtime-test-contracts";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionEntry } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type * as ManifestRegistryModule from "../plugins/manifest-registry.js";
 import { runAgentAttempt } from "./command/attempt-execution.js";
 import type { EmbeddedPiRunResult } from "./pi-embedded.js";
@@ -130,10 +130,10 @@ async function runAuthContractAttempt(params: {
   providerOverride: string;
   authProfileProvider: string;
   authProfileOverride: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   sessionHasHistory?: boolean;
 }) {
-  const cfg = params.cfg ?? ({} as OpenClawConfig);
+  const cfg = params.cfg ?? ({} as AlienConfig);
   const sessionEntry: SessionEntry = {
     sessionId: AUTH_PROFILE_RUNTIME_CONTRACT.sessionId,
     updatedAt: Date.now(),
@@ -188,7 +188,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
   let storePath: string;
 
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-contract-"));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-auth-contract-"));
     storePath = path.join(tmpDir, "sessions.json");
     loadPluginManifestRegistry.mockReset().mockReturnValue(createAuthAliasManifestRegistry());
     runCliAgentMock.mockReset();
@@ -220,7 +220,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
     (provider, expectedAuthProvider) => {
       expect(
         resolveProviderIdForAuth(provider, {
-          config: {} as OpenClawConfig,
+          config: {} as AlienConfig,
           workspaceDir: tmpDir,
         }),
       ).toBe(expectedAuthProvider);
@@ -306,7 +306,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
             agentRuntime: { id: "codex" },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(runCliAgentMock).toHaveBeenCalledTimes(1);
@@ -389,7 +389,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
             agentRuntime: { id: "codex" },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);
@@ -412,7 +412,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
             agentRuntime: { id: "codex" },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);
@@ -439,7 +439,7 @@ describe("Auth profile runtime contract - Pi and CLI adapter", () => {
             },
           ],
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
     });
 
     expect(runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);

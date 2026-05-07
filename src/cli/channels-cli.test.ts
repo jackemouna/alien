@@ -30,23 +30,23 @@ describe("registerChannelsCli", () => {
   });
 
   it("loads channel-specific add options only for channels add invocations", async () => {
-    process.argv = ["node", "openclaw", "channels"];
-    await registerChannelsCli(new Command().name("openclaw"));
+    process.argv = ["node", "alien", "channels"];
+    await registerChannelsCli(new Command().name("alien"));
 
     expect(listBundledPackageChannelMetadataMock).not.toHaveBeenCalled();
 
-    process.argv = ["node", "openclaw", "channels", "add", "--help"];
-    await registerChannelsCli(new Command().name("openclaw"));
+    process.argv = ["node", "alien", "channels", "add", "--help"];
+    await registerChannelsCli(new Command().name("alien"));
 
     expect(listBundledPackageChannelMetadataMock).toHaveBeenCalledTimes(1);
   });
 
   it("uses caller argv instead of raw process argv for channel-specific add options", async () => {
-    process.argv = ["node", "openclaw", "channels"];
+    process.argv = ["node", "alien", "channels"];
 
-    await registerChannelsCli(new Command().name("openclaw"), [
+    await registerChannelsCli(new Command().name("alien"), [
       "node",
-      "openclaw",
+      "alien",
       "channels",
       "add",
       "--help",
@@ -62,8 +62,8 @@ describe("registerChannelsCli", () => {
         cliAddOptions: [{ flags: "--homeserver <url>", description: "Matrix homeserver URL" }],
       },
     ]);
-    process.argv = ["node", "openclaw", "completion", "--write-state"];
-    const program = new Command().name("openclaw");
+    process.argv = ["node", "alien", "completion", "--write-state"];
+    const program = new Command().name("alien");
 
     await registerChannelsCli(program, process.argv, { includeSetupOptions: true });
 
@@ -81,7 +81,7 @@ describe("registerChannelsCli", () => {
     Object.defineProperty(process, "platform", { value: "win32", configurable: true });
     process.argv = [
       "C:\\Program Files\\nodejs\\node.exe",
-      "C:\\repo\\openclaw.js",
+      "C:\\repo\\alien.js",
       "C:\\Program Files\\nodejs\\node.exe",
       "channels",
       "add",
@@ -90,7 +90,7 @@ describe("registerChannelsCli", () => {
       "--homeserver",
       "https://matrix.example.org",
     ];
-    const program = new Command().name("openclaw");
+    const program = new Command().name("alien");
 
     await registerChannelsCli(program);
 

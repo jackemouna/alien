@@ -1,13 +1,13 @@
 import type {
   ChannelDoctorAdapter,
   ChannelDoctorConfigMutation,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export function normalizeCompatibilityConfig({
   cfg,
 }: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): ChannelDoctorConfigMutation {
   const legacyAckReaction = cfg.messages?.ackReaction?.trim();
   if (!legacyAckReaction || cfg.channels?.whatsapp === undefined) {

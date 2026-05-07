@@ -5,7 +5,7 @@ import {
   FsSafeError,
   resolveAbsolutePathForRead,
   root,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import { EXTENSION_MIME } from "../shared/mime.js";
 
 export const FILE_FETCH_HARD_MAX_BYTES = 16 * 1024 * 1024;

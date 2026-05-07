@@ -1,6 +1,6 @@
 import AVFoundation
 import Foundation
-import OpenClawKit
+import AlienKit
 import os
 
 actor CameraController {
@@ -37,7 +37,7 @@ actor CameraController {
         }
     }
 
-    func snap(params: OpenClawCameraSnapParams) async throws -> (
+    func snap(params: AlienCameraSnapParams) async throws -> (
         format: String,
         base64: String,
         width: Int,
@@ -87,7 +87,7 @@ actor CameraController {
             height: res.heightPx)
     }
 
-    func clip(params: OpenClawCameraClipParams) async throws -> (
+    func clip(params: AlienCameraClipParams) async throws -> (
         format: String,
         base64: String,
         durationMs: Int,
@@ -104,9 +104,9 @@ actor CameraController {
         }
 
         let movURL = FileManager().temporaryDirectory
-            .appendingPathComponent("openclaw-camera-\(UUID().uuidString).mov")
+            .appendingPathComponent("alien-camera-\(UUID().uuidString).mov")
         let mp4URL = FileManager().temporaryDirectory
-            .appendingPathComponent("openclaw-camera-\(UUID().uuidString).mp4")
+            .appendingPathComponent("alien-camera-\(UUID().uuidString).mp4")
         defer {
             try? FileManager().removeItem(at: movURL)
             try? FileManager().removeItem(at: mp4URL)
@@ -158,7 +158,7 @@ actor CameraController {
     }
 
     private nonisolated static func pickCamera(
-        facing: OpenClawCameraFacing,
+        facing: AlienCameraFacing,
         deviceId: String?) -> AVCaptureDevice?
     {
         if let deviceId, !deviceId.isEmpty {

@@ -11,7 +11,7 @@ Adds agent-callable tools.
 
 ## Distribution
 
-- Package: `@openclaw/memory-lancedb`
+- Package: `@alien/memory-lancedb`
 - Install route: npm; ClawHub
 
 ## Surface

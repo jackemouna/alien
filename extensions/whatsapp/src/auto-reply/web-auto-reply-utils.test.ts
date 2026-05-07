@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeMainKey } from "openclaw/plugin-sdk/routing";
-import { saveSessionStore } from "openclaw/plugin-sdk/session-store-runtime";
-import { withTempDir } from "openclaw/plugin-sdk/test-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeMainKey } from "alien/plugin-sdk/routing";
+import { saveSessionStore } from "alien/plugin-sdk/session-store-runtime";
+import { withTempDir } from "alien/plugin-sdk/test-env";
 import { describe, expect, it, vi } from "vitest";
 import type { WhatsAppSendResult } from "../inbound/send-result.js";
 import {
@@ -51,7 +51,7 @@ const makeMsg = (overrides: Partial<WebInboundMsg>): WebInboundMsg =>
   }) as WebInboundMsg;
 
 function getSessionSnapshotForTest(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   from: string,
   ctx?: {
     sessionKey?: string | null;
@@ -105,7 +105,7 @@ function getSessionSnapshotForTest(
 }
 
 describe("isBotMentionedFromTargets", () => {
-  const mentionCfg = { mentionRegexes: [/\bopenclaw\b/i] };
+  const mentionCfg = { mentionRegexes: [/\balien\b/i] };
 
   function expectMentioned(
     msg: WebInboundMsg,
@@ -118,7 +118,7 @@ describe("isBotMentionedFromTargets", () => {
 
   it("ignores regex matches when other mentions are present", () => {
     const msg = makeMsg({
-      body: "@OpenClaw please help",
+      body: "@Alien please help",
       mentionedJids: ["19998887777@s.whatsapp.net"],
       selfE164: "+15551234567",
       selfJid: "15551234567@s.whatsapp.net",
@@ -138,7 +138,7 @@ describe("isBotMentionedFromTargets", () => {
 
   it("falls back to regex when no mentions are present", () => {
     const msg = makeMsg({
-      body: "openclaw can you help?",
+      body: "alien can you help?",
       selfE164: "+15551234567",
       selfJid: "15551234567@s.whatsapp.net",
     });
@@ -146,7 +146,7 @@ describe("isBotMentionedFromTargets", () => {
   });
 
   it("ignores JID mentions in a true 1:1 self-chat (not a group)", () => {
-    const cfg = { mentionRegexes: [/\bopenclaw\b/i], allowFrom: ["+999"] };
+    const cfg = { mentionRegexes: [/\balien\b/i], allowFrom: ["+999"] };
     const msg = makeMsg({
       // Direct chat with self, not a group — the original "ignore mentions
       // in self-chat" suppression still applies here so that mentioning the
@@ -165,7 +165,7 @@ describe("isBotMentionedFromTargets", () => {
       from: "999@s.whatsapp.net",
       conversationId: "999@s.whatsapp.net",
       chatType: "direct",
-      body: "openclaw ping",
+      body: "alien ping",
       selfE164: "+999",
       selfJid: "999@s.whatsapp.net",
     });
@@ -179,7 +179,7 @@ describe("isBotMentionedFromTargets", () => {
     // including LID-style WhatsApp mentions that resolve to the bot's own
     // E.164. After the fix, group conversations honor the identity-overlap
     // check regardless of allowFrom.
-    const cfg = { mentionRegexes: [/\bopenclaw\b/i], allowFrom: ["+15551234567"] };
+    const cfg = { mentionRegexes: [/\balien\b/i], allowFrom: ["+15551234567"] };
     const msg = makeMsg({
       // Default `from` is the @g.us group JID from `makeMsg`.
       body: "@216372600647751 can you see this?",
@@ -193,7 +193,7 @@ describe("isBotMentionedFromTargets", () => {
 
   it("honors explicit self-chat overrides without recomputing from allowFrom", () => {
     const cfg = {
-      mentionRegexes: [/\bopenclaw\b/i],
+      mentionRegexes: [/\balien\b/i],
       allowFrom: ["+15551230000"],
       isSelfChat: true,
     };
@@ -218,7 +218,7 @@ describe("isBotMentionedFromTargets", () => {
 
 describe("resolveMentionTargets with @lid mapping", () => {
   it("uses @lid reverse mapping for mentions and self identity", async () => {
-    await withTempDir("openclaw-lid-mapping-", async (authDir) => {
+    await withTempDir("alien-lid-mapping-", async (authDir) => {
       await fs.writeFile(
         path.join(authDir, "lid-mapping-777_reverse.json"),
         JSON.stringify("+1777"),
@@ -259,7 +259,7 @@ describe("getSessionSnapshot", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
     try {
-      await withTempDir("openclaw-snapshot-", async (root) => {
+      await withTempDir("alien-snapshot-", async (root) => {
         const storePath = path.join(root, "sessions.json");
         const sessionKey = "agent:main:whatsapp:dm:s1";
 
@@ -279,7 +279,7 @@ describe("getSessionSnapshot", () => {
               whatsapp: { mode: "idle", idleMinutes: 360 },
             },
           },
-        } as OpenClawConfig;
+        } as AlienConfig;
 
         const snapshot = getSessionSnapshotForTest(cfg, "whatsapp:+15550001111", {
           sessionKey,
@@ -301,13 +301,13 @@ describe("web auto-reply util", () => {
     it("returns normalized debug fields and mention outcome", () => {
       const msg = makeMsg({
         from: "777@lid",
-        body: "openclaw ping",
+        body: "alien ping",
         selfE164: "+15551234567",
         selfJid: "15551234567@s.whatsapp.net",
       });
-      const result = debugMention(msg, { mentionRegexes: [/\bopenclaw\b/i] });
+      const result = debugMention(msg, { mentionRegexes: [/\balien\b/i] });
       expect(result.wasMentioned).toBe(true);
-      expect(result.details.bodyClean).toBe("openclaw ping");
+      expect(result.details.bodyClean).toBe("alien ping");
       expect(result.details.normalizedMentionedJids).toBeNull();
     });
 

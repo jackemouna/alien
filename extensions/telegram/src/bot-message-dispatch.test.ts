@@ -64,7 +64,7 @@ const resolveDefaultModelForAgent = vi.hoisted(() =>
   vi.fn(() => ({ provider: "openai", model: "gpt-test" })),
 );
 const getAgentScopedMediaLocalRoots = vi.hoisted(() =>
-  vi.fn((_cfg: unknown, agentId: string) => [`/tmp/.openclaw/workspace-${agentId}`]),
+  vi.fn((_cfg: unknown, agentId: string) => [`/tmp/.alien/workspace-${agentId}`]),
 );
 const resolveChunkMode = vi.hoisted(() => vi.fn(() => undefined));
 const resolveMarkdownTableMode = vi.hoisted(() => vi.fn(() => "preserve"));
@@ -78,8 +78,8 @@ vi.mock("./draft-stream.js", () => ({
   createTelegramDraftStream,
 }));
 
-vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+vi.mock("alien/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("alien/plugin-sdk/channel-message")>();
   return {
     ...actual,
     deliverInboundReplyWithMessageSendContext,
@@ -301,7 +301,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       removeAckAfterReply: false,
     } as unknown as TelegramMessageContext;
     base.turn = {
-      storePath: "/tmp/openclaw/telegram-sessions.json",
+      storePath: "/tmp/alien/telegram-sessions.json",
       recordInboundSession: vi.fn(async () => undefined),
       record: {
         onRecordError: vi.fn(),
@@ -440,7 +440,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       expect.objectContaining({
         thread: { id: 777, scope: "dm" },
         mediaLocalRoots: expect.arrayContaining([
-          expect.stringMatching(/[\\/]\.openclaw[\\/]workspace-work$/u),
+          expect.stringMatching(/[\\/]\.alien[\\/]workspace-work$/u),
         ]),
       }),
     );

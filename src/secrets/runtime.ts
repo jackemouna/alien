@@ -16,7 +16,7 @@ import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshotRefreshHandler,
   setRuntimeConfigSnapshot,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "../config/config.js";
 import { coerceSecretRef } from "../config/types.secrets.js";
 import type { PluginOrigin } from "../plugins/plugin-origin.types.js";
@@ -32,8 +32,8 @@ import type { RuntimeWebToolsMetadata } from "./runtime-web-tools.js";
 export type { SecretResolverWarning } from "./runtime-shared.js";
 
 export type PreparedSecretsRuntimeSnapshot = {
-  sourceConfig: OpenClawConfig;
-  config: OpenClawConfig;
+  sourceConfig: AlienConfig;
+  config: AlienConfig;
   authStores: Array<{ agentDir: string; store: AuthProfileStore }>;
   warnings: SecretResolverWarning[];
   webTools: RuntimeWebToolsMetadata;
@@ -51,12 +51,12 @@ const RUNTIME_PATH_ENV_KEYS = [
   "USERPROFILE",
   "HOMEDRIVE",
   "HOMEPATH",
-  "OPENCLAW_HOME",
-  "OPENCLAW_STATE_DIR",
-  "OPENCLAW_CONFIG_PATH",
-  "OPENCLAW_AGENT_DIR",
+  "ALIEN_HOME",
+  "ALIEN_STATE_DIR",
+  "ALIEN_CONFIG_PATH",
+  "ALIEN_AGENT_DIR",
   "PI_CODING_AGENT_DIR",
-  "OPENCLAW_TEST_FAST",
+  "ALIEN_TEST_FAST",
 ] as const;
 
 let activeSnapshot: PreparedSecretsRuntimeSnapshot | null = null;
@@ -110,7 +110,7 @@ function clearActiveSecretsRuntimeState(): void {
 }
 
 function collectCandidateAgentDirs(
-  config: OpenClawConfig,
+  config: AlienConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const dirs = new Set<string>();
@@ -122,7 +122,7 @@ function collectCandidateAgentDirs(
 }
 
 function resolveRefreshAgentDirs(
-  config: OpenClawConfig,
+  config: AlienConfig,
   context: SecretsRuntimeRefreshContext,
 ): string[] {
   const configDerived = collectCandidateAgentDirs(config, context.env);
@@ -133,7 +133,7 @@ function resolveRefreshAgentDirs(
 }
 
 async function resolveLoadablePluginOrigins(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<ReadonlyMap<string, PluginOrigin>> {
   const workspaceDir = resolveAgentWorkspaceDir(
@@ -166,7 +166,7 @@ function mergeSecretsRuntimeEnv(
   return merged;
 }
 
-function hasConfiguredPluginEntries(config: OpenClawConfig): boolean {
+function hasConfiguredPluginEntries(config: AlienConfig): boolean {
   const entries = config.plugins?.entries;
   return (
     !!entries &&
@@ -176,7 +176,7 @@ function hasConfiguredPluginEntries(config: OpenClawConfig): boolean {
   );
 }
 
-function hasConfiguredChannelEntries(config: OpenClawConfig): boolean {
+function hasConfiguredChannelEntries(config: AlienConfig): boolean {
   const channels = config.channels;
   return (
     !!channels &&
@@ -246,7 +246,7 @@ function hasActiveRuntimeWebFetchProviderSurface(
   return hasCredentialBearingWebFetchValue(fetchConfig, defaults);
 }
 
-function hasRuntimeWebToolConfigSurface(config: OpenClawConfig): boolean {
+function hasRuntimeWebToolConfigSurface(config: AlienConfig): boolean {
   const web = config.tools?.web;
   const defaults = config.secrets?.defaults;
   const fetchExplicitlyDisabled =
@@ -309,7 +309,7 @@ function hasSecretRefCandidate(
 }
 
 function canUseSecretsRuntimeFastPath(params: {
-  sourceConfig: OpenClawConfig;
+  sourceConfig: AlienConfig;
   authStores: Array<{ agentDir: string; store: AuthProfileStore }>;
 }): boolean {
   if (hasRuntimeWebToolConfigSurface(params.sourceConfig)) {
@@ -323,7 +323,7 @@ function canUseSecretsRuntimeFastPath(params: {
 }
 
 export async function prepareSecretsRuntimeSnapshot(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   env?: NodeJS.ProcessEnv;
   agentDirs?: string[];
   includeAuthStoreRefs?: boolean;

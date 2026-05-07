@@ -2,19 +2,19 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
+import { loadOutboundMediaFromUrl } from "alien/plugin-sdk/outbound-media";
 import {
   privateFileStoreSync,
   readRegularFileSync,
   statRegularFileSync,
   withTimeout,
-} from "openclaw/plugin-sdk/security-runtime";
-import { resolveStateDir as resolvePluginStateDir } from "openclaw/plugin-sdk/state-paths";
+} from "alien/plugin-sdk/security-runtime";
+import { resolveStateDir as resolvePluginStateDir } from "alien/plugin-sdk/state-paths";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { normalizeZaloReactionIcon } from "./reaction.js";
 import { createZalouserSendReceipt } from "./send-receipt.js";
 import type {

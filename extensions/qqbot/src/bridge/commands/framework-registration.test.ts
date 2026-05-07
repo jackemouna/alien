@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import type {
-  OpenClawPluginApi,
-  OpenClawPluginCommandDefinition,
+  AlienPluginApi,
+  AlienPluginCommandDefinition,
   PluginCommandContext,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/plugin-entry";
 import { describe, expect, it } from "vitest";
 import {
   getWrittenQQBotConfig,
@@ -12,7 +12,7 @@ import {
 import { ensurePlatformAdapter } from "../bootstrap.js";
 import { registerQQBotFrameworkCommands } from "./framework-registration.js";
 
-function createConfig(): OpenClawConfig {
+function createConfig(): AlienConfig {
   return {
     channels: {
       qqbot: {
@@ -30,31 +30,31 @@ function createConfig(): OpenClawConfig {
   };
 }
 
-function registerCommands(): OpenClawPluginCommandDefinition[] {
+function registerCommands(): AlienPluginCommandDefinition[] {
   ensurePlatformAdapter();
-  const commands: OpenClawPluginCommandDefinition[] = [];
+  const commands: AlienPluginCommandDefinition[] = [];
   const api = {
     logger: {},
-    registerCommand: (command: OpenClawPluginCommandDefinition) => {
+    registerCommand: (command: AlienPluginCommandDefinition) => {
       commands.push(command);
     },
-  } as unknown as OpenClawPluginApi;
+  } as unknown as AlienPluginApi;
 
   registerQQBotFrameworkCommands(api);
   return commands;
 }
 
 function findCommand(
-  commands: OpenClawPluginCommandDefinition[],
+  commands: AlienPluginCommandDefinition[],
   name: string,
-): OpenClawPluginCommandDefinition {
+): AlienPluginCommandDefinition {
   const command = commands.find((entry) => entry.name === name);
   expect(command).toBeDefined();
-  return command as OpenClawPluginCommandDefinition;
+  return command as AlienPluginCommandDefinition;
 }
 
 function createCommandContext(
-  config: OpenClawConfig,
+  config: AlienConfig,
   from: string | undefined,
 ): PluginCommandContext {
   return {
@@ -81,7 +81,7 @@ describe("registerQQBotFrameworkCommands", () => {
 
   it("preserves the private-chat guard for bot-streaming on generic framework calls", async () => {
     const config = createConfig();
-    const writes: OpenClawConfig[] = [];
+    const writes: AlienConfig[] = [];
     installCommandRuntime(config, writes);
     const command = findCommand(registerCommands(), "bot-streaming");
 
@@ -99,7 +99,7 @@ describe("registerQQBotFrameworkCommands", () => {
 
   it("allows bot-streaming on explicit QQBot private-chat framework calls", async () => {
     const config = createConfig();
-    const writes: OpenClawConfig[] = [];
+    const writes: AlienConfig[] = [];
     installCommandRuntime(config, writes);
     const command = findCommand(registerCommands(), "bot-streaming");
 

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { FinalizedMsgContext } from "../templating.js";
 
 export type FastAbortResult = {
@@ -9,7 +9,7 @@ export type FastAbortResult = {
 
 export type TryFastAbortFromMessage = (params: {
   ctx: FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }) => Promise<FastAbortResult>;
 
 export type FormatAbortReplyText = (stoppedSubagents?: number) => string;

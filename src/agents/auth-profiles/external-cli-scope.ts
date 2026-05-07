@@ -3,7 +3,7 @@ import {
   resolveAgentModelPrimaryValue,
 } from "../../config/model-input.js";
 import type { AgentModelConfig } from "../../config/types.agents-shared.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { normalizeProviderId } from "../provider-id.js";
 
 export type ExternalCliAuthScope = {
@@ -59,7 +59,7 @@ function addExternalCliRuntimeScope(out: Set<string>, value: string | undefined)
 }
 
 export function resolveExternalCliAuthScopeFromConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): ExternalCliAuthScope | undefined {
   const providerIds = new Set<string>();
   const profileIds = new Set<string>();

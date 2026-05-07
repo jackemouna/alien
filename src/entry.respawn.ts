@@ -9,8 +9,8 @@ import { isTruthyEnvValue } from "./infra/env.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
 export const EXPERIMENTAL_WARNING_FLAG = "--disable-warning=ExperimentalWarning";
-export const OPENCLAW_NODE_OPTIONS_READY = "OPENCLAW_NODE_OPTIONS_READY";
-export const OPENCLAW_NODE_EXTRA_CA_CERTS_READY = "OPENCLAW_NODE_EXTRA_CA_CERTS_READY";
+export const ALIEN_NODE_OPTIONS_READY = "ALIEN_NODE_OPTIONS_READY";
+export const ALIEN_NODE_EXTRA_CA_CERTS_READY = "ALIEN_NODE_EXTRA_CA_CERTS_READY";
 const CLI_RESPAWN_SIGNAL_EXIT_GRACE_MS = 1_000;
 const CLI_RESPAWN_SIGNAL_FORCE_KILL_GRACE_MS = 1_000;
 
@@ -76,7 +76,7 @@ export function buildCliRespawnPlan(
 
   if (
     shouldSkipStartupEnvironmentRespawnForArgv(argv) ||
-    isTruthyEnvValue(env.OPENCLAW_NO_RESPAWN)
+    isTruthyEnvValue(env.ALIEN_NO_RESPAWN)
   ) {
     return null;
   }
@@ -98,20 +98,20 @@ export function buildCliRespawnPlan(
     }).NODE_EXTRA_CA_CERTS;
   if (
     autoNodeExtraCaCerts &&
-    !isTruthyEnvValue(env[OPENCLAW_NODE_EXTRA_CA_CERTS_READY]) &&
+    !isTruthyEnvValue(env[ALIEN_NODE_EXTRA_CA_CERTS_READY]) &&
     !env.NODE_EXTRA_CA_CERTS
   ) {
     childEnv.NODE_EXTRA_CA_CERTS = autoNodeExtraCaCerts;
-    childEnv[OPENCLAW_NODE_EXTRA_CA_CERTS_READY] = "1";
+    childEnv[ALIEN_NODE_EXTRA_CA_CERTS_READY] = "1";
     needsRespawn = true;
   }
 
   if (
     !shouldSkipRespawnForArgv(argv) &&
-    !isTruthyEnvValue(env[OPENCLAW_NODE_OPTIONS_READY]) &&
+    !isTruthyEnvValue(env[ALIEN_NODE_OPTIONS_READY]) &&
     !hasExperimentalWarningSuppressed({ env, execArgv })
   ) {
-    childEnv[OPENCLAW_NODE_OPTIONS_READY] = "1";
+    childEnv[ALIEN_NODE_OPTIONS_READY] = "1";
     childExecArgv.unshift(EXPERIMENTAL_WARNING_FLAG);
     needsRespawn = true;
   }
@@ -197,7 +197,7 @@ export function runCliRespawnPlan(
   child.once("error", (error) => {
     clearSignalTimers();
     runtime.writeError(
-      "[openclaw] Failed to respawn CLI:",
+      "[alien] Failed to respawn CLI:",
       error instanceof Error ? (error.stack ?? error.message) : error,
     );
     runtime.exit(1);

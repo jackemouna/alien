@@ -1,9 +1,9 @@
 import type {
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "openclaw/plugin-sdk/plugin-entry";
-import { cloneFirstTemplateModel } from "openclaw/plugin-sdk/provider-model-shared";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/plugin-entry";
+import { cloneFirstTemplateModel } from "alien/plugin-sdk/provider-model-shared";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 
 const GOOGLE_GEMINI_CLI_PROVIDER_ID = "google-gemini-cli";
 const GOOGLE_ANTIGRAVITY_PROVIDER_ID = "google-antigravity";

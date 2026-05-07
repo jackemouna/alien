@@ -1,5 +1,5 @@
 import { normalizeChatType } from "../channels/chat-type.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   deriveInboundMessageHookContext,
   toPluginMessageContext,
@@ -28,7 +28,7 @@ import type { GetReplyOptions, ReplyPayload } from "./types.js";
 
 function resolveDispatcherSilentReplyContext(
   ctx: MsgContext | FinalizedMsgContext,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ) {
   const finalized = finalizeInboundContext(ctx);
   const policySessionKey =
@@ -156,7 +156,7 @@ function finalizeDispatchResult(
 
 export async function dispatchInboundMessage(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   dispatcher: ReplyDispatcher;
   replyOptions?: Omit<GetReplyOptions, "onBlockReply">;
   replyResolver?: GetReplyFromConfig;
@@ -195,7 +195,7 @@ export async function dispatchInboundMessage(params: {
 
 export async function dispatchInboundMessageWithBufferedDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   dispatcherOptions: ReplyDispatcherWithTypingOptions;
   replyOptions?: Omit<GetReplyOptions, "onBlockReply">;
   replyResolver?: GetReplyFromConfig;
@@ -228,7 +228,7 @@ export async function dispatchInboundMessageWithBufferedDispatcher(params: {
 
 export async function dispatchInboundMessageWithDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   dispatcherOptions: ReplyDispatcherOptions;
   replyOptions?: Omit<GetReplyOptions, "onBlockReply">;
   replyResolver?: GetReplyFromConfig;

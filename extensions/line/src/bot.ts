@@ -1,12 +1,12 @@
 import type { webhook } from "@line/bot-sdk";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "openclaw/plugin-sdk/reply-history";
-import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "alien/plugin-sdk/reply-history";
+import { getRuntimeConfig } from "alien/plugin-sdk/runtime-config-snapshot";
 import {
   createNonExitingRuntime,
   logVerbose,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/runtime-env";
 import { resolveLineAccount } from "./accounts.js";
 import { createLineWebhookReplayCache, handleLineWebhookEvents } from "./bot-handlers.js";
 import type { LineInboundContext } from "./bot-message-context.js";
@@ -17,7 +17,7 @@ interface LineBotOptions {
   channelSecret: string;
   accountId?: string;
   runtime?: RuntimeEnv;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   mediaMaxMb?: number;
   onMessage?: (ctx: LineInboundContext) => Promise<void>;
 }

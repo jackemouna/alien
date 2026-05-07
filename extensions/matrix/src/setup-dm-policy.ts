@@ -1,5 +1,5 @@
-import type { DmPolicy } from "openclaw/plugin-sdk/config-types";
-import { addWildcardAllowFrom, normalizeAllowFromEntries } from "openclaw/plugin-sdk/setup";
+import type { DmPolicy } from "alien/plugin-sdk/config-types";
+import { addWildcardAllowFrom, normalizeAllowFromEntries } from "alien/plugin-sdk/setup";
 import type { MatrixConfig } from "./types.js";
 
 type MatrixDmAllowFrom = NonNullable<MatrixConfig["dm"]>["allowFrom"];

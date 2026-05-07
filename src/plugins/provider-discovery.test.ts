@@ -21,13 +21,13 @@ afterEach(() => {
 });
 
 function makeTempDir() {
-  return makeTrackedTempDir("openclaw-provider-discovery", tempDirs);
+  return makeTrackedTempDir("alien-provider-discovery", tempDirs);
 }
 
 function hermeticEnv(overrides: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
   return {
-    OPENCLAW_BUNDLED_PLUGINS_DIR: undefined,
-    OPENCLAW_VERSION: "2026.4.25",
+    ALIEN_BUNDLED_PLUGINS_DIR: undefined,
+    ALIEN_VERSION: "2026.4.25",
     VITEST: "true",
     ...overrides,
   };
@@ -44,7 +44,7 @@ function createProviderContributionCandidate(params: {
     "utf-8",
   );
   fs.writeFileSync(
-    path.join(rootDir, "openclaw.plugin.json"),
+    path.join(rootDir, "alien.plugin.json"),
     JSON.stringify({
       id: params.pluginId ?? "demo",
       configSchema: { type: "object" },

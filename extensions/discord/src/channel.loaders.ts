@@ -1,4 +1,4 @@
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
 
 let discordProviderRuntimePromise:
   | Promise<typeof import("./monitor/provider.runtime.js")>

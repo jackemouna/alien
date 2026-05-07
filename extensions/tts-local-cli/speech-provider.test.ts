@@ -1,24 +1,24 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { SpeechProviderConfig, SpeechSynthesisRequest } from "openclaw/plugin-sdk/speech-core";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { SpeechProviderConfig, SpeechSynthesisRequest } from "alien/plugin-sdk/speech-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type SpeechSynthesisTarget = SpeechSynthesisRequest["target"];
 
 const runFfmpegMock = vi.hoisted(() => vi.fn<(args: string[]) => Promise<string | void>>());
 
-vi.mock("openclaw/plugin-sdk/media-runtime", () => ({
+vi.mock("alien/plugin-sdk/media-runtime", () => ({
   runFfmpeg: runFfmpegMock,
 }));
 
 import { buildCliSpeechProvider } from "./speech-provider.js";
 
-const TEST_CFG = {} as OpenClawConfig;
+const TEST_CFG = {} as AlienConfig;
 
 function createCliFixture(): { dir: string; script: string } {
-  const dir = mkdtempSync(path.join(os.tmpdir(), "openclaw-cli-tts-test-"));
+  const dir = mkdtempSync(path.join(os.tmpdir(), "alien-cli-tts-test-"));
   const script = path.join(dir, "write-audio.mjs");
   writeFileSync(
     script,
@@ -232,12 +232,12 @@ describe("buildCliSpeechProvider", () => {
   });
 
   it("can synthesize through a real local CLI fixture and ffmpeg", async () => {
-    if (process.env.OPENCLAW_LIVE_TEST !== "1") {
+    if (process.env.ALIEN_LIVE_TEST !== "1") {
       return;
     }
     const fixture = createCliFixture();
-    const rawFfmpeg = await vi.importActual<typeof import("openclaw/plugin-sdk/media-runtime")>(
-      "openclaw/plugin-sdk/media-runtime",
+    const rawFfmpeg = await vi.importActual<typeof import("alien/plugin-sdk/media-runtime")>(
+      "alien/plugin-sdk/media-runtime",
     );
     runFfmpegMock.mockImplementation(async (args) => {
       await rawFfmpeg.runFfmpeg(args);

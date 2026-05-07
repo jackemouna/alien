@@ -1,6 +1,6 @@
 import { streamSimple } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../../config/config.js";
+import type { AlienConfig } from "../../../config/config.js";
 import { SYSTEM_PROMPT_CACHE_BOUNDARY } from "../../system-prompt-cache-boundary.js";
 import { buildAgentSystemPrompt } from "../../system-prompt.js";
 import { resolveBootstrapContextTargets } from "./attempt-bootstrap-routing.js";
@@ -109,7 +109,7 @@ describe("normalizeMessagesForLlmBoundary", () => {
     const input = [
       {
         role: "custom",
-        customType: "openclaw.runtime-context",
+        customType: "alien.runtime-context",
         content: "old secret runtime context",
         display: false,
         timestamp: 0,
@@ -121,7 +121,7 @@ describe("normalizeMessagesForLlmBoundary", () => {
       },
       {
         role: "custom",
-        customType: "openclaw.runtime-context",
+        customType: "alien.runtime-context",
         content: "secret runtime context",
         display: false,
         timestamp: 2,
@@ -162,7 +162,7 @@ describe("normalizeMessagesForLlmBoundary", () => {
           },
         ],
         timestamp: 1,
-        __openclaw: {
+        __alien: {
           beforeAgentRunBlocked: {
             blockedBy: "policy-plugin",
             blockedAt: 1,
@@ -181,11 +181,11 @@ describe("normalizeMessagesForLlmBoundary", () => {
         text: "Your message could not be sent: The agent cannot read this message. (blocked by policy-plugin)",
       },
     ]);
-    expect(output[0]).toHaveProperty("__openclaw.beforeAgentRunBlocked");
-    expect(output[0]).not.toHaveProperty("__openclaw.beforeAgentRunBlocked.reason");
+    expect(output[0]).toHaveProperty("__alien.beforeAgentRunBlocked");
+    expect(output[0]).not.toHaveProperty("__alien.beforeAgentRunBlocked.reason");
     expect(JSON.stringify(output)).not.toContain("secret prompt");
     expect(JSON.stringify(output)).not.toContain("matched secret prompt");
-    expect(input[0]).toHaveProperty("__openclaw");
+    expect(input[0]).toHaveProperty("__alien");
   });
 });
 
@@ -373,7 +373,7 @@ describe("composeSystemPromptWithHookContext", () => {
 
   it("keeps bootstrap truncation notices in the system prompt instead of the user prompt", () => {
     const baseSystemPrompt = buildAgentSystemPrompt({
-      workspaceDir: "/tmp/openclaw",
+      workspaceDir: "/tmp/alien",
       contextFiles: [{ path: "AGENTS.md", content: "Follow AGENTS guidance." }],
       toolNames: ["read"],
       bootstrapTruncationNotice:
@@ -756,7 +756,7 @@ describe("resolveEmbeddedAgentStreamFn", () => {
 
 describe("resolveAttemptFsWorkspaceOnly", () => {
   it("uses global tools.fs.workspaceOnly when agent has no override", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       tools: {
         fs: { workspaceOnly: true },
       },
@@ -771,7 +771,7 @@ describe("resolveAttemptFsWorkspaceOnly", () => {
   });
 
   it("prefers agent-specific tools.fs.workspaceOnly override", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       tools: {
         fs: { workspaceOnly: true },
       },
@@ -2110,7 +2110,7 @@ describe("wrapStreamFnSanitizeMalformedToolCalls", () => {
         content: [
           {
             type: "text",
-            text: "[openclaw] missing tool result in session history; inserted synthetic error result for transcript repair.",
+            text: "[alien] missing tool result in session history; inserted synthetic error result for transcript repair.",
           },
         ],
         isError: true,
@@ -3219,7 +3219,7 @@ describe("buildAfterTurnRuntimeContext", () => {
         messageProvider: "slack",
         agentAccountId: "acct-1",
         authProfileId: "openai:p1",
-        config: {} as OpenClawConfig,
+        config: {} as AlienConfig,
         skillsSnapshot: undefined,
         senderIsOwner: true,
         provider: "openai-codex",
@@ -3255,7 +3255,7 @@ describe("buildAfterTurnRuntimeContext", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         skillsSnapshot: undefined,
         senderIsOwner: true,
         provider: "openai-codex",
@@ -3296,7 +3296,7 @@ describe("buildAfterTurnRuntimeContext", () => {
         messageProvider: "slack",
         agentAccountId: "acct-1",
         authProfileId: "openai:p1",
-        config: { plugins: { slots: { contextEngine: "lossless-claw" } } } as OpenClawConfig,
+        config: { plugins: { slots: { contextEngine: "lossless-claw" } } } as AlienConfig,
         skillsSnapshot: undefined,
         senderIsOwner: true,
         provider: "openai-codex",
@@ -3345,7 +3345,7 @@ describe("buildAfterTurnRuntimeContext", () => {
         messageProvider: "slack",
         agentAccountId: "acct-1",
         authProfileId: "openai:p1",
-        config: { plugins: { slots: { contextEngine: "lossless-claw" } } } as OpenClawConfig,
+        config: { plugins: { slots: { contextEngine: "lossless-claw" } } } as AlienConfig,
         skillsSnapshot: undefined,
         senderIsOwner: true,
         provider: "openai-codex",
@@ -3383,7 +3383,7 @@ describe("buildAfterTurnRuntimeContext", () => {
         currentThreadTs: "thread-9",
         currentMessageId: "msg-42",
         authProfileId: "openai:p1",
-        config: {} as OpenClawConfig,
+        config: {} as AlienConfig,
         skillsSnapshot: undefined,
         senderIsOwner: true,
         senderId: "user-123",

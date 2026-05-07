@@ -284,7 +284,7 @@ describe("configured plugin install release step", () => {
   it("does not stamp config during update-time deferred install repair", async () => {
     mocks.repairMissingPluginInstallsForIds.mockResolvedValue({
       changes: [
-        'Skipped package-manager repair for configured plugin "codex" during package update; rerun "openclaw doctor --fix" after the update completes.',
+        'Skipped package-manager repair for configured plugin "codex" during package update; rerun "alien doctor --fix" after the update completes.',
       ],
       warnings: [],
     });
@@ -302,18 +302,18 @@ describe("configured plugin install release step", () => {
       },
       currentVersion: "2026.5.2-beta.1",
       touchedVersion: "2026.5.1",
-      env: { OPENCLAW_UPDATE_IN_PROGRESS: "1" },
+      env: { ALIEN_UPDATE_IN_PROGRESS: "1" },
     });
 
     expect(mocks.repairMissingPluginInstallsForIds).toHaveBeenCalledWith(
       expect.objectContaining({
         pluginIds: ["codex"],
-        env: { OPENCLAW_UPDATE_IN_PROGRESS: "1" },
+        env: { ALIEN_UPDATE_IN_PROGRESS: "1" },
       }),
     );
     expect(result).toEqual({
       changes: [
-        'Skipped package-manager repair for configured plugin "codex" during package update; rerun "openclaw doctor --fix" after the update completes.',
+        'Skipped package-manager repair for configured plugin "codex" during package update; rerun "alien doctor --fix" after the update completes.',
       ],
       warnings: [],
       completed: false,
@@ -386,7 +386,7 @@ describe("configured plugin install release step", () => {
   it("includes allow-only official plugin ids in the repair set", async () => {
     mocks.getOfficialExternalPluginCatalogEntry.mockImplementation((pluginId: string) => {
       if (pluginId === "lobster") {
-        return { name: "@openclaw/lobster" };
+        return { name: "@alien/lobster" };
       }
       return undefined;
     });
@@ -409,7 +409,7 @@ describe("configured plugin install release step", () => {
   it("skips allow-only plugin ids that already have material plugin entries", async () => {
     mocks.getOfficialExternalPluginCatalogEntry.mockImplementation((pluginId: string) => {
       if (pluginId === "lobster") {
-        return { name: "@openclaw/lobster" };
+        return { name: "@alien/lobster" };
       }
       return undefined;
     });

@@ -17,7 +17,7 @@ describe("status.scan.config-shared", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.resolveConfigPath.mockReturnValue(
-      `/tmp/openclaw-status-scan-config-shared-missing-${process.pid}.json`,
+      `/tmp/alien-status-scan-config-shared-missing-${process.pid}.json`,
     );
   });
 
@@ -100,18 +100,18 @@ describe("status.scan.config-shared", () => {
       commandName: "status --json",
       readBestEffortConfig,
       resolveConfig,
-      env: { VITEST: "true", OPENCLAW_GATEWAY_TOKEN: "env-token" },
+      env: { VITEST: "true", ALIEN_GATEWAY_TOKEN: "env-token" },
       allowMissingConfigFastPath: true,
     });
 
     expect(result.secretDiagnostics).toEqual([
-      expect.stringContaining("OPENCLAW_GATEWAY_TOKEN overrides gateway.auth.token"),
+      expect.stringContaining("ALIEN_GATEWAY_TOKEN overrides gateway.auth.token"),
     ]);
   });
 
-  it("does not add a status diagnostic when config uses OPENCLAW_GATEWAY_TOKEN", async () => {
+  it("does not add a status diagnostic when config uses ALIEN_GATEWAY_TOKEN", async () => {
     const sourceConfig = {
-      gateway: { auth: { token: "${OPENCLAW_GATEWAY_TOKEN}" } },
+      gateway: { auth: { token: "${ALIEN_GATEWAY_TOKEN}" } },
       secrets: { providers: { default: { source: "env" as const } } },
     };
     const readBestEffortConfig = vi.fn(async () => sourceConfig);
@@ -124,7 +124,7 @@ describe("status.scan.config-shared", () => {
       commandName: "status --json",
       readBestEffortConfig,
       resolveConfig,
-      env: { VITEST: "true", OPENCLAW_GATEWAY_TOKEN: "env-token" },
+      env: { VITEST: "true", ALIEN_GATEWAY_TOKEN: "env-token" },
       allowMissingConfigFastPath: true,
     });
 
@@ -149,7 +149,7 @@ describe("status.scan.config-shared", () => {
       commandName: "status --json",
       readBestEffortConfig,
       resolveConfig,
-      env: { VITEST: "true", OPENCLAW_GATEWAY_TOKEN: "env-token" },
+      env: { VITEST: "true", ALIEN_GATEWAY_TOKEN: "env-token" },
       allowMissingConfigFastPath: true,
     });
 

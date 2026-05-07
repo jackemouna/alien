@@ -1,11 +1,11 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { danger, logVerbose } from "alien/plugin-sdk/runtime-env";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "openclaw/plugin-sdk/security-runtime";
-import { enqueueSystemEvent } from "openclaw/plugin-sdk/system-event-runtime";
+} from "alien/plugin-sdk/security-runtime";
+import { enqueueSystemEvent } from "alien/plugin-sdk/system-event-runtime";
 import {
   ChannelType,
   type Client,
@@ -28,8 +28,8 @@ import { formatDiscordReactionEmoji, formatDiscordUserTag } from "./format.js";
 import { runDiscordListenerWithSlowLog, type DiscordListenerLogger } from "./listeners.queue.js";
 import { resolveFetchedDiscordThreadLikeChannelContext } from "./thread-channel-context.js";
 
-type LoadedConfig = OpenClawConfig;
-type RuntimeEnv = import("openclaw/plugin-sdk/runtime-env").RuntimeEnv;
+type LoadedConfig = AlienConfig;
+type RuntimeEnv = import("alien/plugin-sdk/runtime-env").RuntimeEnv;
 
 type DiscordReactionEvent = Parameters<MessageReactionAddListener["handle"]>[0];
 

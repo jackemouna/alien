@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../api.js";
+import type { AlienConfig } from "../api.js";
 import { resolveMemoryWikiConfig } from "./config.js";
 import { renderWikiMarkdown } from "./markdown.js";
 import {
@@ -31,7 +31,7 @@ async function resolveBridgeMissingArtifactsStatus() {
       agents: {
         list: [{ id: "main", default: true, workspace: "/tmp/workspace" }],
       },
-    } as OpenClawConfig,
+    } as AlienConfig,
     listPublicArtifacts: async () => [],
     pathExists: async () => true,
     resolveCommand: async () => null,
@@ -235,7 +235,7 @@ describe("memory wiki doctor", () => {
     expect(report.warningCount).toBe(2);
     expect(report.fixes.map((fix) => fix.code)).toEqual(["vault-missing", "obsidian-cli-missing"]);
     expect(rendered).toContain("Suggested fixes:");
-    expect(rendered).toContain("openclaw wiki init");
+    expect(rendered).toContain("alien wiki init");
   });
 
   it("suggests bridge fixes when no public artifacts are exported", async () => {

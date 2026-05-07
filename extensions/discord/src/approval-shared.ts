@@ -1,9 +1,9 @@
-import { doesApprovalRequestMatchChannelAccount } from "openclaw/plugin-sdk/approval-native-runtime";
+import { doesApprovalRequestMatchChannelAccount } from "alien/plugin-sdk/approval-native-runtime";
 import type {
   ExecApprovalRequest,
   PluginApprovalRequest,
-} from "openclaw/plugin-sdk/approval-runtime";
-import type { DiscordExecApprovalConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/approval-runtime";
+import type { DiscordExecApprovalConfig, AlienConfig } from "alien/plugin-sdk/config-types";
 import { resolveDiscordAccount } from "./accounts.js";
 import {
   isChannelExecApprovalClientEnabledFromConfig,
@@ -14,7 +14,7 @@ import { getDiscordExecApprovalApprovers } from "./exec-approvals.js";
 type ApprovalRequest = ExecApprovalRequest | PluginApprovalRequest;
 
 export function shouldHandleDiscordApprovalRequest(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   request: ApprovalRequest;
   configOverride?: DiscordExecApprovalConfig | null;

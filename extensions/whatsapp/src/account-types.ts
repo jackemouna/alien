@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 export type WhatsAppAccountConfig = NonNullable<
-  NonNullable<NonNullable<OpenClawConfig["channels"]>["whatsapp"]>["accounts"]
+  NonNullable<NonNullable<AlienConfig["channels"]>["whatsapp"]>["accounts"]
 >[string];

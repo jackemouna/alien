@@ -5,7 +5,7 @@ import {
   readConfigFileSnapshot,
   replaceConfigFile,
 } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { tracePluginLifecyclePhaseAsync } from "../plugins/plugin-lifecycle-trace.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
@@ -59,7 +59,7 @@ function formatRegistryState(state: "missing" | "fresh" | "stale"): string {
 
 function reportMissingPlugin(id: string) {
   defaultRuntime.error(
-    `Plugin not found: ${id}. Run \`openclaw plugins list\` to see installed plugins.`,
+    `Plugin not found: ${id}. Run \`alien plugins list\` to see installed plugins.`,
   );
   return defaultRuntime.exit(1);
 }
@@ -94,11 +94,11 @@ function isErroredConfigSelectedShadowDiagnostic(params: {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
-    .description("Manage OpenClaw plugins and extensions")
+    .description("Manage Alien plugins and extensions")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/plugins", "docs.openclaw.ai/cli/plugins")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/plugins", "docs.alien.ai/cli/plugins")}\n`,
     );
 
   plugins
@@ -151,7 +151,7 @@ export function registerPluginsCli(program: Command) {
       const { refreshPluginRegistryAfterConfigMutation } =
         await import("./plugins-registry-refresh.js");
       const snapshot = await readConfigFileSnapshot();
-      const cfg = (snapshot.sourceConfig ?? snapshot.config) as OpenClawConfig;
+      const cfg = (snapshot.sourceConfig ?? snapshot.config) as AlienConfig;
       const report = buildPluginRegistrySnapshotReport({ config: cfg });
       id = normalizePluginId(id);
       if (!report.plugins.some((plugin) => matchesPluginId(plugin, id))) {
@@ -160,7 +160,7 @@ export function registerPluginsCli(program: Command) {
       const enableResult = enablePluginInConfig(cfg, id, {
         updateChannelConfig: false,
       });
-      let next: OpenClawConfig = enableResult.config;
+      let next: AlienConfig = enableResult.config;
       const slotResult = applySlotSelectionForPlugin(next, id);
       next = slotResult.config;
       await replaceConfigFile({
@@ -200,7 +200,7 @@ export function registerPluginsCli(program: Command) {
       const { refreshPluginRegistryAfterConfigMutation } =
         await import("./plugins-registry-refresh.js");
       const snapshot = await readConfigFileSnapshot();
-      const cfg = (snapshot.sourceConfig ?? snapshot.config) as OpenClawConfig;
+      const cfg = (snapshot.sourceConfig ?? snapshot.config) as AlienConfig;
       const report = buildPluginRegistrySnapshotReport({ config: cfg });
       id = normalizePluginId(id);
       if (!report.plugins.some((plugin) => matchesPluginId(plugin, id))) {
@@ -351,7 +351,7 @@ export function registerPluginsCli(program: Command) {
       if (inspection.refreshReasons.length > 0) {
         lines.push(`${theme.muted("Refresh reasons:")} ${inspection.refreshReasons.join(", ")}`);
         lines.push(
-          `${theme.muted("Repair:")} ${theme.command("openclaw plugins registry --refresh")}`,
+          `${theme.muted("Repair:")} ${theme.command("alien plugins registry --refresh")}`,
         );
       }
       defaultRuntime.log(lines.join("\n"));
@@ -421,10 +421,10 @@ export function registerPluginsCli(program: Command) {
             lines.push(`  shadowed: ${shortenHomeInString(diag.source)}`);
           }
           lines.push("  repair:");
-          lines.push("    openclaw plugins inspect " + (diag.pluginId ?? "<plugin-id>"));
+          lines.push("    alien plugins inspect " + (diag.pluginId ?? "<plugin-id>"));
           lines.push("    edit or remove the config-selected plugin source");
-          lines.push("    openclaw plugins registry --refresh");
-          lines.push("    openclaw gateway restart --force");
+          lines.push("    alien plugins registry --refresh");
+          lines.push("    alien gateway restart --force");
         }
       }
       if (compatibility.length > 0) {
@@ -437,7 +437,7 @@ export function registerPluginsCli(program: Command) {
           lines.push(`- ${formatPluginCompatibilityNotice(notice)} [${marker}]`);
         }
       }
-      const docs = formatDocsLink("/plugin", "docs.openclaw.ai/plugin");
+      const docs = formatDocsLink("/plugin", "docs.alien.ai/plugin");
       lines.push("");
       lines.push(`${theme.muted("Docs:")} ${docs}`);
       defaultRuntime.log(lines.join("\n"));

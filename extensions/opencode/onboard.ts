@@ -1,12 +1,12 @@
 import {
   applyAgentDefaultModelPrimary,
   withAgentModelAliases,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/provider-onboard";
+  type AlienConfig,
+} from "alien/plugin-sdk/provider-onboard";
 
 export const OPENCODE_ZEN_DEFAULT_MODEL_REF = "opencode/claude-opus-4-6";
 
-export function applyOpencodeZenProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyOpencodeZenProviderConfig(cfg: AlienConfig): AlienConfig {
   return {
     ...cfg,
     agents: {
@@ -21,7 +21,7 @@ export function applyOpencodeZenProviderConfig(cfg: OpenClawConfig): OpenClawCon
   };
 }
 
-export function applyOpencodeZenConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyOpencodeZenConfig(cfg: AlienConfig): AlienConfig {
   return applyAgentDefaultModelPrimary(
     applyOpencodeZenProviderConfig(cfg),
     OPENCODE_ZEN_DEFAULT_MODEL_REF,

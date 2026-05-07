@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { listAgentIds, resolveAgentDir } from "../agents/agent-scope.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolveUserPath } from "../utils.js";
 import { listAuthProfileStorePaths as listAuthProfileStorePathsFromAuthStorePaths } from "./auth-store-paths.js";
@@ -15,7 +15,7 @@ export function parseEnvAssignmentValue(raw: string): string {
   return parseEnvValue(raw);
 }
 
-export function listAuthProfileStorePaths(config: OpenClawConfig, stateDir: string): string[] {
+export function listAuthProfileStorePaths(config: AlienConfig, stateDir: string): string[] {
   return listAuthProfileStorePathsFromAuthStorePaths(config, stateDir);
 }
 
@@ -38,7 +38,7 @@ export function listLegacyAuthJsonPaths(stateDir: string): string[] {
 }
 
 function resolveActiveAgentDir(stateDir: string, env: NodeJS.ProcessEnv = process.env): string {
-  const override = env.OPENCLAW_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim();
+  const override = env.ALIEN_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim();
   if (override) {
     return resolveUserPath(override);
   }
@@ -46,7 +46,7 @@ function resolveActiveAgentDir(stateDir: string, env: NodeJS.ProcessEnv = proces
 }
 
 export function listAgentModelsJsonPaths(
-  config: OpenClawConfig,
+  config: AlienConfig,
   stateDir: string,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {

@@ -1,28 +1,28 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { resolveChannelTtsVoiceDelivery } from "openclaw/plugin-sdk/channel-targets";
+import { resolveChannelTtsVoiceDelivery } from "alien/plugin-sdk/channel-targets";
 import type {
-  OpenClawConfig,
+  AlienConfig,
   ResolvedTtsPersona,
   TtsAutoMode,
   TtsConfig,
   TtsModelOverrideConfig,
   TtsProvider,
-} from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { redactSensitiveText } from "openclaw/plugin-sdk/logging-core";
+} from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { redactSensitiveText } from "alien/plugin-sdk/logging-core";
 import {
   resolveSendableOutboundReplyParts,
   type ReplyPayload,
-} from "openclaw/plugin-sdk/reply-payload";
+} from "alien/plugin-sdk/reply-payload";
 import {
   getRuntimeConfigSnapshot,
   getRuntimeConfigSourceSnapshot,
   selectApplicableRuntimeConfig,
-} from "openclaw/plugin-sdk/runtime-config-snapshot";
-import { isVerbose, logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { tempWorkspaceSync, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/sandbox";
-import { privateFileStoreSync } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/runtime-config-snapshot";
+import { isVerbose, logVerbose } from "alien/plugin-sdk/runtime-env";
+import { tempWorkspaceSync, resolvePreferredAlienTmpDir } from "alien/plugin-sdk/sandbox";
+import { privateFileStoreSync } from "alien/plugin-sdk/security-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -30,7 +30,7 @@ import {
   resolveConfigDir,
   resolveUserPath,
   stripMarkdown,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import {
   canonicalizeSpeechProviderId,
   getSpeechProvider,
@@ -181,7 +181,7 @@ function resolveTtsPrefsPathValue(prefsPath: string | undefined): string {
   if (prefsPath?.trim()) {
     return resolveUserPath(prefsPath.trim());
   }
-  const envPath = process.env.OPENCLAW_TTS_PREFS?.trim();
+  const envPath = process.env.ALIEN_TTS_PREFS?.trim();
   if (envPath) {
     return resolveUserPath(envPath);
   }
@@ -217,7 +217,7 @@ function resolveModelOverridePolicy(
   };
 }
 
-function sortSpeechProvidersForAutoSelection(cfg?: OpenClawConfig) {
+function sortSpeechProvidersForAutoSelection(cfg?: AlienConfig) {
   return listSpeechProviders(cfg).toSorted((left, right) => {
     const leftOrder = left.autoSelectOrder ?? Number.MAX_SAFE_INTEGER;
     const rightOrder = right.autoSelectOrder ?? Number.MAX_SAFE_INTEGER;
@@ -228,11 +228,11 @@ function sortSpeechProvidersForAutoSelection(cfg?: OpenClawConfig) {
   });
 }
 
-function _resolveRegistryDefaultSpeechProviderId(cfg?: OpenClawConfig): TtsProvider {
+function _resolveRegistryDefaultSpeechProviderId(cfg?: AlienConfig): TtsProvider {
   return sortSpeechProvidersForAutoSelection(cfg)[0]?.id ?? "";
 }
 
-function resolveTtsRuntimeConfig(cfg: OpenClawConfig): OpenClawConfig {
+function resolveTtsRuntimeConfig(cfg: AlienConfig): AlienConfig {
   return (
     selectApplicableRuntimeConfig({
       inputConfig: cfg,
@@ -350,7 +350,7 @@ function resolveRawProviderConfig(
 function resolveLazyProviderConfig(
   config: ResolvedTtsConfig,
   providerId: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): SpeechProviderConfig {
   const canonical =
     normalizeConfiguredSpeechProviderId(providerId) ?? normalizeLowercaseStringOrEmpty(providerId);
@@ -413,7 +413,7 @@ function collectDirectProviderConfigEntries(raw: TtsConfig): Record<string, Spee
 export function getResolvedSpeechProviderConfig(
   config: ResolvedTtsConfig,
   providerId: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): SpeechProviderConfig {
   const effectiveCfg = cfg ? resolveTtsRuntimeConfig(cfg) : config.sourceConfig;
   const canonical =
@@ -424,7 +424,7 @@ export function getResolvedSpeechProviderConfig(
 }
 
 export function resolveTtsConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   contextOrAgentId?: string | TtsConfigResolutionContext,
 ): ResolvedTtsConfig {
   cfg = resolveTtsRuntimeConfig(cfg);
@@ -485,7 +485,7 @@ export function resolveTtsAutoMode(params: {
 }
 
 function resolveEffectiveTtsAutoState(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionAuto?: string;
   agentId?: string;
   channelId?: string;
@@ -515,7 +515,7 @@ function resolveEffectiveTtsAutoState(params: {
 }
 
 export function buildTtsSystemPromptHint(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId?: string,
 ): string | undefined {
   cfg = resolveTtsRuntimeConfig(cfg);
@@ -661,7 +661,7 @@ export function setTtsProvider(prefsPath: string, provider: TtsProvider): void {
 }
 
 export function resolveExplicitTtsOverrides(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prefsPath?: string;
   provider?: string;
   modelId?: string;
@@ -815,7 +815,7 @@ function shouldDeliverTtsAsVoice(params: {
   return params.voiceCompatible === true || delivery.transcodesAudio === true;
 }
 
-export function resolveTtsProviderOrder(primary: TtsProvider, cfg?: OpenClawConfig): TtsProvider[] {
+export function resolveTtsProviderOrder(primary: TtsProvider, cfg?: AlienConfig): TtsProvider[] {
   const effectiveCfg = cfg ? resolveTtsRuntimeConfig(cfg) : undefined;
   const normalizedPrimary = canonicalizeSpeechProviderId(primary, effectiveCfg) ?? primary;
   const ordered = new Set<TtsProvider>([normalizedPrimary]);
@@ -831,7 +831,7 @@ export function resolveTtsProviderOrder(primary: TtsProvider, cfg?: OpenClawConf
 export function isTtsProviderConfigured(
   config: ResolvedTtsConfig,
   provider: TtsProvider,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): boolean {
   const effectiveCfg = cfg ? resolveTtsRuntimeConfig(cfg) : config.sourceConfig;
   const resolvedProvider = getSpeechProvider(provider, effectiveCfg);
@@ -899,7 +899,7 @@ type TtsProviderReadyResolution =
 
 function resolveReadySpeechProvider(params: {
   provider: TtsProvider;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   config: ResolvedTtsConfig;
   persona?: ResolvedTtsPersona;
   requireTelephony?: boolean;
@@ -966,7 +966,7 @@ function resolveReadySpeechProvider(params: {
 async function prepareSpeechSynthesis(params: {
   provider: NonNullable<ReturnType<typeof getSpeechProvider>>;
   text: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   providerConfig: SpeechProviderConfig;
   providerOverrides?: SpeechProviderOverrides;
   persona?: ResolvedTtsPersona;
@@ -1008,7 +1008,7 @@ async function prepareSpeechSynthesis(params: {
 
 function resolveTtsRequestSetup(params: {
   text: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prefsPath?: string;
   providerOverride?: TtsProvider;
   disableFallback?: boolean;
@@ -1017,7 +1017,7 @@ function resolveTtsRequestSetup(params: {
   accountId?: string;
 }):
   | {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       config: ResolvedTtsConfig;
       persona?: ResolvedTtsPersona;
       providers: TtsProvider[];
@@ -1080,7 +1080,7 @@ function resolveTtsResultVoice(
 
 export async function textToSpeech(params: {
   text: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prefsPath?: string;
   channel?: string;
   overrides?: TtsDirectiveOverrides;
@@ -1117,7 +1117,7 @@ export async function textToSpeech(params: {
   }
 
   const temp = tempWorkspaceSync({
-    rootDir: resolvePreferredOpenClawTmpDir(),
+    rootDir: resolvePreferredAlienTmpDir(),
     prefix: "tts-",
   });
   const audioPath = temp.write(`voice-${Date.now()}${fileExtension}`, audioBuffer);
@@ -1192,7 +1192,7 @@ async function maybePreTranscodeForVoiceDelivery(params: {
 
 export async function synthesizeSpeech(params: {
   text: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prefsPath?: string;
   channel?: string;
   overrides?: TtsDirectiveOverrides;
@@ -1332,7 +1332,7 @@ export async function synthesizeSpeech(params: {
 
 export async function textToSpeechTelephony(params: {
   text: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prefsPath?: string;
   overrides?: TtsDirectiveOverrides;
 }): Promise<TtsTelephonyResult> {
@@ -1462,7 +1462,7 @@ export async function textToSpeechTelephony(params: {
 
 export async function listSpeechVoices(params: {
   provider: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   config?: ResolvedTtsConfig;
   apiKey?: string;
   baseUrl?: string;
@@ -1493,7 +1493,7 @@ export async function listSpeechVoices(params: {
 
 export async function maybeApplyTtsToPayload(params: {
   payload: ReplyPayload;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel?: string;
   kind?: "tool" | "block" | "final";
   inboundAudio?: boolean;

@@ -1,4 +1,4 @@
-import { resolveHumanDelayConfig } from "openclaw/plugin-sdk/agent-runtime";
+import { resolveHumanDelayConfig } from "alien/plugin-sdk/agent-runtime";
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
@@ -6,13 +6,13 @@ import {
   logTypingFailure,
   removeAckReactionAfterReply,
   type StatusReactionAdapter,
-} from "openclaw/plugin-sdk/channel-feedback";
+} from "alien/plugin-sdk/channel-feedback";
 import {
   createChannelMessageReplyPipeline,
   defineFinalizableLivePreviewAdapter,
   deliverWithFinalizableLivePreviewAdapter,
   resolveChannelMessageSourceReplyDeliveryMode,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   buildChannelProgressDraftLine,
   buildChannelProgressDraftLineForEntry,
@@ -27,20 +27,20 @@ import {
   resolveChannelStreamingPreviewToolProgress,
   resolveChannelStreamingSuppressDefaultToolProgressMessages,
   type ChannelProgressDraftLine,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   type ChannelTurnRecordOptions,
   hasVisibleInboundReplyDispatch,
   runInboundReplyTurn,
-} from "openclaw/plugin-sdk/inbound-reply-dispatch";
-import { resolveAgentOutboundIdentity } from "openclaw/plugin-sdk/outbound-runtime";
-import { clearHistoryEntriesIfEnabled } from "openclaw/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyDispatchKind, ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-import { danger, logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/inbound-reply-dispatch";
+import { resolveAgentOutboundIdentity } from "alien/plugin-sdk/outbound-runtime";
+import { clearHistoryEntriesIfEnabled } from "alien/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
+import type { ReplyDispatchKind, ReplyPayload } from "alien/plugin-sdk/reply-runtime";
+import { danger, logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "alien/plugin-sdk/security-runtime";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import { reactSlackMessage, removeSlackReaction } from "../../actions.js";
 import { createSlackDraftStream } from "../../draft-stream.js";
 import { normalizeSlackOutboundText } from "../../format.js";

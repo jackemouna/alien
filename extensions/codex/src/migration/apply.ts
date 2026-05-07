@@ -1,16 +1,16 @@
 import path from "node:path";
-import { summarizeMigrationItems } from "openclaw/plugin-sdk/migration";
+import { summarizeMigrationItems } from "alien/plugin-sdk/migration";
 import {
   archiveMigrationItem,
   copyMigrationFileItem,
   writeMigrationReport,
-} from "openclaw/plugin-sdk/migration-runtime";
+} from "alien/plugin-sdk/migration-runtime";
 import type {
   MigrationApplyResult,
   MigrationItem,
   MigrationPlan,
   MigrationProviderContext,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/plugin-entry";
 import { buildCodexMigrationPlan } from "./plan.js";
 
 export async function applyCodexMigrationPlan(params: {

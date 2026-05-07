@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import {
   loadInstalledPluginIndexInstallRecords,
@@ -65,9 +65,9 @@ export function writePersistedInstalledPluginIndexInstallRecordsSync(
 }
 
 export function withPluginInstallRecords(
-  config: OpenClawConfig,
+  config: AlienConfig,
   records: Record<string, PluginInstallRecord>,
-): OpenClawConfig {
+): AlienConfig {
   return {
     ...config,
     plugins: {
@@ -77,7 +77,7 @@ export function withPluginInstallRecords(
   };
 }
 
-export function withoutPluginInstallRecords(config: OpenClawConfig): OpenClawConfig {
+export function withoutPluginInstallRecords(config: AlienConfig): AlienConfig {
   if (!config.plugins?.installs) {
     return config;
   }

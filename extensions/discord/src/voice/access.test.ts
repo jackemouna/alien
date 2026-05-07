@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { DiscordAccountConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { DiscordAccountConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { authorizeDiscordVoiceIngress } from "./access.js";
 
-const baseCfg = { commands: { useAccessGroups: true } } as OpenClawConfig;
+const baseCfg = { commands: { useAccessGroups: true } } as AlienConfig;
 
 describe("authorizeDiscordVoiceIngress", () => {
   it("blocks speakers outside the configured channel user allowlist", async () => {

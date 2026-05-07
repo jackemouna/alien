@@ -1,16 +1,16 @@
 import type { ToolFsPolicy } from "../agents/tool-fs-policy.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { HookEntry } from "../hooks/types.js";
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
 
 /** Trusted execution context passed to plugin-owned agent tool factories. */
-export type OpenClawPluginToolContext = {
-  config?: OpenClawConfig;
+export type AlienPluginToolContext = {
+  config?: AlienConfig;
   /** Active runtime-resolved config snapshot when one is available. */
-  runtimeConfig?: OpenClawConfig;
+  runtimeConfig?: AlienConfig;
   /** Returns the latest runtime-resolved config snapshot for long-lived tool definitions. */
-  getRuntimeConfig?: () => OpenClawConfig | undefined;
+  getRuntimeConfig?: () => AlienConfig | undefined;
   /** Effective filesystem policy for the active tool run. */
   fsPolicy?: ToolFsPolicy;
   workspaceDir?: string;
@@ -34,17 +34,17 @@ export type OpenClawPluginToolContext = {
   sandboxed?: boolean;
 };
 
-export type OpenClawPluginToolFactory = (
-  ctx: OpenClawPluginToolContext,
+export type AlienPluginToolFactory = (
+  ctx: AlienPluginToolContext,
 ) => AnyAgentTool | AnyAgentTool[] | null | undefined;
 
-export type OpenClawPluginToolOptions = {
+export type AlienPluginToolOptions = {
   name?: string;
   names?: string[];
   optional?: boolean;
 };
 
-export type OpenClawPluginHookOptions = {
+export type AlienPluginHookOptions = {
   entry?: HookEntry;
   name?: string;
   description?: string;

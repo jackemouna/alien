@@ -4,7 +4,7 @@ export {
   type GatewayRequestHandlerOptions,
   isBlockedHostnameOrIp,
   isRequestBodyLimitError,
-  type OpenClawPluginApi,
+  type AlienPluginApi,
   readRequestBodyWithLimit,
   requestBodyErrorToText,
   type SessionEntry,

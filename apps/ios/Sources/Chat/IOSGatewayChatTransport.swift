@@ -1,11 +1,11 @@
 import Foundation
-import OpenClawChatUI
-import OpenClawKit
-import OpenClawProtocol
+import AlienChatUI
+import AlienKit
+import AlienProtocol
 import OSLog
 
-struct IOSGatewayChatTransport: OpenClawChatTransport {
-    private static let logger = Logger(subsystem: "ai.openclaw", category: "ios.chat.transport")
+struct IOSGatewayChatTransport: AlienChatTransport {
+    private static let logger = Logger(subsystem: "ai.alien", category: "ios.chat.transport")
     private let gateway: GatewayNodeSession
 
     init(gateway: GatewayNodeSession) {
@@ -22,7 +22,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
         _ = try await self.gateway.request(method: "chat.abort", paramsJSON: json, timeoutSeconds: 10)
     }
 
-    func listSessions(limit: Int?) async throws -> OpenClawChatSessionsListResponse {
+    func listSessions(limit: Int?) async throws -> AlienChatSessionsListResponse {
         struct Params: Codable {
             var includeGlobal: Bool
             var includeUnknown: Bool
@@ -31,7 +31,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
         let data = try JSONEncoder().encode(Params(includeGlobal: true, includeUnknown: false, limit: limit))
         let json = String(data: data, encoding: .utf8)
         let res = try await self.gateway.request(method: "sessions.list", paramsJSON: json, timeoutSeconds: 15)
-        return try JSONDecoder().decode(OpenClawChatSessionsListResponse.self, from: res)
+        return try JSONDecoder().decode(AlienChatSessionsListResponse.self, from: res)
     }
 
     func setActiveSessionKey(_ sessionKey: String) async throws {
@@ -53,12 +53,12 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
         _ = try await self.gateway.request(method: "sessions.compact", paramsJSON: json, timeoutSeconds: 10)
     }
 
-    func requestHistory(sessionKey: String) async throws -> OpenClawChatHistoryPayload {
+    func requestHistory(sessionKey: String) async throws -> AlienChatHistoryPayload {
         struct Params: Codable { var sessionKey: String }
         let data = try JSONEncoder().encode(Params(sessionKey: sessionKey))
         let json = String(data: data, encoding: .utf8)
         let res = try await self.gateway.request(method: "chat.history", paramsJSON: json, timeoutSeconds: 15)
-        return try JSONDecoder().decode(OpenClawChatHistoryPayload.self, from: res)
+        return try JSONDecoder().decode(AlienChatHistoryPayload.self, from: res)
     }
 
     func sendMessage(
@@ -66,7 +66,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
         message: String,
         thinking: String,
         idempotencyKey: String,
-        attachments: [OpenClawChatAttachmentPayload]) async throws -> OpenClawChatSendResponse
+        attachments: [AlienChatAttachmentPayload]) async throws -> AlienChatSendResponse
     {
         let startLogMessage =
             "chat.send start sessionKey=\(sessionKey) "
@@ -77,7 +77,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
             var sessionKey: String
             var message: String
             var thinking: String
-            var attachments: [OpenClawChatAttachmentPayload]?
+            var attachments: [AlienChatAttachmentPayload]?
             var timeoutMs: Int
             var idempotencyKey: String
         }
@@ -93,7 +93,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
         let json = String(data: data, encoding: .utf8)
         do {
             let res = try await self.gateway.request(method: "chat.send", paramsJSON: json, timeoutSeconds: 35)
-            let decoded = try JSONDecoder().decode(OpenClawChatSendResponse.self, from: res)
+            let decoded = try JSONDecoder().decode(AlienChatSendResponse.self, from: res)
             Self.logger.info("chat.send ok runId=\(decoded.runId, privacy: .public)")
             return decoded
         } catch {
@@ -105,10 +105,10 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
     func requestHealth(timeoutMs: Int) async throws -> Bool {
         let seconds = max(1, Int(ceil(Double(timeoutMs) / 1000.0)))
         let res = try await self.gateway.request(method: "health", paramsJSON: nil, timeoutSeconds: seconds)
-        return (try? JSONDecoder().decode(OpenClawGatewayHealthOK.self, from: res))?.ok ?? true
+        return (try? JSONDecoder().decode(AlienGatewayHealthOK.self, from: res))?.ok ?? true
     }
 
-    func events() -> AsyncStream<OpenClawChatTransportEvent> {
+    func events() -> AsyncStream<AlienChatTransportEvent> {
         AsyncStream { continuation in
             let task = Task {
                 let stream = await self.gateway.subscribeServerEvents()
@@ -123,13 +123,13 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
                         guard let payload = evt.payload else { break }
                         let ok = (try? GatewayPayloadDecoding.decode(
                             payload,
-                            as: OpenClawGatewayHealthOK.self))?.ok ?? true
+                            as: AlienGatewayHealthOK.self))?.ok ?? true
                         continuation.yield(.health(ok: ok))
                     case "chat":
                         guard let payload = evt.payload else { break }
                         if let chatPayload = try? GatewayPayloadDecoding.decode(
                             payload,
-                            as: OpenClawChatEventPayload.self)
+                            as: AlienChatEventPayload.self)
                         {
                             continuation.yield(.chat(chatPayload))
                         }
@@ -137,7 +137,7 @@ struct IOSGatewayChatTransport: OpenClawChatTransport {
                         guard let payload = evt.payload else { break }
                         if let agentPayload = try? GatewayPayloadDecoding.decode(
                             payload,
-                            as: OpenClawAgentEventPayload.self)
+                            as: AlienAgentEventPayload.self)
                         {
                             continuation.yield(.agent(agentPayload))
                         }

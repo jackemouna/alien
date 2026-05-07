@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/amazon-bedrock-mantle-provider",
+  "name": "@alien/amazon-bedrock-mantle-provider",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw Amazon Bedrock Mantle (OpenAI-compatible) provider plugin",
+  "description": "Alien Amazon Bedrock Mantle (OpenAI-compatible) provider plugin",
   "type": "module",
   "dependencies": {
     "@anthropic-ai/sdk": "0.93.0",
@@ -10,9 +10,9 @@
     "@mariozechner/pi-ai": "0.73.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ]

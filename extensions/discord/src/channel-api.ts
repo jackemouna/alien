@@ -1,12 +1,12 @@
-export { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+export { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
 export {
   buildTokenChannelStatusSummary,
   PAIRING_APPROVED_MESSAGE,
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
-} from "openclaw/plugin-sdk/channel-status";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-status";
+export type { ChannelPlugin } from "alien/plugin-sdk/channel-core";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 const DISCORD_CHANNEL_META = {
   id: "discord",

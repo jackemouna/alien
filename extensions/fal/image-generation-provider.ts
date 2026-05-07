@@ -1,26 +1,26 @@
 import type {
   GeneratedImageAsset,
   ImageGenerationProvider,
-} from "openclaw/plugin-sdk/image-generation";
+} from "alien/plugin-sdk/image-generation";
 import {
   imageFileExtensionForMimeType,
   toImageDataUrl,
-} from "openclaw/plugin-sdk/image-generation";
-import { isProviderApiKeyConfigured } from "openclaw/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
+} from "alien/plugin-sdk/image-generation";
+import { isProviderApiKeyConfigured } from "alien/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "alien/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   assertOkOrThrowProviderError,
   resolveProviderHttpRequestConfig,
-} from "openclaw/plugin-sdk/provider-http";
+} from "alien/plugin-sdk/provider-http";
 import {
   buildHostnameAllowlistPolicyFromSuffixAllowlist,
   fetchWithSsrFGuard,
   mergeSsrFPolicies,
   type SsrFPolicy,
   ssrfPolicyFromDangerouslyAllowPrivateNetwork,
-} from "openclaw/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 const DEFAULT_FAL_BASE_URL = "https://fal.run";
 const DEFAULT_FAL_IMAGE_MODEL = "fal-ai/flux/dev";

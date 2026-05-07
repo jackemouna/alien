@@ -1,17 +1,17 @@
-import { transcodeAudioBufferToOpus } from "openclaw/plugin-sdk/media-runtime";
-import { assertOkOrThrowProviderError } from "openclaw/plugin-sdk/provider-http";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
+import { transcodeAudioBufferToOpus } from "alien/plugin-sdk/media-runtime";
+import { assertOkOrThrowProviderError } from "alien/plugin-sdk/provider-http";
+import { normalizeResolvedSecretInputString } from "alien/plugin-sdk/secret-input";
 import type {
   SpeechDirectiveTokenParseContext,
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
-} from "openclaw/plugin-sdk/speech-core";
-import { asObject, trimToUndefined } from "openclaw/plugin-sdk/speech-core";
+} from "alien/plugin-sdk/speech-core";
+import { asObject, trimToUndefined } from "alien/plugin-sdk/speech-core";
 import {
   fetchWithSsrFGuard,
   ssrfPolicyFromHttpBaseUrlAllowedHostname,
-} from "openclaw/plugin-sdk/ssrf-runtime";
+} from "alien/plugin-sdk/ssrf-runtime";
 
 const DEFAULT_XIAOMI_TTS_BASE_URL = "https://api.xiaomimimo.com/v1";
 const DEFAULT_XIAOMI_TTS_MODEL = "mimo-v2.5-tts";

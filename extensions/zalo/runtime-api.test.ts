@@ -1,4 +1,4 @@
-import { runDirectImportSmoke } from "openclaw/plugin-sdk/plugin-test-contracts";
+import { runDirectImportSmoke } from "alien/plugin-sdk/plugin-test-contracts";
 import { describe, expect, it } from "vitest";
 
 describe("zalo runtime api", () => {

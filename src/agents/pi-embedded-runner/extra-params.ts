@@ -3,7 +3,7 @@ import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import type { SettingsManager } from "@mariozechner/pi-coding-agent";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   prepareProviderExtraParams as prepareProviderExtraParamsRuntime,
   resolveProviderExtraParamsForTransport as resolveProviderExtraParamsForTransportRuntime,
@@ -38,7 +38,7 @@ const providerRuntimeDeps = {
   ...defaultProviderRuntimeDeps,
 };
 
-let preparedExtraParamsCache = new WeakMap<OpenClawConfig, Map<string, Record<string, unknown>>>();
+let preparedExtraParamsCache = new WeakMap<AlienConfig, Map<string, Record<string, unknown>>>();
 
 export const __testing = {
   setProviderRuntimeDepsForTest(
@@ -69,7 +69,7 @@ export const __testing = {
  * @internal Exported for testing only
  */
 export function resolveExtraParams(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: AlienConfig | undefined;
   provider: string;
   modelId: string;
   agentId?: string;
@@ -195,7 +195,7 @@ function resolvePreparedExtraParamsCacheKey(params: {
 }
 
 export function resolvePreparedExtraParams(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: AlienConfig | undefined;
   provider: string;
   modelId: string;
   agentDir?: string;
@@ -643,7 +643,7 @@ function createOpenAICompletionsExtraBodyWrapper(
 
 type ApplyExtraParamsContext = {
   agent: { streamFn?: StreamFn };
-  cfg: OpenClawConfig | undefined;
+  cfg: AlienConfig | undefined;
   provider: string;
   modelId: string;
   agentDir?: string;
@@ -760,7 +760,7 @@ function applyPostPluginStreamWrappers(
  */
 export function applyExtraParamsToAgent(
   agent: { streamFn?: StreamFn },
-  cfg: OpenClawConfig | undefined,
+  cfg: AlienConfig | undefined,
   provider: string,
   modelId: string,
   extraParamsOverride?: Record<string, unknown>,

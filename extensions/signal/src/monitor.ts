@@ -1,38 +1,38 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { SignalReactionNotificationMode } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { SignalReactionNotificationMode } from "alien/plugin-sdk/config-types";
 import {
   detectMime,
   estimateBase64DecodedBytes,
   saveMediaBuffer,
-} from "openclaw/plugin-sdk/media-runtime";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "openclaw/plugin-sdk/reply-history";
+} from "alien/plugin-sdk/media-runtime";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "alien/plugin-sdk/reply-history";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
+} from "alien/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-runtime";
 import {
   chunkTextWithMode,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "openclaw/plugin-sdk/reply-runtime";
-import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
+} from "alien/plugin-sdk/reply-runtime";
+import { getRuntimeConfig } from "alien/plugin-sdk/runtime-config-snapshot";
 import {
   createNonExitingRuntime,
   type BackoffPolicy,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/runtime-env";
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
+} from "alien/plugin-sdk/runtime-group-policy";
 import {
   normalizeE164,
   normalizeOptionalString,
   normalizeStringEntries,
-} from "openclaw/plugin-sdk/text-runtime";
-import { waitForTransportReady } from "openclaw/plugin-sdk/transport-ready-runtime";
+} from "alien/plugin-sdk/text-runtime";
+import { waitForTransportReady } from "alien/plugin-sdk/transport-ready-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { signalCheck, signalRpcRequest } from "./client.js";
 import { formatSignalDaemonExit, spawnSignalDaemon, type SignalDaemonHandle } from "./daemon.js";
@@ -51,7 +51,7 @@ export type MonitorSignalOpts = {
   abortSignal?: AbortSignal;
   account?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   baseUrl?: string;
   autoStart?: boolean;
   startupTimeoutMs?: number;
@@ -328,7 +328,7 @@ async function fetchAttachment(params: {
 }
 
 async function deliverReplies(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   replies: ReplyPayload[];
   target: string;
   baseUrl: string;

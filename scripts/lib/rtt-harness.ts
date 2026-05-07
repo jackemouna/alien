@@ -63,19 +63,19 @@ type TelegramQaSummary = {
   }>;
 };
 
-const OPENCLAW_PACKAGE_SPEC_RE =
-  /^openclaw@(main|alpha|beta|latest|[0-9]{4}\.[1-9][0-9]*\.[1-9][0-9]*(-[1-9][0-9]*|-(alpha|beta)\.[1-9][0-9]*)?)$/u;
+const ALIEN_PACKAGE_SPEC_RE =
+  /^alien@(main|alpha|beta|latest|[0-9]{4}\.[1-9][0-9]*\.[1-9][0-9]*(-[1-9][0-9]*|-(alpha|beta)\.[1-9][0-9]*)?)$/u;
 
 const REQUIRED_TELEGRAM_ENV = [
-  "OPENCLAW_QA_TELEGRAM_GROUP_ID",
-  "OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN",
-  "OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN",
+  "ALIEN_QA_TELEGRAM_GROUP_ID",
+  "ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN",
+  "ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN",
 ] as const;
 
-export function validateOpenClawPackageSpec(spec: string) {
-  if (!OPENCLAW_PACKAGE_SPEC_RE.test(spec)) {
+export function validateAlienPackageSpec(spec: string) {
+  if (!ALIEN_PACKAGE_SPEC_RE.test(spec)) {
     throw new Error(
-      `Package spec must be openclaw@main, openclaw@alpha, openclaw@beta, openclaw@latest, or an exact OpenClaw release version; got: ${spec}`,
+      `Package spec must be alien@main, alien@alpha, alien@beta, alien@latest, or an exact Alien release version; got: ${spec}`,
     );
   }
   return spec;
@@ -129,17 +129,17 @@ export function createHarnessEnv(params: {
 }) {
   return {
     ...params.baseEnv,
-    OPENCLAW_NPM_TELEGRAM_PACKAGE_SPEC: params.spec,
-    ...(params.packageTgz ? { OPENCLAW_NPM_TELEGRAM_PACKAGE_TGZ: params.packageTgz } : {}),
-    OPENCLAW_NPM_TELEGRAM_PACKAGE_LABEL: `${params.spec} (${params.version})`,
-    OPENCLAW_NPM_TELEGRAM_PROVIDER_MODE: params.providerMode,
-    OPENCLAW_NPM_TELEGRAM_SCENARIOS: params.scenarios.join(","),
-    OPENCLAW_NPM_TELEGRAM_OUTPUT_DIR: params.rawOutputDir,
-    OPENCLAW_NPM_TELEGRAM_FAST: params.baseEnv.OPENCLAW_NPM_TELEGRAM_FAST ?? "1",
-    OPENCLAW_NPM_TELEGRAM_WARM_SAMPLES: String(params.samples),
-    OPENCLAW_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS: String(params.sampleTimeoutMs),
-    OPENCLAW_QA_TELEGRAM_CANARY_TIMEOUT_MS: String(params.timeoutMs),
-    OPENCLAW_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: String(params.timeoutMs),
+    ALIEN_NPM_TELEGRAM_PACKAGE_SPEC: params.spec,
+    ...(params.packageTgz ? { ALIEN_NPM_TELEGRAM_PACKAGE_TGZ: params.packageTgz } : {}),
+    ALIEN_NPM_TELEGRAM_PACKAGE_LABEL: `${params.spec} (${params.version})`,
+    ALIEN_NPM_TELEGRAM_PROVIDER_MODE: params.providerMode,
+    ALIEN_NPM_TELEGRAM_SCENARIOS: params.scenarios.join(","),
+    ALIEN_NPM_TELEGRAM_OUTPUT_DIR: params.rawOutputDir,
+    ALIEN_NPM_TELEGRAM_FAST: params.baseEnv.ALIEN_NPM_TELEGRAM_FAST ?? "1",
+    ALIEN_NPM_TELEGRAM_WARM_SAMPLES: String(params.samples),
+    ALIEN_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS: String(params.sampleTimeoutMs),
+    ALIEN_QA_TELEGRAM_CANARY_TIMEOUT_MS: String(params.timeoutMs),
+    ALIEN_QA_TELEGRAM_SCENARIO_TIMEOUT_MS: String(params.timeoutMs),
   };
 }
 
@@ -155,7 +155,7 @@ export async function assertHarnessRoot(harnessRoot: string) {
   try {
     await fs.access(scriptPath);
   } catch {
-    throw new Error(`Missing OpenClaw Telegram npm harness: ${scriptPath}`);
+    throw new Error(`Missing Alien Telegram npm harness: ${scriptPath}`);
   }
 }
 
@@ -185,7 +185,7 @@ export async function resolveMainVersion(harnessRoot: string) {
     await fs.readFile(path.join(harnessRoot, "package.json"), "utf8"),
   ) as { version?: unknown };
   if (typeof packageJson.version !== "string" || packageJson.version.trim().length === 0) {
-    throw new Error("OpenClaw package.json must contain a non-empty version.");
+    throw new Error("Alien package.json must contain a non-empty version.");
   }
   const { stdout } = await execFileAsync("git", ["rev-parse", "--short=10", "HEAD"], {
     cwd: harnessRoot,

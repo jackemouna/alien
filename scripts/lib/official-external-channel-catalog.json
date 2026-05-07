@@ -1,13 +1,13 @@
 {
   "entries": [
     {
-      "name": "@wecom/wecom-openclaw-plugin",
-      "description": "OpenClaw WeCom channel plugin by the Tencent WeCom team.",
+      "name": "@wecom/wecom-alien-plugin",
+      "description": "Alien WeCom channel plugin by the Tencent WeCom team.",
       "source": "external",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "plugin": {
-          "id": "wecom-openclaw-plugin",
+          "id": "wecom-alien-plugin",
           "label": "WeCom"
         },
         "contracts": {
@@ -35,20 +35,20 @@
           }
         },
         "install": {
-          "npmSpec": "@wecom/wecom-openclaw-plugin@2026.4.23",
+          "npmSpec": "@wecom/wecom-alien-plugin@2026.4.23",
           "defaultChoice": "npm",
           "expectedIntegrity": "sha512-bnzfdIEEu1/LFvcdyjaTkyxt27w6c7dqhkPezU62OWaqmcdFsUGR3T55USK/O9pIKsNcnL1Tnu1pqKYCWHFgWQ=="
         }
       }
     },
     {
-      "name": "openclaw-plugin-yuanbao",
-      "description": "OpenClaw Yuanbao channel plugin by the Tencent Yuanbao team.",
+      "name": "alien-plugin-yuanbao",
+      "description": "Alien Yuanbao channel plugin by the Tencent Yuanbao team.",
       "source": "external",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "plugin": {
-          "id": "openclaw-plugin-yuanbao",
+          "id": "alien-plugin-yuanbao",
           "label": "Yuanbao"
         },
         "contracts": {
@@ -76,24 +76,24 @@
           }
         },
         "install": {
-          "npmSpec": "openclaw-plugin-yuanbao@2.11.0",
+          "npmSpec": "alien-plugin-yuanbao@2.11.0",
           "defaultChoice": "npm",
           "expectedIntegrity": "sha512-lYmBrU71ox3v7dzRqaltvzTXPcMjjgYrNqpBj5HIBkXgEFkXRRG8wplXg9Fub41/FjsSPn3WAbYpdTc+k+jsHg=="
         }
       }
     },
     {
-      "name": "@tencent-weixin/openclaw-weixin",
-      "description": "OpenClaw Weixin channel plugin by the Tencent Weixin team.",
+      "name": "@tencent-weixin/alien-weixin",
+      "description": "Alien Weixin channel plugin by the Tencent Weixin team.",
       "source": "external",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "plugin": {
-          "id": "openclaw-weixin",
+          "id": "alien-weixin",
           "label": "Weixin"
         },
         "channel": {
-          "id": "openclaw-weixin",
+          "id": "alien-weixin",
           "label": "Weixin",
           "selectionLabel": "Weixin（微信）",
           "detailLabel": "Weixin",
@@ -104,7 +104,7 @@
           "order": 75
         },
         "channelConfigs": {
-          "openclaw-weixin": {
+          "alien-weixin": {
             "label": "Weixin",
             "description": "Personal WeChat conversation channel.",
             "schema": {
@@ -114,7 +114,7 @@
           }
         },
         "install": {
-          "npmSpec": "@tencent-weixin/openclaw-weixin@2.4.1",
+          "npmSpec": "@tencent-weixin/alien-weixin@2.4.1",
           "defaultChoice": "npm",
           "expectedIntegrity": "sha512-FZnUVMQRpKGTKezeplr/DYal+5RSif2tXE51pljIFrO8rn7bVnnvpbj81/i9UMrYbuGiom1sl8OeSDzWRDKGhQ==",
           "minHostVersion": ">=2026.3.22"
@@ -122,11 +122,11 @@
       }
     },
     {
-      "name": "@openclaw/bluebubbles",
-      "description": "OpenClaw BlueBubbles channel plugin",
+      "name": "@alien/bluebubbles",
+      "description": "Alien BlueBubbles channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "bluebubbles",
           "label": "BlueBubbles",
@@ -141,18 +141,18 @@
           "order": 75
         },
         "install": {
-          "npmSpec": "@openclaw/bluebubbles",
+          "npmSpec": "@alien/bluebubbles",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/discord",
-      "description": "OpenClaw Discord channel plugin",
+      "name": "@alien/discord",
+      "description": "Alien Discord channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "discord",
           "label": "Discord",
@@ -166,7 +166,7 @@
           "preferSessionLookupForAnnounceTarget": true
         },
         "install": {
-          "npmSpec": "@openclaw/discord",
+          "npmSpec": "@alien/discord",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10",
           "allowInvalidConfigRecovery": true
@@ -174,11 +174,11 @@
       }
     },
     {
-      "name": "@openclaw/feishu",
-      "description": "OpenClaw Feishu/Lark channel plugin",
+      "name": "@alien/feishu",
+      "description": "Alien Feishu/Lark channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "feishu",
           "label": "Feishu",
@@ -191,18 +191,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/feishu",
+          "npmSpec": "@alien/feishu",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.25"
         }
       }
     },
     {
-      "name": "@openclaw/googlechat",
-      "description": "OpenClaw Google Chat channel plugin",
+      "name": "@alien/googlechat",
+      "description": "Alien Google Chat channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "googlechat",
           "label": "Google Chat",
@@ -241,18 +241,18 @@
           ]
         },
         "install": {
-          "npmSpec": "@openclaw/googlechat",
+          "npmSpec": "@alien/googlechat",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/line",
-      "description": "OpenClaw LINE channel plugin",
+      "name": "@alien/line",
+      "description": "Alien LINE channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "line",
           "label": "LINE",
@@ -266,18 +266,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/line",
+          "npmSpec": "@alien/line",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/msteams",
-      "description": "OpenClaw Microsoft Teams channel plugin",
+      "name": "@alien/msteams",
+      "description": "Alien Microsoft Teams channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "msteams",
           "label": "Microsoft Teams",
@@ -289,18 +289,18 @@
           "order": 60
         },
         "install": {
-          "npmSpec": "@openclaw/msteams",
+          "npmSpec": "@alien/msteams",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/nextcloud-talk",
-      "description": "OpenClaw Nextcloud Talk channel plugin",
+      "name": "@alien/nextcloud-talk",
+      "description": "Alien Nextcloud Talk channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "nextcloud-talk",
           "label": "Nextcloud Talk",
@@ -313,18 +313,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/nextcloud-talk",
+          "npmSpec": "@alien/nextcloud-talk",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/nostr",
-      "description": "OpenClaw Nostr channel plugin for NIP-04 encrypted DMs",
+      "name": "@alien/nostr",
+      "description": "Alien Nostr channel plugin for NIP-04 encrypted DMs",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "nostr",
           "label": "Nostr",
@@ -336,18 +336,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/nostr",
+          "npmSpec": "@alien/nostr",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/qqbot",
-      "description": "OpenClaw QQ Bot channel plugin",
+      "name": "@alien/qqbot",
+      "description": "Alien QQ Bot channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "qqbot",
           "label": "QQ Bot",
@@ -359,40 +359,40 @@
           "systemImage": "bubble.left.and.bubble.right"
         },
         "install": {
-          "npmSpec": "@openclaw/qqbot",
+          "npmSpec": "@alien/qqbot",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/synology-chat",
-      "description": "Synology Chat channel plugin for OpenClaw",
+      "name": "@alien/synology-chat",
+      "description": "Synology Chat channel plugin for Alien",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "synology-chat",
           "label": "Synology Chat",
           "selectionLabel": "Synology Chat (Webhook)",
           "docsPath": "/channels/synology-chat",
           "docsLabel": "synology-chat",
-          "blurb": "Connect your Synology NAS Chat to OpenClaw with full agent capabilities.",
+          "blurb": "Connect your Synology NAS Chat to Alien with full agent capabilities.",
           "order": 90
         },
         "install": {
-          "npmSpec": "@openclaw/synology-chat",
+          "npmSpec": "@alien/synology-chat",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/tlon",
-      "description": "OpenClaw Tlon/Urbit channel plugin",
+      "name": "@alien/tlon",
+      "description": "Alien Tlon/Urbit channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "tlon",
           "label": "Tlon",
@@ -404,18 +404,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/tlon",
+          "npmSpec": "@alien/tlon",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/twitch",
-      "description": "OpenClaw Twitch channel plugin",
+      "name": "@alien/twitch",
+      "description": "Alien Twitch channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "twitch",
           "label": "Twitch",
@@ -425,18 +425,18 @@
           "aliases": ["twitch-chat"]
         },
         "install": {
-          "npmSpec": "@openclaw/twitch",
+          "npmSpec": "@alien/twitch",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/whatsapp",
-      "description": "OpenClaw WhatsApp channel plugin",
+      "name": "@alien/whatsapp",
+      "description": "Alien WhatsApp channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "whatsapp",
           "label": "WhatsApp",
@@ -448,18 +448,18 @@
           "systemImage": "message"
         },
         "install": {
-          "npmSpec": "@openclaw/whatsapp",
+          "npmSpec": "@alien/whatsapp",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.25"
         }
       }
     },
     {
-      "name": "@openclaw/zalo",
-      "description": "OpenClaw Zalo channel plugin",
+      "name": "@alien/zalo",
+      "description": "Alien Zalo channel plugin",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "zalo",
           "label": "Zalo",
@@ -472,18 +472,18 @@
           "quickstartAllowFrom": true
         },
         "install": {
-          "npmSpec": "@openclaw/zalo",
+          "npmSpec": "@alien/zalo",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }
       }
     },
     {
-      "name": "@openclaw/zalouser",
-      "description": "OpenClaw Zalo Personal Account plugin via native zca-js integration",
+      "name": "@alien/zalouser",
+      "description": "Alien Zalo Personal Account plugin via native zca-js integration",
       "source": "official",
       "kind": "channel",
-      "openclaw": {
+      "alien": {
         "channel": {
           "id": "zalouser",
           "label": "Zalo Personal",
@@ -496,7 +496,7 @@
           "quickstartAllowFrom": false
         },
         "install": {
-          "npmSpec": "@openclaw/zalouser",
+          "npmSpec": "@alien/zalouser",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.4.10"
         }

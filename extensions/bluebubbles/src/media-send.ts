@@ -1,12 +1,12 @@
 import {
   basenameFromMediaSource,
   readLocalFileFromRoots,
-} from "openclaw/plugin-sdk/file-access-runtime";
-import { resolveChannelMediaMaxBytes } from "openclaw/plugin-sdk/media-runtime";
+} from "alien/plugin-sdk/file-access-runtime";
+import { resolveChannelMediaMaxBytes } from "alien/plugin-sdk/media-runtime";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { sendBlueBubblesAttachment } from "./attachments.js";
 import { resolveBlueBubblesMessageId } from "./monitor-reply-cache.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 import { getBlueBubblesRuntime } from "./runtime.js";
 import { sendMessageBlueBubbles } from "./send.js";
 import { buildBlueBubblesChatContextFromTarget } from "./targets.js";
@@ -26,7 +26,7 @@ function assertMediaWithinLimit(sizeBytes: number, maxBytes?: number): void {
   throw new Error(`Media exceeds ${maxLabel}MB limit (got ${sizeLabel}MB)`);
 }
 
-function resolveMediaLocalRoots(params: { cfg: OpenClawConfig; accountId?: string }): string[] {
+function resolveMediaLocalRoots(params: { cfg: AlienConfig; accountId?: string }): string[] {
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg,
     accountId: params.accountId,
@@ -74,7 +74,7 @@ function resolveFilenameFromSource(source?: string): string | undefined {
 }
 
 export async function sendBlueBubblesMedia(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   to: string;
   mediaUrl?: string;
   mediaPath?: string;

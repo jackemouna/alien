@@ -1,6 +1,6 @@
 import { request as httpRequest } from "node:http";
 import { expect, vi } from "vitest";
-import type { OpenClawConfig, PluginRuntime } from "../runtime-api.js";
+import type { AlienConfig, PluginRuntime } from "../runtime-api.js";
 import type { ResolvedZaloAccount } from "../types.js";
 
 function resolveLifecycleAllowFrom(params: {
@@ -16,7 +16,7 @@ function createLifecycleConfig(params: {
   allowFrom?: string[];
   webhookUrl?: string;
   webhookSecret?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   const webhookUrl = params.webhookUrl ?? "https://example.com/hooks/zalo";
   const webhookSecret = params.webhookSecret ?? "supersecret";
   const allowFrom = resolveLifecycleAllowFrom(params);
@@ -35,7 +35,7 @@ function createLifecycleConfig(params: {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function createLifecycleAccount(params: {

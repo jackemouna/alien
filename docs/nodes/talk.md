@@ -55,7 +55,7 @@ Supported keys:
 - `seed`, `normalize`, `lang`, `output_format`, `latency_tier`
 - `once`
 
-## Config (`~/.openclaw/openclaw.json`)
+## Config (`~/.alien/alien.json`)
 
 ```json5
 {
@@ -132,10 +132,10 @@ Defaults:
 
 - Requires Speech + Microphone permissions.
 - Native Talk uses the active Gateway session and only falls back to history polling when response events are unavailable.
-- Browser realtime Talk uses `talk.client.toolCall` for `openclaw_agent_consult` instead of exposing `chat.send` to provider-owned browser sessions.
+- Browser realtime Talk uses `talk.client.toolCall` for `alien_agent_consult` instead of exposing `chat.send` to provider-owned browser sessions.
 - Transcription-only Talk uses `talk.session.create`, `talk.session.appendAudio`, `talk.session.cancelTurn`, and `talk.session.close`; clients subscribe to `talk.event` for partial/final transcript updates.
 - The gateway resolves Talk playback through `talk.speak` using the active Talk provider. Android falls back to local system TTS only when that RPC is unavailable.
-- macOS local MLX playback uses the bundled `openclaw-mlx-tts` helper when present, or an executable on `PATH`. Set `OPENCLAW_MLX_TTS_BIN` to point at a custom helper binary during development.
+- macOS local MLX playback uses the bundled `alien-mlx-tts` helper when present, or an executable on `PATH`. Set `ALIEN_MLX_TTS_BIN` to point at a custom helper binary during development.
 - `stability` for `eleven_v3` is validated to `0.0`, `0.5`, or `1.0`; other models accept `0..1`.
 - `latency_tier` is validated to `0..4` when set.
 - Android supports `pcm_16000`, `pcm_22050`, `pcm_24000`, and `pcm_44100` output formats for low-latency AudioTrack streaming.

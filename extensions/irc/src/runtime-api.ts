@@ -1,11 +1,11 @@
 // Private runtime barrel for the bundled IRC extension.
 // Keep this barrel thin and generic-only.
 
-export type { BaseProbeResult } from "openclaw/plugin-sdk/channel-contract";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-export type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
+export type { BaseProbeResult } from "alien/plugin-sdk/channel-contract";
+export type { ChannelPlugin } from "alien/plugin-sdk/channel-core";
+export type { AlienConfig } from "alien/plugin-sdk/config-types";
+export type { PluginRuntime } from "alien/plugin-sdk/runtime-store";
+export type { RuntimeEnv } from "alien/plugin-sdk/runtime";
 export type {
   BlockStreamingCoalesceConfig,
   DmConfig,
@@ -14,33 +14,33 @@ export type {
   GroupToolPolicyBySenderConfig,
   GroupToolPolicyConfig,
   MarkdownConfig,
-} from "openclaw/plugin-sdk/config-types";
-export type { OutboundReplyPayload } from "openclaw/plugin-sdk/reply-payload";
-export { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-export { buildChannelConfigSchema } from "openclaw/plugin-sdk/channel-config-primitives";
+} from "alien/plugin-sdk/config-types";
+export type { OutboundReplyPayload } from "alien/plugin-sdk/reply-payload";
+export { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+export { buildChannelConfigSchema } from "alien/plugin-sdk/channel-config-primitives";
 export {
   PAIRING_APPROVED_MESSAGE,
   buildBaseChannelStatusSummary,
-} from "openclaw/plugin-sdk/channel-status";
-export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
-export { createAccountStatusSink } from "openclaw/plugin-sdk/channel-lifecycle";
+} from "alien/plugin-sdk/channel-status";
+export { createChannelPairingController } from "alien/plugin-sdk/channel-pairing";
+export { createAccountStatusSink } from "alien/plugin-sdk/channel-lifecycle";
 export {
   readStoreAllowFromForDmPolicy,
   resolveEffectiveAllowFromLists,
-} from "openclaw/plugin-sdk/channel-policy";
-export { resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
-export { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";
-export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
+} from "alien/plugin-sdk/channel-policy";
+export { resolveControlCommandGate } from "alien/plugin-sdk/command-auth";
+export { dispatchChannelMessageReplyWithBase } from "alien/plugin-sdk/channel-message";
+export { chunkTextForOutbound } from "alien/plugin-sdk/text-chunking";
 export {
   deliverFormattedTextWithAttachments,
   formatTextWithAttachmentLinks,
   resolveOutboundMediaUrls,
-} from "openclaw/plugin-sdk/reply-payload";
+} from "alien/plugin-sdk/reply-payload";
 export {
   GROUP_POLICY_BLOCKED_LABEL,
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
-export { isDangerousNameMatchingEnabled } from "openclaw/plugin-sdk/dangerous-name-runtime";
-export { logInboundDrop } from "openclaw/plugin-sdk/channel-inbound";
+} from "alien/plugin-sdk/runtime-group-policy";
+export { isDangerousNameMatchingEnabled } from "alien/plugin-sdk/dangerous-name-runtime";
+export { logInboundDrop } from "alien/plugin-sdk/channel-inbound";

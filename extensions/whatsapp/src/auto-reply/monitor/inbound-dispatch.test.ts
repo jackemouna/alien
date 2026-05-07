@@ -25,8 +25,8 @@ const {
   ),
 }));
 
-vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+vi.mock("alien/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("alien/plugin-sdk/channel-message")>();
   return {
     ...actual,
     deliverInboundReplyWithMessageSendContext: deliverInboundReplyWithMessageSendContextMock,
@@ -442,7 +442,7 @@ describe("whatsapp inbound dispatch", () => {
             {
               id: "main",
               default: true,
-              identity: { name: "Mainbot", emoji: "🦞", theme: "space lobster" },
+              identity: { name: "Mainbot", emoji: "👾", theme: "space lobster" },
             },
           ],
         },

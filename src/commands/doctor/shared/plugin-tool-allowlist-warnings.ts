@@ -1,5 +1,5 @@
 import { normalizeToolName } from "../../../agents/tool-policy-shared.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import { normalizePluginId } from "../../../plugins/config-state.js";
 import { loadManifestMetadataSnapshot } from "../../../plugins/manifest-contract-eligibility.js";
 import type { PluginManifestRegistry } from "../../../plugins/manifest-registry.js";
@@ -50,7 +50,7 @@ function collectToolPolicySources(policy: unknown, label: string, out: ToolAllow
   collectToolPolicySources(subagentTools, `${label}.subagents.tools`, out);
 }
 
-function collectToolAllowlistSources(cfg: OpenClawConfig): ToolAllowlistSource[] {
+function collectToolAllowlistSources(cfg: AlienConfig): ToolAllowlistSource[] {
   const sources: ToolAllowlistSource[] = [];
   collectToolPolicySources(cfg.tools, "tools", sources);
   const agentList = cfg.agents?.list;
@@ -106,7 +106,7 @@ function addIssue(issues: Map<string, Set<string>>, key: string, sourceLabel: st
 }
 
 export function collectPluginToolAllowlistWarnings(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   manifestRegistry?: PluginManifestRegistry;
 }): string[] {
@@ -195,7 +195,7 @@ export function collectPluginToolAllowlistWarnings(params: {
 }
 
 export function collectBundledProviderAllowlistPolicyWarnings(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): string[] {
   if (params.cfg.plugins?.enabled === false) {
     return [];

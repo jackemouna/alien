@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig, RuntimeEnv } from "./runtime-api.js";
+import type { AlienConfig, RuntimeEnv } from "./runtime-api.js";
 
 class FakeWebSocket {
   public readonly sent: string[] = [];
@@ -139,7 +139,7 @@ vi.mock("./runtime-api.js", async () => {
   };
 });
 
-function createRuntimeCore(cfg: OpenClawConfig) {
+function createRuntimeCore(cfg: AlienConfig) {
   const runPrepared = vi.fn(
     async (turn: {
       storePath: string;
@@ -276,7 +276,7 @@ function createRuntimeCore(cfg: OpenClawConfig) {
         }),
       },
       session: {
-        resolveStorePath: () => "/tmp/openclaw-test-sessions.json",
+        resolveStorePath: () => "/tmp/alien-test-sessions.json",
         recordInboundSession: vi.fn(async () => {}),
         updateLastRoute: vi.fn(async () => {}),
       },
@@ -296,7 +296,7 @@ function createRuntimeCore(cfg: OpenClawConfig) {
   };
 }
 
-const testConfig: OpenClawConfig = {
+const testConfig: AlienConfig = {
   channels: {
     mattermost: {
       enabled: true,
@@ -334,7 +334,7 @@ describe("mattermost inbound user posts", () => {
     });
     mockState.fetchMattermostMe.mockResolvedValue({
       id: "bot-user",
-      username: "openclaw",
+      username: "alien",
       update_at: 1,
     });
     mockState.registerMattermostMonitorSlashCommands.mockResolvedValue(undefined);
@@ -409,7 +409,7 @@ describe("mattermost inbound user posts", () => {
     const socket = new FakeWebSocket();
     const abortController = new AbortController();
     mockState.abortController = abortController;
-    const directConfig: OpenClawConfig = {
+    const directConfig: AlienConfig = {
       channels: {
         mattermost: {
           enabled: true,

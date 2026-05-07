@@ -1,9 +1,9 @@
 import { ChannelType } from "discord-api-types/v10";
-import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { OutboundMediaAccess } from "openclaw/plugin-sdk/media-runtime";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
-import type { ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
+import { recordChannelActivity } from "alien/plugin-sdk/channel-activity-runtime";
+import type { MarkdownTableMode, AlienConfig } from "alien/plugin-sdk/config-types";
+import type { OutboundMediaAccess } from "alien/plugin-sdk/media-runtime";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
+import type { ChunkMode } from "alien/plugin-sdk/reply-chunking";
 import { resolveDiscordAccount } from "./accounts.js";
 import { registerDiscordComponentEntries } from "./components-registry.js";
 import {
@@ -147,7 +147,7 @@ function collapseClassicComponentText(spec: DiscordComponentMessageSpec): string
 }
 
 type DiscordComponentSendOpts = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
   token?: string;
   rest?: RequestClient;

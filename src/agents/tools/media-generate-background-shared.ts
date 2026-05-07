@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { clearAgentRunContext, registerAgentRunContext } from "../../infra/agent-events.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -54,7 +54,7 @@ type FailMediaGenerationTaskRunParams = {
 };
 
 type WakeMediaGenerationTaskCompletionParams = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;
@@ -266,7 +266,7 @@ function inferMediaGenerationCompletionChatType(
 }
 
 function mediaGenerationCompletionRequiresMessageToolDelivery(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   handle: MediaGenerationTaskHandle;
 }): boolean {
   const chatType = inferMediaGenerationCompletionChatType(params.handle);
@@ -279,7 +279,7 @@ function mediaGenerationCompletionRequiresMessageToolDelivery(params: {
 }
 
 async function wakeMediaGenerationTaskCompletion(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;

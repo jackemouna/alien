@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { PluginRuntime } from "openclaw/plugin-sdk/core";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { PluginRuntime } from "alien/plugin-sdk/core";
 import type { GatewayAccount } from "../engine/types.js";
 import type { ResolvedQQBotAccount } from "../types.js";
 
@@ -18,11 +18,11 @@ export function toGatewayAccount(account: ResolvedQQBotAccount): GatewayAccount 
 }
 
 /**
- * Persist OpenClaw config through the injected plugin runtime (typed entry point).
+ * Persist Alien config through the injected plugin runtime (typed entry point).
  */
-export async function writeOpenClawConfigThroughRuntime(
+export async function writeAlienConfigThroughRuntime(
   runtime: PluginRuntime,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): Promise<void> {
   await runtime.config.replaceConfigFile({
     nextConfig: cfg,

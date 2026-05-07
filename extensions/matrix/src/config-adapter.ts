@@ -1,8 +1,8 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
+} from "alien/plugin-sdk/channel-config-helpers";
 import {
   listMatrixAccountIds,
   resolveDefaultMatrixAccountId,

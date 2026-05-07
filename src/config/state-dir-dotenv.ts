@@ -8,7 +8,7 @@ import {
 } from "../infra/host-env-security.js";
 import { collectConfigServiceEnvVars } from "./config-env-vars.js";
 import { resolveStateDir } from "./paths.js";
-import type { OpenClawConfig } from "./types.js";
+import type { AlienConfig } from "./types.js";
 
 function isBlockedServiceEnvVar(key: string): boolean {
   return isDangerousHostEnvVarName(key) || isDangerousHostEnvOverrideVarName(key);
@@ -43,7 +43,7 @@ export function readStateDirDotEnvVarsFromStateDir(stateDir: string): Record<str
 }
 
 /**
- * Read and parse `~/.openclaw/.env` (or `$OPENCLAW_STATE_DIR/.env`), returning
+ * Read and parse `~/.alien/.env` (or `$ALIEN_STATE_DIR/.env`), returning
  * a filtered record of key-value pairs suitable for a managed service
  * environment source.
  */
@@ -62,7 +62,7 @@ export type DurableServiceEnvVarSources = {
 
 export function collectDurableServiceEnvVarSources(params: {
   env: Record<string, string | undefined>;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
 }): DurableServiceEnvVarSources {
   const stateDirDotEnvEnvironment = readStateDirDotEnvVars(params.env);
   const configEnvironment = collectConfigServiceEnvVars(params.config);
@@ -86,7 +86,7 @@ export function collectDurableServiceEnvVarSources(params: {
  */
 export function collectDurableServiceEnvVars(params: {
   env: Record<string, string | undefined>;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
 }): Record<string, string> {
   return collectDurableServiceEnvVarSources(params).durableEnvironment;
 }

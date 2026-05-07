@@ -1,20 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveDefaultAgentId, resolveSessionAgentId } from "openclaw/plugin-sdk/memory-host-core";
-import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-host-files";
-import { getActiveMemorySearchManager } from "openclaw/plugin-sdk/memory-host-search";
+import { resolveDefaultAgentId, resolveSessionAgentId } from "alien/plugin-sdk/memory-host-core";
+import type { MemorySearchResult } from "alien/plugin-sdk/memory-host-files";
+import { getActiveMemorySearchManager } from "alien/plugin-sdk/memory-host-search";
 import {
   extractTranscriptStemFromSessionsMemoryHit,
   loadCombinedSessionStoreForGateway,
   resolveTranscriptStemToSessionKeys,
-} from "openclaw/plugin-sdk/session-transcript-hit";
+} from "alien/plugin-sdk/session-transcript-hit";
 import {
   createAgentToAgentPolicy,
   createSessionVisibilityGuard,
   resolveEffectiveSessionToolsVisibility,
-} from "openclaw/plugin-sdk/session-visibility";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
-import type { OpenClawConfig } from "../api.js";
+} from "alien/plugin-sdk/session-visibility";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
+import type { AlienConfig } from "../api.js";
 import { assessClaimFreshness, isClaimContestedStatus } from "./claim-health.js";
 import type { ResolvedMemoryWikiConfig, WikiSearchBackend, WikiSearchCorpus } from "./config.js";
 import {
@@ -27,10 +27,10 @@ import {
 import { initializeMemoryWikiVault } from "./vault.js";
 
 const QUERY_DIRS = ["entities", "concepts", "sources", "syntheses", "reports"] as const;
-const AGENT_DIGEST_PATH = ".openclaw-wiki/cache/agent-digest.json";
-const CLAIMS_DIGEST_PATH = ".openclaw-wiki/cache/claims.jsonl";
+const AGENT_DIGEST_PATH = ".alien-wiki/cache/agent-digest.json";
+const CLAIMS_DIGEST_PATH = ".alien-wiki/cache/claims.jsonl";
 const RELATED_BLOCK_PATTERN =
-  /<!-- openclaw:wiki:related:start -->[\s\S]*?<!-- openclaw:wiki:related:end -->/g;
+  /<!-- alien:wiki:related:start -->[\s\S]*?<!-- alien:wiki:related:end -->/g;
 const MARKDOWN_FRONTMATTER_PATTERN = /^\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/;
 const ROUTE_QUESTION_STOP_WORDS = new Set([
   "a",
@@ -979,7 +979,7 @@ function shouldUseSharedMemory(config: ResolvedMemoryWikiConfig): boolean {
 
 function assertSessionVisibilityAppConfig(params: {
   config: ResolvedMemoryWikiConfig;
-  appConfig?: OpenClawConfig;
+  appConfig?: AlienConfig;
   agentSessionKey?: string;
   sandboxed?: boolean;
   operation: string;
@@ -1013,13 +1013,13 @@ function shouldSearchWiki(config: ResolvedMemoryWikiConfig): boolean {
 
 function shouldSearchSharedMemory(
   config: ResolvedMemoryWikiConfig,
-  appConfig?: OpenClawConfig,
+  appConfig?: AlienConfig,
 ): boolean {
   return shouldUseSharedMemory(config) && appConfig !== undefined;
 }
 
 function resolveActiveMemoryAgentId(params: {
-  appConfig?: OpenClawConfig;
+  appConfig?: AlienConfig;
   agentId?: string;
   agentSessionKey?: string;
 }): string | null {
@@ -1039,7 +1039,7 @@ function resolveActiveMemoryAgentId(params: {
 }
 
 async function resolveActiveMemoryManager(params: {
-  appConfig?: OpenClawConfig;
+  appConfig?: AlienConfig;
   agentId?: string;
   agentSessionKey?: string;
 }) {
@@ -1204,7 +1204,7 @@ function toMemoryWikiSearchResult(
 }
 
 async function filterMemoryWikiSearchHitsBySessionVisibility(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   requesterSessionKey: string | undefined;
   sandboxed: boolean;
   hits: MemorySearchResult[];
@@ -1227,7 +1227,7 @@ async function filterMemoryWikiSearchHitsBySessionVisibility(params: {
 type SessionMemoryPathVisibilityChecker = (relPath: string) => boolean;
 
 async function createSessionMemoryPathVisibilityChecker(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   requesterSessionKey: string | undefined;
   sandboxed: boolean;
 }): Promise<SessionMemoryPathVisibilityChecker> {
@@ -1369,7 +1369,7 @@ export function resolveQueryableWikiPageByLookup(
 
 export async function searchMemoryWiki(params: {
   config: ResolvedMemoryWikiConfig;
-  appConfig?: OpenClawConfig;
+  appConfig?: AlienConfig;
   agentId?: string;
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -1434,7 +1434,7 @@ export async function searchMemoryWiki(params: {
 
 export async function getMemoryWikiPage(params: {
   config: ResolvedMemoryWikiConfig;
-  appConfig?: OpenClawConfig;
+  appConfig?: AlienConfig;
   agentId?: string;
   agentSessionKey?: string;
   sandboxed?: boolean;

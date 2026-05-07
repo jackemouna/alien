@@ -1,30 +1,30 @@
 import type { SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
-import { resolveDefaultModelForAgent } from "openclaw/plugin-sdk/agent-runtime";
-import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+import { resolveDefaultModelForAgent } from "alien/plugin-sdk/agent-runtime";
+import { createChannelMessageReplyPipeline } from "alien/plugin-sdk/channel-message";
 import {
   formatCommandArgMenuTitle,
   resolveStoredModelOverride,
   type ChatCommandDefinition,
-} from "openclaw/plugin-sdk/command-auth";
+} from "alien/plugin-sdk/command-auth";
 import {
   type CommandArgs,
   resolveCommandAuthorizedFromAuthorizers,
   resolveNativeCommandSessionTargets,
-} from "openclaw/plugin-sdk/command-auth-native";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+} from "alien/plugin-sdk/command-auth-native";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "openclaw/plugin-sdk/native-command-config-runtime";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { loadSessionStore, resolveStorePath } from "openclaw/plugin-sdk/session-store-runtime";
+} from "alien/plugin-sdk/native-command-config-runtime";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-runtime";
+import type { ResolvedAgentRoute } from "alien/plugin-sdk/routing";
+import { danger, logVerbose } from "alien/plugin-sdk/runtime-env";
+import { loadSessionStore, resolveStorePath } from "alien/plugin-sdk/session-store-runtime";
 import {
   chunkItems,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import type { ResolvedSlackAccount } from "../accounts.js";
 import { SLACK_MAX_BLOCKS } from "../blocks-input.js";
 import { truncateSlackText } from "../truncate.js";
@@ -46,8 +46,8 @@ import { resolveSlackRoomContextHints } from "./room-context.js";
 
 type SlackBlock = { type: string; [key: string]: unknown };
 
-const SLACK_COMMAND_ARG_ACTION_ID = "openclaw_cmdarg";
-const SLACK_COMMAND_ARG_ACTION_LISTENER = /^openclaw_cmdarg/;
+const SLACK_COMMAND_ARG_ACTION_ID = "alien_cmdarg";
+const SLACK_COMMAND_ARG_ACTION_LISTENER = /^alien_cmdarg/;
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
 const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;

@@ -50,7 +50,7 @@ vi.mock("@line/bot-sdk", () => ({
   messagingApi: { MessagingApiClient: MessagingApiClientMock },
 }));
 
-vi.mock("openclaw/plugin-sdk/plugin-config-runtime", () => ({
+vi.mock("alien/plugin-sdk/plugin-config-runtime", () => ({
   requireRuntimeConfig: requireRuntimeConfigMock,
 }));
 
@@ -62,13 +62,13 @@ vi.mock("./channel-access-token.js", () => ({
   resolveLineChannelAccessToken: resolveLineChannelAccessTokenMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/channel-activity-runtime", () => ({
+vi.mock("alien/plugin-sdk/channel-activity-runtime", () => ({
   recordChannelActivity: recordChannelActivityMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("alien/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/runtime-env")>(
+    "alien/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -76,7 +76,7 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   resolvePinnedHostnameWithPolicy: resolvePinnedHostnameWithPolicyMock,
 }));
 

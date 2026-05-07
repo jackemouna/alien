@@ -1,6 +1,6 @@
-export { getChatChannelMeta, type ChannelPlugin } from "openclaw/plugin-sdk/core";
+export { getChatChannelMeta, type ChannelPlugin } from "alien/plugin-sdk/core";
 export { buildChannelConfigSchema, WhatsAppConfigSchema } from "../config-api.js";
-export { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+export { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
 export {
   formatWhatsAppConfigAllowFromEntries,
   resolveWhatsAppConfigAllowFrom,
@@ -12,12 +12,12 @@ export {
   readReactionParams,
   readStringParam,
   ToolAuthorizationError,
-} from "openclaw/plugin-sdk/channel-actions";
-export { normalizeE164 } from "openclaw/plugin-sdk/account-resolution";
-export type { DmPolicy, GroupPolicy } from "openclaw/plugin-sdk/config-types";
-import type { OpenClawConfig as RuntimeOpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-actions";
+export { normalizeE164 } from "alien/plugin-sdk/account-resolution";
+export type { DmPolicy, GroupPolicy } from "alien/plugin-sdk/config-types";
+import type { AlienConfig as RuntimeAlienConfig } from "alien/plugin-sdk/config-types";
 
-export { type ChannelMessageActionName } from "openclaw/plugin-sdk/channel-contract";
+export { type ChannelMessageActionName } from "alien/plugin-sdk/channel-contract";
 export { loadOutboundMediaFromUrl } from "./outbound-media.runtime.js";
 export {
   resolveWhatsAppGroupRequireMention,
@@ -39,7 +39,7 @@ export {
 export { resolveWhatsAppOutboundTarget } from "./resolve-outbound-target.js";
 export { resolveWhatsAppReactionLevel } from "./reaction-level.js";
 
-export type OpenClawConfig = RuntimeOpenClawConfig;
+export type AlienConfig = RuntimeAlienConfig;
 export type { WhatsAppAccountConfig } from "./account-types.js";
 
 type MonitorWebChannel = typeof import("./channel.runtime.js").monitorWebChannel;

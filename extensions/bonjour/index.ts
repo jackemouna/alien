@@ -1,20 +1,20 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
 
 function formatBonjourInstanceName(displayName: string) {
   const trimmed = displayName.trim();
   if (!trimmed) {
-    return "OpenClaw";
+    return "Alien";
   }
-  if (/openclaw/i.test(trimmed)) {
+  if (/alien/i.test(trimmed)) {
     return trimmed;
   }
-  return `${trimmed} (OpenClaw)`;
+  return `${trimmed} (Alien)`;
 }
 
 export default definePluginEntry({
   id: "bonjour",
   name: "Bonjour Gateway Discovery",
-  description: "Advertise the local OpenClaw gateway over Bonjour/mDNS.",
+  description: "Advertise the local Alien gateway over Bonjour/mDNS.",
   register(api) {
     api.registerGatewayDiscoveryService({
       id: "bonjour",
@@ -24,7 +24,7 @@ export default definePluginEntry({
           { registerUncaughtExceptionHandler, registerUnhandledRejectionHandler },
         ] = await Promise.all([
           import("./src/advertiser.js"),
-          import("openclaw/plugin-sdk/runtime"),
+          import("alien/plugin-sdk/runtime"),
         ]);
         const advertiser = await startGatewayBonjourAdvertiser(
           {

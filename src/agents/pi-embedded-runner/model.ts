@@ -5,7 +5,7 @@ import {
   type AuthStorage,
   type ModelRegistry,
 } from "@mariozechner/pi-coding-agent";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import {
   applyProviderResolvedModelCompatWithPlugins,
@@ -154,7 +154,7 @@ function canonicalizeLegacyResolvedModel(params: {
 
 function applyResolvedTransportFallback(params: {
   provider: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   runtimeHooks: ProviderRuntimeHooks;
   model: Model<Api>;
 }): Model<Api> | undefined {
@@ -185,7 +185,7 @@ function applyResolvedTransportFallback(params: {
 function normalizeResolvedModel(params: {
   provider: string;
   model: Model<Api>;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
 }): Model<Api> {
@@ -289,7 +289,7 @@ function resolveProviderTransport(params: {
   provider: string;
   api?: Api | null;
   baseUrl?: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   runtimeHooks?: ProviderRuntimeHooks;
 }): {
   api?: Api;
@@ -381,7 +381,7 @@ function findInlineModelMatch(params: {
 export { buildModelAliasLines, buildInlineProviderModels };
 
 function resolveConfiguredProviderConfig(
-  cfg: OpenClawConfig | undefined,
+  cfg: AlienConfig | undefined,
   provider: string,
 ): InlineProviderConfig | undefined {
   const configuredProviders = cfg?.models?.providers;
@@ -432,7 +432,7 @@ function mergeModelParams(
 }
 
 function findConfiguredAgentModelParams(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   provider: string;
   modelId: string;
 }): Record<string, unknown> | undefined {
@@ -474,7 +474,7 @@ function findConfiguredAgentModelParams(params: {
 }
 
 function mergeConfiguredRuntimeModelParams(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   provider: string;
   modelId: string;
   discoveredParams?: unknown;
@@ -496,7 +496,7 @@ function applyConfiguredProviderOverrides(params: {
   discoveredModel: ProviderRuntimeModel;
   providerConfig?: InlineProviderConfig;
   modelId: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   runtimeHooks?: ProviderRuntimeHooks;
   preferDiscoveredModelMetadata?: boolean;
 }): ProviderRuntimeModel {
@@ -633,7 +633,7 @@ function resolveExplicitModelWithRegistry(params: {
   provider: string;
   modelId: string;
   modelRegistry: ModelRegistry;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
 }): { kind: "resolved"; model: Model<Api> } | { kind: "suppressed" } | undefined {
@@ -743,7 +743,7 @@ function resolvePluginDynamicModelWithRegistry(params: {
   provider: string;
   modelId: string;
   modelRegistry: ModelRegistry;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   workspaceDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
@@ -796,7 +796,7 @@ function resolvePluginDynamicModelWithRegistry(params: {
 function resolveConfiguredFallbackModel(params: {
   provider: string;
   modelId: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
 }): Model<Api> | undefined {
@@ -884,7 +884,7 @@ function resolveConfiguredFallbackModel(params: {
 function shouldCompareProviderRuntimeResolvedModel(params: {
   provider: string;
   modelId: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   workspaceDir?: string;
   runtimeHooks: ProviderRuntimeHooks;
@@ -919,7 +919,7 @@ export function resolveModelWithRegistry(params: {
   provider: string;
   modelId: string;
   modelRegistry: ModelRegistry;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
 }): Model<Api> | undefined {
@@ -972,7 +972,7 @@ export function resolveModel(
   provider: string,
   modelId: string,
   agentDir?: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
   options?: {
     authStorage?: AuthStorage;
     modelRegistry?: ModelRegistry;
@@ -1022,7 +1022,7 @@ export async function resolveModelAsync(
   provider: string,
   modelId: string,
   agentDir?: string,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
   options?: {
     authStorage?: AuthStorage;
     modelRegistry?: ModelRegistry;
@@ -1141,12 +1141,12 @@ export async function resolveModelAsync(
  * providers before setup, the raw `Unknown model` error is too vague. Provider
  * plugins can append a targeted recovery hint here.
  *
- * See: https://github.com/openclaw/openclaw/issues/17328
+ * See: https://github.com/alien/alien/issues/17328
  */
 function buildUnknownModelError(params: {
   provider: string;
   modelId: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir?: string;
   runtimeHooks?: ProviderRuntimeHooks;
 }): string {

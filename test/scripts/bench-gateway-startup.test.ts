@@ -14,7 +14,7 @@ describe("gateway startup benchmark script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("OpenClaw Gateway startup benchmark");
+    expect(result.stdout).toContain("Alien Gateway startup benchmark");
     expect(result.stdout).toContain("--case <id>");
     expect(result.stdout).toContain("--cpu-prof-dir <dir>");
     expect(result.stdout).toContain("default (gateway default)");

@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   createAccountScopedConversationBindingManager,
   resetAccountScopedConversationBindingsForTests,
   type AccountScopedConversationBindingManager,
   type BindingTargetKind,
-} from "openclaw/plugin-sdk/thread-bindings-runtime";
+} from "alien/plugin-sdk/thread-bindings-runtime";
 
 type IMessageBindingTargetKind = "subagent" | "acp";
 
@@ -12,7 +12,7 @@ type IMessageConversationBindingManager =
   AccountScopedConversationBindingManager<IMessageBindingTargetKind>;
 
 const IMESSAGE_CONVERSATION_BINDINGS_STATE_KEY = Symbol.for(
-  "openclaw.imessageConversationBindingsState",
+  "alien.imessageConversationBindingsState",
 );
 
 function toSessionBindingTargetKind(raw: IMessageBindingTargetKind): BindingTargetKind {
@@ -25,7 +25,7 @@ function toIMessageTargetKind(raw: BindingTargetKind): IMessageBindingTargetKind
 
 export function createIMessageConversationBindingManager(params: {
   accountId?: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): IMessageConversationBindingManager {
   return createAccountScopedConversationBindingManager({
     channel: "imessage",

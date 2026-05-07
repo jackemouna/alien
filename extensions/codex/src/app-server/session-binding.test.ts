@@ -29,7 +29,7 @@ const nativeAuthLookup: Pick<CodexAppServerAuthProfileLookup, "authProfileStore"
 
 describe("codex app-server session binding", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-binding-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-codex-binding-"));
   });
 
   afterEach(async () => {

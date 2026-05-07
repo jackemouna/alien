@@ -1,24 +1,24 @@
-import { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+import { createChannelPairingController } from "alien/plugin-sdk/channel-pairing";
 import {
   ensureConfiguredBindingRouteReady,
   resolveConfiguredBindingRoute,
   resolveRuntimeConversationBindingRoute,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { resolveAgentOutboundIdentity } from "openclaw/plugin-sdk/outbound-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
+import { resolveAgentOutboundIdentity } from "alien/plugin-sdk/outbound-runtime";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
+} from "alien/plugin-sdk/reply-history";
 import {
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
-import { resolveOpenDmAllowlistAccess } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/runtime-group-policy";
+import { resolveOpenDmAllowlistAccess } from "alien/plugin-sdk/security-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import {
   checkBotMentioned,

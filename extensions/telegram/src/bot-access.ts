@@ -3,14 +3,14 @@ import {
   isSenderIdAllowed,
   mergeDmAllowFromSources,
   type AllowlistMatch,
-} from "openclaw/plugin-sdk/allow-from";
+} from "alien/plugin-sdk/allow-from";
 import {
   parseAccessGroupAllowFromEntry,
   resolveAccessGroupAllowFromMatches,
-} from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 export type NormalizedAllowFrom = {
   entries: string[];
@@ -82,7 +82,7 @@ export const isSenderAllowed = (params: {
 };
 
 export async function expandTelegramAllowFromWithAccessGroups(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   allowFrom?: Array<string | number>;
   accountId?: string;
   senderId?: string;

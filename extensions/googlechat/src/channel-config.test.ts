@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { googlechatPlugin } from "./channel.js";
 
@@ -9,7 +9,7 @@ describe("googlechatPlugin config adapter", () => {
         providers: {
           google_chat_service_account: {
             source: "file",
-            path: "/tmp/openclaw-missing-google-chat-service-account",
+            path: "/tmp/alien-missing-google-chat-service-account",
             mode: "singleValue",
           },
         },
@@ -27,7 +27,7 @@ describe("googlechatPlugin config adapter", () => {
           defaultTo: "spaces/AAA",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(googlechatPlugin.config.resolveAllowFrom?.({ cfg, accountId: "default" })).toEqual([
       "users/123",

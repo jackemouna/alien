@@ -1,13 +1,13 @@
 import { getLoadedChannelPlugin } from "../channels/plugins/index.js";
 import { resolveReadOnlyChannelCommandDefaults } from "../channels/plugins/read-only-command-defaults.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { pluginCommandSupportsChannel } from "./command-registration.js";
 import { pluginCommands } from "./command-registry-state.js";
-import type { OpenClawPluginCommandDefinition } from "./types.js";
+import type { AlienPluginCommandDefinition } from "./types.js";
 
 function resolvePluginNativeName(
-  command: OpenClawPluginCommandDefinition,
+  command: AlienPluginCommandDefinition,
   provider?: string,
 ): string {
   const providerName = normalizeOptionalLowercaseString(provider);
@@ -28,7 +28,7 @@ export function getPluginCommandSpecs(
     env?: NodeJS.ProcessEnv;
     stateDir?: string;
     workspaceDir?: string;
-    config?: OpenClawConfig;
+    config?: AlienConfig;
   } = {},
 ): Array<{
   name: string;

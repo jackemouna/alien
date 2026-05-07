@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
-import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
+import type { BrowserProfileConfig, AlienConfig } from "../config/config.js";
 import { getRuntimeConfig, replaceConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolveUserPath } from "../utils.js";
 import { assertCdpEndpointAllowed } from "./cdp.helpers.js";
-import { resolveOpenClawUserDataDir } from "./chrome.js";
+import { resolveAlienUserDataDir } from "./chrome.js";
 import { parseHttpUrl, resolveProfile } from "./config.js";
 import {
   BrowserConflictError,
@@ -31,7 +31,7 @@ export type CreateProfileParams = {
   color?: string;
   cdpUrl?: string;
   userDataDir?: string;
-  driver?: "openclaw" | "existing-session";
+  driver?: "alien" | "existing-session";
 };
 
 export type CreateProfileResult = {
@@ -165,7 +165,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
       }
     }
 
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: AlienConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,
@@ -225,14 +225,14 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     let deleted = false;
     const resolved = resolveProfile(state.resolved, name);
 
-    if (resolved?.cdpIsLoopback && resolved.driver === "openclaw") {
+    if (resolved?.cdpIsLoopback && resolved.driver === "alien") {
       try {
         await ctx.forProfile(name).stopRunningBrowser();
       } catch {
         // ignore
       }
 
-      const userDataDir = resolveOpenClawUserDataDir(name);
+      const userDataDir = resolveAlienUserDataDir(name);
       const profileDir = path.dirname(userDataDir);
       if (fs.existsSync(profileDir)) {
         await movePathToTrash(profileDir);
@@ -241,7 +241,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     }
 
     const { [name]: _removed, ...remainingProfiles } = profiles;
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: AlienConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,

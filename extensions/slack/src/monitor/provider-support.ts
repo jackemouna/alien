@@ -17,7 +17,7 @@ type SlackSocketModeLogger = SlackSdkLogger & {
 };
 type SlackSocketDisconnect = Awaited<ReturnType<typeof waitForSlackSocketDisconnect>>;
 
-const OPENCLAW_SLACK_CLIENT_PING_TIMEOUT_MS = 15_000;
+const ALIEN_SLACK_CLIENT_PING_TIMEOUT_MS = 15_000;
 const SLACK_SOCKET_PONG_TIMEOUT_WARNING_PREFIX = "A pong wasn't received from the server";
 const SLACK_SOCKET_LOG_LEVEL_IGNORED_WARNING_RE =
   /^The logLevel given to .+ was ignored as you also gave logger$/;
@@ -203,7 +203,7 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     : undefined;
 }
 
-export function shouldSkipOpenClawSlackSelfEvent(args: SlackSelfFilterArgs): boolean {
+export function shouldSkipAlienSlackSelfEvent(args: SlackSelfFilterArgs): boolean {
   const botId = args.context?.botId;
   const botUserId = args.context?.botUserId;
   const message = asRecord(args.message);
@@ -245,7 +245,7 @@ export function createSlackBoltApp(params: {
     appToken: params.appToken ?? "",
     autoReconnectEnabled: false,
     clientPingTimeout:
-      params.socketMode?.clientPingTimeout ?? OPENCLAW_SLACK_CLIENT_PING_TIMEOUT_MS,
+      params.socketMode?.clientPingTimeout ?? ALIEN_SLACK_CLIENT_PING_TIMEOUT_MS,
     logger: socketModeLogger,
     installerOptions: {
       clientOptions: params.clientOptions,
@@ -272,11 +272,11 @@ export function createSlackBoltApp(params: {
     ignoreSelf: false,
     // Bolt eagerly starts an auth.test promise in the constructor when token
     // verification is enabled. Invalid tokens can reject before any listener
-    // consumes that promise, tripping OpenClaw's fatal unhandled-rejection path.
+    // consumes that promise, tripping Alien's fatal unhandled-rejection path.
     tokenVerificationEnabled: false,
   });
   app.use(async (args) => {
-    if (shouldSkipOpenClawSlackSelfEvent(args)) {
+    if (shouldSkipAlienSlackSelfEvent(args)) {
       return;
     }
     await args.next();

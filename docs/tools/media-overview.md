@@ -1,14 +1,14 @@
 ---
 summary: "Image, video, music, speech, and media-understanding capabilities at a glance"
 read_when:
-  - Looking for an overview of OpenClaw's media capabilities
+  - Looking for an overview of Alien's media capabilities
   - Deciding which media provider to configure
   - Understanding how async media generation works
 title: "Media overview"
 sidebarTitle: "Media overview"
 ---
 
-OpenClaw generates images, videos, and music, understands inbound media
+Alien generates images, videos, and music, understands inbound media
 (images, audio, video), and speaks replies aloud with text-to-speech. All
 media capabilities are tool-driven: the agent decides when to use them based
 on the conversation, and each tool only appears when at least one backing
@@ -94,12 +94,12 @@ reply model.
 | Music (shared)  | Asynchronous | Same provider-processing characteristic as video.                                                    |
 | Music (ComfyUI) | Synchronous  | Local workflow runs inline against the configured ComfyUI server.                                    |
 
-For async tools, OpenClaw submits the request to the provider, returns a task
+For async tools, Alien submits the request to the provider, returns a task
 id immediately, and tracks the job in the task ledger. The agent continues
 responding to other messages while the job runs. When the provider finishes,
-OpenClaw wakes the agent with the generated media paths so it can tell the
+Alien wakes the agent with the generated media paths so it can tell the
 user and, when required by source-delivery policy, relay the result through
-the message tool. For message-tool-only group/channel routes, OpenClaw treats
+the message tool. For message-tool-only group/channel routes, Alien treats
 missing message-tool delivery evidence as a failed completion attempt and sends
 the generated media fallback directly to the original channel.
 
@@ -136,13 +136,13 @@ catalogs returned by the Gateway.
     Chat/model routing, image generation/editing, text-to-video, batch TTS,
     batch STT, image media understanding, and memory-embedding surfaces.
     DeepInfra-native rerank/classification/object-detection models are not
-    registered until OpenClaw has dedicated provider contracts for those
+    registered until Alien has dedicated provider contracts for those
     categories.
   </Accordion>
   <Accordion title="xAI">
     Image, video, search, code-execution, batch TTS, batch STT, and Voice
     Call streaming STT. xAI Realtime voice is an upstream capability but is
-    not registered in OpenClaw until the shared realtime-voice contract can
+    not registered in Alien until the shared realtime-voice contract can
     represent it.
   </Accordion>
 </AccordionGroup>

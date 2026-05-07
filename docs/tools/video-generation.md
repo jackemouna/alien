@@ -8,7 +8,7 @@ title: "Video generation"
 sidebarTitle: "Video generation"
 ---
 
-OpenClaw agents can generate videos from text prompts, reference images, or
+Alien agents can generate videos from text prompts, reference images, or
 existing videos. Sixteen provider backends are supported, each with
 different model options, input modes, and feature sets. The agent picks the
 right provider automatically based on your configuration and available API
@@ -20,7 +20,7 @@ provider is available. If you do not see it in your agent tools, set a
 provider API key or configure `agents.defaults.videoGenerationModel`.
 </Note>
 
-OpenClaw treats video generation as three runtime modes:
+Alien treats video generation as three runtime modes:
 
 - `generate` - text-to-video requests with no reference media.
 - `imageToVideo` - request includes one or more reference images.
@@ -42,7 +42,7 @@ active mode before submission and reports supported modes in `action=list`.
   </Step>
   <Step title="Pick a default model (optional)">
     ```bash
-    openclaw config set agents.defaults.videoGenerationModel.primary "google/veo-3.1-fast-generate-preview"
+    alien config set agents.defaults.videoGenerationModel.primary "google/veo-3.1-fast-generate-preview"
     ```
   </Step>
   <Step title="Ask the agent">
@@ -59,26 +59,26 @@ active mode before submission and reports supported modes in `action=list`.
 Video generation is asynchronous. When the agent calls `video_generate` in a
 session:
 
-1. OpenClaw submits the request to the provider and immediately returns a task id.
+1. Alien submits the request to the provider and immediately returns a task id.
 2. The provider processes the job in the background (typically 30 seconds to several minutes depending on the provider and resolution; slow queue-backed providers can run up to the configured timeout).
-3. When the video is ready, OpenClaw wakes the same session with an internal completion event.
+3. When the video is ready, Alien wakes the same session with an internal completion event.
 4. The agent tells the user and attaches the finished video. In group/channel
    chats that use message-tool-only visible delivery, the agent relays the
-   result through the message tool instead of OpenClaw posting it directly.
+   result through the message tool instead of Alien posting it directly.
 
 While a job is in flight, duplicate `video_generate` calls in the same
 session return the current task status instead of starting another
-generation. Use `openclaw tasks list` or `openclaw tasks show <taskId>` to
+generation. Use `alien tasks list` or `alien tasks show <taskId>` to
 check progress from the CLI.
 
 Outside of session-backed agent runs (for example, direct tool invocations),
 the tool falls back to inline generation and returns the final media path
 in the same turn.
 
-Generated video files are saved under OpenClaw-managed media storage when
+Generated video files are saved under Alien-managed media storage when
 the provider returns bytes. The default generated-video save cap follows
 the video media limit, and `agents.defaults.mediaMaxMb` raises it for
-larger renders. When a provider also returns a hosted output URL, OpenClaw
+larger renders. When a provider also returns a hosted output URL, Alien
 can deliver that URL instead of failing the task if local persistence
 rejects an oversized file.
 
@@ -94,9 +94,9 @@ rejects an oversized file.
 Check status from the CLI:
 
 ```bash
-openclaw tasks list
-openclaw tasks show <taskId>
-openclaw tasks cancel <taskId>
+alien tasks list
+alien tasks show <taskId>
+alien tasks cancel <taskId>
 ```
 
 If a video task is already `queued` or `running` for the current session,
@@ -198,9 +198,9 @@ role or use `first_frame` for single-image image-to-video.
 ### Style controls
 
 <ParamField path="aspectRatio" type="string">
-  Aspect-ratio hint such as `1:1`, `16:9`, `9:16`, `adaptive`, or a provider-specific value. OpenClaw normalizes or ignores unsupported values per provider.
+  Aspect-ratio hint such as `1:1`, `16:9`, `9:16`, `adaptive`, or a provider-specific value. Alien normalizes or ignores unsupported values per provider.
 </ParamField>
-<ParamField path="resolution" type="string">Resolution hint such as `480P`, `720P`, `768P`, `1080P`, `4K`, or a provider-specific value. OpenClaw normalizes or ignores unsupported values per provider.</ParamField>
+<ParamField path="resolution" type="string">Resolution hint such as `480P`, `720P`, `768P`, `1080P`, `4K`, or a provider-specific value. Alien normalizes or ignores unsupported values per provider.</ParamField>
 <ParamField path="durationSeconds" type="number">
   Target duration in seconds (rounded to nearest provider-supported value).
 </ParamField>
@@ -233,7 +233,7 @@ dimensions). Providers that do not declare it surface the value via
 </ParamField>
 
 <Note>
-Not all providers support all parameters. OpenClaw normalizes duration to
+Not all providers support all parameters. Alien normalizes duration to
 the closest provider-supported value, and remaps translated geometry hints
 such as size-to-aspect-ratio when a fallback provider exposes a different
 control surface. Truly unsupported overrides are ignored on a best-effort
@@ -288,7 +288,7 @@ aggregated error includes the skip reason for each.
 
 ## Model selection
 
-OpenClaw resolves the model in this order:
+Alien resolves the model in this order:
 
 1. **`model` tool parameter** - if the agent specifies one in the call.
 2. **`videoGenerationModel.primary`** from config.
@@ -341,7 +341,7 @@ only the explicit `model`, `primary`, and `fallbacks` entries.
 
   </Accordion>
   <Accordion title="BytePlus Seedance 1.5">
-    Requires the [`@openclaw/byteplus-modelark`](https://www.npmjs.com/package/@openclaw/byteplus-modelark)
+    Requires the [`@alien/byteplus-modelark`](https://www.npmjs.com/package/@alien/byteplus-modelark)
     plugin. Provider id: `byteplus-seedance15`. Model:
     `seedance-1-5-pro-251215`.
 
@@ -356,7 +356,7 @@ only the explicit `model`, `primary`, and `fallbacks` entries.
 
   </Accordion>
   <Accordion title="BytePlus Seedance 2.0">
-    Requires the [`@openclaw/byteplus-modelark`](https://www.npmjs.com/package/@openclaw/byteplus-modelark)
+    Requires the [`@alien/byteplus-modelark`](https://www.npmjs.com/package/@alien/byteplus-modelark)
     plugin. Provider id: `byteplus-seedance2`. Models:
     `dreamina-seedance-2-0-260128`,
     `dreamina-seedance-2-0-fast-260128`.
@@ -377,7 +377,7 @@ only the explicit `model`, `primary`, and `fallbacks` entries.
     image-to-video through the configured graph.
   </Accordion>
   <Accordion title="fal">
-    Uses a queue-backed flow for long-running jobs. OpenClaw waits up to 20
+    Uses a queue-backed flow for long-running jobs. Alien waits up to 20
     minutes by default before treating an in-progress fal queue job as timed
     out. Most fal video models
     accept a single image reference. Seedance 2.0 reference-to-video
@@ -400,7 +400,7 @@ only the explicit `model`, `primary`, and `fallbacks` entries.
     a warning.
   </Accordion>
   <Accordion title="OpenRouter">
-    Uses OpenRouter's asynchronous `/videos` API. OpenClaw submits the
+    Uses OpenRouter's asynchronous `/videos` API. Alien submits the
     job, polls `polling_url`, and downloads either `unsigned_urls` or the
     documented job content endpoint. The bundled `google/veo-3.1-fast` default
     advertises 4/6/8 second durations, `720P`/`1080P` resolutions, and
@@ -474,7 +474,7 @@ rest, use `maxInputImagesByModel`, `maxInputVideosByModel`, or
 Opt-in live coverage for the shared bundled providers:
 
 ```bash
-OPENCLAW_LIVE_TEST=1 pnpm test:live -- extensions/video-generation-providers.live.test.ts
+ALIEN_LIVE_TEST=1 pnpm test:live -- extensions/video-generation-providers.live.test.ts
 ```
 
 Repo wrapper:
@@ -490,7 +490,7 @@ release-safe smoke by default:
 - `generate` for every non-FAL provider in the sweep.
 - One-second lobster prompt.
 - Per-provider operation cap from
-  `OPENCLAW_LIVE_VIDEO_GENERATION_TIMEOUT_MS` (`180000` by default).
+  `ALIEN_LIVE_VIDEO_GENERATION_TIMEOUT_MS` (`180000` by default).
 
 FAL is opt-in because provider-side queue latency can dominate release
 time:
@@ -499,7 +499,7 @@ time:
 pnpm test:live:media video --video-providers fal
 ```
 
-Set `OPENCLAW_LIVE_VIDEO_GENERATION_FULL_MODES=1` to also run declared
+Set `ALIEN_LIVE_VIDEO_GENERATION_FULL_MODES=1` to also run declared
 transform modes the shared sweep can exercise safely with local media:
 
 - `imageToVideo` when `capabilities.imageToVideo.enabled`.
@@ -512,7 +512,7 @@ select `runway/gen4_aleph`.
 
 ## Configuration
 
-Set the default video-generation model in your OpenClaw config:
+Set the default video-generation model in your Alien config:
 
 ```json5
 {
@@ -530,7 +530,7 @@ Set the default video-generation model in your OpenClaw config:
 Or via the CLI:
 
 ```bash
-openclaw config set agents.defaults.videoGenerationModel.primary "qwen/wan2.6-t2v"
+alien config set agents.defaults.videoGenerationModel.primary "qwen/wan2.6-t2v"
 ```
 
 ## Related

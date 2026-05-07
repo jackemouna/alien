@@ -25,22 +25,22 @@ function readBundledPluginPackageJson(packageJsonPath) {
 
 function isManifestlessBundledRuntimeSupportPackage(params) {
   const packageName = typeof params.packageJson?.name === "string" ? params.packageJson.name : "";
-  if (packageName !== `@openclaw/${params.dirName}`) {
+  if (packageName !== `@alien/${params.dirName}`) {
     return false;
   }
   return params.topLevelPublicSurfaceEntries.length > 0;
 }
 
 export function collectPluginSourceEntries(packageJson) {
-  let packageEntries = Array.isArray(packageJson?.openclaw?.extensions)
-    ? packageJson.openclaw.extensions.filter(
+  let packageEntries = Array.isArray(packageJson?.alien?.extensions)
+    ? packageJson.alien.extensions.filter(
         (entry) => typeof entry === "string" && entry.trim().length > 0,
       )
     : [];
   const setupEntry =
-    typeof packageJson?.openclaw?.setupEntry === "string" &&
-    packageJson.openclaw.setupEntry.trim().length > 0
-      ? packageJson.openclaw.setupEntry
+    typeof packageJson?.alien?.setupEntry === "string" &&
+    packageJson.alien.setupEntry.trim().length > 0
+      ? packageJson.alien.setupEntry
       : undefined;
   if (setupEntry) {
     packageEntries = Array.from(new Set([...packageEntries, setupEntry]));
@@ -94,7 +94,7 @@ export function collectBundledPluginBuildEntries(params = {}) {
     }
 
     const pluginDir = path.join(extensionsRoot, dirent.name);
-    const manifestPath = path.join(pluginDir, "openclaw.plugin.json");
+    const manifestPath = path.join(pluginDir, "alien.plugin.json");
     const hasManifest = fs.existsSync(manifestPath);
     const packageJsonPath = path.join(pluginDir, "package.json");
     const packageJson = readBundledPluginPackageJson(packageJsonPath);
@@ -178,7 +178,7 @@ export function listBundledPluginPackArtifacts(params = {}) {
 
   for (const { id, hasManifest, hasPackageJson, sourceEntries } of entries) {
     if (hasManifest) {
-      artifacts.add(bundledDistPluginFile(id, "openclaw.plugin.json"));
+      artifacts.add(bundledDistPluginFile(id, "alien.plugin.json"));
     }
     if (hasPackageJson) {
       artifacts.add(bundledDistPluginFile(id, "package.json"));

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/run-opengrep.sh
 #
-# Run the OpenClaw precise OpenGrep rulepack against the local working tree
+# Run the Alien precise OpenGrep rulepack against the local working tree
 # using the same paths and exclusions as CI. The .semgrepignore at the repo root
 # is the single source of truth for skipped paths.
 #
@@ -117,7 +117,7 @@ if (( PATHS_PASSED == 0 )); then
       SCAN_PATHS+=( "$path" )
     done < <(
       {
-        git diff --name-only --diff-filter=ACMRTUXB "${OPENCLAW_OPENGREP_BASE_REF:-origin/main...HEAD}" 2>/dev/null || true
+        git diff --name-only --diff-filter=ACMRTUXB "${ALIEN_OPENGREP_BASE_REF:-origin/main...HEAD}" 2>/dev/null || true
         git diff --name-only --diff-filter=ACMRTUXB -- 2>/dev/null || true
         git ls-files --others --exclude-standard
       } | awk '/^(src|extensions|apps|packages|scripts)\// { print }' | sort -u
@@ -127,7 +127,7 @@ if (( PATHS_PASSED == 0 )); then
       RULEPACK_CHANGED_PATHS+=( "$path" )
     done < <(
       {
-        git diff --name-only --diff-filter=ACMRTUXB "${OPENCLAW_OPENGREP_BASE_REF:-origin/main...HEAD}" 2>/dev/null || true
+        git diff --name-only --diff-filter=ACMRTUXB "${ALIEN_OPENGREP_BASE_REF:-origin/main...HEAD}" 2>/dev/null || true
         git diff --name-only --diff-filter=ACMRTUXB -- 2>/dev/null || true
         git ls-files --others --exclude-standard
       } | awk '/^(security\/opengrep\/|scripts\/run-opengrep\.sh$|\.semgrepignore$|\.github\/workflows\/opengrep-)/ { print }' | sort -u

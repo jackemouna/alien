@@ -1,18 +1,18 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { AnyAgentTool } from "openclaw/plugin-sdk/agent-harness";
+import type { AnyAgentTool } from "alien/plugin-sdk/agent-harness";
 import {
   HEARTBEAT_RESPONSE_TOOL_NAME,
   wrapToolWithBeforeToolCallHook,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import {
   initializeGlobalHookRunner,
   resetGlobalHookRunner,
-} from "openclaw/plugin-sdk/hook-runtime";
+} from "alien/plugin-sdk/hook-runtime";
 import {
   createEmptyPluginRegistry,
   createMockPluginRegistry,
   setActivePluginRegistry,
-} from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/plugin-test-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCodexDynamicToolBridge } from "./dynamic-tools.js";
 import type { JsonValue } from "./protocol.js";
@@ -419,7 +419,7 @@ describe("createCodexDynamicToolBridge", () => {
   });
 
   it("keeps config out of Codex tool-result contexts", async () => {
-    const config = { session: { store: "/tmp/openclaw-session-store.json" } };
+    const config = { session: { store: "/tmp/alien-session-store.json" } };
     const registry = createEmptyPluginRegistry();
     const middlewareContexts: Record<string, unknown>[] = [];
     const legacyContexts: Record<string, unknown>[] = [];

@@ -12,46 +12,46 @@ export const EXTENSION_PACKAGE_BOUNDARY_EXCLUDE = [
   "./src/**/*test-support.ts",
 ] as const;
 export const EXTENSION_PACKAGE_BOUNDARY_BASE_PATHS = {
-  "openclaw/extension-api": ["../src/extensionAPI.ts"],
-  "openclaw/plugin-sdk": ["../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
-  "openclaw/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
-  "openclaw/plugin-sdk/account-id": ["../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
-  "openclaw/plugin-sdk/channel-entry-contract": [
+  "alien/extension-api": ["../src/extensionAPI.ts"],
+  "alien/plugin-sdk": ["../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
+  "alien/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+  "alien/plugin-sdk/account-id": ["../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
+  "alien/plugin-sdk/channel-entry-contract": [
     "../packages/plugin-sdk/dist/src/plugin-sdk/channel-entry-contract.d.ts",
   ],
-  "openclaw/plugin-sdk/browser-maintenance": [
+  "alien/plugin-sdk/browser-maintenance": [
     "../packages/plugin-sdk/dist/extensions/browser/browser-maintenance.d.ts",
   ],
-  "openclaw/plugin-sdk/channel-secret-basic-runtime": [
+  "alien/plugin-sdk/channel-secret-basic-runtime": [
     "../packages/plugin-sdk/dist/src/plugin-sdk/channel-secret-basic-runtime.d.ts",
   ],
-  "openclaw/plugin-sdk/channel-secret-runtime": [
+  "alien/plugin-sdk/channel-secret-runtime": [
     "../dist/plugin-sdk/src/plugin-sdk/channel-secret-runtime.d.ts",
   ],
-  "openclaw/plugin-sdk/channel-secret-tts-runtime": [
+  "alien/plugin-sdk/channel-secret-tts-runtime": [
     "../packages/plugin-sdk/dist/src/plugin-sdk/channel-secret-tts-runtime.d.ts",
   ],
-  "openclaw/plugin-sdk/channel-streaming": [
+  "alien/plugin-sdk/channel-streaming": [
     "../dist/plugin-sdk/src/plugin-sdk/channel-streaming.d.ts",
   ],
-  "openclaw/plugin-sdk/error-runtime": ["../dist/plugin-sdk/src/plugin-sdk/error-runtime.d.ts"],
-  "openclaw/plugin-sdk/provider-catalog-shared": [
+  "alien/plugin-sdk/error-runtime": ["../dist/plugin-sdk/src/plugin-sdk/error-runtime.d.ts"],
+  "alien/plugin-sdk/provider-catalog-shared": [
     "../packages/plugin-sdk/dist/src/plugin-sdk/provider-catalog-shared.d.ts",
   ],
-  "openclaw/plugin-sdk/provider-entry": [
+  "alien/plugin-sdk/provider-entry": [
     "../packages/plugin-sdk/dist/src/plugin-sdk/provider-entry.d.ts",
   ],
-  "openclaw/plugin-sdk/secret-ref-runtime": [
+  "alien/plugin-sdk/secret-ref-runtime": [
     "../dist/plugin-sdk/src/plugin-sdk/secret-ref-runtime.d.ts",
   ],
-  "openclaw/plugin-sdk/ssrf-runtime": ["../dist/plugin-sdk/src/plugin-sdk/ssrf-runtime.d.ts"],
-  "@openclaw/qa-channel/api.js": ["../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
-  "@openclaw/discord/api.js": ["../dist/plugin-sdk/extensions/discord/api.d.ts"],
-  "@openclaw/slack/api.js": ["../dist/plugin-sdk/extensions/slack/api.d.ts"],
-  "@openclaw/whatsapp/api.js": ["../dist/plugin-sdk/extensions/whatsapp/api.d.ts"],
-  "@openclaw/*.js": ["../packages/plugin-sdk/dist/extensions/*.d.ts", "../extensions/*"],
-  "@openclaw/*": ["../packages/plugin-sdk/dist/extensions/*", "../extensions/*"],
-  "@openclaw/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+  "alien/plugin-sdk/ssrf-runtime": ["../dist/plugin-sdk/src/plugin-sdk/ssrf-runtime.d.ts"],
+  "@alien/qa-channel/api.js": ["../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
+  "@alien/discord/api.js": ["../dist/plugin-sdk/extensions/discord/api.d.ts"],
+  "@alien/slack/api.js": ["../dist/plugin-sdk/extensions/slack/api.d.ts"],
+  "@alien/whatsapp/api.js": ["../dist/plugin-sdk/extensions/whatsapp/api.d.ts"],
+  "@alien/*.js": ["../packages/plugin-sdk/dist/extensions/*.d.ts", "../extensions/*"],
+  "@alien/*": ["../packages/plugin-sdk/dist/extensions/*", "../extensions/*"],
+  "@alien/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
 } as const;
 
 function prefixExtensionPackageBoundaryPaths(
@@ -69,42 +69,42 @@ function prefixExtensionPackageBoundaryPaths(
 export const EXTENSION_PACKAGE_BOUNDARY_XAI_PATHS = {
   ...prefixExtensionPackageBoundaryPaths(
     (({
-      "openclaw/plugin-sdk/channel-secret-basic-runtime": _omitBasic,
-      "openclaw/plugin-sdk/channel-secret-tts-runtime": _omitTts,
-      "@openclaw/discord/api.js": _omitDiscord,
-      "@openclaw/slack/api.js": _omitSlack,
-      "@openclaw/whatsapp/api.js": _omitWhatsApp,
+      "alien/plugin-sdk/channel-secret-basic-runtime": _omitBasic,
+      "alien/plugin-sdk/channel-secret-tts-runtime": _omitTts,
+      "@alien/discord/api.js": _omitDiscord,
+      "@alien/slack/api.js": _omitSlack,
+      "@alien/whatsapp/api.js": _omitWhatsApp,
       ...rest
     }) => rest)(EXTENSION_PACKAGE_BOUNDARY_BASE_PATHS),
     "../",
   ),
-  "openclaw/plugin-sdk/channel-entry-contract": [
+  "alien/plugin-sdk/channel-entry-contract": [
     "../../dist/plugin-sdk/src/plugin-sdk/channel-entry-contract.d.ts",
   ],
-  "openclaw/plugin-sdk/browser-maintenance": [
+  "alien/plugin-sdk/browser-maintenance": [
     "../../dist/plugin-sdk/src/plugin-sdk/browser-maintenance.d.ts",
   ],
-  "openclaw/plugin-sdk/cli-runtime": ["../../dist/plugin-sdk/src/plugin-sdk/cli-runtime.d.ts"],
-  "openclaw/plugin-sdk/provider-catalog-shared": [
+  "alien/plugin-sdk/cli-runtime": ["../../dist/plugin-sdk/src/plugin-sdk/cli-runtime.d.ts"],
+  "alien/plugin-sdk/provider-catalog-shared": [
     "../../dist/plugin-sdk/src/plugin-sdk/provider-catalog-shared.d.ts",
   ],
-  "openclaw/plugin-sdk/provider-env-vars": [
+  "alien/plugin-sdk/provider-env-vars": [
     "../../dist/plugin-sdk/src/plugin-sdk/provider-env-vars.d.ts",
   ],
-  "openclaw/plugin-sdk/provider-entry": [
+  "alien/plugin-sdk/provider-entry": [
     "../../dist/plugin-sdk/src/plugin-sdk/provider-entry.d.ts",
   ],
-  "openclaw/plugin-sdk/provider-web-search-contract": [
+  "alien/plugin-sdk/provider-web-search-contract": [
     "../../dist/plugin-sdk/src/plugin-sdk/provider-web-search-contract.d.ts",
   ],
-  "@openclaw/qa-channel/api.js": ["../../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
-  "@openclaw/*.js": ["../../packages/plugin-sdk/dist/extensions/*.d.ts", "../*"],
-  "@openclaw/*": ["../*"],
-  "@openclaw/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
-  "@openclaw/anthropic-vertex/api.js": ["./.boundary-stubs/anthropic-vertex-api.d.ts"],
-  "@openclaw/ollama/api.js": ["./.boundary-stubs/ollama-api.d.ts"],
-  "@openclaw/ollama/runtime-api.js": ["./.boundary-stubs/ollama-runtime-api.d.ts"],
-  "@openclaw/speech-core/runtime-api.js": ["./.boundary-stubs/speech-core-runtime-api.d.ts"],
+  "@alien/qa-channel/api.js": ["../../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
+  "@alien/*.js": ["../../packages/plugin-sdk/dist/extensions/*.d.ts", "../*"],
+  "@alien/*": ["../*"],
+  "@alien/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+  "@alien/anthropic-vertex/api.js": ["./.boundary-stubs/anthropic-vertex-api.d.ts"],
+  "@alien/ollama/api.js": ["./.boundary-stubs/ollama-api.d.ts"],
+  "@alien/ollama/runtime-api.js": ["./.boundary-stubs/ollama-runtime-api.d.ts"],
+  "@alien/speech-core/runtime-api.js": ["./.boundary-stubs/speech-core-runtime-api.d.ts"],
 } as const;
 
 type ExtensionPackageBoundaryTsConfigJson = {

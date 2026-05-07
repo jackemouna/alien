@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { SettingsManager } from "@mariozechner/pi-coding-agent";
 import { applyMergePatch } from "../config/merge-patch.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { readRootJsonObjectSync } from "../infra/json-files.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { BundleMcpServerConfig } from "../plugins/bundle-mcp.js";
@@ -64,7 +64,7 @@ function loadBundleSettingsFile(params: {
 
 export function loadEnabledBundlePiSettingsSnapshot(params: {
   cwd: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   pluginMetadataSnapshot?: PluginMetadataSnapshot;
 }): PiSettingsSnapshot {
@@ -143,7 +143,7 @@ export function loadEnabledBundlePiSettingsSnapshot(params: {
 }
 
 export function resolveEmbeddedPiProjectSettingsPolicy(
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): EmbeddedPiProjectSettingsPolicy {
   const raw = cfg?.agents?.defaults?.embeddedPi?.projectSettingsPolicy;
   if (raw === "trusted" || raw === "sanitize" || raw === "ignore") {

@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
-import { loadOpenClawPlugins } from "../loader.js";
+import type { AlienConfig } from "../../config/types.alien.js";
+import { loadAlienPlugins } from "../loader.js";
 import type { PluginManifestRegistry } from "../manifest-registry.js";
 import { hasExplicitPluginIdScope } from "../plugin-scope.js";
 import type { PluginRegistry } from "../registry.js";
@@ -11,8 +11,8 @@ import {
 } from "./load-context.js";
 
 export function loadPluginMetadataRegistrySnapshot(options?: {
-  config?: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config?: AlienConfig;
+  activationSourceConfig?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   logger?: PluginLogger;
   workspaceDir?: string;
@@ -23,7 +23,7 @@ export function loadPluginMetadataRegistrySnapshot(options?: {
 }): PluginRegistry {
   const context = options?.runtimeContext ?? resolvePluginRuntimeLoadContext(options);
 
-  return loadOpenClawPlugins(
+  return loadAlienPlugins(
     buildPluginRuntimeLoadOptions(context, {
       ...(options?.config !== undefined ? { config: options.config } : {}),
       ...(options?.activationSourceConfig !== undefined

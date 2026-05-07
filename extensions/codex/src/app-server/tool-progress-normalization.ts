@@ -2,8 +2,8 @@ import {
   inferToolMetaFromArgs,
   type EmbeddedRunAttemptParams,
   type ToolProgressDetailMode,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
-import { redactSensitiveFieldValue, redactToolPayloadText } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
+import { redactSensitiveFieldValue, redactToolPayloadText } from "alien/plugin-sdk/text-runtime";
 import {
   isJsonObject,
   type CodexDynamicToolCallParams,

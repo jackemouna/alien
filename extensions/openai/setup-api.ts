@@ -1,7 +1,7 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import type { ProviderAuthContext, ProviderAuthResult } from "openclaw/plugin-sdk/plugin-entry";
-import type { ProviderAuthMethod } from "openclaw/plugin-sdk/plugin-entry";
-import type { ProviderPlugin } from "openclaw/plugin-sdk/provider-model-shared";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import type { ProviderAuthContext, ProviderAuthResult } from "alien/plugin-sdk/plugin-entry";
+import type { ProviderAuthMethod } from "alien/plugin-sdk/plugin-entry";
+import type { ProviderPlugin } from "alien/plugin-sdk/provider-model-shared";
 import {
   OPENAI_API_KEY_LABEL,
   OPENAI_API_KEY_WIZARD_GROUP,

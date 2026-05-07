@@ -25,7 +25,7 @@ vi.mock("../plugins/manifest-registry-installed.js", async () => {
     loadPluginManifestRegistryForInstalledIndex: (params: { workspaceDir?: string }) => {
       const rootDir = path.join(
         params.workspaceDir ?? "",
-        ".openclaw",
+        ".alien",
         "extensions",
         "claude-bundle",
       );
@@ -56,7 +56,7 @@ vi.mock("../plugins/plugin-registry.js", async () => {
   const loadRegistry = (params: { workspaceDir?: string }) => {
     const rootDir = path.join(
       params.workspaceDir ?? "",
-      ".openclaw",
+      ".alien",
       "extensions",
       "claude-bundle",
     );
@@ -90,7 +90,7 @@ vi.mock("../plugins/plugin-metadata-snapshot.js", async () => {
   const loadRegistry = (params: { workspaceDir?: string }) => {
     const rootDir = path.join(
       params.workspaceDir ?? "",
-      ".openclaw",
+      ".alien",
       "extensions",
       "claude-bundle",
     );
@@ -134,7 +134,7 @@ vi.mock("./embedded-pi-mcp.js", async () => {
       workspaceDir: string;
       cfg?: { mcp?: { servers?: Record<string, unknown> } };
     }) => {
-      const pluginRoot = path.join(params.workspaceDir, ".openclaw", "extensions", "claude-bundle");
+      const pluginRoot = path.join(params.workspaceDir, ".alien", "extensions", "claude-bundle");
       const mcpPath = path.join(pluginRoot, ".mcp.json");
       let bundleServers: Record<string, unknown> = {};
       if (fs.existsSync(mcpPath)) {
@@ -181,7 +181,7 @@ async function createWorkspaceBundle(params: {
   pluginId?: string;
 }): Promise<string> {
   const pluginId = params.pluginId ?? "claude-bundle";
-  const pluginRoot = path.join(params.workspaceDir, ".openclaw", "extensions", pluginId);
+  const pluginRoot = path.join(params.workspaceDir, ".alien", "extensions", pluginId);
   await fs.mkdir(path.join(pluginRoot, ".claude-plugin"), { recursive: true });
   await fs.writeFile(
     path.join(pluginRoot, ".claude-plugin", "plugin.json"),
@@ -195,7 +195,7 @@ async function createWorkspaceBundle(params: {
 
 describe("loadEnabledBundlePiSettingsSnapshot", () => {
   it("reuses a compatible plugin metadata snapshot without loading a fresh one", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-workspace-");
+    const workspaceDir = await tempDirs.make("alien-workspace-");
     const pluginRoot = await createWorkspaceBundle({ workspaceDir });
     const resolvedPluginRoot = await fs.realpath(pluginRoot);
     await fs.writeFile(
@@ -242,7 +242,7 @@ describe("loadEnabledBundlePiSettingsSnapshot", () => {
   });
 
   it("falls back to a fresh plugin metadata load for an incompatible snapshot", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-workspace-");
+    const workspaceDir = await tempDirs.make("alien-workspace-");
     const pluginRoot = await createWorkspaceBundle({ workspaceDir });
     await fs.writeFile(
       path.join(pluginRoot, "settings.json"),
@@ -276,7 +276,7 @@ describe("loadEnabledBundlePiSettingsSnapshot", () => {
   });
 
   it("loads sanitized settings and MCP defaults from enabled bundle plugins", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-workspace-");
+    const workspaceDir = await tempDirs.make("alien-workspace-");
     const pluginRoot = await createWorkspaceBundle({ workspaceDir });
     const resolvedPluginRoot = await fs.realpath(pluginRoot);
     await fs.mkdir(path.join(pluginRoot, "servers"), { recursive: true });
@@ -365,7 +365,7 @@ describe("loadEnabledBundlePiSettingsSnapshot", () => {
   });
 
   it("ignores disabled bundle plugins", async () => {
-    const workspaceDir = await tempDirs.make("openclaw-workspace-");
+    const workspaceDir = await tempDirs.make("alien-workspace-");
     const pluginRoot = await createWorkspaceBundle({ workspaceDir });
     await fs.writeFile(
       path.join(pluginRoot, "settings.json"),

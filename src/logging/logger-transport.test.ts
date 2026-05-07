@@ -1,10 +1,10 @@
-import { importFreshModule } from "openclaw/plugin-sdk/test-fixtures";
+import { importFreshModule } from "alien/plugin-sdk/test-fixtures";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createSuiteLogPathTracker } from "./log-test-helpers.js";
 
 type LoggerModule = typeof import("./logger.js");
 
-const logPathTracker = createSuiteLogPathTracker("openclaw-logger-transport-");
+const logPathTracker = createSuiteLogPathTracker("alien-logger-transport-");
 const importedModules: LoggerModule[] = [];
 
 async function importLoggerModule(scope: string): Promise<LoggerModule> {
@@ -53,7 +53,7 @@ describe("logger transport registry", () => {
 
     expect(
       (globalThis as typeof globalThis & Record<PropertyKey, unknown>)[
-        Symbol.for("openclaw.logging.transports")
+        Symbol.for("alien.logging.transports")
       ],
     ).toBeUndefined();
   });

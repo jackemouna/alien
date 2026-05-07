@@ -179,7 +179,7 @@ function buildFallbackStateMismatchError(details: ConnectPairingRequiredDetails)
       details.requestId
         ? `${FALLBACK_STATE_MISMATCH_MESSAGE} Missing requestId: ${details.requestId}.`
         : FALLBACK_STATE_MISMATCH_MESSAGE,
-      "The running gateway is probably using a different OPENCLAW_PROFILE or OPENCLAW_STATE_DIR than this CLI.",
+      "The running gateway is probably using a different ALIEN_PROFILE or ALIEN_STATE_DIR than this CLI.",
       "Rerun with the same profile/state-dir as the gateway, or pass --token/--password so the CLI can approve through the gateway.",
     ].join("\n"),
   );
@@ -472,7 +472,7 @@ function quoteCliArg(value: string): string {
 }
 
 function buildExplicitApproveCommand(opts: DevicesRpcOpts, requestId: string): string {
-  const args = ["openclaw", "devices", "approve", requestId];
+  const args = ["alien", "devices", "approve", requestId];
   const url = normalizeOptionalString(opts.url);
   if (url) {
     args.push("--url", url);
@@ -746,7 +746,7 @@ export function registerDevicesCli(program: Command) {
               break;
             case "re-approval":
               defaultRuntime.log(
-                "  Note:   Already paired. Approval-bound device details changed, so OpenClaw created a fresh request instead of silently reusing the old approval.",
+                "  Note:   Already paired. Approval-bound device details changed, so Alien created a fresh request instead of silently reusing the old approval.",
               );
               break;
             case "new-pairing":

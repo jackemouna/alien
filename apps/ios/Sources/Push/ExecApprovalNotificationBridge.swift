@@ -8,8 +8,8 @@ struct ExecApprovalNotificationPrompt: Equatable {
 enum ExecApprovalNotificationBridge {
     static let requestedKind = "exec.approval.requested"
     static let resolvedKind = "exec.approval.resolved"
-    static let categoryIdentifier = "openclaw.exec-approval"
-    static let reviewActionIdentifier = "openclaw.exec-approval.review"
+    static let categoryIdentifier = "alien.exec-approval"
+    static let reviewActionIdentifier = "alien.exec-approval.review"
 
     private static let localRequestPrefix = "exec.approval."
 
@@ -101,10 +101,10 @@ enum ExecApprovalNotificationBridge {
     }
 
     private static func openClawPayload(userInfo: [AnyHashable: Any]) -> [String: Any]? {
-        if let payload = userInfo["openclaw"] as? [String: Any] {
+        if let payload = userInfo["alien"] as? [String: Any] {
             return payload
         }
-        if let payload = userInfo["openclaw"] as? [AnyHashable: Any] {
+        if let payload = userInfo["alien"] as? [AnyHashable: Any] {
             return payload.reduce(into: [String: Any]()) { partialResult, pair in
                 guard let key = pair.key as? String else { return }
                 partialResult[key] = pair.value

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import http from "node:http";
 import type { Duplex } from "node:stream";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   buildRealtimeVoiceAgentConsultWorkingResponse,
   createTalkSessionController,
@@ -14,7 +14,7 @@ import {
   type TalkEvent,
   type TalkEventInput,
   type TalkSessionController,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import WebSocket, { WebSocketServer } from "ws";
 import type { VoiceCallRealtimeConfig } from "../config.js";
 import type { CallManager } from "../manager.js";
@@ -209,7 +209,7 @@ function buildForcedConsultSpeechPrompt(result: string): string {
       ? trimmed
       : `${trimmed.slice(0, FORCED_CONSULT_RESULT_MAX_CHARS - 16).trimEnd()} [truncated]`;
   return [
-    "Internal OpenClaw consult result is ready.",
+    "Internal Alien consult result is ready.",
     "Do not call tools for this internal result.",
     "Speak the following answer to the caller now, briefly and naturally:",
     bounded,
@@ -1041,7 +1041,7 @@ export class RealtimeCallHandler {
           {
             question: params.question,
             context:
-              "The realtime provider produced a final user transcript without invoking openclaw_agent_consult, so OpenClaw is forcing the consult because consultPolicy is always.",
+              "The realtime provider produced a final user transcript without invoking alien_agent_consult, so Alien is forcing the consult because consultPolicy is always.",
           },
           params.callId,
           {},
@@ -1209,7 +1209,7 @@ export class RealtimeCallHandler {
         if (forcedConsult.completedAt) {
           submitFinalToolResult({
             status: "already_delivered",
-            message: "OpenClaw already delivered this consult result internally. Do not repeat it.",
+            message: "Alien already delivered this consult result internally. Do not repeat it.",
           });
           return;
         }

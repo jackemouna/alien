@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import { resolveCommandResolutionFromArgv } from "../../../infra/exec-command-resolution.js";
 import {
   listInterpreterLikeSafeBins,
@@ -58,7 +58,7 @@ function normalizeConfiguredTrustedSafeBinDirs(entries: unknown): string[] {
   );
 }
 
-function collectExecSafeBinScopes(cfg: OpenClawConfig): ExecSafeBinScopeRef[] {
+function collectExecSafeBinScopes(cfg: AlienConfig): ExecSafeBinScopeRef[] {
   const scopes: ExecSafeBinScopeRef[] = [];
   const globalExec = asObjectRecord(cfg.tools?.exec);
   const globalTrustedDirs = normalizeConfiguredTrustedSafeBinDirs(globalExec?.safeBinTrustedDirs);
@@ -112,7 +112,7 @@ function collectExecSafeBinScopes(cfg: OpenClawConfig): ExecSafeBinScopeRef[] {
   return scopes;
 }
 
-export function scanExecSafeBinCoverage(cfg: OpenClawConfig): ExecSafeBinCoverageHit[] {
+export function scanExecSafeBinCoverage(cfg: AlienConfig): ExecSafeBinCoverageHit[] {
   const hits: ExecSafeBinCoverageHit[] = [];
   for (const scope of collectExecSafeBinScopes(cfg)) {
     const interpreterBins = new Set(listInterpreterLikeSafeBins(scope.safeBins));
@@ -140,7 +140,7 @@ export function scanExecSafeBinCoverage(cfg: OpenClawConfig): ExecSafeBinCoverag
 }
 
 export function scanExecSafeBinTrustedDirHints(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): ExecSafeBinTrustedDirHintHit[] {
   const hits: ExecSafeBinTrustedDirHintHit[] = [];
   for (const scope of collectExecSafeBinScopes(cfg)) {
@@ -243,8 +243,8 @@ export function collectExecSafeBinTrustedDirHintWarnings(
   return lines;
 }
 
-export function maybeRepairExecSafeBinProfiles(cfg: OpenClawConfig): {
-  config: OpenClawConfig;
+export function maybeRepairExecSafeBinProfiles(cfg: AlienConfig): {
+  config: AlienConfig;
   changes: string[];
   warnings: string[];
 } {

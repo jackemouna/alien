@@ -24,7 +24,7 @@ const legacyRootExportNames = [
   "createTypingCallbacks",
   "createChannelReplyPipeline",
   "resolveChannelSourceReplyDeliveryMode",
-  "resolvePreferredOpenClawTmpDir",
+  "resolvePreferredAlienTmpDir",
 ] as const;
 
 type EmptySchema = {
@@ -360,12 +360,12 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     expect(lazyModule.createJitiOptions.at(-1)?.alias).toMatchObject({
-      "openclaw/plugin-sdk": rootAliasPath,
-      "@openclaw/plugin-sdk": rootAliasPath,
-      "openclaw/plugin-sdk/group-access": expect.stringContaining(
+      "alien/plugin-sdk": rootAliasPath,
+      "@alien/plugin-sdk": rootAliasPath,
+      "alien/plugin-sdk/group-access": expect.stringContaining(
         path.join("src", "plugin-sdk", "group-access.ts"),
       ),
-      "@openclaw/plugin-sdk/group-access": expect.stringContaining(
+      "@alien/plugin-sdk/group-access": expect.stringContaining(
         path.join("src", "plugin-sdk", "group-access.ts"),
       ),
     });
@@ -389,21 +389,21 @@ describe("plugin-sdk root alias", () => {
       (lazyModule.createJitiOptions.at(-1)?.alias ?? {}) as Record<string, string>,
     );
     expect(aliasKeys).toEqual([
-      "openclaw/plugin-sdk/alpha",
-      "@openclaw/plugin-sdk/alpha",
-      "openclaw/plugin-sdk/group-access",
-      "@openclaw/plugin-sdk/group-access",
-      "openclaw/plugin-sdk/zeta",
-      "@openclaw/plugin-sdk/zeta",
-      "openclaw/plugin-sdk",
-      "@openclaw/plugin-sdk",
+      "alien/plugin-sdk/alpha",
+      "@alien/plugin-sdk/alpha",
+      "alien/plugin-sdk/group-access",
+      "@alien/plugin-sdk/group-access",
+      "alien/plugin-sdk/zeta",
+      "@alien/plugin-sdk/zeta",
+      "alien/plugin-sdk",
+      "@alien/plugin-sdk",
     ]);
   });
 
   it("ignores unsafe private local-only plugin-sdk subpaths in the CJS root alias", () => {
     const packageRoot = path.dirname(path.dirname(path.dirname(rootAliasPath)));
     const lazyModule = loadRootAliasWithStubs({
-      env: { OPENCLAW_ENABLE_PRIVATE_QA_CLI: "1" },
+      env: { ALIEN_ENABLE_PRIVATE_QA_CLI: "1" },
       privateLocalOnlySubpaths: ["qa-lab", "../escape", "nested/path"],
       existingPaths: [path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts")],
       monolithicExports: {
@@ -413,14 +413,14 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     const aliasMap = (lazyModule.createJitiOptions.at(-1)?.alias ?? {}) as Record<string, string>;
-    expect(aliasMap["openclaw/plugin-sdk/qa-lab"]).toBe(
+    expect(aliasMap["alien/plugin-sdk/qa-lab"]).toBe(
       path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts"),
     );
-    expect(aliasMap["@openclaw/plugin-sdk/qa-lab"]).toBe(
+    expect(aliasMap["@alien/plugin-sdk/qa-lab"]).toBe(
       path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts"),
     );
-    expect(aliasMap).not.toHaveProperty("openclaw/plugin-sdk/../escape");
-    expect(aliasMap).not.toHaveProperty("openclaw/plugin-sdk/nested/path");
+    expect(aliasMap).not.toHaveProperty("alien/plugin-sdk/../escape");
+    expect(aliasMap).not.toHaveProperty("alien/plugin-sdk/nested/path");
   });
 
   it("builds source plugin-sdk subpath aliases through the wider source extension family", () => {
@@ -437,13 +437,13 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     expect(lazyModule.createJitiOptions.at(-1)?.alias).toMatchObject({
-      "openclaw/plugin-sdk/channel-runtime": path.join(
+      "alien/plugin-sdk/channel-runtime": path.join(
         packageRoot,
         "src",
         "plugin-sdk",
         "channel-runtime.mts",
       ),
-      "@openclaw/plugin-sdk/channel-runtime": path.join(
+      "@alien/plugin-sdk/channel-runtime": path.join(
         packageRoot,
         "src",
         "plugin-sdk",

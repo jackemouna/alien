@@ -1,8 +1,8 @@
 import {
   createPluginRuntimeMock,
   createStartAccountContext,
-} from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "./channel.js";
 import type { TelegramMonitorFn } from "./monitor.types.js";
@@ -30,7 +30,7 @@ function installTelegramRuntime() {
 function createTelegramConfig(
   accountId = "default",
   telegramOverrides: Record<string, unknown> = {},
-): OpenClawConfig {
+): AlienConfig {
   if (accountId === "default") {
     return {
       channels: {
@@ -39,7 +39,7 @@ function createTelegramConfig(
           ...telegramOverrides,
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
   }
 
   return {
@@ -53,7 +53,7 @@ function createTelegramConfig(
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function startTelegramAccount(
@@ -161,8 +161,8 @@ describe("telegramPlugin gateway startup", () => {
     const botInfo = {
       id: 123456,
       is_bot: true,
-      first_name: "OpenClaw",
-      username: "openclaw_bot",
+      first_name: "Alien",
+      username: "alien_bot",
       can_join_groups: true,
       can_read_all_group_messages: false,
       can_manage_bots: false,

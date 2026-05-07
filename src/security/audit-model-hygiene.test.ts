@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { collectModelHygieneFindings } from "./audit-extra.sync.js";
 
 describe("security audit model hygiene findings", () => {
   it("classifies legacy and weak-tier model identifiers", () => {
     const cases: Array<{
       name: string;
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       expectedPresent?: Array<{ checkId: string; severity: "warn" }>;
       expectedAbsentCheckId?: string;
     }> = [
@@ -68,7 +68,7 @@ describe("security audit model hygiene findings", () => {
           },
         },
       },
-    } satisfies OpenClawConfig);
+    } satisfies AlienConfig);
 
     expect(findings.some((finding) => finding.checkId === "models.weak_tier")).toBe(false);
   });

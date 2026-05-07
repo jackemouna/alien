@@ -1,23 +1,23 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { VERSION } from "../version.js";
-import { OpenClawChannelBridge } from "./channel-bridge.js";
+import { AlienChannelBridge } from "./channel-bridge.js";
 import { ClaudePermissionRequestSchema, type ClaudeChannelMode } from "./channel-shared.js";
 import { getChannelMcpCapabilities, registerChannelMcpTools } from "./channel-tools.js";
 
-export { OpenClawChannelBridge } from "./channel-bridge.js";
+export { AlienChannelBridge } from "./channel-bridge.js";
 
-export type OpenClawMcpServeOptions = {
+export type AlienMcpServeOptions = {
   gatewayUrl?: string;
   gatewayToken?: string;
   gatewayPassword?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   claudeChannelMode?: ClaudeChannelMode;
   verbose?: boolean;
 };
 
-async function resolveMcpConfig(config: OpenClawConfig | undefined): Promise<OpenClawConfig> {
+async function resolveMcpConfig(config: AlienConfig | undefined): Promise<AlienConfig> {
   if (config) {
     return config;
   }
@@ -25,9 +25,9 @@ async function resolveMcpConfig(config: OpenClawConfig | undefined): Promise<Ope
   return getRuntimeConfig();
 }
 
-export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptions = {}): Promise<{
+export async function createAlienChannelMcpServer(opts: AlienMcpServeOptions = {}): Promise<{
   server: McpServer;
-  bridge: OpenClawChannelBridge;
+  bridge: AlienChannelBridge;
   start: () => Promise<void>;
   close: () => Promise<void>;
 }> {
@@ -35,10 +35,10 @@ export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptio
   const claudeChannelMode = opts.claudeChannelMode ?? "auto";
   const capabilities = getChannelMcpCapabilities(claudeChannelMode);
   const server = new McpServer(
-    { name: "openclaw", version: VERSION },
+    { name: "alien", version: VERSION },
     capabilities ? { capabilities } : undefined,
   );
-  const bridge = new OpenClawChannelBridge(cfg, {
+  const bridge = new AlienChannelBridge(cfg, {
     gatewayUrl: opts.gatewayUrl,
     gatewayToken: opts.gatewayToken,
     gatewayPassword: opts.gatewayPassword,
@@ -70,8 +70,8 @@ export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptio
   };
 }
 
-export async function serveOpenClawChannelMcp(opts: OpenClawMcpServeOptions = {}): Promise<void> {
-  const { server, start, close } = await createOpenClawChannelMcpServer(opts);
+export async function serveAlienChannelMcp(opts: AlienMcpServeOptions = {}): Promise<void> {
+  const { server, start, close } = await createAlienChannelMcpServer(opts);
   const transport = new StdioServerTransport();
 
   let shuttingDown = false;

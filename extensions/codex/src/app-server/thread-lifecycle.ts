@@ -1,7 +1,7 @@
 import {
   embeddedAgentLog,
   type EmbeddedRunAttemptParams,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import {
   CODEX_GPT5_HEARTBEAT_PROMPT_OVERLAY,
   renderCodexPromptOverlay,
@@ -217,7 +217,7 @@ export function buildThreadStartParams(
     approvalsReviewer: options.appServer.approvalsReviewer,
     sandbox: options.appServer.sandbox,
     ...(options.appServer.serviceTier ? { serviceTier: options.appServer.serviceTier } : {}),
-    serviceName: "OpenClaw",
+    serviceName: "Alien",
     ...(options.config ? { config: options.config } : {}),
     developerInstructions: options.developerInstructions ?? buildDeveloperInstructions(params),
     dynamicTools: options.dynamicTools,
@@ -298,7 +298,7 @@ export function buildTurnCollaborationMode(
 
 function buildHeartbeatCollaborationInstructions(): string {
   return [
-    "This is an OpenClaw heartbeat turn. Apply these instructions only to this heartbeat wake; ordinary chat turns should stay in Codex Default mode.",
+    "This is an Alien heartbeat turn. Apply these instructions only to this heartbeat wake; ordinary chat turns should stay in Codex Default mode.",
     CODEX_GPT5_HEARTBEAT_PROMPT_OVERLAY,
   ].join("\n\n");
 }
@@ -376,8 +376,8 @@ function compareJsonFingerprint(left: JsonValue, right: JsonValue): number {
 export function buildDeveloperInstructions(params: EmbeddedRunAttemptParams): string {
   const promptOverlay = renderCodexRuntimePromptOverlay(params);
   const sections = [
-    "You are running inside OpenClaw. Use OpenClaw dynamic tools for OpenClaw-specific integrations such as messaging, cron, sessions, media, gateway, and nodes when available.",
-    "Preserve the user's existing channel/session context. If sending a channel reply, use the OpenClaw messaging tool instead of describing that you would reply.",
+    "You are running inside Alien. Use Alien dynamic tools for Alien-specific integrations such as messaging, cron, sessions, media, gateway, and nodes when available.",
+    "Preserve the user's existing channel/session context. If sending a channel reply, use the Alien messaging tool instead of describing that you would reply.",
     promptOverlay,
     params.extraSystemPrompt,
     params.skillsSnapshot?.prompt,
@@ -438,7 +438,7 @@ function resolveCodexAppServerModelProvider(params: {
   const normalized = params.provider.trim();
   const normalizedLower = normalized.toLowerCase();
   if (!normalized || normalizedLower === "codex") {
-    // `codex` is OpenClaw's virtual provider; let Codex app-server keep its
+    // `codex` is Alien's virtual provider; let Codex app-server keep its
     // native provider/auth selection instead of forcing the legacy OpenAI path.
     return undefined;
   }
@@ -446,7 +446,7 @@ function resolveCodexAppServerModelProvider(params: {
     isCodexAppServerNativeAuthProfile(params) &&
     (normalizedLower === "openai" || normalizedLower === "openai-codex")
   ) {
-    // When OpenClaw is forwarding ChatGPT/Codex OAuth, `openai` is Codex's
+    // When Alien is forwarding ChatGPT/Codex OAuth, `openai` is Codex's
     // native provider id, not a public OpenAI API-key choice. Omit the override
     // so app-server keeps its configured provider/auth pair for this session.
     return undefined;

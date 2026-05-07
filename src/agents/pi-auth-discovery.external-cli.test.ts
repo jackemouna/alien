@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 const storeMocks = vi.hoisted(() => ({
   ensureAuthProfileStore: vi.fn(() => ({ version: 1, profiles: {} })),
@@ -47,19 +47,19 @@ describe("resolvePiCredentialsForDiscovery external CLI scoping", () => {
   });
 
   it("threads scoped external CLI discovery into writable auth store loading", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const externalCli = externalCliDiscoveryForProviders({
       cfg,
       providers: ["fireworks"],
     });
 
-    resolvePiCredentialsForDiscovery("/tmp/openclaw-agent", {
+    resolvePiCredentialsForDiscovery("/tmp/alien-agent", {
       config: cfg,
       env: {},
       externalCli,
     });
 
-    expect(storeMocks.ensureAuthProfileStore).toHaveBeenCalledWith("/tmp/openclaw-agent", {
+    expect(storeMocks.ensureAuthProfileStore).toHaveBeenCalledWith("/tmp/alien-agent", {
       allowKeychainPrompt: false,
       config: cfg,
       externalCli,
@@ -68,20 +68,20 @@ describe("resolvePiCredentialsForDiscovery external CLI scoping", () => {
   });
 
   it("preserves scoped external CLI discovery for read-only auth store loading", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const externalCli = externalCliDiscoveryForProviders({
       cfg,
       providers: ["fireworks"],
     });
 
-    resolvePiCredentialsForDiscovery("/tmp/openclaw-agent", {
+    resolvePiCredentialsForDiscovery("/tmp/alien-agent", {
       config: cfg,
       env: {},
       externalCli,
       readOnly: true,
     });
 
-    expect(storeMocks.loadAuthProfileStoreForRuntime).toHaveBeenCalledWith("/tmp/openclaw-agent", {
+    expect(storeMocks.loadAuthProfileStoreForRuntime).toHaveBeenCalledWith("/tmp/alien-agent", {
       allowKeychainPrompt: false,
       config: cfg,
       externalCli,
@@ -90,14 +90,14 @@ describe("resolvePiCredentialsForDiscovery external CLI scoping", () => {
   });
 
   it("can skip runtime external auth overlays and scope synthetic auth discovery", () => {
-    resolvePiCredentialsForDiscovery("/tmp/openclaw-agent", {
+    resolvePiCredentialsForDiscovery("/tmp/alien-agent", {
       env: {},
       skipExternalAuthProfiles: true,
       syntheticAuthProviderRefs: ["fireworks"],
     });
 
     expect(storeMocks.ensureAuthProfileStoreWithoutExternalProfiles).toHaveBeenCalledWith(
-      "/tmp/openclaw-agent",
+      "/tmp/alien-agent",
       {
         allowKeychainPrompt: false,
       },

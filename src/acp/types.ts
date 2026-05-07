@@ -46,7 +46,7 @@ export type AcpServerOptions = {
 };
 
 export const ACP_AGENT_INFO = {
-  name: "openclaw-acp",
-  title: "OpenClaw ACP Gateway",
+  name: "alien-acp",
+  title: "Alien ACP Gateway",
   version: VERSION,
 };

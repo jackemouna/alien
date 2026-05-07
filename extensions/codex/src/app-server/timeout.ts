@@ -1,4 +1,4 @@
-import { withTimeout as withSharedTimeout } from "openclaw/plugin-sdk/security-runtime";
+import { withTimeout as withSharedTimeout } from "alien/plugin-sdk/security-runtime";
 
 export async function withTimeout<T>(
   promise: Promise<T>,

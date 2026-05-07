@@ -10,7 +10,7 @@ import { loadSessionStore, updateSessionStore } from "../../../config/sessions/s
 import { resolveAllAgentSessionStoreTargetsSync } from "../../../config/sessions/targets.js";
 import type { SessionEntry } from "../../../config/sessions/types.js";
 import type { AgentRuntimePolicyConfig } from "../../../config/types.agents-shared.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import {
   getInstalledPluginRecord,
   isInstalledPluginEnabled,
@@ -75,7 +75,7 @@ function resolveRuntime(params: {
   defaultsRuntime?: AgentRuntimePolicyConfig;
 }): string {
   return (
-    normalizeString(params.env?.OPENCLAW_AGENT_RUNTIME) ??
+    normalizeString(params.env?.ALIEN_AGENT_RUNTIME) ??
     normalizeString(params.agentRuntime?.id) ??
     normalizeString(params.defaultsRuntime?.id) ??
     "pi"
@@ -239,7 +239,7 @@ function collectAgentModelRefs(params: {
   }
 }
 
-function collectConfigModelRefs(cfg: OpenClawConfig, env?: NodeJS.ProcessEnv): CodexRouteHit[] {
+function collectConfigModelRefs(cfg: AlienConfig, env?: NodeJS.ProcessEnv): CodexRouteHit[] {
   const hits: CodexRouteHit[] = [];
   const defaults = cfg.agents?.defaults;
   const defaultsRuntime = defaults?.agentRuntime;
@@ -477,10 +477,10 @@ function rewriteAgentModelRefs(params: {
 }
 
 function rewriteConfigModelRefs(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   runtime: CodexRepairRuntime;
-}): { cfg: OpenClawConfig; changes: CodexRouteHit[] } {
+}): { cfg: AlienConfig; changes: CodexRouteHit[] } {
   const nextConfig = structuredClone(params.cfg);
   const hits: CodexRouteHit[] = [];
   const defaultsRuntime = nextConfig.agents?.defaults?.agentRuntime;
@@ -561,7 +561,7 @@ function rewriteConfigModelRefs(params: {
   };
 }
 
-function hasUsableCodexOAuthProfile(cfg: OpenClawConfig): boolean {
+function hasUsableCodexOAuthProfile(cfg: AlienConfig): boolean {
   try {
     const store = ensureAuthProfileStore(undefined, { allowKeychainPrompt: false, config: cfg });
     const now = Date.now();
@@ -581,7 +581,7 @@ function hasUsableCodexOAuthProfile(cfg: OpenClawConfig): boolean {
   }
 }
 
-function isCodexPluginInstalledAndEnabled(cfg: OpenClawConfig, env?: NodeJS.ProcessEnv): boolean {
+function isCodexPluginInstalledAndEnabled(cfg: AlienConfig, env?: NodeJS.ProcessEnv): boolean {
   const index = loadInstalledPluginIndex({ config: cfg, env });
   const record = getInstalledPluginRecord(index, "codex");
   if (!record || !record.startup.agentHarnesses.includes("codex")) {
@@ -591,7 +591,7 @@ function isCodexPluginInstalledAndEnabled(cfg: OpenClawConfig, env?: NodeJS.Proc
 }
 
 function resolveCodexRepairRuntime(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   codexRuntimeReady?: boolean;
 }): CodexRepairRuntime {
@@ -610,7 +610,7 @@ function formatCodexRouteChange(hit: CodexRouteHit, runtime: CodexRepairRuntime)
 }
 
 export function collectCodexRouteWarnings(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
 }): string[] {
   const hits = collectConfigModelRefs(params.cfg, params.env);
@@ -626,17 +626,17 @@ export function collectCodexRouteWarnings(params: {
             hit.runtime ? `; current runtime is "${hit.runtime}"` : ""
           }.`,
       ),
-      '- Run `openclaw doctor --fix`: it rewrites configured model refs and stale sessions; primary routes select `agentRuntime.id: "codex"` only when Codex is installed, enabled, and has usable OAuth, otherwise they select OpenClaw PI.',
+      '- Run `alien doctor --fix`: it rewrites configured model refs and stale sessions; primary routes select `agentRuntime.id: "codex"` only when Codex is installed, enabled, and has usable OAuth, otherwise they select Alien PI.',
     ].join("\n"),
   ];
 }
 
 export function maybeRepairCodexRoutes(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   shouldRepair: boolean;
   codexRuntimeReady?: boolean;
-}): { cfg: OpenClawConfig; warnings: string[]; changes: string[] } {
+}): { cfg: AlienConfig; warnings: string[]; changes: string[] } {
   const hits = collectConfigModelRefs(params.cfg, params.env);
   if (hits.length === 0) {
     return { cfg: params.cfg, warnings: [], changes: [] };
@@ -790,7 +790,7 @@ function scanCodexSessionStoreRoutes(
 }
 
 export async function maybeRepairCodexSessionRoutes(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env?: NodeJS.ProcessEnv;
   shouldRepair: boolean;
   codexRuntimeReady?: boolean;
@@ -827,7 +827,7 @@ export async function maybeRepairCodexSessionRoutes(params: {
               [
                 "- Legacy `openai-codex/*` session route state detected.",
                 `- Affected sessions: ${stale.length}.`,
-                "- Run `openclaw doctor --fix` to rewrite stale session model/provider pins across all agent session stores.",
+                "- Run `alien doctor --fix` to rewrite stale session model/provider pins across all agent session stores.",
               ].join("\n"),
             ]
           : [],

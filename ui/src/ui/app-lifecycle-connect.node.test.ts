@@ -48,7 +48,7 @@ function createHost() {
     connectGeneration: 0,
     connected: false,
     tab: "chat",
-    assistantName: "OpenClaw",
+    assistantName: "Alien",
     assistantAvatar: null,
     assistantAgentId: null,
     serverVersion: null,

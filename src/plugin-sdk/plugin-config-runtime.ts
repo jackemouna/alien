@@ -1,8 +1,8 @@
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 
 export { normalizePluginsConfig, resolveEffectiveEnableState } from "../plugins/config-state.js";
 
-export function requireRuntimeConfig(config: OpenClawConfig, context: string): OpenClawConfig {
+export function requireRuntimeConfig(config: AlienConfig, context: string): AlienConfig {
   if (config) {
     return config;
   }
@@ -12,7 +12,7 @@ export function requireRuntimeConfig(config: OpenClawConfig, context: string): O
 }
 
 export function resolvePluginConfigObject(
-  config: OpenClawConfig | undefined,
+  config: AlienConfig | undefined,
   pluginId: string,
 ): Record<string, unknown> | undefined {
   const plugins =
@@ -34,7 +34,7 @@ export function resolvePluginConfigObject(
 }
 
 export function resolveLivePluginConfigObject(
-  runtimeConfigLoader: (() => OpenClawConfig | undefined) | undefined,
+  runtimeConfigLoader: (() => AlienConfig | undefined) | undefined,
   pluginId: string,
   startupPluginConfig?: Record<string, unknown>,
 ): Record<string, unknown> | undefined {

@@ -135,17 +135,17 @@ function recoveryHintForGatewayHealthFailure(
 ): string | undefined {
   switch (classification) {
     case "auth-mismatch":
-      return "Fix: run `openclaw doctor --fix`.";
+      return "Fix: run `alien doctor --fix`.";
     case "module-missing":
-      return "Fix: run `openclaw doctor --fix`.";
+      return "Fix: run `alien doctor --fix`.";
     case "service-missing":
-      return "Fix: run `openclaw gateway install --force`.";
+      return "Fix: run `alien gateway install --force`.";
     case "service-stopped":
-      return "Fix: run `openclaw gateway restart`.";
+      return "Fix: run `alien gateway restart`.";
     case "startup-blocked":
-      return "Fix: run `openclaw gateway status --deep`.";
+      return "Fix: run `alien gateway status --deep`.";
     case "not-listening":
-      return "Fix: start `openclaw gateway run`, or run `openclaw gateway restart` for a managed gateway.";
+      return "Fix: start `alien gateway run`, or run `alien gateway restart` for a managed gateway.";
     default:
       return undefined;
   }

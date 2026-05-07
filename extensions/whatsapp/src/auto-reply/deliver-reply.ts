@@ -2,15 +2,15 @@ import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
   type MessageReceiptSourceResult,
-} from "openclaw/plugin-sdk/channel-message";
-import type { MarkdownTableMode } from "openclaw/plugin-sdk/config-types";
-import { chunkMarkdownTextWithMode, type ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-chunking";
+} from "alien/plugin-sdk/channel-message";
+import type { MarkdownTableMode } from "alien/plugin-sdk/config-types";
+import { chunkMarkdownTextWithMode, type ChunkMode } from "alien/plugin-sdk/reply-chunking";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-chunking";
 import {
   isReasoningReplyPayload,
   sendMediaWithLeadingCaption,
-} from "openclaw/plugin-sdk/reply-payload";
-import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/reply-payload";
+import { logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
 import type { WhatsAppSendResult } from "../inbound/send-result.js";
 import { listWhatsAppSendResultMessageIds } from "../inbound/send-result.js";
 import { loadWebMedia } from "../media.js";

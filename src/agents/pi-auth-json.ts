@@ -40,14 +40,14 @@ async function readAuthJson(rootDir: string, filePath: string): Promise<AuthJson
 /**
  * pi-coding-agent's ModelRegistry/AuthStorage expects credentials in auth.json.
  *
- * OpenClaw stores credentials in auth-profiles.json instead. This helper
+ * Alien stores credentials in auth-profiles.json instead. This helper
  * bridges all credentials into agentDir/auth.json so pi-coding-agent can
  * (a) consider providers authenticated and (b) include built-in models in its
  * registry/catalog output.
  *
  * Syncs all credential types: api_key, token (as api_key), and oauth.
  *
- * @deprecated Runtime auth now comes from OpenClaw auth-profiles snapshots.
+ * @deprecated Runtime auth now comes from Alien auth-profiles snapshots.
  */
 export async function ensurePiAuthJsonFromAuthProfiles(agentDir: string): Promise<{
   wrote: boolean;

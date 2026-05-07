@@ -2,11 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { resolveGatewayHealthProbeToken } from "./onboard-non-interactive/local.js";
 
 async function withTempDir<T>(run: (dir: string) => Promise<T>): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-health-auth-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-gateway-health-auth-"));
   try {
     return await run(dir);
   } finally {
@@ -20,19 +20,19 @@ async function writeSecureFile(filePath: string, content: string): Promise<void>
 }
 
 describe("resolveGatewayHealthProbeToken", () => {
-  const originalGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-  const originalGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
+  const originalGatewayToken = process.env.ALIEN_GATEWAY_TOKEN;
+  const originalGatewayPassword = process.env.ALIEN_GATEWAY_PASSWORD;
 
   afterEach(() => {
     if (originalGatewayToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.ALIEN_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = originalGatewayToken;
+      process.env.ALIEN_GATEWAY_TOKEN = originalGatewayToken;
     }
     if (originalGatewayPassword === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+      delete process.env.ALIEN_GATEWAY_PASSWORD;
     } else {
-      process.env.OPENCLAW_GATEWAY_PASSWORD = originalGatewayPassword;
+      process.env.ALIEN_GATEWAY_PASSWORD = originalGatewayPassword;
     }
   });
 
@@ -40,7 +40,7 @@ describe("resolveGatewayHealthProbeToken", () => {
     await withTempDir(async (dir) => {
       const tokenPath = path.join(dir, "gateway-token.txt");
       await writeSecureFile(tokenPath, "file-secret-token\n");
-      process.env.OPENCLAW_GATEWAY_TOKEN = "stale-env-token";
+      process.env.ALIEN_GATEWAY_TOKEN = "stale-env-token";
 
       const resolved = await resolveGatewayHealthProbeToken({
         gateway: {
@@ -62,15 +62,15 @@ describe("resolveGatewayHealthProbeToken", () => {
             },
           },
         },
-      } as OpenClawConfig);
+      } as AlienConfig);
 
       expect(resolved).toEqual({ token: "file-secret-token" });
     });
   });
 
-  it("does not fall back to stale OPENCLAW_GATEWAY_TOKEN when a SecretRef is unresolved", async () => {
+  it("does not fall back to stale ALIEN_GATEWAY_TOKEN when a SecretRef is unresolved", async () => {
     await withTempDir(async (dir) => {
-      process.env.OPENCLAW_GATEWAY_TOKEN = "stale-env-token";
+      process.env.ALIEN_GATEWAY_TOKEN = "stale-env-token";
 
       const resolved = await resolveGatewayHealthProbeToken({
         gateway: {
@@ -92,7 +92,7 @@ describe("resolveGatewayHealthProbeToken", () => {
             },
           },
         },
-      } as OpenClawConfig);
+      } as AlienConfig);
 
       expect(resolved.token).toBeUndefined();
       expect(resolved.unresolvedRefReason).toContain("gateway.auth.token SecretRef is unresolved");
@@ -100,8 +100,8 @@ describe("resolveGatewayHealthProbeToken", () => {
   });
 
   it("resolves password auth for the local onboarding health probe", async () => {
-    process.env.OPENCLAW_GATEWAY_TOKEN = "stale-env-token";
-    process.env.OPENCLAW_GATEWAY_PASSWORD = "resolved-password"; // pragma: allowlist secret
+    process.env.ALIEN_GATEWAY_TOKEN = "stale-env-token";
+    process.env.ALIEN_GATEWAY_PASSWORD = "resolved-password"; // pragma: allowlist secret
 
     const resolved = await resolveGatewayHealthProbeToken({
       gateway: {
@@ -110,11 +110,11 @@ describe("resolveGatewayHealthProbeToken", () => {
           password: {
             source: "env",
             provider: "default",
-            id: "OPENCLAW_GATEWAY_PASSWORD",
+            id: "ALIEN_GATEWAY_PASSWORD",
           },
         },
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(resolved).toEqual({ password: "resolved-password" });
   });

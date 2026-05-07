@@ -1,5 +1,5 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 type MediaUnderstandingKind = "audio.transcription" | "video.description" | "image.description";
 
@@ -134,7 +134,7 @@ export type ImageDescriptionRequest = {
   preferredProfile?: string;
   authStore?: AuthProfileStore;
   agentDir: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   model: string;
   provider: string;
 };
@@ -156,7 +156,7 @@ export type ImagesDescriptionRequest = {
   preferredProfile?: string;
   authStore?: AuthProfileStore;
   agentDir: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 };
 
 export type ImageDescriptionResult = {

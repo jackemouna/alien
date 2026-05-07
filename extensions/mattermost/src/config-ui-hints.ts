@@ -1,4 +1,4 @@
-import type { ChannelConfigUiHint } from "openclaw/plugin-sdk/channel-core";
+import type { ChannelConfigUiHint } from "alien/plugin-sdk/channel-core";
 
 export const mattermostChannelConfigUiHints = {
   "": {
@@ -23,7 +23,7 @@ export const mattermostChannelConfigUiHints = {
   },
   "streaming.progress.labels": {
     label: "Mattermost Progress Label Pool",
-    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use OpenClaw built-in progress labels.',
+    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use Alien built-in progress labels.',
   },
   "streaming.progress.maxLines": {
     label: "Mattermost Progress Max Lines",

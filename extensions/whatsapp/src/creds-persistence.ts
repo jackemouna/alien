@@ -1,4 +1,4 @@
-import { replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+import { replaceFileAtomic } from "alien/plugin-sdk/security-runtime";
 import { resolveWebCredsPath } from "./creds-files.js";
 
 const CREDS_FILE_MODE = 0o600;

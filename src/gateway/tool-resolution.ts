@@ -1,5 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { createOpenClawTools } from "../agents/openclaw-tools.js";
+import { createAlienTools } from "../agents/alien-tools.js";
 import {
   resolveEffectiveToolPolicy,
   resolveGroupToolPolicy,
@@ -20,7 +20,7 @@ import {
   resolveToolProfilePolicy,
 } from "../agents/tool-policy.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "../security/dangerous-tools.js";
@@ -28,7 +28,7 @@ import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "../security/dangerous-tools.js";
 type GatewayScopedToolSurface = "http" | "loopback";
 
 export function resolveGatewayScopedTools(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey: string;
   messageProvider?: string;
   accountId?: string;
@@ -86,7 +86,7 @@ export function resolveGatewayScopedTools(params: {
     agentId ?? resolveDefaultAgentId(params.cfg),
   );
 
-  const allTools = createOpenClawTools({
+  const allTools = createAlienTools({
     agentSessionKey: params.sessionKey,
     agentChannel: params.messageProvider ?? undefined,
     agentAccountId: params.accountId,

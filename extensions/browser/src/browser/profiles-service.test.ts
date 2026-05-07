@@ -2,13 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getRuntimeConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveOpenClawUserDataDir } from "./chrome.js";
+import type { AlienConfig } from "../config/config.js";
+import { resolveAlienUserDataDir } from "./chrome.js";
 import type { BrowserRouteContext, BrowserServerState } from "./server-context.js";
 import { movePathToTrash } from "./trash.js";
 
 const configMocks = vi.hoisted(() => ({
-  writeConfigFile: vi.fn<(cfg: OpenClawConfig) => Promise<void>>(async (_cfg) => {}),
+  writeConfigFile: vi.fn<(cfg: AlienConfig) => Promise<void>>(async (_cfg) => {}),
 }));
 const writeConfigFile = configMocks.writeConfigFile;
 
@@ -17,7 +17,7 @@ vi.mock("../config/config.js", async () => {
   return {
     ...actual,
     getRuntimeConfig: vi.fn(),
-    replaceConfigFile: vi.fn(async ({ nextConfig }: { nextConfig: OpenClawConfig }) => {
+    replaceConfigFile: vi.fn(async ({ nextConfig }: { nextConfig: AlienConfig }) => {
       await configMocks.writeConfigFile(nextConfig);
     }),
   };
@@ -28,7 +28,7 @@ vi.mock("./trash.js", () => ({
 }));
 
 vi.mock("./chrome.js", () => ({
-  resolveOpenClawUserDataDir: vi.fn(() => "/tmp/openclaw-test/openclaw/user-data"),
+  resolveAlienUserDataDir: vi.fn(() => "/tmp/alien-test/alien/user-data"),
 }));
 
 const [{ resolveBrowserConfig }, { createBrowserProfilesService }] = await Promise.all([
@@ -228,7 +228,7 @@ describe("BrowserProfilesService", () => {
     const { ctx, state } = createCtx(resolved);
     vi.mocked(getRuntimeConfig).mockReturnValue({ browser: { profiles: {} } });
 
-    const tempDir = fs.mkdtempSync(path.join("/tmp", "openclaw-profile-"));
+    const tempDir = fs.mkdtempSync(path.join("/tmp", "alien-profile-"));
     const userDataDir = path.join(tempDir, "BraveSoftware", "Brave-Browser");
     fs.mkdirSync(userDataDir, { recursive: true });
 
@@ -254,7 +254,7 @@ describe("BrowserProfilesService", () => {
     const { ctx } = createCtx(resolved);
     vi.mocked(getRuntimeConfig).mockReturnValue({ browser: { profiles: {} } });
 
-    const tempDir = fs.mkdtempSync(path.join("/tmp", "openclaw-profile-"));
+    const tempDir = fs.mkdtempSync(path.join("/tmp", "alien-profile-"));
     const userDataDir = path.join(tempDir, "BraveSoftware", "Brave-Browser");
     fs.mkdirSync(userDataDir, { recursive: true });
 
@@ -278,9 +278,9 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(getRuntimeConfig).mockReturnValue({
       browser: {
-        defaultProfile: "openclaw",
+        defaultProfile: "alien",
         profiles: {
-          openclaw: { cdpPort: 18800, color: "#FF4500" },
+          alien: { cdpPort: 18800, color: "#FF4500" },
           remote: { cdpUrl: "http://10.0.0.42:9222", color: "#0066CC" },
         },
       },
@@ -304,18 +304,18 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(getRuntimeConfig).mockReturnValue({
       browser: {
-        defaultProfile: "openclaw",
+        defaultProfile: "alien",
         profiles: {
-          openclaw: { cdpPort: 18800, color: "#FF4500" },
+          alien: { cdpPort: 18800, color: "#FF4500" },
           work: { cdpPort: 18801, color: "#0066CC" },
         },
       },
     });
 
-    const tempDir = fs.mkdtempSync(path.join("/tmp", "openclaw-profile-"));
+    const tempDir = fs.mkdtempSync(path.join("/tmp", "alien-profile-"));
     const userDataDir = path.join(tempDir, "work", "user-data");
     fs.mkdirSync(path.dirname(userDataDir), { recursive: true });
-    vi.mocked(resolveOpenClawUserDataDir).mockReturnValue(userDataDir);
+    vi.mocked(resolveAlienUserDataDir).mockReturnValue(userDataDir);
 
     const service = createBrowserProfilesService(ctx);
     const result = await service.deleteProfile("work");
@@ -339,9 +339,9 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(getRuntimeConfig).mockReturnValue({
       browser: {
-        defaultProfile: "openclaw",
+        defaultProfile: "alien",
         profiles: {
-          openclaw: { cdpPort: 18800, color: "#FF4500" },
+          alien: { cdpPort: 18800, color: "#FF4500" },
           "chrome-live": {
             cdpPort: 18801,
             color: "#0066CC",

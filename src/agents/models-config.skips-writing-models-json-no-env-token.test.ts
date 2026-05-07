@@ -87,7 +87,7 @@ installModelsConfigTestHooks();
 let clearConfigCache: typeof import("../config/config.js").clearConfigCache;
 let clearRuntimeConfigSnapshot: typeof import("../config/config.js").clearRuntimeConfigSnapshot;
 let clearRuntimeAuthProfileStoreSnapshots: typeof import("./auth-profiles/store.js").clearRuntimeAuthProfileStoreSnapshots;
-let ensureOpenClawModelsJson: typeof import("./models-config.js").ensureOpenClawModelsJson;
+let ensureAlienModelsJson: typeof import("./models-config.js").ensureAlienModelsJson;
 let resetModelsJsonReadyCacheForTest: typeof import("./models-config.js").resetModelsJsonReadyCacheForTest;
 
 type ParsedProviderConfig = {
@@ -105,7 +105,7 @@ async function runEnvProviderCase(params: {
   const previousValue = process.env[params.envVar];
   process.env[params.envVar] = params.envValue;
   try {
-    await ensureOpenClawModelsJson({});
+    await ensureAlienModelsJson({});
 
     const modelPath = path.join(resolveDefaultAgentDir({}), "models.json");
     const raw = await fs.readFile(modelPath, "utf8");
@@ -126,7 +126,7 @@ describe("models-config", () => {
   beforeAll(async () => {
     ({ clearConfigCache, clearRuntimeConfigSnapshot } = await import("../config/config.js"));
     ({ clearRuntimeAuthProfileStoreSnapshots } = await import("./auth-profiles/store.js"));
-    ({ ensureOpenClawModelsJson, resetModelsJsonReadyCacheForTest } =
+    ({ ensureAlienModelsJson, resetModelsJsonReadyCacheForTest } =
       await import("./models-config.js"));
   });
 
@@ -151,10 +151,10 @@ describe("models-config", () => {
 
         const agentDir = path.join(home, "agent-empty");
         // ensureAuthProfileStore merges the main auth store into non-main dirs; point main at our temp dir.
-        process.env.OPENCLAW_AGENT_DIR = agentDir;
+        process.env.ALIEN_AGENT_DIR = agentDir;
         process.env.PI_CODING_AGENT_DIR = agentDir;
 
-        const result = await ensureOpenClawModelsJson(
+        const result = await ensureAlienModelsJson(
           {
             models: { providers: {} },
           },
@@ -175,7 +175,7 @@ describe("models-config", () => {
 
   it("writes models.json for configured providers", async () => {
     await withTempHome(async () => {
-      await ensureOpenClawModelsJson(CUSTOM_PROXY_MODELS_CONFIG);
+      await ensureAlienModelsJson(CUSTOM_PROXY_MODELS_CONFIG);
 
       const modelPath = path.join(resolveDefaultAgentDir({}), "models.json");
       const raw = await fs.readFile(modelPath, "utf8");

@@ -3,14 +3,14 @@ import {
   resolveMemorySearchConfig,
   resolveSessionAgentIds,
   type MemoryPluginRuntime,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/memory-core-host-runtime-core";
-import { resolveMemoryBackendConfig } from "openclaw/plugin-sdk/memory-core-host-runtime-files";
+  type AlienConfig,
+} from "alien/plugin-sdk/memory-core-host-runtime-core";
+import { resolveMemoryBackendConfig } from "alien/plugin-sdk/memory-core-host-runtime-files";
 import {
   definePluginEntry,
   type AnyAgentTool,
-  type OpenClawPluginToolContext,
-} from "openclaw/plugin-sdk/plugin-entry";
+  type AlienPluginToolContext,
+} from "alien/plugin-sdk/plugin-entry";
 import type { TSchema } from "typebox";
 import { registerShortTermPromotionDreaming } from "./src/dreaming.js";
 import { buildMemoryFlushPlan } from "./src/flush-plan.js";
@@ -21,8 +21,8 @@ type MemoryToolsModule = typeof import("./src/tools.js");
 type RuntimeProviderModule = typeof import("./src/runtime-provider.js");
 
 type MemoryToolOptions = {
-  config?: OpenClawConfig;
-  getConfig?: () => OpenClawConfig | undefined;
+  config?: AlienConfig;
+  getConfig?: () => AlienConfig | undefined;
   agentId?: string;
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -41,7 +41,7 @@ function loadRuntimeProviderModule(): Promise<RuntimeProviderModule> {
   return runtimeProviderModulePromise;
 }
 
-function getToolConfig(options: MemoryToolOptions): OpenClawConfig | undefined {
+function getToolConfig(options: MemoryToolOptions): AlienConfig | undefined {
   return options.getConfig?.() ?? options.config;
 }
 
@@ -143,7 +143,7 @@ function createLazyMemoryGetTool(options: MemoryToolOptions): AnyAgentTool | nul
   });
 }
 
-function resolveMemoryToolOptions(ctx: OpenClawPluginToolContext): MemoryToolOptions {
+function resolveMemoryToolOptions(ctx: AlienPluginToolContext): MemoryToolOptions {
   const getConfig = () => ctx.getRuntimeConfig?.() ?? ctx.runtimeConfig ?? ctx.config;
   return {
     config: getConfig(),

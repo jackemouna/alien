@@ -1,24 +1,24 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { describe, expect, it, vi } from "vitest";
 import registerPhoneControl from "./index.js";
 import type {
-  OpenClawPluginApi,
-  OpenClawPluginCommandDefinition,
+  AlienPluginApi,
+  AlienPluginCommandDefinition,
   PluginCommandContext,
 } from "./runtime-api.js";
 
-const PHONE_CONTROL_STATE_PREFIX = "openclaw-phone-control-test-";
+const PHONE_CONTROL_STATE_PREFIX = "alien-phone-control-test-";
 const WRITE_COMMANDS = ["calendar.add", "contacts.add", "reminders.add", "sms.send"] as const;
 
 function createApi(params: {
   stateDir: string;
   getConfig: () => Record<string, unknown>;
   writeConfig: (next: Record<string, unknown>) => Promise<void>;
-  registerCommand: (command: OpenClawPluginCommandDefinition) => void;
-}): OpenClawPluginApi {
+  registerCommand: (command: AlienPluginCommandDefinition) => void;
+}): AlienPluginApi {
   return createTestPluginApi({
     id: "phone-control",
     name: "phone-control",
@@ -34,7 +34,7 @@ function createApi(params: {
         replaceConfigFile: ({ nextConfig }: { nextConfig: unknown }) =>
           params.writeConfig(nextConfig as Record<string, unknown>),
       },
-    } as unknown as OpenClawPluginApi["runtime"],
+    } as unknown as AlienPluginApi["runtime"],
     registerCommand: params.registerCommand,
   });
 }
@@ -68,7 +68,7 @@ function createPhoneControlConfig(): Record<string, unknown> {
 
 async function withRegisteredPhoneControl(
   run: (params: {
-    command: OpenClawPluginCommandDefinition;
+    command: AlienPluginCommandDefinition;
     writeConfigFile: ReturnType<typeof vi.fn>;
     getConfig: () => Record<string, unknown>;
   }) => Promise<void>,
@@ -80,7 +80,7 @@ async function withRegisteredPhoneControl(
       config = next;
     });
 
-    let command: OpenClawPluginCommandDefinition | undefined;
+    let command: AlienPluginCommandDefinition | undefined;
     registerPhoneControl.register(
       createApi({
         stateDir,

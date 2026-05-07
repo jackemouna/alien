@@ -67,7 +67,7 @@ describe("resolveTsdownBuildInvocation", () => {
   });
 
   it("prunes stale hashed root chunk files but keeps stable aliases and nested assets", async () => {
-    const rootDir = createTempDir("openclaw-tsdown-build-");
+    const rootDir = createTempDir("alien-tsdown-build-");
     const distDir = path.join(rootDir, "dist");
     const distRuntimeDir = path.join(rootDir, "dist-runtime");
     await fsPromises.mkdir(path.join(distDir, "control-ui"), { recursive: true });
@@ -107,7 +107,7 @@ describe("resolveTsdownBuildInvocation", () => {
   });
 
   it("cleans tsdown output roots before using tsdown --no-clean", async () => {
-    const rootDir = createTempDir("openclaw-tsdown-clean-");
+    const rootDir = createTempDir("alien-tsdown-clean-");
     const distFile = path.join(rootDir, "dist", "stale.js");
     const pluginGeneratedFile = path.join(rootDir, "dist", "extensions", "telegram", "index.js");
     const distRuntimeFile = path.join(rootDir, "dist-runtime", "stale.js");
@@ -187,7 +187,7 @@ describe("runTsdownBuildInvocation", () => {
       {
         stdout: output.sink,
         stderr: output.sink,
-        env: { ...process.env, OPENCLAW_TSDOWN_HEARTBEAT_MS: "0" },
+        env: { ...process.env, ALIEN_TSDOWN_HEARTBEAT_MS: "0" },
       },
     );
 
@@ -196,7 +196,7 @@ describe("runTsdownBuildInvocation", () => {
     expect(output.chunks.join("")).toContain("stdout-ok");
   });
 
-  it("terminates the child when OPENCLAW_TSDOWN_TIMEOUT_MS elapses", async () => {
+  it("terminates the child when ALIEN_TSDOWN_TIMEOUT_MS elapses", async () => {
     const output = createWriteSink();
     const result = await runTsdownBuildInvocation(
       {
@@ -213,8 +213,8 @@ describe("runTsdownBuildInvocation", () => {
         stderr: output.sink,
         env: {
           ...process.env,
-          OPENCLAW_TSDOWN_HEARTBEAT_MS: "0",
-          OPENCLAW_TSDOWN_TIMEOUT_MS: "50",
+          ALIEN_TSDOWN_HEARTBEAT_MS: "0",
+          ALIEN_TSDOWN_TIMEOUT_MS: "50",
         },
       },
     );

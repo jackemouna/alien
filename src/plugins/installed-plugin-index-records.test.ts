@@ -18,7 +18,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeStateDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-plugin-index-records-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-plugin-index-records-"));
   tempDirs.push(dir);
   return dir;
 }
@@ -29,7 +29,7 @@ function createPluginCandidate(stateDir: string, pluginId: string): PluginCandid
   const source = path.join(rootDir, "index.ts");
   fs.writeFileSync(source, "export function register() {}\n", "utf8");
   fs.writeFileSync(
-    path.join(rootDir, "openclaw.plugin.json"),
+    path.join(rootDir, "alien.plugin.json"),
     JSON.stringify({
       id: pluginId,
       configSchema: { type: "object" },
@@ -83,12 +83,12 @@ function writeManagedNpmPlugin(params: {
     JSON.stringify({
       name: params.packageName,
       version: params.version,
-      openclaw: { extensions: ["./dist/index.js"] },
+      alien: { extensions: ["./dist/index.js"] },
     }),
     "utf8",
   );
   fs.writeFileSync(
-    path.join(packageDir, "openclaw.plugin.json"),
+    path.join(packageDir, "alien.plugin.json"),
     JSON.stringify({
       id: params.pluginId,
       configSchema: { type: "object" },
@@ -114,8 +114,8 @@ describe("plugin index install records store", () => {
       {
         twitch: {
           source: "npm",
-          spec: "@openclaw/plugin-twitch@1.0.0",
-          installPath: "plugins/npm/@openclaw/plugin-twitch",
+          spec: "@alien/plugin-twitch@1.0.0",
+          installPath: "plugins/npm/@alien/plugin-twitch",
         },
       },
       {
@@ -133,8 +133,8 @@ describe("plugin index install records store", () => {
       installRecords: {
         twitch: {
           source: "npm",
-          spec: "@openclaw/plugin-twitch@1.0.0",
-          installPath: "plugins/npm/@openclaw/plugin-twitch",
+          spec: "@alien/plugin-twitch@1.0.0",
+          installPath: "plugins/npm/@alien/plugin-twitch",
         },
       },
       plugins: [
@@ -147,8 +147,8 @@ describe("plugin index install records store", () => {
     await expect(readPersistedInstalledPluginIndexInstallRecords({ stateDir })).resolves.toEqual({
       twitch: {
         source: "npm",
-        spec: "@openclaw/plugin-twitch@1.0.0",
-        installPath: "plugins/npm/@openclaw/plugin-twitch",
+        spec: "@alien/plugin-twitch@1.0.0",
+        installPath: "plugins/npm/@alien/plugin-twitch",
       },
     });
   });
@@ -250,13 +250,13 @@ describe("plugin index install records store", () => {
     const stateDir = makeStateDir();
     const discordDir = writeManagedNpmPlugin({
       stateDir,
-      packageName: "@openclaw/discord",
+      packageName: "@alien/discord",
       pluginId: "discord",
       version: "2026.5.2",
     });
     const codexDir = writeManagedNpmPlugin({
       stateDir,
-      packageName: "@openclaw/codex",
+      packageName: "@alien/codex",
       pluginId: "codex",
       version: "2026.5.2",
     });
@@ -267,21 +267,21 @@ describe("plugin index install records store", () => {
     await expect(loadInstalledPluginIndexInstallRecords({ stateDir })).resolves.toMatchObject({
       codex: {
         source: "npm",
-        spec: "@openclaw/codex@2026.5.2",
+        spec: "@alien/codex@2026.5.2",
         installPath: codexDir,
         version: "2026.5.2",
-        resolvedName: "@openclaw/codex",
+        resolvedName: "@alien/codex",
         resolvedVersion: "2026.5.2",
-        resolvedSpec: "@openclaw/codex@2026.5.2",
+        resolvedSpec: "@alien/codex@2026.5.2",
       },
       discord: {
         source: "npm",
-        spec: "@openclaw/discord@2026.5.2",
+        spec: "@alien/discord@2026.5.2",
         installPath: discordDir,
         version: "2026.5.2",
-        resolvedName: "@openclaw/discord",
+        resolvedName: "@alien/discord",
         resolvedVersion: "2026.5.2",
-        resolvedSpec: "@openclaw/discord@2026.5.2",
+        resolvedSpec: "@alien/discord@2026.5.2",
       },
     });
     expect(loadInstalledPluginIndexInstallRecordsSync({ stateDir })).toMatchObject({
@@ -300,7 +300,7 @@ describe("plugin index install records store", () => {
     const stateDir = makeStateDir();
     writeManagedNpmPlugin({
       stateDir,
-      packageName: "@openclaw/discord",
+      packageName: "@alien/discord",
       pluginId: "discord",
       version: "2026.5.2",
     });
@@ -309,7 +309,7 @@ describe("plugin index install records store", () => {
       {
         discord: {
           source: "npm",
-          spec: "@openclaw/discord@beta",
+          spec: "@alien/discord@beta",
           installPath: path.join(stateDir, "custom", "discord"),
           integrity: "sha512-persisted",
         },
@@ -320,7 +320,7 @@ describe("plugin index install records store", () => {
     await expect(loadInstalledPluginIndexInstallRecords({ stateDir })).resolves.toMatchObject({
       discord: {
         source: "npm",
-        spec: "@openclaw/discord@beta",
+        spec: "@alien/discord@beta",
         installPath: path.join(stateDir, "custom", "discord"),
         integrity: "sha512-persisted",
       },

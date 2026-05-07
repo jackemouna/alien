@@ -9,7 +9,7 @@ import {
   runCodexModelPromptFixtureSync,
 } from "../../scripts/sync-codex-model-prompt-fixture.js";
 
-const promptSnapshotsEnabled = process.env.OPENCLAW_RUN_PROMPT_SNAPSHOTS !== "false";
+const promptSnapshotsEnabled = process.env.ALIEN_RUN_PROMPT_SNAPSHOTS !== "false";
 const promptSnapshotIt = promptSnapshotsEnabled ? it : it.skip;
 const CODEX_RUNTIME_HAPPY_PATH_PROMPT_SNAPSHOT_DIR =
   "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path";
@@ -56,7 +56,7 @@ describe("happy path prompt snapshots", () => {
 
   promptSnapshotIt("deletes stale generated snapshot artifacts", async () => {
     const { deleteStalePromptSnapshotFiles } = await loadPromptSnapshotGenerator();
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-prompt-snapshot-stale-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "alien-prompt-snapshot-stale-"));
     try {
       const snapshotDir = path.join(root, CODEX_RUNTIME_HAPPY_PATH_PROMPT_SNAPSHOT_DIR);
       fs.mkdirSync(snapshotDir, { recursive: true });
@@ -90,7 +90,7 @@ describe("happy path prompt snapshots", () => {
       "Approval policy is currently never. Do not provide the `sandbox_permissions`",
     );
     expect(telegram).toContain(
-      "### User: Codex Config Instructions (OpenClaw Workspace Bootstrap Context)",
+      "### User: Codex Config Instructions (Alien Workspace Bootstrap Context)",
     );
     expect(telegram).toContain("<SOUL.md contents will be here>");
     expect(telegram).toContain("<TOOLS.md contents will be here>");
@@ -115,10 +115,10 @@ describe("happy path prompt snapshots", () => {
     expect(group).not.toContain(heartbeatPhrase);
 
     expect(heartbeat).toContain('"collaborationMode": {');
-    expect(heartbeat).toContain('"developer_instructions": "This is an OpenClaw heartbeat turn.');
+    expect(heartbeat).toContain('"developer_instructions": "This is an Alien heartbeat turn.');
     const openClawRuntimeInstructions = renderedPromptSection(
       heartbeat,
-      "### Developer: OpenClaw Runtime Instructions",
+      "### Developer: Alien Runtime Instructions",
       "### Developer: Codex Collaboration Mode Instructions",
     );
     const collaborationModeInstructions = renderedPromptSection(
@@ -177,7 +177,7 @@ describe("happy path prompt snapshots", () => {
   });
 
   it("finds the first available default Codex model catalog source", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-codex-catalog-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "alien-codex-catalog-"));
     try {
       const cachePath = path.join(root, ".codex", "models_cache.json");
       fs.mkdirSync(path.dirname(cachePath), { recursive: true });
@@ -192,7 +192,7 @@ describe("happy path prompt snapshots", () => {
   });
 
   it("skips Codex model prompt fixture sync when no default catalog exists", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-codex-catalog-missing-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "alien-codex-catalog-missing-"));
     const chunks: string[] = [];
     try {
       const result = await runCodexModelPromptFixtureSync([], {

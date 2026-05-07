@@ -17,7 +17,7 @@ export const DEFAULT_DIAGNOSTIC_STABILITY_BUNDLE_RETENTION = 20;
 export const MAX_DIAGNOSTIC_STABILITY_BUNDLE_BYTES = 5 * 1024 * 1024;
 
 const SAFE_REASON_CODE = /^[A-Za-z0-9_.:-]{1,120}$/u;
-const BUNDLE_PREFIX = "openclaw-stability-";
+const BUNDLE_PREFIX = "alien-stability-";
 const BUNDLE_SUFFIX = ".json";
 const REDACTED_HOSTNAME = "<redacted-hostname>";
 const MAX_SAFE_ERROR_MESSAGE_LENGTH = 500;
@@ -647,7 +647,7 @@ export function writeDiagnosticStabilityBundleSync(
       content: `${JSON.stringify(bundle, null, 2)}\n`,
       dirMode: 0o700,
       mode: 0o600,
-      tempPrefix: ".openclaw-stability",
+      tempPrefix: ".alien-stability",
     });
     pruneOldBundles(dir, options.retention ?? DEFAULT_DIAGNOSTIC_STABILITY_BUNDLE_RETENTION);
     return { status: "written", path: file, bundle };

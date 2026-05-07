@@ -4,11 +4,11 @@ import baseConfig from "./vitest.config.ts";
 import { resolveRepoRootPath } from "./vitest.shared.config.ts";
 
 type E2EWorkerEnv = {
-  OPENCLAW_E2E_WORKERS?: string;
+  ALIEN_E2E_WORKERS?: string;
 };
 
 export function resolveE2EWorkerCount(env: E2EWorkerEnv = process.env): number {
-  const requestedWorkers = Number.parseInt(env.OPENCLAW_E2E_WORKERS ?? "", 10);
+  const requestedWorkers = Number.parseInt(env.ALIEN_E2E_WORKERS ?? "", 10);
   return Number.isFinite(requestedWorkers) && requestedWorkers > 0
     ? Math.min(16, requestedWorkers)
     : 1;
@@ -17,7 +17,7 @@ export function resolveE2EWorkerCount(env: E2EWorkerEnv = process.env): number {
 const base = baseConfig as unknown as Record<string, unknown>;
 // Keep e2e runs deterministic by default; callers can still opt into parallelism.
 const e2eWorkers = resolveE2EWorkerCount();
-const verboseE2E = process.env.OPENCLAW_E2E_VERBOSE === "1";
+const verboseE2E = process.env.ALIEN_E2E_VERBOSE === "1";
 
 const baseTestWithProjects =
   (baseConfig as { test?: { exclude?: string[]; projects?: string[]; setupFiles?: string[] } })
@@ -37,7 +37,7 @@ export default defineConfig({
     silent: !verboseE2E,
     setupFiles: [
       ...new Set(
-        [...(baseTest.setupFiles ?? []), "test/setup-openclaw-runtime.ts"].map(resolveRepoRootPath),
+        [...(baseTest.setupFiles ?? []), "test/setup-alien-runtime.ts"].map(resolveRepoRootPath),
       ),
     ],
     include: [

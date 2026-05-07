@@ -1,5 +1,5 @@
 import { resolveThinkingDefaultForModel } from "../auto-reply/thinking.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -11,7 +11,7 @@ import { normalizeModelSelection } from "./model-selection-resolve.js";
 type ThinkLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "adaptive" | "max";
 
 export function resolveThinkingDefault(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   provider: string;
   model: string;
   catalog?: ModelCatalogEntry[];

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -19,7 +19,7 @@ export {
   applySkillEnvOverridesFromSnapshot,
 } from "./skills/env-overrides.js";
 export type {
-  OpenClawSkillMetadata,
+  AlienSkillMetadata,
   SkillEligibilityContext,
   SkillCommandSpec,
   SkillEntry,
@@ -38,7 +38,7 @@ export {
 } from "./skills/workspace.js";
 export { buildWorkspaceSkillCommandSpecs } from "./skills/command-specs.js";
 
-export function resolveSkillsInstallPreferences(config?: OpenClawConfig): SkillsInstallPreferences {
+export function resolveSkillsInstallPreferences(config?: AlienConfig): SkillsInstallPreferences {
   const raw = config?.skills?.install;
   const preferBrew = raw?.preferBrew ?? true;
   const manager = normalizeLowercaseStringOrEmpty(normalizeOptionalString(raw?.nodeManager));

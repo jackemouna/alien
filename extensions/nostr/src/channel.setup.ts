@@ -1,12 +1,12 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { patchTopLevelChannelConfigSection } from "openclaw/plugin-sdk/setup";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { patchTopLevelChannelConfigSection } from "alien/plugin-sdk/setup";
 import {
   createDelegatedSetupWizardProxy,
   createStandardChannelSetupStatus,
   DEFAULT_ACCOUNT_ID,
   type ChannelSetupAdapter,
-} from "openclaw/plugin-sdk/setup-runtime";
+} from "alien/plugin-sdk/setup-runtime";
 import { buildChannelConfigSchema, type ChannelPlugin } from "./channel-api.js";
 import { NostrConfigSchema } from "./config-schema.js";
 import { DEFAULT_RELAYS } from "./default-relays.js";
@@ -36,13 +36,13 @@ type ResolvedNostrSetupAccount = {
   config: NostrAccountConfig;
 };
 
-function getNostrConfig(cfg: OpenClawConfig): NostrAccountConfig | undefined {
+function getNostrConfig(cfg: AlienConfig): NostrAccountConfig | undefined {
   return (cfg.channels as Record<string, unknown> | undefined)?.nostr as
     | NostrAccountConfig
     | undefined;
 }
 
-function listSetupNostrAccountIds(cfg: OpenClawConfig): string[] {
+function listSetupNostrAccountIds(cfg: AlienConfig): string[] {
   const nostrCfg = getNostrConfig(cfg);
   const privateKey = typeof nostrCfg?.privateKey === "string" ? nostrCfg.privateKey.trim() : "";
   if (!privateKey) {
@@ -51,7 +51,7 @@ function listSetupNostrAccountIds(cfg: OpenClawConfig): string[] {
   return [resolveDefaultSetupNostrAccountId(cfg)];
 }
 
-function resolveDefaultSetupNostrAccountId(cfg: OpenClawConfig): string {
+function resolveDefaultSetupNostrAccountId(cfg: AlienConfig): string {
   const configured = getNostrConfig(cfg)?.defaultAccount;
   return typeof configured === "string" && configured.trim()
     ? configured.trim()
@@ -59,7 +59,7 @@ function resolveDefaultSetupNostrAccountId(cfg: OpenClawConfig): string {
 }
 
 function resolveSetupNostrAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): ResolvedNostrSetupAccount {
   const nostrCfg = getNostrConfig(params.cfg);

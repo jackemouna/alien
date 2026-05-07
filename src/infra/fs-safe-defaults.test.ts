@@ -4,7 +4,7 @@ const { configureFsSafePython } = vi.hoisted(() => ({
   configureFsSafePython: vi.fn(),
 }));
 
-vi.mock("@openclaw/fs-safe/config", () => ({
+vi.mock("@alien/fs-safe/config", () => ({
   configureFsSafePython,
 }));
 
@@ -17,10 +17,10 @@ describe("fs-safe defaults", () => {
   afterEach(() => {
     configureFsSafePython.mockReset();
     delete process.env.FS_SAFE_PYTHON_MODE;
-    delete process.env.OPENCLAW_FS_SAFE_PYTHON_MODE;
+    delete process.env.ALIEN_FS_SAFE_PYTHON_MODE;
   });
 
-  it("disables the Python helper by default in OpenClaw", async () => {
+  it("disables the Python helper by default in Alien", async () => {
     await importDefaults();
 
     expect(configureFsSafePython).toHaveBeenCalledWith({ mode: "off" });
@@ -34,8 +34,8 @@ describe("fs-safe defaults", () => {
     expect(configureFsSafePython).not.toHaveBeenCalled();
   });
 
-  it("honors the OpenClaw-specific env mode override", async () => {
-    process.env.OPENCLAW_FS_SAFE_PYTHON_MODE = "auto";
+  it("honors the Alien-specific env mode override", async () => {
+    process.env.ALIEN_FS_SAFE_PYTHON_MODE = "auto";
 
     await importDefaults();
 

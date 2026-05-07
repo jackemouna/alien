@@ -1,5 +1,5 @@
-import { isPrivateNetworkOptInEnabled } from "openclaw/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { isPrivateNetworkOptInEnabled } from "alien/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { listMattermostAccountIds, resolveMattermostAccount } from "./accounts.js";
 import {
   createMattermostClient,
@@ -8,10 +8,10 @@ import {
   type MattermostClient,
   type MattermostUser,
 } from "./client.js";
-import type { ChannelDirectoryEntry, OpenClawConfig, RuntimeEnv } from "./runtime-api.js";
+import type { ChannelDirectoryEntry, AlienConfig, RuntimeEnv } from "./runtime-api.js";
 
 export type MattermostDirectoryParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   query?: string | null;
   limit?: number | null;
@@ -19,7 +19,7 @@ export type MattermostDirectoryParams = {
 };
 
 function buildClient(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): MattermostClient | null {
   const account = resolveMattermostAccount({ cfg: params.cfg, accountId: params.accountId });

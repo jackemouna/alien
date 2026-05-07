@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { SlackChannelConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { SlackChannelConfig } from "alien/plugin-sdk/config-types";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 type SlackChannels = Record<string, SlackChannelConfig>;
 
@@ -14,7 +14,7 @@ type SlackChannelMigrationResult = {
 };
 
 function resolveAccountChannels(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId?: string | null,
 ): { channels?: SlackChannels } {
   if (!accountId) {
@@ -58,7 +58,7 @@ export function migrateSlackChannelsInPlace(
 }
 
 export function migrateSlackChannelConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   oldChannelId: string;
   newChannelId: string;

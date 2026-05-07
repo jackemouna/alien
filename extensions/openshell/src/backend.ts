@@ -2,22 +2,22 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type {
   CreateSandboxBackendParams,
-  OpenClawConfig,
+  AlienConfig,
   SandboxBackendCommandParams,
   SandboxBackendCommandResult,
   SandboxBackendFactory,
   SandboxBackendManager,
   SshSandboxSession,
-} from "openclaw/plugin-sdk/sandbox";
+} from "alien/plugin-sdk/sandbox";
 import {
   createRemoteShellSandboxFsBridge,
   disposeSshSandboxSession,
-  resolvePreferredOpenClawTmpDir,
+  resolvePreferredAlienTmpDir,
   runSshSandboxCommand,
   sanitizeEnvVars,
   withTempWorkspace,
-} from "openclaw/plugin-sdk/sandbox";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/sandbox";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import type { OpenShellSandboxBackend } from "./backend.types.js";
 import {
   buildExecRemoteCommand,
@@ -273,7 +273,7 @@ class OpenShellSandboxBackendImpl {
           "/bin/sh",
           "-c",
           params.script,
-          "openclaw-openshell-fs",
+          "alien-openshell-fs",
           ...(params.args ?? []),
         ]),
         stdin: params.stdin,
@@ -413,7 +413,7 @@ class OpenShellSandboxBackendImpl {
 
   private async syncWorkspaceFromRemote(): Promise<void> {
     await withTempWorkspace(
-      { rootDir: resolveOpenShellTmpRoot(), prefix: "openclaw-openshell-sync-" },
+      { rootDir: resolveOpenShellTmpRoot(), prefix: "alien-openshell-sync-" },
       async ({ dir: tmpDir }) => {
         const result = await runOpenShellCli({
           context: this.params.execContext,
@@ -442,7 +442,7 @@ class OpenShellSandboxBackendImpl {
 
   private async uploadPathToRemote(localPath: string, remotePath: string): Promise<void> {
     await withTempWorkspace(
-      { rootDir: resolveOpenShellTmpRoot(), prefix: "openclaw-openshell-upload-" },
+      { rootDir: resolveOpenShellTmpRoot(), prefix: "alien-openshell-upload-" },
       async ({ dir: tmpDir }) => {
         // Stage a symlink-free snapshot so upload never dereferences host paths
         // outside the mirrored workspace tree.
@@ -484,7 +484,7 @@ class OpenShellSandboxBackendImpl {
 }
 
 function resolveOpenShellPluginConfigFromConfig(
-  config: OpenClawConfig,
+  config: AlienConfig,
   fallback: ResolvedOpenShellPluginConfig,
 ): ResolvedOpenShellPluginConfig {
   const pluginConfig = config.plugins?.entries?.openshell?.config;
@@ -504,9 +504,9 @@ function buildOpenShellSandboxName(scopeKey: string): string {
     (acc, char) => ((acc * 33) ^ char.charCodeAt(0)) >>> 0,
     5381,
   );
-  return `openclaw-${safe || "session"}-${hash.toString(16).slice(0, 8)}`;
+  return `alien-${safe || "session"}-${hash.toString(16).slice(0, 8)}`;
 }
 
 function resolveOpenShellTmpRoot(): string {
-  return path.resolve(resolvePreferredOpenClawTmpDir());
+  return path.resolve(resolvePreferredAlienTmpDir());
 }

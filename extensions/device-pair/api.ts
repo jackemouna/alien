@@ -6,15 +6,15 @@ export {
   listDevicePairing,
   revokeDeviceBootstrapToken,
   type DeviceBootstrapProfile,
-} from "openclaw/plugin-sdk/device-bootstrap";
-export { definePluginEntry, type OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/device-bootstrap";
+export { definePluginEntry, type AlienPluginApi } from "alien/plugin-sdk/plugin-entry";
 export {
   resolveGatewayBindUrl,
   resolveGatewayPort,
   resolveTailnetHostWithRunner,
-} from "openclaw/plugin-sdk/core";
+} from "alien/plugin-sdk/core";
 export {
-  resolvePreferredOpenClawTmpDir,
+  resolvePreferredAlienTmpDir,
   runPluginCommandWithTimeout,
-} from "openclaw/plugin-sdk/sandbox";
+} from "alien/plugin-sdk/sandbox";
 export { renderQrPngBase64, renderQrPngDataUrl, writeQrPngTempFile } from "./qr-image.js";

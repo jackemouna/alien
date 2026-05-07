@@ -31,7 +31,7 @@ import {
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { readRecentSessionUsageFromTranscript } from "../gateway/session-utils.fs.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { resolveCommitHash } from "../infra/git-commit.js";
@@ -58,7 +58,7 @@ import { resolveAgentRuntimeLabel } from "./agent-runtime-label.js";
 import { resolveActiveFallbackState } from "./fallback-notice-state.js";
 import { formatFastModeLabel } from "./status-labels.js";
 
-type AgentDefaults = NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]>;
+type AgentDefaults = NonNullable<NonNullable<AlienConfig["agents"]>["defaults"]>;
 type AgentConfig = Partial<AgentDefaults> & {
   model?: AgentDefaults["model"] | string;
 };
@@ -75,7 +75,7 @@ type QueueStatus = {
 };
 
 export type StatusArgs = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   agent: AgentConfig;
   agentId?: string;
   runtimeContextTokens?: number;
@@ -134,7 +134,7 @@ function normalizeAuthMode(value?: string): NormalizedAuthMode | undefined {
 }
 
 function resolveConfiguredTextVerbosity(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   agentId?: string;
   provider?: string | null;
   model?: string | null;
@@ -259,7 +259,7 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
+  // Transcripts are stored at the session file path (fallback: ~/.alien/sessions/<SessionId>.jsonl)
   if (!sessionId) {
     return undefined;
   }
@@ -406,7 +406,7 @@ const formatMediaUnderstandingLine = (decisions?: ReadonlyArray<MediaUnderstandi
 };
 
 const formatVoiceModeLine = (
-  config?: OpenClawConfig,
+  config?: AlienConfig,
   sessionEntry?: SessionEntry,
   agentId?: string,
 ): string | null => {
@@ -446,7 +446,7 @@ const formatVoiceModeLine = (
 };
 
 function resolveChannelModelNote(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   entry?: SessionEntry;
   selectedProvider: string;
   selectedModel: string;
@@ -503,7 +503,7 @@ export function buildStatusMessage(args: StatusArgs): string {
     agents: {
       defaults: args.agent ?? {},
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
   const contextConfig = args.config
     ? ({
         ...args.config,
@@ -514,12 +514,12 @@ export function buildStatusMessage(args: StatusArgs): string {
             ...args.agent,
           },
         },
-      } as OpenClawConfig)
+      } as AlienConfig)
     : ({
         agents: {
           defaults: args.agent ?? {},
         },
-      } as OpenClawConfig);
+      } as AlienConfig);
   const resolved = resolveConfiguredModelRef({
     cfg: selectionConfig,
     defaultProvider: DEFAULT_PROVIDER,
@@ -914,7 +914,7 @@ export function buildStatusMessage(args: StatusArgs): string {
       } (${fallbackState.reason ?? "selected model unavailable"})`
     : null;
   const commit = resolveCommitHash({ moduleUrl: import.meta.url });
-  const versionLine = `🦞 OpenClaw ${VERSION}${commit ? ` (${commit})` : ""}`;
+  const versionLine = `👾 Alien ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);
   const cacheLine = formatCacheLine(inputTokens, cacheRead, cacheWrite);
   const costLine = costLabel ? `💵 Cost: ${costLabel}` : null;

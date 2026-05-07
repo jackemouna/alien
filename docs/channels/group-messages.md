@@ -10,7 +10,7 @@ sidebarTitle: "WhatsApp groups"
 
 For the cross-channel groups model (Discord, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo), see [Groups](/channels/groups). This page covers the WhatsApp-specific behavior on top of that model: activation, group allowlists, per-group session keys, and pending-message context injection.
 
-Goal: let OpenClaw sit in WhatsApp groups, wake up only when pinged, and keep that thread separate from the personal DM session.
+Goal: let Alien sit in WhatsApp groups, wake up only when pinged, and keep that thread separate from the personal DM session.
 
 <Note>
 `agents.list[].groupChat.mentionPatterns` is also used by Telegram, Discord, Slack, and iMessage. For multi-agent setups, set it per agent, or use `messages.groupChat.mentionPatterns` as a global fallback.
@@ -28,7 +28,7 @@ Goal: let OpenClaw sit in WhatsApp groups, wake up only when pinged, and keep th
 
 ## Config example (WhatsApp)
 
-Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings work even when WhatsApp strips the visual `@` in the text body:
+Add a `groupChat` block to `~/.alien/alien.json` so display-name pings work even when WhatsApp strips the visual `@` in the text body:
 
 ```json5
 {
@@ -45,7 +45,7 @@ Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings wor
         id: "main",
         groupChat: {
           historyLimit: 50,
-          mentionPatterns: ["@?openclaw", "\\+?15555550123"],
+          mentionPatterns: ["@?alien", "\\+?15555550123"],
         },
       },
     ],
@@ -69,15 +69,15 @@ Only the owner number (from `channels.whatsapp.allowFrom`, or the bot's own E.16
 
 ## How to use
 
-1. Add your WhatsApp account (the one running OpenClaw) to the group.
-2. Say `@openclaw …` (or include the number). Only allowlisted senders can trigger it unless you set `groupPolicy: "open"`.
+1. Add your WhatsApp account (the one running Alien) to the group.
+2. Say `@alien …` (or include the number). Only allowlisted senders can trigger it unless you set `groupPolicy: "open"`.
 3. The agent prompt will include recent group context plus the trailing `[from: …]` marker so it can address the right person.
 4. Session-level directives (`/verbose on`, `/trace on`, `/think high`, `/new` or `/reset`, `/compact`) apply only to that group's session; send them as standalone messages so they register. Your personal DM session remains independent.
 
 ## Testing / verification
 
 - Manual smoke:
-  - Send an `@openclaw` ping in the group and confirm a reply that references the sender name.
+  - Send an `@alien` ping in the group and confirm a reply that references the sender name.
   - Send a second ping and verify the history block is included then cleared on the next turn.
 - Check gateway logs (run with `--verbose`) to see `inbound web message` entries showing `from: <groupJid>` and the `[from: …]` suffix.
 
@@ -85,7 +85,7 @@ Only the owner number (from `channels.whatsapp.allowFrom`, or the bot's own E.16
 
 - Heartbeats are intentionally skipped for groups to avoid noisy broadcasts.
 - Echo suppression uses the combined batch string; if you send identical text twice without mentions, only the first will get a response.
-- Session store entries will appear as `agent:<agentId>:whatsapp:group:<jid>` in the session store (`~/.openclaw/agents/<agentId>/sessions/sessions.json` by default); a missing entry just means the group hasn't triggered a run yet.
+- Session store entries will appear as `agent:<agentId>:whatsapp:group:<jid>` in the session store (`~/.alien/agents/<agentId>/sessions/sessions.json` by default); a missing entry just means the group hasn't triggered a run yet.
 - Typing indicators in groups follow `agents.defaults.typingMode`. When visible replies use the default message-tool-only mode, typing starts immediately by default so group members can see the agent is working even if no automatic final reply is posted. Explicit typing-mode config still wins.
 
 ## Related

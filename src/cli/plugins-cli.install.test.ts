@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { installedPluginRoot } from "openclaw/plugin-sdk/test-fixtures";
+import { installedPluginRoot } from "alien/plugin-sdk/test-fixtures";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import {
   listOfficialExternalPluginCatalogEntries,
   resolveOfficialExternalPluginId,
@@ -37,10 +37,10 @@ import {
   writePersistedInstalledPluginIndexInstallRecords,
 } from "./plugins-cli-test-helpers.js";
 
-const CLI_STATE_ROOT = "/tmp/openclaw-state";
-const ORIGINAL_OPENCLAW_STATE_DIR = process.env.OPENCLAW_STATE_DIR;
-const ORIGINAL_OPENCLAW_NIX_MODE = process.env.OPENCLAW_NIX_MODE;
-const PROFILE_STATE_ROOT = "/tmp/openclaw-ledger-profile";
+const CLI_STATE_ROOT = "/tmp/alien-state";
+const ORIGINAL_ALIEN_STATE_DIR = process.env.ALIEN_STATE_DIR;
+const ORIGINAL_ALIEN_NIX_MODE = process.env.ALIEN_NIX_MODE;
+const PROFILE_STATE_ROOT = "/tmp/alien-ledger-profile";
 
 const OFFICIAL_EXTERNAL_NPM_INSTALLS_WITHOUT_INTEGRITY = listOfficialExternalPluginCatalogEntries()
   .map((entry) => {
@@ -60,11 +60,11 @@ function cliInstallPath(pluginId: string): string {
 }
 
 function useProfileExtensionsDir(): string {
-  process.env.OPENCLAW_STATE_DIR = PROFILE_STATE_ROOT;
+  process.env.ALIEN_STATE_DIR = PROFILE_STATE_ROOT;
   return path.join(PROFILE_STATE_ROOT, "extensions");
 }
 
-function createEnabledPluginConfig(pluginId: string): OpenClawConfig {
+function createEnabledPluginConfig(pluginId: string): AlienConfig {
   return {
     plugins: {
       entries: {
@@ -73,15 +73,15 @@ function createEnabledPluginConfig(pluginId: string): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
-function createEmptyPluginConfig(): OpenClawConfig {
+function createEmptyPluginConfig(): AlienConfig {
   return {
     plugins: {
       entries: {},
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function createClawHubInstallResult(params: {
@@ -138,12 +138,12 @@ function createNpmPackPluginInstallResult(
     targetDir: cliInstallPath(pluginId),
     version: "1.2.3",
     extensions: ["dist/index.js"],
-    manifestName: `@openclaw/${pluginId}`,
-    npmTarballName: `openclaw-${pluginId}-1.2.3.tgz`,
+    manifestName: `@alien/${pluginId}`,
+    npmTarballName: `alien-${pluginId}-1.2.3.tgz`,
     npmResolution: {
-      name: `@openclaw/${pluginId}`,
+      name: `@alien/${pluginId}`,
       version: "1.2.3",
-      resolvedSpec: `@openclaw/${pluginId}@1.2.3`,
+      resolvedSpec: `@alien/${pluginId}@1.2.3`,
       integrity: "sha512-pack-demo",
       shasum: "packdemosha",
       resolvedAt: "2026-05-06T00:00:00.000Z",
@@ -194,7 +194,7 @@ function primeNpmPluginFallback(pluginId = "demo") {
   return { cfg, enabledCfg };
 }
 
-function createPathHookPackInstalledConfig(tmpRoot: string): OpenClawConfig {
+function createPathHookPackInstalledConfig(tmpRoot: string): AlienConfig {
   return {
     hooks: {
       internal: {
@@ -207,10 +207,10 @@ function createPathHookPackInstalledConfig(tmpRoot: string): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
-function createNpmHookPackInstalledConfig(): OpenClawConfig {
+function createNpmHookPackInstalledConfig(): AlienConfig {
   return {
     hooks: {
       internal: {
@@ -222,7 +222,7 @@ function createNpmHookPackInstalledConfig(): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 function createHookPackInstallResult(targetDir: string): {
@@ -242,14 +242,14 @@ function createHookPackInstallResult(targetDir: string): {
 }
 
 function primeHookPackNpmFallback() {
-  const cfg = {} as OpenClawConfig;
+  const cfg = {} as AlienConfig;
   const installedCfg = createNpmHookPackInstalledConfig();
 
   loadConfig.mockReturnValue(cfg);
   mockClawHubPackageNotFound("@acme/demo-hooks");
   installPluginFromNpmSpec.mockResolvedValue({
     ok: false,
-    error: "package.json missing openclaw.plugin.json",
+    error: "package.json missing alien.plugin.json",
   });
   installHooksFromNpmSpec.mockResolvedValue({
     ...createHookPackInstallResult("/tmp/hooks/demo-hooks"),
@@ -269,7 +269,7 @@ function primeBlockedNpmPluginInstall(params: {
   pluginId: string;
   code?: "security_scan_blocked" | "security_scan_failed";
 }) {
-  loadConfig.mockReturnValue({} as OpenClawConfig);
+  loadConfig.mockReturnValue({} as AlienConfig);
   mockClawHubPackageNotFound(params.spec);
   installPluginFromNpmSpec.mockResolvedValue({
     ok: false,
@@ -281,10 +281,10 @@ function primeBlockedNpmPluginInstall(params: {
 function primeHookPackPathFallback(params: {
   tmpRoot: string;
   pluginInstallError: string;
-}): OpenClawConfig {
+}): AlienConfig {
   const installedCfg = createPathHookPackInstalledConfig(params.tmpRoot);
 
-  loadConfig.mockReturnValue({} as OpenClawConfig);
+  loadConfig.mockReturnValue({} as AlienConfig);
   installPluginFromPath.mockResolvedValueOnce({
     ok: false,
     error: params.pluginInstallError,
@@ -301,15 +301,15 @@ describe("plugins cli install", () => {
   });
 
   afterEach(() => {
-    if (ORIGINAL_OPENCLAW_STATE_DIR === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+    if (ORIGINAL_ALIEN_STATE_DIR === undefined) {
+      delete process.env.ALIEN_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = ORIGINAL_OPENCLAW_STATE_DIR;
+      process.env.ALIEN_STATE_DIR = ORIGINAL_ALIEN_STATE_DIR;
     }
-    if (ORIGINAL_OPENCLAW_NIX_MODE === undefined) {
-      delete process.env.OPENCLAW_NIX_MODE;
+    if (ORIGINAL_ALIEN_NIX_MODE === undefined) {
+      delete process.env.ALIEN_NIX_MODE;
     } else {
-      process.env.OPENCLAW_NIX_MODE = ORIGINAL_OPENCLAW_NIX_MODE;
+      process.env.ALIEN_NIX_MODE = ORIGINAL_ALIEN_NIX_MODE;
     }
   });
 
@@ -329,10 +329,10 @@ describe("plugins cli install", () => {
   });
 
   it("refuses plugin installs in Nix mode before installer side effects", async () => {
-    process.env.OPENCLAW_NIX_MODE = "1";
+    process.env.ALIEN_NIX_MODE = "1";
 
     await expect(runPluginsCommand(["plugins", "install", "@acme/demo"])).rejects.toThrow(
-      "OPENCLAW_NIX_MODE=1",
+      "ALIEN_NIX_MODE=1",
     );
 
     expect(installPluginFromNpmSpec).not.toHaveBeenCalled();
@@ -397,7 +397,7 @@ describe("plugins cli install", () => {
       throw invalidConfigErr;
     });
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/openclaw-config.json5",
+      path: "/tmp/alien-config.json5",
       exists: true,
       raw: '{ "models": { "default": 123 } }',
       parsed: { models: { default: 123 } },
@@ -413,7 +413,7 @@ describe("plugins cli install", () => {
     await expect(runPluginsCommand(["plugins", "install", "alpha"])).rejects.toThrow("__exit__:1");
 
     expect(runtimeErrors.at(-1)).toContain(
-      "Config invalid; run `openclaw doctor --fix` before installing plugins.",
+      "Config invalid; run `alien doctor --fix` before installing plugins.",
     );
     expect(installPluginFromMarketplace).not.toHaveBeenCalled();
     expect(installPluginFromNpmSpec).not.toHaveBeenCalled();
@@ -425,7 +425,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = {
       plugins: {
         entries: {
@@ -434,7 +434,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     loadConfig.mockReturnValue(cfg);
     installPluginFromMarketplace.mockResolvedValue({
       ok: true,
@@ -498,7 +498,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
     loadConfig.mockReturnValue(cfg);
     parseClawHubPluginSpec.mockReturnValue({ name: "demo" });
@@ -587,7 +587,7 @@ describe("plugins cli install", () => {
           paths: ["/existing/plugin"],
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     loadConfig.mockReturnValue(cfg);
     findBundledPluginSourceMock.mockReturnValue({
       pluginId,
@@ -606,7 +606,7 @@ describe("plugins cli install", () => {
 
     await runPluginsCommand(["plugins", "install", pluginId]);
 
-    const writtenConfig = writeConfigFile.mock.calls.at(-1)?.[0] as OpenClawConfig;
+    const writtenConfig = writeConfigFile.mock.calls.at(-1)?.[0] as AlienConfig;
     expect(writtenConfig.plugins?.entries?.[pluginId]).toBeUndefined();
     expect(writtenConfig.plugins?.load?.paths).toEqual(["/existing/plugin"]);
     expect(writePersistedInstalledPluginIndexInstallRecords).toHaveBeenCalledWith({
@@ -633,7 +633,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig(pluginId);
     loadConfig.mockReturnValue(cfg);
     findBundledPluginSourceMock.mockReturnValue({
@@ -664,7 +664,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
 
     loadConfig.mockReturnValue(cfg);
@@ -699,7 +699,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
 
     loadConfig.mockReturnValue(cfg);
@@ -760,7 +760,7 @@ describe("plugins cli install", () => {
     expect(installPluginFromClawHub).not.toHaveBeenCalled();
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/brave-plugin",
+        spec: "@alien/brave-plugin",
         expectedPluginId: "brave",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -768,7 +768,7 @@ describe("plugins cli install", () => {
     expect(writePersistedInstalledPluginIndexInstallRecords).toHaveBeenCalledWith({
       brave: expect.objectContaining({
         source: "npm",
-        spec: "@openclaw/brave-plugin",
+        spec: "@alien/brave-plugin",
         installPath: cliInstallPath("brave"),
         version: "1.2.3",
       }),
@@ -778,11 +778,11 @@ describe("plugins cli install", () => {
 
   it("passes third-party external catalog integrity with catalog install trust", async () => {
     const cfg = createEmptyPluginConfig();
-    const enabledCfg = createEnabledPluginConfig("wecom-openclaw-plugin");
+    const enabledCfg = createEnabledPluginConfig("wecom-alien-plugin");
     loadConfig.mockReturnValue(cfg);
     findBundledPluginSourceMock.mockReturnValue(undefined);
     installPluginFromNpmSpec.mockResolvedValue(
-      createNpmPluginInstallResult("wecom-openclaw-plugin"),
+      createNpmPluginInstallResult("wecom-alien-plugin"),
     );
     enablePluginInConfig.mockReturnValue({ config: enabledCfg });
     applyExclusiveSlotSelection.mockReturnValue({
@@ -794,8 +794,8 @@ describe("plugins cli install", () => {
 
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@wecom/wecom-openclaw-plugin@2026.4.23",
-        expectedPluginId: "wecom-openclaw-plugin",
+        spec: "@wecom/wecom-alien-plugin@2026.4.23",
+        expectedPluginId: "wecom-alien-plugin",
         expectedIntegrity:
           "sha512-bnzfdIEEu1/LFvcdyjaTkyxt27w6c7dqhkPezU62OWaqmcdFsUGR3T55USK/O9pIKsNcnL1Tnu1pqKYCWHFgWQ==",
         trustedSourceLinkedOfficialInstall: true,
@@ -843,13 +843,13 @@ describe("plugins cli install", () => {
     findBundledPluginSourceMock.mockReturnValue(undefined);
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.extensions",
-      code: "missing_openclaw_extensions",
+      error: "package.json missing alien.extensions",
+      code: "missing_alien_extensions",
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: false,
       error:
-        "aborted: npm package integrity drift detected for @wecom/wecom-openclaw-plugin@2026.4.23",
+        "aborted: npm package integrity drift detected for @wecom/wecom-alien-plugin@2026.4.23",
     });
 
     await expect(runPluginsCommand(["plugins", "install", "wecom"])).rejects.toThrow("__exit__:1");
@@ -861,7 +861,7 @@ describe("plugins cli install", () => {
     );
     expect(installHooksFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@wecom/wecom-openclaw-plugin@2026.4.23",
+        spec: "@wecom/wecom-alien-plugin@2026.4.23",
         expectedIntegrity:
           "sha512-bnzfdIEEu1/LFvcdyjaTkyxt27w6c7dqhkPezU62OWaqmcdFsUGR3T55USK/O9pIKsNcnL1Tnu1pqKYCWHFgWQ==",
       }),
@@ -954,7 +954,7 @@ describe("plugins cli install", () => {
   it("installs npm-pack archives through npm install semantics", async () => {
     const cfg = createEmptyPluginConfig();
     const enabledCfg = createEnabledPluginConfig("demo");
-    const archivePath = "/tmp/openclaw-demo-1.2.3.tgz";
+    const archivePath = "/tmp/alien-demo-1.2.3.tgz";
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromNpmPackArchive.mockResolvedValue(createNpmPackPluginInstallResult("demo"));
@@ -978,7 +978,7 @@ describe("plugins cli install", () => {
     expect(writePersistedInstalledPluginIndexInstallRecords).toHaveBeenCalledWith({
       demo: expect.objectContaining({
         source: "npm",
-        spec: "@openclaw/demo@1.2.3",
+        spec: "@alien/demo@1.2.3",
         sourcePath: archivePath,
         installPath: cliInstallPath("demo"),
         version: "1.2.3",
@@ -986,7 +986,7 @@ describe("plugins cli install", () => {
         artifactFormat: "tgz",
         npmIntegrity: "sha512-pack-demo",
         npmShasum: "packdemosha",
-        npmTarballName: "openclaw-demo-1.2.3.tgz",
+        npmTarballName: "alien-demo-1.2.3.tgz",
       }),
     });
     expect(writeConfigFile).toHaveBeenCalledWith(enabledCfg);
@@ -1038,11 +1038,11 @@ describe("plugins cli install", () => {
       warnings: [],
     });
 
-    await runPluginsCommand(["plugins", "install", "npm:@openclaw/discord"]);
+    await runPluginsCommand(["plugins", "install", "npm:@alien/discord"]);
 
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/discord",
+        spec: "@alien/discord",
         expectedPluginId: "discord",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -1063,11 +1063,11 @@ describe("plugins cli install", () => {
       warnings: [],
     });
 
-    await runPluginsCommand(["plugins", "install", "@openclaw/discord"]);
+    await runPluginsCommand(["plugins", "install", "@alien/discord"]);
 
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/discord",
+        spec: "@alien/discord",
         expectedPluginId: "discord",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -1077,11 +1077,11 @@ describe("plugins cli install", () => {
 
   it("marks catalog npm package installs with alternate selectors as trusted", async () => {
     const cfg = createEmptyPluginConfig();
-    const enabledCfg = createEnabledPluginConfig("wecom-openclaw-plugin");
+    const enabledCfg = createEnabledPluginConfig("wecom-alien-plugin");
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromNpmSpec.mockResolvedValue(
-      createNpmPluginInstallResult("wecom-openclaw-plugin"),
+      createNpmPluginInstallResult("wecom-alien-plugin"),
     );
     enablePluginInConfig.mockReturnValue({ config: enabledCfg });
     recordPluginInstall.mockReturnValue(enabledCfg);
@@ -1090,14 +1090,14 @@ describe("plugins cli install", () => {
       warnings: [],
     });
 
-    await runPluginsCommand(["plugins", "install", "@wecom/wecom-openclaw-plugin@latest"]);
+    await runPluginsCommand(["plugins", "install", "@wecom/wecom-alien-plugin@latest"]);
 
     // Alternate selectors stay trusted by catalog package name, but must not
     // inherit catalog integrity unless the install spec matches exactly.
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@wecom/wecom-openclaw-plugin@latest",
-        expectedPluginId: "wecom-openclaw-plugin",
+        spec: "@wecom/wecom-alien-plugin@latest",
+        expectedPluginId: "wecom-alien-plugin",
         trustedSourceLinkedOfficialInstall: true,
       }),
     );
@@ -1161,14 +1161,14 @@ describe("plugins cli install", () => {
   });
 
   it("reports npm install failures without trying ClawHub when npm: prefix is used", async () => {
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
       error: "npm install failed",
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.hooks",
+      error: "package.json missing alien.hooks",
     });
 
     await expect(runPluginsCommand(["plugins", "install", "npm:demo"])).rejects.toThrow(
@@ -1180,7 +1180,7 @@ describe("plugins cli install", () => {
   });
 
   it("adds a Git PATH hint when npm plugin dependency install cannot spawn git", async () => {
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
       error: [
@@ -1192,11 +1192,11 @@ describe("plugins cli install", () => {
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.hooks",
+      error: "package.json missing alien.hooks",
     });
 
     await expect(
-      runPluginsCommand(["plugins", "install", "npm:@openclaw/whatsapp"]),
+      runPluginsCommand(["plugins", "install", "npm:@alien/whatsapp"]),
     ).rejects.toThrow("__exit__:1");
 
     expect(installPluginFromClawHub).not.toHaveBeenCalled();
@@ -1208,7 +1208,7 @@ describe("plugins cli install", () => {
   });
 
   it("does not resolve npm: prefixed bundled plugin ids through bundled installs", async () => {
-    loadConfig.mockReturnValue({ plugins: { load: { paths: [] } } } as OpenClawConfig);
+    loadConfig.mockReturnValue({ plugins: { load: { paths: [] } } } as AlienConfig);
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
       error: "Package not found on npm: memory-lancedb.",
@@ -1216,7 +1216,7 @@ describe("plugins cli install", () => {
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.hooks",
+      error: "package.json missing alien.hooks",
     });
 
     await expect(runPluginsCommand(["plugins", "install", "npm:memory-lancedb"])).rejects.toThrow(
@@ -1234,7 +1234,7 @@ describe("plugins cli install", () => {
   });
 
   it("rejects empty npm: prefix installs before resolver lookup", async () => {
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
 
     await expect(runPluginsCommand(["plugins", "install", "npm:"])).rejects.toThrow("__exit__:1");
 
@@ -1280,7 +1280,7 @@ describe("plugins cli install", () => {
   });
 
   it("rejects --pin for git installs and points at git refs", async () => {
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
 
     await expect(
       runPluginsCommand(["plugins", "install", "git:github.com/acme/demo", "--pin"]),
@@ -1329,9 +1329,9 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-plugin-link-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "alien-plugin-link-"));
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromPath.mockResolvedValueOnce({
@@ -1370,7 +1370,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes dangerous force unsafe install to linked hook-pack probe fallback", async () => {
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-hook-link-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "alien-hook-link-"));
     primeHookPackPathFallback({
       tmpRoot,
       pluginInstallError: "plugin install probe failed",
@@ -1398,10 +1398,10 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for linked path when a no-flag security scan blocks", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-link-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-link-plugin-"));
     const pluginInstallError = "plugin blocked by security scan";
 
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     installPluginFromPath.mockResolvedValue({
       ok: false,
       error: pluginInstallError,
@@ -1422,7 +1422,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes dangerous force unsafe install to local hook-pack fallback installs", async () => {
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-hook-install-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "alien-hook-install-"));
     primeHookPackPathFallback({
       tmpRoot,
       pluginInstallError: "plugin install failed",
@@ -1450,7 +1450,7 @@ describe("plugins cli install", () => {
 
   it("passes the active profile extensions dir to local path installs", async () => {
     const extensionsDir = useProfileExtensionsDir();
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-plugin-"));
     const cfg = createEmptyPluginConfig();
     const enabledCfg = createEnabledPluginConfig("demo");
 
@@ -1496,16 +1496,16 @@ describe("plugins cli install", () => {
   });
 
   it("suggests update or --force when npm plugin install target already exists", async () => {
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     mockClawHubPackageNotFound("@example/lossless-claw");
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
       error:
-        "plugin already exists: /home/openclaw/.openclaw/extensions/lossless-claw (delete it first)",
+        "plugin already exists: /home/alien/.alien/extensions/lossless-claw (delete it first)",
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.hooks",
+      error: "package.json missing alien.hooks",
     });
 
     await expect(
@@ -1513,22 +1513,22 @@ describe("plugins cli install", () => {
     ).rejects.toThrow("__exit__:1");
 
     expect(runtimeErrors.at(-1)).toContain(
-      "Use `openclaw plugins update <id-or-npm-spec>` to upgrade the tracked plugin, or rerun install with `--force` to replace it.",
+      "Use `alien plugins update <id-or-npm-spec>` to upgrade the tracked plugin, or rerun install with `--force` to replace it.",
     );
     expect(runtimeErrors.at(-1)).not.toContain("Also not a valid hook pack");
   });
 
   it("does not append hook-pack fallback details for managed extensions boundary failures", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-plugin-"));
 
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     installPluginFromPath.mockResolvedValue({
       ok: false,
       error: "Invalid path: must stay within extensions directory",
     });
     installHooksFromPath.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.hooks",
+      error: "package.json missing alien.hooks",
     });
 
     try {
@@ -1544,7 +1544,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes the install logger to the --link dry-run probe", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-link-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-link-plugin-"));
     const cfg = {
       plugins: {
         entries: {},
@@ -1552,7 +1552,7 @@ describe("plugins cli install", () => {
           paths: [],
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
 
     loadConfig.mockReturnValue(cfg);
@@ -1616,10 +1616,10 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for local path when a no-flag security scan fails", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-plugin-"));
     const pluginInstallError = "plugin security scan failed";
 
-    loadConfig.mockReturnValue({} as OpenClawConfig);
+    loadConfig.mockReturnValue({} as AlienConfig);
     installPluginFromPath.mockResolvedValue({
       ok: false,
       error: pluginInstallError,
@@ -1640,8 +1640,8 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for local path when dangerous force unsafe install is set", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-plugin-"));
-    const cfg = {} as OpenClawConfig;
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-plugin-"));
+    const cfg = {} as AlienConfig;
     const pluginInstallError = "plugin blocked by security scan";
 
     loadConfig.mockReturnValue(cfg);
@@ -1669,8 +1669,8 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for local path when security scan fails under dangerous force unsafe install", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-plugin-"));
-    const cfg = {} as OpenClawConfig;
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-plugin-"));
+    const cfg = {} as AlienConfig;
     const pluginInstallError = "plugin security scan failed";
 
     loadConfig.mockReturnValue(cfg);
@@ -1698,7 +1698,7 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for npm installs when dangerous force unsafe install is set", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const pluginInstallError = "plugin blocked by security scan";
 
     loadConfig.mockReturnValue(cfg);
@@ -1737,7 +1737,7 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for npm installs when security scan fails under dangerous force unsafe install", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const pluginInstallError = "plugin security scan failed";
 
     loadConfig.mockReturnValue(cfg);
@@ -1761,8 +1761,8 @@ describe("plugins cli install", () => {
   });
 
   it("still falls back to local hook pack when dangerous force unsafe install is set for non-security errors", async () => {
-    const localHookDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-local-hook-pack-"));
-    const cfg = {} as OpenClawConfig;
+    const localHookDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-local-hook-pack-"));
+    const cfg = {} as AlienConfig;
     const installedCfg = {
       hooks: {
         internal: {
@@ -1774,13 +1774,13 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromPath.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.plugin.json",
-      code: "missing_openclaw_extensions",
+      error: "package.json missing alien.plugin.json",
+      code: "missing_alien_extensions",
     });
     installHooksFromPath.mockResolvedValue({
       ok: true,
@@ -1811,7 +1811,7 @@ describe("plugins cli install", () => {
   });
 
   it("still falls back to npm hook pack when dangerous force unsafe install is set for non-security errors", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const installedCfg = {
       hooks: {
         internal: {
@@ -1823,7 +1823,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromClawHub.mockResolvedValue({
@@ -1833,8 +1833,8 @@ describe("plugins cli install", () => {
     });
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing openclaw.plugin.json",
-      code: "missing_openclaw_extensions",
+      error: "package.json missing alien.plugin.json",
+      code: "missing_alien_extensions",
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: true,
@@ -1869,7 +1869,7 @@ describe("plugins cli install", () => {
     parseClawHubPluginSpec.mockReturnValue({ name: "demo" });
     installPluginFromClawHub.mockResolvedValue({
       ok: false,
-      error: 'Use "openclaw skills install demo" instead.',
+      error: 'Use "alien skills install demo" instead.',
       code: "skill_package",
     });
 
@@ -1878,7 +1878,7 @@ describe("plugins cli install", () => {
     );
 
     expect(installPluginFromNpmSpec).not.toHaveBeenCalled();
-    expect(runtimeErrors.at(-1)).toContain('Use "openclaw skills install demo" instead.');
+    expect(runtimeErrors.at(-1)).toContain('Use "alien skills install demo" instead.');
   });
 
   it("falls back to installing hook packs from npm specs", async () => {

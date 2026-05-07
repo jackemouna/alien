@@ -4,7 +4,7 @@ import {
   resolveAgentContextLimits,
   resolveAgentWorkspaceDir,
   resolveMemorySearchConfig,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "./config-utils.js";
 import {
   isFileMissingError,
@@ -108,7 +108,7 @@ export async function readMemoryFile(params: {
 }
 
 export async function readAgentMemoryFile(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   relPath: string;
   from?: number;

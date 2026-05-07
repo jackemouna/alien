@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { KNOWN_WEAK_GATEWAY_TOKEN_PLACEHOLDERS } from "./known-weak-gateway-secrets.js";
 import {
   assertGatewayAuthNotKnownWeak,
@@ -8,7 +8,7 @@ import {
 } from "./startup-auth.js";
 
 const mocks = vi.hoisted(() => ({
-  replaceConfigFile: vi.fn(async (_params: { nextConfig: OpenClawConfig }) => {}),
+  replaceConfigFile: vi.fn(async (_params: { nextConfig: AlienConfig }) => {}),
 }));
 
 vi.mock("../config/mutate.js", () => ({
@@ -24,7 +24,7 @@ vi.mock("../config/mutate.js", async () => {
 });
 
 describe("ensureGatewayStartupAuth", () => {
-  async function expectEphemeralGeneratedTokenWhenOverridden(cfg: OpenClawConfig) {
+  async function expectEphemeralGeneratedTokenWhenOverridden(cfg: AlienConfig) {
     const result = await ensureGatewayStartupAuth({
       cfg,
       env: {} as NodeJS.ProcessEnv,
@@ -44,7 +44,7 @@ describe("ensureGatewayStartupAuth", () => {
     mocks.replaceConfigFile.mockClear();
   });
 
-  async function expectNoTokenGeneration(cfg: OpenClawConfig, mode: string) {
+  async function expectNoTokenGeneration(cfg: AlienConfig, mode: string) {
     const result = await ensureGatewayStartupAuth({
       cfg,
       env: {} as NodeJS.ProcessEnv,
@@ -58,7 +58,7 @@ describe("ensureGatewayStartupAuth", () => {
   }
 
   async function expectResolvedToken(params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     env: NodeJS.ProcessEnv;
     expectedToken: string;
     expectedConfiguredToken?: unknown;
@@ -79,7 +79,7 @@ describe("ensureGatewayStartupAuth", () => {
     expect(mocks.replaceConfigFile).not.toHaveBeenCalled();
   }
 
-  function createMissingGatewayTokenSecretRefConfig(): OpenClawConfig {
+  function createMissingGatewayTokenSecretRefConfig(): AlienConfig {
     return {
       gateway: {
         auth: {
@@ -202,23 +202,23 @@ describe("ensureGatewayStartupAuth", () => {
         gateway: {
           auth: {
             mode: "token",
-            token: "${OPENCLAW_GATEWAY_TOKEN}",
+            token: "${ALIEN_GATEWAY_TOKEN}",
           },
         },
       },
       env: {
-        OPENCLAW_GATEWAY_TOKEN: "resolved-token",
+        ALIEN_GATEWAY_TOKEN: "resolved-token",
       } as NodeJS.ProcessEnv,
       expectedToken: "resolved-token",
-      expectedConfiguredToken: "${OPENCLAW_GATEWAY_TOKEN}",
+      expectedConfiguredToken: "${ALIEN_GATEWAY_TOKEN}",
     });
   });
 
-  it("uses OPENCLAW_GATEWAY_TOKEN without resolving configured token SecretRef", async () => {
+  it("uses ALIEN_GATEWAY_TOKEN without resolving configured token SecretRef", async () => {
     await expectResolvedToken({
       cfg: createMissingGatewayTokenSecretRefConfig(),
       env: {
-        OPENCLAW_GATEWAY_TOKEN: "token-from-env",
+        ALIEN_GATEWAY_TOKEN: "token-from-env",
       } as NodeJS.ProcessEnv,
       expectedToken: "token-from-env",
     });
@@ -253,7 +253,7 @@ describe("ensureGatewayStartupAuth", () => {
     expect(mocks.replaceConfigFile).not.toHaveBeenCalled();
   });
 
-  it("uses OPENCLAW_GATEWAY_PASSWORD without resolving configured password SecretRef", async () => {
+  it("uses ALIEN_GATEWAY_PASSWORD without resolving configured password SecretRef", async () => {
     const result = await ensureGatewayStartupAuth({
       cfg: {
         gateway: {
@@ -269,7 +269,7 @@ describe("ensureGatewayStartupAuth", () => {
         },
       },
       env: {
-        OPENCLAW_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
+        ALIEN_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
       } as NodeJS.ProcessEnv,
       persist: true,
     });
@@ -280,7 +280,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("does not resolve gateway.auth.password SecretRef when token mode is explicit", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -334,7 +334,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("treats undefined token override as no override", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: AlienConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -396,7 +396,7 @@ describe("ensureGatewayStartupAuth", () => {
           },
         },
         env: {
-          OPENCLAW_GATEWAY_TOKEN: "shared-gateway-token-1234567890",
+          ALIEN_GATEWAY_TOKEN: "shared-gateway-token-1234567890",
         } as NodeJS.ProcessEnv,
       }),
     ).rejects.toThrow(/hooks\.token must not match gateway auth token/i);
@@ -409,7 +409,7 @@ describe("ensureGatewayStartupAuth", () => {
         ensureGatewayStartupAuth({
           cfg: {},
           env: {
-            OPENCLAW_GATEWAY_TOKEN: token,
+            ALIEN_GATEWAY_TOKEN: token,
           } as NodeJS.ProcessEnv,
         }),
       ).rejects.toThrow(/example placeholder/i);

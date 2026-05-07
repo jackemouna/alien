@@ -1,5 +1,5 @@
-import type { ChannelAccountSnapshot } from "openclaw/plugin-sdk/channel-contract";
-import { createConnectedChannelStatusPatch } from "openclaw/plugin-sdk/gateway-runtime";
+import type { ChannelAccountSnapshot } from "alien/plugin-sdk/channel-contract";
+import { createConnectedChannelStatusPatch } from "alien/plugin-sdk/gateway-runtime";
 
 type TelegramWebhookStatusSink = (patch: Omit<ChannelAccountSnapshot, "accountId">) => void;
 

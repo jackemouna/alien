@@ -32,7 +32,7 @@ describe("scripts/lib/vitest-shard-timings.mjs", () => {
     expect(
       resolveShardTimingKey({
         config: "test/vitest/vitest.auto-reply-reply.config.ts",
-        env: { OPENCLAW_VITEST_SHARD_NAME: "auto-reply/reply agent dispatch" },
+        env: { ALIEN_VITEST_SHARD_NAME: "auto-reply/reply agent dispatch" },
         includePatterns: ["src/auto-reply/reply/agent-runner.test.ts"],
       }),
     ).toBe("test/vitest/vitest.auto-reply-reply.config.ts#auto-reply-reply-agent-dispatch");
@@ -55,11 +55,11 @@ describe("scripts/lib/vitest-shard-timings.mjs", () => {
   });
 
   it("persists include-pattern timing metadata", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-shard-timings-"));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-shard-timings-"));
     tempDirs.push(tempDir);
     const env = {
-      OPENCLAW_TEST_PROJECTS_TIMINGS_PATH: path.join(tempDir, "timings.json"),
-      OPENCLAW_VITEST_SHARD_NAME: "auto-reply-reply-agent-runner",
+      ALIEN_TEST_PROJECTS_TIMINGS_PATH: path.join(tempDir, "timings.json"),
+      ALIEN_VITEST_SHARD_NAME: "auto-reply-reply-agent-runner",
     };
     const sample = createShardTimingSample(
       {
@@ -86,7 +86,7 @@ describe("scripts/lib/vitest-shard-timings.mjs", () => {
       ]),
     );
     expect(
-      JSON.parse(fs.readFileSync(env.OPENCLAW_TEST_PROJECTS_TIMINGS_PATH, "utf8")).configs[
+      JSON.parse(fs.readFileSync(env.ALIEN_TEST_PROJECTS_TIMINGS_PATH, "utf8")).configs[
         "test/vitest/vitest.auto-reply-reply.config.ts#auto-reply-reply-agent-runner"
       ],
     ).toMatchObject({

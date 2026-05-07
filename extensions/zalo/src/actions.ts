@@ -1,11 +1,11 @@
-import { jsonResult, readStringParam } from "openclaw/plugin-sdk/channel-actions";
+import { jsonResult, readStringParam } from "alien/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
-import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
+} from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
+import { extractToolSend } from "alien/plugin-sdk/tool-send";
 import { listEnabledZaloAccounts, resolveZaloAccount } from "./accounts.js";
 
 const loadZaloActionsRuntime = createLazyRuntimeNamedExport(
@@ -15,7 +15,7 @@ const loadZaloActionsRuntime = createLazyRuntimeNamedExport(
 
 const providerId = "zalo";
 
-function listEnabledAccounts(cfg: OpenClawConfig, accountId?: string | null) {
+function listEnabledAccounts(cfg: AlienConfig, accountId?: string | null) {
   return (
     accountId ? [resolveZaloAccount({ cfg, accountId })] : listEnabledZaloAccounts(cfg)
   ).filter((account) => account.enabled && account.tokenSource !== "none");

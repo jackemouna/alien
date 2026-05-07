@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { withActivatedPluginIds } from "../activation-context.js";
 import { getLoadedRuntimePluginRegistry } from "../active-runtime-registry.js";
 import {
@@ -7,7 +7,7 @@ import {
   resolveDiscoverableScopedChannelPluginIds,
 } from "../channel-plugin-ids.js";
 import { resolveEffectivePluginIds } from "../effective-plugin-ids.js";
-import { loadOpenClawPlugins } from "../loader.js";
+import { loadAlienPlugins } from "../loader.js";
 import {
   hasExplicitPluginIdScope,
   hasNonEmptyPluginIdScope,
@@ -106,7 +106,7 @@ function resolveScopePluginIds(params: {
 }
 
 function resolveOrLoadRuntimePluginRegistry(
-  loadOptions: NonNullable<Parameters<typeof loadOpenClawPlugins>[0]>,
+  loadOptions: NonNullable<Parameters<typeof loadAlienPlugins>[0]>,
 ): void {
   if (
     !getLoadedRuntimePluginRegistry({
@@ -116,14 +116,14 @@ function resolveOrLoadRuntimePluginRegistry(
       requiredPluginIds: loadOptions.onlyPluginIds,
     })
   ) {
-    loadOpenClawPlugins(loadOptions);
+    loadAlienPlugins(loadOptions);
   }
 }
 
 export function ensurePluginRegistryLoaded(options?: {
   scope?: PluginRegistryScope;
-  config?: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config?: AlienConfig;
+  activationSourceConfig?: AlienConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   onlyPluginIds?: string[];

@@ -1,4 +1,4 @@
-export { createSubsystemLogger } from "openclaw/plugin-sdk/logging-core";
+export { createSubsystemLogger } from "alien/plugin-sdk/logging-core";
 export {
   ensurePortAvailable,
   extractErrorCode,
@@ -24,5 +24,5 @@ export {
   SsrFBlockedError,
   writeViaSiblingTempPath,
   wrapExternalContent,
-} from "openclaw/plugin-sdk/security-runtime";
-export type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
+export type { LookupFn, SsrFPolicy } from "alien/plugin-sdk/security-runtime";

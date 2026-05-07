@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { SessionBindingRecord } from "openclaw/plugin-sdk/conversation-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { SessionBindingRecord } from "alien/plugin-sdk/conversation-runtime";
 import {
   deriveLastRoutePolicy,
   isAcpSessionKey,
@@ -8,8 +8,8 @@ import {
   resolveAgentRoute,
   type ResolvedAgentRoute,
   type RoutePeer,
-} from "openclaw/plugin-sdk/routing";
-import { resolveAgentIdFromSessionKey } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/routing";
+import { resolveAgentIdFromSessionKey } from "alien/plugin-sdk/routing";
 
 export function buildDiscordRoutePeer(params: {
   isDirectMessage: boolean;
@@ -26,7 +26,7 @@ export function buildDiscordRoutePeer(params: {
 }
 
 export function resolveDiscordConversationRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   guildId?: string | null;
   memberRoleIds?: string[];
@@ -47,7 +47,7 @@ export function resolveDiscordConversationRoute(params: {
 }
 
 export function resolveDiscordBoundConversationRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   guildId?: string | null;
   memberRoleIds?: string[];

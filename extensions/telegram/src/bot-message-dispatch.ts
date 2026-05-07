@@ -4,11 +4,11 @@ import {
   logAckFailure,
   logTypingFailure,
   removeAckReactionAfterReply,
-} from "openclaw/plugin-sdk/channel-feedback";
+} from "alien/plugin-sdk/channel-feedback";
 import {
   createChannelMessageReplyPipeline,
   deriveDurableFinalDeliveryRequirements,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   createChannelProgressDraftGate,
   formatChannelProgressDraftLine,
@@ -18,30 +18,30 @@ import {
   resolveChannelProgressDraftMaxLines,
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingPreviewToolProgress,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { isAbortRequestText } from "openclaw/plugin-sdk/command-primitives-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { isAbortRequestText } from "alien/plugin-sdk/command-primitives-runtime";
 import type {
-  OpenClawConfig,
+  AlienConfig,
   ReplyToMode,
   TelegramAccountConfig,
-} from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { runInboundReplyTurn } from "openclaw/plugin-sdk/inbound-reply-dispatch";
+} from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { runInboundReplyTurn } from "alien/plugin-sdk/inbound-reply-dispatch";
 import {
   createOutboundPayloadPlan,
   projectOutboundPayloadPlanForDelivery,
-} from "openclaw/plugin-sdk/outbound-runtime";
-import { chunkMarkdownTextWithMode } from "openclaw/plugin-sdk/reply-chunking";
-import { clearHistoryEntriesIfEnabled } from "openclaw/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-payload";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/outbound-runtime";
+import { chunkMarkdownTextWithMode } from "alien/plugin-sdk/reply-chunking";
+import { clearHistoryEntriesIfEnabled } from "alien/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-payload";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import {
   createSubsystemLogger,
   danger,
   logVerbose,
   sleepWithAbort,
-} from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/runtime-env";
 import type { TelegramBotDeps } from "./bot-deps.js";
 import type { TelegramMessageContext } from "./bot-message-context.js";
 import {
@@ -103,7 +103,7 @@ const silentReplyDispatchLogger = createSubsystemLogger("telegram/silent-reply-d
 /** Minimum chars before sending first streaming message (improves push notification UX) */
 const DRAFT_MIN_INITIAL_CHARS = 30;
 
-async function resolveStickerVisionSupport(cfg: OpenClawConfig, agentId: string) {
+async function resolveStickerVisionSupport(cfg: AlienConfig, agentId: string) {
   try {
     const catalog = await loadModelCatalog({ config: cfg });
     const defaultModel = resolveDefaultModelForAgent({ cfg, agentId });
@@ -120,7 +120,7 @@ async function resolveStickerVisionSupport(cfg: OpenClawConfig, agentId: string)
 type DispatchTelegramMessageParams = {
   context: TelegramMessageContext;
   bot: Bot;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   runtime: RuntimeEnv;
   replyToMode: ReplyToMode;
   streamMode: TelegramStreamMode;
@@ -208,7 +208,7 @@ export function resetTelegramReplyFenceForTests(): void {
 }
 
 function resolveTelegramReasoningLevel(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey?: string;
   agentId: string;
   telegramDeps: TelegramBotDeps;

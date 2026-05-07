@@ -1,11 +1,11 @@
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveCommandArgChoices,
   type ChatCommandDefinition,
-} from "openclaw/plugin-sdk/native-command-registry";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/native-command-registry";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import type { AutocompleteInteraction, CommandOptions } from "../internal/discord.js";
 
 const log = createSubsystemLogger("discord/native-command");
@@ -56,7 +56,7 @@ function resolveDiscordCommandLogLabel(command: ChatCommandDefinition): string {
 
 export function buildDiscordCommandOptions(params: {
   command: ChatCommandDefinition;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   authorizeChoiceContext?: (interaction: AutocompleteInteraction) => Promise<boolean>;
   resolveChoiceContext?: (
     interaction: AutocompleteInteraction,

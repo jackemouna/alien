@@ -1,12 +1,12 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sendWebhookMessageDiscord } from "./send.webhook.js";
 
 const makeProxyFetchMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/fetch-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/fetch-runtime")>(
-    "openclaw/plugin-sdk/fetch-runtime",
+vi.mock("alien/plugin-sdk/fetch-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/fetch-runtime")>(
+    "alien/plugin-sdk/fetch-runtime",
   );
   return {
     ...actual,
@@ -35,7 +35,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "bad-proxy",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -63,7 +63,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "http://127.0.0.1:8080",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -89,7 +89,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "http://proxy.test:8080",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -116,7 +116,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           token: "Bot test-token",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -143,7 +143,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           token: "Bot test-token",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       sendWebhookMessageDiscord("hello", {
@@ -172,7 +172,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           token: "Bot test-token",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await expect(
       sendWebhookMessageDiscord("hello", {

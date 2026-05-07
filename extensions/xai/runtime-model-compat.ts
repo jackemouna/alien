@@ -1,4 +1,4 @@
-import { applyXaiModelCompat } from "openclaw/plugin-sdk/provider-tools";
+import { applyXaiModelCompat } from "alien/plugin-sdk/provider-tools";
 
 type XaiRuntimeModelCompat = {
   compat?: unknown;

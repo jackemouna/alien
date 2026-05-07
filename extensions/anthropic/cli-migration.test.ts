@@ -1,7 +1,7 @@
 import type {
   ProviderAuthContext,
   ProviderAuthMethodNonInteractiveContext,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/plugin-entry";
 import { describe, expect, it, vi } from "vitest";
 
 const { readClaudeCliCredentialsForSetup, readClaudeCliCredentialsForSetupNonInteractive } =
@@ -21,7 +21,7 @@ vi.mock("./cli-auth-seam.js", async (importActual) => {
 
 const { buildAnthropicCliMigrationResult, hasClaudeCliAuth } = await import("./cli-migration.js");
 const { createTestWizardPrompter, registerSingleProviderPlugin } =
-  await import("openclaw/plugin-sdk/plugin-test-runtime");
+  await import("alien/plugin-sdk/plugin-test-runtime");
 const { default: anthropicPlugin } = await import("./index.js");
 
 async function resolveAnthropicCliAuthMethod() {
@@ -40,8 +40,8 @@ function createProviderAuthContext(
     config,
     opts: {},
     env: {},
-    agentDir: "/tmp/openclaw/agents/main",
-    workspaceDir: "/tmp/openclaw/workspace",
+    agentDir: "/tmp/alien/agents/main",
+    workspaceDir: "/tmp/alien/workspace",
     prompter: createTestWizardPrompter(),
     runtime: {
       log: vi.fn(),
@@ -70,8 +70,8 @@ function createProviderAuthMethodNonInteractiveContext(
       error: vi.fn(),
       exit: vi.fn(),
     },
-    agentDir: "/tmp/openclaw/agents/main",
-    workspaceDir: "/tmp/openclaw/workspace",
+    agentDir: "/tmp/alien/agents/main",
+    workspaceDir: "/tmp/alien/workspace",
     resolveApiKey: vi.fn(async () => null),
     toApiKeyCredential: vi.fn(() => null),
   };

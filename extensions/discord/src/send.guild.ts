@@ -5,8 +5,8 @@ import type {
   APIVoiceState,
   RESTPostAPIGuildScheduledEventJSONBody,
 } from "discord-api-types/v10";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
-import { loadWebMediaRaw } from "openclaw/plugin-sdk/web-media";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
+import { loadWebMediaRaw } from "alien/plugin-sdk/web-media";
 import {
   addGuildMemberRole,
   createGuildBan,

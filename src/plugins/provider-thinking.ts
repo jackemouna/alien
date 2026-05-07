@@ -20,7 +20,7 @@ type ThinkingProviderPlugin = {
   ) => "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "adaptive" | null | undefined;
 };
 
-const PLUGIN_REGISTRY_STATE = Symbol.for("openclaw.pluginRegistryState");
+const PLUGIN_REGISTRY_STATE = Symbol.for("alien.pluginRegistryState");
 
 type ThinkingRegistryState = {
   activeRegistry?: {

@@ -12,7 +12,7 @@ import { resolveGlobalSingleton } from "../../shared/global-singleton.js";
 import { buildAgentHookContext, type AgentHarnessHookContext } from "./hook-context.js";
 
 const log = createSubsystemLogger("agents/harness");
-const FINALIZE_RETRY_BUDGET_KEY = Symbol.for("openclaw.pluginFinalizeRetryBudget");
+const FINALIZE_RETRY_BUDGET_KEY = Symbol.for("alien.pluginFinalizeRetryBudget");
 const FINALIZE_RETRY_BUDGET_MAX_ENTRIES = 2048;
 
 type AgentHarnessHookRunner = ReturnType<typeof getGlobalHookRunner>;

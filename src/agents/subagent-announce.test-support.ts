@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { callGateway } from "../gateway/call.js";
 import type { EmbeddedPiQueueMessageOptions } from "./pi-embedded-runner/run-state.js";
 
 type DeliveryRuntimeMockOptions = {
   callGateway: (request: unknown) => Promise<unknown>;
-  getRuntimeConfig: () => OpenClawConfig;
+  getRuntimeConfig: () => AlienConfig;
   loadSessionStore: (storePath: string) => unknown;
   resolveAgentIdFromSessionKey: (sessionKey: string) => string;
   resolveMainSessionKey: (cfg: unknown) => string;

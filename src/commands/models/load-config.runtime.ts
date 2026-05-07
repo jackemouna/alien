@@ -3,5 +3,5 @@ export {
   getRuntimeConfig,
   getRuntimeConfigSourceSnapshot,
   setRuntimeConfigSnapshot,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "../../config/config.js";

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox/runtime-status.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { MsgContext } from "../templating.js";
 import { resolveRuntimePolicySessionKey } from "./runtime-policy-session-key.js";
 
 describe("resolveRuntimePolicySessionKey", () => {
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     agents: {
       defaults: {
         sandbox: { mode: "non-main", scope: "agent" },

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   resolveExternalCliAuthScopeFromConfig,
   type ExternalCliAuthScope,
@@ -8,23 +8,23 @@ export type ExternalCliAuthDiscovery =
   | {
       mode: "none";
       allowKeychainPrompt?: false;
-      config?: OpenClawConfig;
+      config?: AlienConfig;
     }
   | {
       mode: "existing";
       allowKeychainPrompt?: boolean;
-      config?: OpenClawConfig;
+      config?: AlienConfig;
     }
   | {
       mode: "scoped";
       allowKeychainPrompt?: boolean;
-      config?: OpenClawConfig;
+      config?: AlienConfig;
       providerIds?: Iterable<string>;
       profileIds?: Iterable<string>;
     };
 
 type ProviderAuthDiscoveryParams = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   provider: string;
   profileId?: string;
   preferredProfile?: string;
@@ -32,12 +32,12 @@ type ProviderAuthDiscoveryParams = {
 };
 
 type ConfigStatusDiscoveryParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   allowKeychainPrompt?: false;
 };
 
 type ProviderSetDiscoveryParams = {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   providers: Iterable<string>;
   allowKeychainPrompt?: false;
 };
@@ -49,7 +49,7 @@ function normalizeStringList(values: Iterable<string | undefined>): string[] {
 }
 
 export function externalCliDiscoveryNone(params?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
 }): ExternalCliAuthDiscovery {
   return {
     mode: "none",
@@ -59,7 +59,7 @@ export function externalCliDiscoveryNone(params?: {
 }
 
 export function externalCliDiscoveryExisting(params?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   allowKeychainPrompt?: boolean;
 }): ExternalCliAuthDiscovery {
   return {
@@ -72,7 +72,7 @@ export function externalCliDiscoveryExisting(params?: {
 }
 
 export function externalCliDiscoveryScoped(params: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   providerIds?: Iterable<string>;
   profileIds?: Iterable<string>;
   allowKeychainPrompt?: boolean;
@@ -126,7 +126,7 @@ export function externalCliDiscoveryForProviders(
 }
 
 function externalCliDiscoveryFromScope(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   scope: ExternalCliAuthScope | undefined;
   allowKeychainPrompt: false;
 }): ExternalCliAuthDiscovery {

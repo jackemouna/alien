@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalTestFileLog: string | undefined;
-let originalOpenClawLogLevel: string | undefined;
+let originalAlienLogLevel: string | undefined;
 let logging: typeof import("../logging.js");
 
 beforeAll(async () => {
@@ -9,24 +9,24 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  originalTestFileLog = process.env.OPENCLAW_TEST_FILE_LOG;
-  originalOpenClawLogLevel = process.env.OPENCLAW_LOG_LEVEL;
-  delete process.env.OPENCLAW_TEST_FILE_LOG;
-  delete process.env.OPENCLAW_LOG_LEVEL;
+  originalTestFileLog = process.env.ALIEN_TEST_FILE_LOG;
+  originalAlienLogLevel = process.env.ALIEN_LOG_LEVEL;
+  delete process.env.ALIEN_TEST_FILE_LOG;
+  delete process.env.ALIEN_LOG_LEVEL;
   logging.resetLogger();
   logging.setLoggerOverride(null);
 });
 
 afterEach(() => {
   if (originalTestFileLog === undefined) {
-    delete process.env.OPENCLAW_TEST_FILE_LOG;
+    delete process.env.ALIEN_TEST_FILE_LOG;
   } else {
-    process.env.OPENCLAW_TEST_FILE_LOG = originalTestFileLog;
+    process.env.ALIEN_TEST_FILE_LOG = originalTestFileLog;
   }
-  if (originalOpenClawLogLevel === undefined) {
-    delete process.env.OPENCLAW_LOG_LEVEL;
+  if (originalAlienLogLevel === undefined) {
+    delete process.env.ALIEN_LOG_LEVEL;
   } else {
-    process.env.OPENCLAW_LOG_LEVEL = originalOpenClawLogLevel;
+    process.env.ALIEN_LOG_LEVEL = originalAlienLogLevel;
   }
   logging.resetLogger();
   logging.setLoggerOverride(null);
@@ -46,10 +46,10 @@ describe("getResolvedLoggerSettings", () => {
   });
 
   it("reads logging config when test file logging is explicitly enabled", () => {
-    process.env.OPENCLAW_TEST_FILE_LOG = "1";
+    process.env.ALIEN_TEST_FILE_LOG = "1";
     logging.setLoggerConfigLoaderForTests(() => ({
       level: "debug",
-      file: "/tmp/openclaw-configured.log",
+      file: "/tmp/alien-configured.log",
       maxFileBytes: 2048,
     }));
 
@@ -57,13 +57,13 @@ describe("getResolvedLoggerSettings", () => {
 
     expect(settings).toMatchObject({
       level: "debug",
-      file: "/tmp/openclaw-configured.log",
+      file: "/tmp/alien-configured.log",
       maxFileBytes: 2048,
     });
   });
 
   it("uses defaults when no logging config is available", () => {
-    process.env.OPENCLAW_TEST_FILE_LOG = "1";
+    process.env.ALIEN_TEST_FILE_LOG = "1";
     logging.setLoggerConfigLoaderForTests(() => undefined);
 
     const settings = logging.getResolvedLoggerSettings();

@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 
 export function buildEmbeddedMessageActionDiscoveryInput(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   channel: string;
   currentChannelId?: string | null;
   currentThreadTs?: string | null;

@@ -3,8 +3,8 @@ import {
   sanitizeAndNormalizeEmbedding,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderCreateOptions,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 // ---------------------------------------------------------------------------
 // Types & constants

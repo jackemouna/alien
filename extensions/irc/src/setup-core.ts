@@ -1,13 +1,13 @@
-import type { ChannelSetupAdapter, ChannelSetupInput } from "openclaw/plugin-sdk/channel-setup";
-import type { DmPolicy } from "openclaw/plugin-sdk/config-types";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
+import type { ChannelSetupAdapter, ChannelSetupInput } from "alien/plugin-sdk/channel-setup";
+import type { DmPolicy } from "alien/plugin-sdk/config-types";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
 import {
   applyAccountNameToChannelSection,
   createSetupInputPresenceValidator,
   createTopLevelChannelAllowFromSetter,
   createTopLevelChannelDmPolicySetter,
   patchScopedAccountConfig,
-} from "openclaw/plugin-sdk/setup";
+} from "alien/plugin-sdk/setup";
 import type { CoreConfig, IrcAccountConfig, IrcNickServConfig } from "./types.js";
 
 const channel = "irc" as const;

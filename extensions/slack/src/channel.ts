@@ -2,30 +2,30 @@ import {
   buildLegacyDmAccountAllowlistAdapter,
   createAccountScopedAllowlistNameResolver,
   createFlatAllowlistOverrideResolver,
-} from "openclaw/plugin-sdk/allowlist-config-edit";
-import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
+} from "alien/plugin-sdk/allowlist-config-edit";
+import { adaptScopedAccountAccessor } from "alien/plugin-sdk/channel-config-helpers";
 import {
   buildThreadAwareOutboundSessionRoute,
   createChatChannelPlugin,
-} from "openclaw/plugin-sdk/channel-core";
-import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
-import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
+} from "alien/plugin-sdk/channel-core";
+import { createChannelMessageAdapterFromOutbound } from "alien/plugin-sdk/channel-message";
+import { createPairingPrefixStripper } from "alien/plugin-sdk/channel-pairing";
 import {
   createAttachedChannelResultAdapter,
   type ChannelOutboundAdapter,
-} from "openclaw/plugin-sdk/channel-send-result";
+} from "alien/plugin-sdk/channel-send-result";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
-} from "openclaw/plugin-sdk/directory-runtime";
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
-import { resolveOutboundSendDep } from "openclaw/plugin-sdk/outbound-send-deps";
-import { buildOutboundBaseSessionKey, type RoutePeer } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/directory-runtime";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
+import { resolveOutboundSendDep } from "alien/plugin-sdk/outbound-send-deps";
+import { buildOutboundBaseSessionKey, type RoutePeer } from "alien/plugin-sdk/routing";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   resolveDefaultSlackAccountId,
   resolveSlackAccount,
@@ -45,7 +45,7 @@ import {
   projectCredentialSnapshotFields,
   resolveConfiguredFromRequiredCredentialStatuses,
   type ChannelPlugin,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "./channel-api.js";
 import { resolveSlackChannelType } from "./channel-type.js";
 import { shouldSuppressLocalSlackExecApprovalPrompt } from "./exec-approvals.js";
@@ -74,7 +74,7 @@ import { buildSlackThreadingToolContext } from "./threading-tool-context.js";
 // module id and typed by a hand-written structural alias so TypeScript does
 // not have to crawl the SDK module's type graph just to type the loader.
 //
-// `openclaw/plugin-sdk/channel-policy` is intentionally NOT lazy here —
+// `alien/plugin-sdk/channel-policy` is intentionally NOT lazy here —
 // `./group-policy.js` already imports it eagerly, so deferring it from
 // `channel.ts` would not change the load graph.
 
@@ -119,8 +119,8 @@ type TargetResolverRuntimeSurface = {
   >;
 };
 
-const EXTENSION_SHARED_MODULE_ID = "openclaw/plugin-sdk/extension-shared";
-const TARGET_RESOLVER_RUNTIME_MODULE_ID = "openclaw/plugin-sdk/target-resolver-runtime";
+const EXTENSION_SHARED_MODULE_ID = "alien/plugin-sdk/extension-shared";
+const TARGET_RESOLVER_RUNTIME_MODULE_ID = "alien/plugin-sdk/target-resolver-runtime";
 
 const loadExtensionSharedSdk = createLazyRuntimeModule(
   () => import(EXTENSION_SHARED_MODULE_ID) as Promise<ExtensionSharedSurface>,
@@ -241,7 +241,7 @@ function parseSlackExplicitTarget(raw: string) {
 }
 
 function buildSlackBaseSessionKey(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   accountId?: string | null;
   peer: RoutePeer;
@@ -250,7 +250,7 @@ function buildSlackBaseSessionKey(params: {
 }
 
 function shouldRecoverSlackThreadFromCurrentSession(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   peerKind: RoutePeer["kind"];
 }): boolean {
   // Shared DM sessions (dmScope="main") do not encode the DM peer in the base key,
@@ -262,7 +262,7 @@ function shouldRecoverSlackThreadFromCurrentSession(params: {
 }
 
 async function resolveSlackOutboundSessionRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   accountId?: string | null;
   target: string;
@@ -608,7 +608,7 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount, SlackProbe> = crea
       invoke: async (action, cfg, toolContext) =>
         await (
           await resolveSlackHandleAction()
-        )(action, cfg as OpenClawConfig, toolContext as SlackActionContext | undefined),
+        )(action, cfg as AlienConfig, toolContext as SlackActionContext | undefined),
     }),
     message: slackMessageAdapter,
     status: createComputedAccountStatusAdapter<ResolvedSlackAccount, SlackProbe>({

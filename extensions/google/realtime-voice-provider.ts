@@ -16,7 +16,7 @@ import type {
   ThinkingConfig,
   TurnCoverage,
 } from "@google/genai";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/provider-onboard";
+import type { AlienConfig } from "alien/plugin-sdk/provider-onboard";
 import type {
   RealtimeVoiceAudioFormat,
   RealtimeVoiceBridge,
@@ -27,7 +27,7 @@ import type {
   RealtimeVoiceProviderPlugin,
   RealtimeVoiceTool,
   RealtimeVoiceToolResultOptions,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import {
   convertPcmToMulaw8k,
   mulawToPcm,
@@ -35,9 +35,9 @@ import {
   REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
   REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
   resamplePcm,
-} from "openclaw/plugin-sdk/realtime-voice";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/realtime-voice";
+import { normalizeResolvedSecretInputString } from "alien/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { createGoogleGenAI } from "./google-genai-runtime.js";
 
 const GOOGLE_REALTIME_DEFAULT_MODEL = "gemini-2.5-flash-native-audio-preview-12-2025";
@@ -202,7 +202,7 @@ function resolveGoogleRealtimeProviderConfigRecord(
 
 function normalizeProviderConfig(
   config: RealtimeVoiceProviderConfig,
-  cfg?: OpenClawConfig,
+  cfg?: AlienConfig,
 ): GoogleRealtimeVoiceProviderConfig {
   const raw = resolveGoogleRealtimeProviderConfigRecord(config);
   return {

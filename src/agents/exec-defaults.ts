@@ -1,5 +1,5 @@
 import type { SessionEntry } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   loadExecApprovals,
   type ExecAsk,
@@ -19,12 +19,12 @@ type ResolvedExecConfig = {
 };
 
 function resolveExecConfigState(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;
 }): {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   host: ExecTarget;
   agentExec?: ResolvedExecConfig;
   globalExec?: ResolvedExecConfig;
@@ -54,7 +54,7 @@ function resolveExecConfigState(params: {
 }
 
 function resolveExecSandboxAvailability(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey?: string;
   sandboxAvailable?: boolean;
 }) {
@@ -70,7 +70,7 @@ function resolveExecSandboxAvailability(params: {
 }
 
 export function canExecRequestNode(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;
@@ -89,7 +89,7 @@ export function canExecRequestNode(params: {
 }
 
 export function resolveExecDefaults(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;

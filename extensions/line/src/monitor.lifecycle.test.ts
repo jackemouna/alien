@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 import { EventEmitter } from "node:events";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { createMockIncomingRequest } from "openclaw/plugin-sdk/test-env";
-import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "openclaw/plugin-sdk/webhook-request-guards";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
+import { createMockIncomingRequest } from "alien/plugin-sdk/test-env";
+import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "alien/plugin-sdk/webhook-request-guards";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type LineNodeWebhookHandler = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
@@ -35,14 +35,14 @@ vi.mock("./bot.js", () => ({
   createLineBot: createLineBotMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/reply-runtime", () => ({
+vi.mock("alien/plugin-sdk/reply-runtime", () => ({
   chunkMarkdownText: vi.fn(),
   dispatchReplyWithBufferedBlockDispatcher: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("alien/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/runtime-env")>(
+    "alien/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -52,14 +52,14 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/channel-message", () => ({
+vi.mock("alien/plugin-sdk/channel-message", () => ({
   createChannelMessageReplyPipeline: vi.fn(() => ({})),
   hasFinalChannelMessageReplyDispatch: vi.fn(() => false),
 }));
 
-vi.mock("openclaw/plugin-sdk/webhook-ingress", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/webhook-ingress")>(
-    "openclaw/plugin-sdk/webhook-ingress",
+vi.mock("alien/plugin-sdk/webhook-ingress", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/webhook-ingress")>(
+    "alien/plugin-sdk/webhook-ingress",
   );
   return {
     ...actual,
@@ -167,7 +167,7 @@ describe("monitorLineProvider lifecycle", () => {
     const task = monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
       abortSignal: abort.signal,
     }).then((monitor) => {
@@ -191,7 +191,7 @@ describe("monitorLineProvider lifecycle", () => {
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
       accountId: "work",
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -218,7 +218,7 @@ describe("monitorLineProvider lifecycle", () => {
     await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
       abortSignal: abort.signal,
     });
@@ -230,7 +230,7 @@ describe("monitorLineProvider lifecycle", () => {
     const monitor = await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -256,7 +256,7 @@ describe("monitorLineProvider lifecycle", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -275,14 +275,14 @@ describe("monitorLineProvider lifecycle", () => {
       channelAccessToken: "first-token",
       channelSecret: "first-secret", // pragma: allowlist secret
       accountId: "first",
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
     const secondMonitor = await monitorLineProvider({
       channelAccessToken: "second-token",
       channelSecret: "second-secret", // pragma: allowlist secret
       accountId: "second",
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -320,14 +320,14 @@ describe("monitorLineProvider lifecycle", () => {
       channelAccessToken: "first-token",
       channelSecret: "shared-secret", // pragma: allowlist secret
       accountId: "first",
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
     const secondMonitor = await monitorLineProvider({
       channelAccessToken: "second-token",
       channelSecret: "shared-secret", // pragma: allowlist secret
       accountId: "second",
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -368,7 +368,7 @@ describe("monitorLineProvider lifecycle", () => {
     const monitor = await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as OpenClawConfig,
+      config: {} as AlienConfig,
       runtime: {} as RuntimeEnv,
     });
 

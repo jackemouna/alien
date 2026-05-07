@@ -131,9 +131,9 @@ export async function buildStatusCommandReportData(
       })
     : [
         params.theme.muted(
-          `Skipped in fast status. Full report: ${params.formatCliCommand("openclaw security audit")}`,
+          `Skipped in fast status. Full report: ${params.formatCliCommand("alien security audit")}`,
         ),
-        params.theme.muted(`Deep probe: ${params.formatCliCommand("openclaw status --deep")}`),
+        params.theme.muted(`Deep probe: ${params.formatCliCommand("alien status --deep")}`),
       ];
 
   return {
@@ -143,7 +143,7 @@ export async function buildStatusCommandReportData(
     width: params.tableWidth,
     overviewRows,
     showTaskMaintenanceHint: params.summary.taskAudit.errors > 0,
-    taskMaintenanceHint: `Task maintenance: ${params.formatCliCommand("openclaw tasks maintenance --apply")}`,
+    taskMaintenanceHint: `Task maintenance: ${params.formatCliCommand("alien tasks maintenance --apply")}`,
     pluginCompatibilityLines: buildStatusPluginCompatibilityLines({
       notices: params.pluginCompatibility,
       formatNotice: params.formatPluginCompatibilityNotice,

@@ -2,12 +2,12 @@ import {
   getRuntimeConfigSnapshot,
   getRuntimeConfigSourceSnapshot,
 } from "../config/runtime-snapshot.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 export function resolvePluginActivationSourceConfig(params: {
-  config?: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
-}): OpenClawConfig {
+  config?: AlienConfig;
+  activationSourceConfig?: AlienConfig;
+}): AlienConfig {
   if (params.activationSourceConfig !== undefined) {
     return params.activationSourceConfig;
   }

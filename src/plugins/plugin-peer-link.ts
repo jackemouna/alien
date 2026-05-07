@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveAlienPackageRootSync } from "../infra/alien-root.js";
 
 type PluginPeerLinkLogger = {
   info?: (message: string) => void;
@@ -78,28 +78,28 @@ async function listManagedNpmRootPackageDirs(npmRoot: string): Promise<string[]>
 }
 
 /**
- * Symlink the host openclaw package for plugins that declare it as a peer.
+ * Symlink the host alien package for plugins that declare it as a peer.
  * Plugin package managers still own third-party dependencies; this only wires
  * the host SDK package into the plugin-local Node graph.
  */
-export async function linkOpenClawPeerDependencies(params: {
+export async function linkAlienPeerDependencies(params: {
   installedDir: string;
   peerDependencies: Record<string, string>;
   logger: PluginPeerLinkLogger;
 }): Promise<void> {
-  const peers = Object.keys(params.peerDependencies).filter((name) => name === "openclaw");
+  const peers = Object.keys(params.peerDependencies).filter((name) => name === "alien");
   if (peers.length === 0) {
     return;
   }
 
-  const hostRoot = resolveOpenClawPackageRootSync({
+  const hostRoot = resolveAlienPackageRootSync({
     argv1: process.argv[1],
     moduleUrl: import.meta.url,
     cwd: process.cwd(),
   });
   if (!hostRoot) {
     params.logger.warn?.(
-      "Could not locate openclaw package root to symlink peerDependencies; plugin may fail to resolve openclaw at runtime.",
+      "Could not locate alien package root to symlink peerDependencies; plugin may fail to resolve alien at runtime.",
     );
     return;
   }
@@ -120,7 +120,7 @@ export async function linkOpenClawPeerDependencies(params: {
   }
 }
 
-export async function relinkOpenClawPeerDependenciesInManagedNpmRoot(params: {
+export async function relinkAlienPeerDependenciesInManagedNpmRoot(params: {
   npmRoot: string;
   logger: PluginPeerLinkLogger;
 }): Promise<RelinkManagedNpmRootResult> {
@@ -128,11 +128,11 @@ export async function relinkOpenClawPeerDependenciesInManagedNpmRoot(params: {
   let attempted = 0;
   for (const packageDir of await listManagedNpmRootPackageDirs(params.npmRoot)) {
     const peerDependencies = await readPackagePeerDependencies(packageDir);
-    if (!Object.hasOwn(peerDependencies, "openclaw")) {
+    if (!Object.hasOwn(peerDependencies, "alien")) {
       continue;
     }
     checked += 1;
-    await linkOpenClawPeerDependencies({
+    await linkAlienPeerDependencies({
       installedDir: packageDir,
       peerDependencies,
       logger: params.logger,

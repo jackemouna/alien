@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { CronJob } from "../types.js";
 import {
   DEFAULT_MODEL,
@@ -17,8 +17,8 @@ type CronSessionModelOverrides = {
 };
 
 export type ResolveCronModelSelectionParams = {
-  cfg: OpenClawConfig;
-  cfgWithAgentDefaults: OpenClawConfig;
+  cfg: AlienConfig;
+  cfgWithAgentDefaults: AlienConfig;
   agentConfigOverride?: {
     model?: unknown;
     subagents?: {

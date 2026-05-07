@@ -1,13 +1,13 @@
 ---
-summary: "How OpenClaw closes agentic execution gaps for GPT-5.5 and Codex-style models"
+summary: "How Alien closes agentic execution gaps for GPT-5.5 and Codex-style models"
 title: "GPT-5.5 / Codex agentic parity"
 read_when:
   - Debugging GPT-5.5 or Codex agent behavior
-  - Comparing OpenClaw agentic behavior across frontier models
+  - Comparing Alien agentic behavior across frontier models
   - Reviewing the strict-agentic, tool-schema, elevation, and replay fixes
 ---
 
-OpenClaw already worked well with tool-using frontier models, but GPT-5.5 and Codex-style models were still underperforming in a few practical ways:
+Alien already worked well with tool-using frontier models, but GPT-5.5 and Codex-style models were still underperforming in a few practical ways:
 
 - they could stop after planning instead of doing the work
 - they could use strict OpenAI/Codex tool schemas incorrectly
@@ -23,7 +23,7 @@ This parity program fixes those gaps in four reviewable slices.
 
 This slice adds an opt-in `strict-agentic` execution contract for embedded Pi GPT-5 runs.
 
-When enabled, OpenClaw stops accepting plan-only turns as "good enough" completion. If the model only says what it intends to do and does not actually use tools or make progress, OpenClaw retries with an act-now steer and then fails closed with an explicit blocked state instead of silently ending the task.
+When enabled, Alien stops accepting plan-only turns as "good enough" completion. If the model only says what it intends to do and does not actually use tools or make progress, Alien retries with an act-now steer and then fails closed with an explicit blocked state instead of silently ending the task.
 
 This improves the GPT-5.5 experience most on:
 
@@ -33,7 +33,7 @@ This improves the GPT-5.5 experience most on:
 
 ### PR B: runtime truthfulness
 
-This slice makes OpenClaw tell the truth about two things:
+This slice makes Alien tell the truth about two things:
 
 - why the provider/runtime call failed
 - whether `/elevated full` is actually available
@@ -58,7 +58,7 @@ The parity pack is the proof layer. It does not change runtime behavior by itsel
 After you have two `qa-suite-summary.json` artifacts, generate the release-gate comparison with:
 
 ```bash
-pnpm openclaw qa parity-report \
+pnpm alien qa parity-report \
   --repo-root . \
   --candidate-summary .artifacts/qa-e2e/gpt55/qa-suite-summary.json \
   --baseline-summary .artifacts/qa-e2e/opus46/qa-suite-summary.json \
@@ -73,7 +73,7 @@ That command writes:
 
 ## Why this improves GPT-5.5 in practice
 
-Before this work, GPT-5.5 on OpenClaw could feel less agentic than Opus in real coding sessions because the runtime tolerated behaviors that are especially harmful for GPT-5-style models:
+Before this work, GPT-5.5 on Alien could feel less agentic than Opus in real coding sessions because the runtime tolerated behaviors that are especially harmful for GPT-5-style models:
 
 - commentary-only turns
 - schema friction around tools
@@ -88,7 +88,7 @@ That changes the user experience from:
 
 to:
 
-- "the model either acted, or OpenClaw surfaced the exact reason it could not"
+- "the model either acted, or Alien surfaced the exact reason it could not"
 
 ## Before vs after for GPT-5.5 users
 
@@ -125,7 +125,7 @@ flowchart LR
     A --> C["Run Opus 4.6 parity pack"]
     B --> D["qa-suite-summary.json"]
     C --> E["qa-suite-summary.json"]
-    D --> F["openclaw qa parity-report"]
+    D --> F["alien qa parity-report"]
     E --> F
     F --> G["qa-agentic-parity-report.md"]
     F --> H["qa-agentic-parity-summary.json"]

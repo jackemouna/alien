@@ -1,5 +1,5 @@
-import type { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import type { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import { ChannelType } from "../internal/discord.js";
 import type { VoiceCaptureState } from "./capture-state.js";
 import type { VoiceReceiveRecoveryState } from "./receive-recovery.js";

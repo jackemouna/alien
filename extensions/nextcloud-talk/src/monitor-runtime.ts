@@ -1,7 +1,7 @@
 import os from "node:os";
-import { resolveLoggerBackedRuntime } from "openclaw/plugin-sdk/extension-shared";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { resolveLoggerBackedRuntime } from "alien/plugin-sdk/extension-shared";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import { resolveNextcloudTalkAccount } from "./accounts.js";
 import { handleNextcloudTalkInbound } from "./inbound.js";
 import {

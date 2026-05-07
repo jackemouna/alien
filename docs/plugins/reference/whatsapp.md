@@ -1,5 +1,5 @@
 ---
-summary: "Adds the WhatsApp channel surface for sending and receiving OpenClaw messages."
+summary: "Adds the WhatsApp channel surface for sending and receiving Alien messages."
 read_when:
   - You are installing, configuring, or auditing the whatsapp plugin
 title: "WhatsApp plugin"
@@ -7,11 +7,11 @@ title: "WhatsApp plugin"
 
 # WhatsApp plugin
 
-Adds the WhatsApp channel surface for sending and receiving OpenClaw messages.
+Adds the WhatsApp channel surface for sending and receiving Alien messages.
 
 ## Distribution
 
-- Package: `@openclaw/whatsapp`
+- Package: `@alien/whatsapp`
 - Install route: npm; ClawHub
 
 ## Surface

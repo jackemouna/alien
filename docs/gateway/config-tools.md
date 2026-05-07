@@ -42,7 +42,7 @@ Local onboarding defaults new local configs to `tools.profile: "coding"` when un
 | `group:nodes`      | `nodes`                                                                                                                 |
 | `group:agents`     | `agents_list`, `update_plan`                                                                                            |
 | `group:media`      | `image`, `image_generate`, `music_generate`, `video_generate`, `tts`                                                    |
-| `group:openclaw`   | All built-in tools (excludes provider plugins)                                                                          |
+| `group:alien`   | All built-in tools (excludes provider plugins)                                                                          |
 
 ### `tools.allow` / `tools.deny`
 
@@ -249,7 +249,7 @@ Configures inbound media understanding (image/audio/video):
     **CLI entry** (`type: "cli"`):
 
     - `command`: executable to run
-    - `args`: templated args (supports `{{MediaPath}}`, `{{Prompt}}`, `{{MaxChars}}`, etc.; `openclaw doctor --fix` migrates deprecated `{input}` placeholders to `{{MediaPath}}`)
+    - `args`: templated args (supports `{{MediaPath}}`, `{{Prompt}}`, `{{MaxChars}}`, etc.; `alien doctor --fix` migrates deprecated `{input}` placeholders to `{{MediaPath}}`)
 
     **Common fields:**
 
@@ -331,7 +331,7 @@ Controls inline attachment support for `sessions_spawn`.
 <AccordionGroup>
   <Accordion title="Attachment notes">
     - Attachments are only supported for `runtime: "subagent"`. ACP runtime rejects them.
-    - Files are materialized into the child workspace at `.openclaw/attachments/<uuid>/` with a `.manifest.json`.
+    - Files are materialized into the child workspace at `.alien/attachments/<uuid>/` with a `.manifest.json`.
     - Attachment content is automatically redacted from transcript persistence.
     - Base64 inputs are validated with strict alphabet/padding checks and a pre-decode size guard.
     - File permissions are `0700` for directories and `0600` for files.
@@ -387,7 +387,7 @@ Experimental built-in tool flags. Default off unless a strict-agentic GPT-5 auto
 
 ## Custom providers and base URLs
 
-OpenClaw uses the built-in model catalog. Add custom providers via `models.providers` in config or `~/.openclaw/agents/<agentId>/agent/models.json`.
+Alien uses the built-in model catalog. Add custom providers via `models.providers` in config or `~/.alien/agents/<agentId>/agent/models.json`.
 
 ```json5
 {
@@ -419,7 +419,7 @@ OpenClaw uses the built-in model catalog. Add custom providers via `models.provi
 <AccordionGroup>
   <Accordion title="Auth and merge precedence">
     - Use `authHeader: true` + `headers` for custom auth needs.
-    - Override agent config root with `OPENCLAW_AGENT_DIR` (or `PI_CODING_AGENT_DIR`, a legacy environment variable alias).
+    - Override agent config root with `ALIEN_AGENT_DIR` (or `PI_CODING_AGENT_DIR`, a legacy environment variable alias).
     - Merge precedence for matching provider IDs:
       - Non-empty agent `models.json` `baseUrl` values win.
       - Non-empty agent `apiKey` values win only when that provider is not SecretRef-managed in current config/auth-profile context.
@@ -440,7 +440,7 @@ OpenClaw uses the built-in model catalog. Add custom providers via `models.provi
   <Accordion title="Top-level catalog">
     - `models.mode`: provider catalog behavior (`merge` or `replace`).
     - `models.providers`: custom provider map keyed by provider id.
-      - Safe edits: use `openclaw config set models.providers.<id> '<json>' --strict-json --merge` or `openclaw config set models.providers.<id>.models '<json-array>' --strict-json --merge` for additive updates. `config set` refuses destructive replacements unless you pass `--replace`.
+      - Safe edits: use `alien config set models.providers.<id> '<json>' --strict-json --merge` or `alien config set models.providers.<id>.models '<json-array>' --strict-json --merge` for additive updates. `config set` refuses destructive replacements unless you pass `--replace`.
 
   </Accordion>
   <Accordion title="Provider connection and auth">
@@ -471,9 +471,9 @@ OpenClaw uses the built-in model catalog. Add custom providers via `models.provi
     - `models.providers.*.models`: explicit provider model catalog entries.
     - `models.providers.*.models.*.input`: model input modalities. Use `["text"]` for text-only models and `["text", "image"]` for native image/vision models. Image attachments are only injected into agent turns when the selected model is marked image-capable.
     - `models.providers.*.models.*.contextWindow`: native model context window metadata. This overrides provider-level `contextWindow` for that model.
-    - `models.providers.*.models.*.contextTokens`: optional runtime context cap. This overrides provider-level `contextTokens`; use it when you want a smaller effective context budget than the model's native `contextWindow`; `openclaw models list` shows both values when they differ.
-    - `models.providers.*.models.*.compat.supportsDeveloperRole`: optional compatibility hint. For `api: "openai-completions"` with a non-empty non-native `baseUrl` (host not `api.openai.com`), OpenClaw forces this to `false` at runtime. Empty/omitted `baseUrl` keeps default OpenAI behavior.
-    - `models.providers.*.models.*.compat.requiresStringContent`: optional compatibility hint for string-only OpenAI-compatible chat endpoints. When `true`, OpenClaw flattens pure text `messages[].content` arrays into plain strings before sending the request.
+    - `models.providers.*.models.*.contextTokens`: optional runtime context cap. This overrides provider-level `contextTokens`; use it when you want a smaller effective context budget than the model's native `contextWindow`; `alien models list` shows both values when they differ.
+    - `models.providers.*.models.*.compat.supportsDeveloperRole`: optional compatibility hint. For `api: "openai-completions"` with a non-empty non-native `baseUrl` (host not `api.openai.com`), Alien forces this to `false` at runtime. Empty/omitted `baseUrl` keeps default OpenAI behavior.
+    - `models.providers.*.models.*.compat.requiresStringContent`: optional compatibility hint for string-only OpenAI-compatible chat endpoints. When `true`, Alien flattens pure text `messages[].content` arrays into plain strings before sending the request.
 
   </Accordion>
   <Accordion title="Amazon Bedrock discovery">
@@ -494,7 +494,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
 
 <AccordionGroup>
   <Accordion title="Cerebras (GLM 4.7 / GPT OSS)">
-    The bundled `cerebras` provider plugin can configure this via `openclaw onboard --auth-choice cerebras-api-key`. Use explicit provider config only when overriding defaults.
+    The bundled `cerebras` provider plugin can configure this via `alien onboard --auth-choice cerebras-api-key`. Use explicit provider config only when overriding defaults.
 
     ```json5
     {
@@ -544,7 +544,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    Anthropic-compatible, built-in provider. Shortcut: `openclaw onboard --auth-choice kimi-code-api-key`.
+    Anthropic-compatible, built-in provider. Shortcut: `alien onboard --auth-choice kimi-code-api-key`.
 
   </Accordion>
   <Accordion title="Local models (LM Studio)">
@@ -585,7 +585,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    Set `MINIMAX_API_KEY`. Shortcuts: `openclaw onboard --auth-choice minimax-global-api` or `openclaw onboard --auth-choice minimax-cn-api`. The model catalog defaults to M2.7 only. On the Anthropic-compatible streaming path, OpenClaw disables MiniMax thinking by default unless you explicitly set `thinking` yourself. `/fast on` or `params.fastMode: true` rewrites `MiniMax-M2.7` to `MiniMax-M2.7-highspeed`.
+    Set `MINIMAX_API_KEY`. Shortcuts: `alien onboard --auth-choice minimax-global-api` or `alien onboard --auth-choice minimax-cn-api`. The model catalog defaults to M2.7 only. On the Anthropic-compatible streaming path, Alien disables MiniMax thinking by default unless you explicitly set `thinking` yourself. `/fast on` or `params.fastMode: true` rewrites `MiniMax-M2.7` to `MiniMax-M2.7-highspeed`.
 
   </Accordion>
   <Accordion title="Moonshot AI (Kimi)">
@@ -622,9 +622,9 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    For the China endpoint: `baseUrl: "https://api.moonshot.cn/v1"` or `openclaw onboard --auth-choice moonshot-api-key-cn`.
+    For the China endpoint: `baseUrl: "https://api.moonshot.cn/v1"` or `alien onboard --auth-choice moonshot-api-key-cn`.
 
-    Native Moonshot endpoints advertise streaming usage compatibility on the shared `openai-completions` transport, and OpenClaw keys that off endpoint capabilities rather than the built-in provider id alone.
+    Native Moonshot endpoints advertise streaming usage compatibility on the shared `openai-completions` transport, and Alien keys that off endpoint capabilities rather than the built-in provider id alone.
 
   </Accordion>
   <Accordion title="OpenCode">
@@ -639,7 +639,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    Set `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`). Use `opencode/...` refs for the Zen catalog or `opencode-go/...` refs for the Go catalog. Shortcut: `openclaw onboard --auth-choice opencode-zen` or `openclaw onboard --auth-choice opencode-go`.
+    Set `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`). Use `opencode/...` refs for the Zen catalog or `opencode-go/...` refs for the Go catalog. Shortcut: `alien onboard --auth-choice opencode-zen` or `alien onboard --auth-choice opencode-go`.
 
   </Accordion>
   <Accordion title="Synthetic (Anthropic-compatible)">
@@ -676,7 +676,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    Base URL should omit `/v1` (Anthropic client appends it). Shortcut: `openclaw onboard --auth-choice synthetic-api-key`.
+    Base URL should omit `/v1` (Anthropic client appends it). Shortcut: `alien onboard --auth-choice synthetic-api-key`.
 
   </Accordion>
   <Accordion title="Z.AI (GLM-4.7)">
@@ -691,7 +691,7 @@ Interactive custom-provider onboarding infers image input for common vision mode
     }
     ```
 
-    Set `ZAI_API_KEY`. `z.ai/*` and `z-ai/*` are accepted aliases. Shortcut: `openclaw onboard --auth-choice zai-api-key`.
+    Set `ZAI_API_KEY`. `z.ai/*` and `z-ai/*` are accepted aliases. Shortcut: `alien onboard --auth-choice zai-api-key`.
 
     - General endpoint: `https://api.z.ai/api/paas/v4`
     - Coding endpoint (default): `https://api.z.ai/api/coding/paas/v4`

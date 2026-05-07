@@ -7,8 +7,8 @@ import {
   resolveChannelAccountSurface,
   type ResolverContext,
   type SecretDefaults,
-} from "openclaw/plugin-sdk/channel-secret-basic-runtime";
-import { coerceSecretRef } from "openclaw/plugin-sdk/secret-ref-runtime";
+} from "alien/plugin-sdk/channel-secret-basic-runtime";
+import { coerceSecretRef } from "alien/plugin-sdk/secret-ref-runtime";
 
 type GoogleChatAccountLike = {
   serviceAccount?: unknown;
@@ -16,13 +16,13 @@ type GoogleChatAccountLike = {
   accounts?: Record<string, unknown>;
 };
 
-export const secretTargetRegistryEntries: import("openclaw/plugin-sdk/channel-secret-basic-runtime").SecretTargetRegistryEntry[] =
+export const secretTargetRegistryEntries: import("alien/plugin-sdk/channel-secret-basic-runtime").SecretTargetRegistryEntry[] =
   [
     {
       id: "channels.googlechat.accounts.*.serviceAccount",
       targetType: "channels.googlechat.serviceAccount",
       targetTypeAliases: ["channels.googlechat.accounts.*.serviceAccount"],
-      configFile: "openclaw.json",
+      configFile: "alien.json",
       pathPattern: "channels.googlechat.accounts.*.serviceAccount",
       refPathPattern: "channels.googlechat.accounts.*.serviceAccountRef",
       secretShape: "sibling_ref",
@@ -35,7 +35,7 @@ export const secretTargetRegistryEntries: import("openclaw/plugin-sdk/channel-se
     {
       id: "channels.googlechat.serviceAccount",
       targetType: "channels.googlechat.serviceAccount",
-      configFile: "openclaw.json",
+      configFile: "alien.json",
       pathPattern: "channels.googlechat.serviceAccount",
       refPathPattern: "channels.googlechat.serviceAccountRef",
       secretShape: "sibling_ref",

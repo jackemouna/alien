@@ -3,13 +3,13 @@ import {
   formatChannelProgressDraftLineForEntry,
   resolveChannelPreviewStreamMode,
   resolveChannelStreamingBlockEnabled,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import {
   createChannelMessageReplyPipeline,
   logTypingFailure,
   resolveChannelMediaMaxBytes,
-  type OpenClawConfig,
+  type AlienConfig,
   type MSTeamsReplyStyle,
   type RuntimeEnv,
 } from "../runtime-api.js";
@@ -36,7 +36,7 @@ import type { MSTeamsTurnContext } from "./sdk-types.js";
 export { pickInformativeStatusText } from "./reply-stream-controller.js";
 
 export function createMSTeamsReplyDispatcher(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   sessionKey: string;
   accountId?: string;

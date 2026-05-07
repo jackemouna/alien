@@ -16,23 +16,23 @@ describe("syncPluginVersions", () => {
     cleanupTempDirs(tempDirs);
   });
 
-  it("preserves workspace openclaw devDependencies and plugin host floors", () => {
-    const rootDir = makeTempDir(tempDirs, "openclaw-sync-plugin-versions-");
+  it("preserves workspace alien devDependencies and plugin host floors", () => {
+    const rootDir = makeTempDir(tempDirs, "alien-sync-plugin-versions-");
 
     writeJson(path.join(rootDir, "package.json"), {
-      name: "openclaw",
+      name: "alien",
       version: "2026.4.1",
     });
     writeJson(path.join(rootDir, "extensions/bluebubbles/package.json"), {
-      name: "@openclaw/bluebubbles",
+      name: "@alien/bluebubbles",
       version: "2026.3.30",
       devDependencies: {
-        openclaw: "workspace:*",
+        alien: "workspace:*",
       },
       peerDependencies: {
-        openclaw: ">=2026.3.30",
+        alien: ">=2026.3.30",
       },
-      openclaw: {
+      alien: {
         install: {
           minHostVersion: ">=2026.3.30",
         },
@@ -40,7 +40,7 @@ describe("syncPluginVersions", () => {
           pluginApi: ">=2026.3.30",
         },
         build: {
-          openclawVersion: "2026.3.30",
+          alienVersion: "2026.3.30",
         },
       },
     });
@@ -52,7 +52,7 @@ describe("syncPluginVersions", () => {
       version?: string;
       devDependencies?: Record<string, string>;
       peerDependencies?: Record<string, string>;
-      openclaw?: {
+      alien?: {
         install?: {
           minHostVersion?: string;
         };
@@ -60,34 +60,34 @@ describe("syncPluginVersions", () => {
           pluginApi?: string;
         };
         build?: {
-          openclawVersion?: string;
+          alienVersion?: string;
         };
       };
     };
 
-    expect(summary.updated).toContain("@openclaw/bluebubbles");
+    expect(summary.updated).toContain("@alien/bluebubbles");
     expect(updatedPackage.version).toBe("2026.4.1");
-    expect(updatedPackage.devDependencies?.openclaw).toBe("workspace:*");
-    expect(updatedPackage.peerDependencies?.openclaw).toBe(">=2026.4.1");
-    expect(updatedPackage.openclaw?.install?.minHostVersion).toBe(">=2026.3.30");
-    expect(updatedPackage.openclaw?.compat?.pluginApi).toBe(">=2026.4.1");
-    expect(updatedPackage.openclaw?.build?.openclawVersion).toBe("2026.4.1");
+    expect(updatedPackage.devDependencies?.alien).toBe("workspace:*");
+    expect(updatedPackage.peerDependencies?.alien).toBe(">=2026.4.1");
+    expect(updatedPackage.alien?.install?.minHostVersion).toBe(">=2026.3.30");
+    expect(updatedPackage.alien?.compat?.pluginApi).toBe(">=2026.4.1");
+    expect(updatedPackage.alien?.build?.alienVersion).toBe("2026.4.1");
   });
 
   it("reports pending version sync without writing in check mode", () => {
-    const rootDir = makeTempDir(tempDirs, "openclaw-sync-plugin-versions-check-");
+    const rootDir = makeTempDir(tempDirs, "alien-sync-plugin-versions-check-");
 
     writeJson(path.join(rootDir, "package.json"), {
-      name: "openclaw",
+      name: "alien",
       version: "2026.4.2",
     });
     writeJson(path.join(rootDir, "extensions/discord/package.json"), {
-      name: "@openclaw/discord",
+      name: "@alien/discord",
       version: "2026.4.1",
       peerDependencies: {
-        openclaw: ">=2026.4.1",
+        alien: ">=2026.4.1",
       },
-      openclaw: {
+      alien: {
         compat: {
           pluginApi: ">=2026.4.1",
         },
@@ -100,28 +100,28 @@ describe("syncPluginVersions", () => {
     ) as {
       version?: string;
       peerDependencies?: Record<string, string>;
-      openclaw?: {
+      alien?: {
         compat?: {
           pluginApi?: string;
         };
       };
     };
 
-    expect(summary.updated).toEqual(["@openclaw/discord"]);
+    expect(summary.updated).toEqual(["@alien/discord"]);
     expect(unchangedPackage.version).toBe("2026.4.1");
-    expect(unchangedPackage.peerDependencies?.openclaw).toBe(">=2026.4.1");
-    expect(unchangedPackage.openclaw?.compat?.pluginApi).toBe(">=2026.4.1");
+    expect(unchangedPackage.peerDependencies?.alien).toBe(">=2026.4.1");
+    expect(unchangedPackage.alien?.compat?.pluginApi).toBe(">=2026.4.1");
   });
 
   it("uses the base release version for beta changelog entries", () => {
-    const rootDir = makeTempDir(tempDirs, "openclaw-sync-plugin-versions-beta-changelog-");
+    const rootDir = makeTempDir(tempDirs, "alien-sync-plugin-versions-beta-changelog-");
 
     writeJson(path.join(rootDir, "package.json"), {
-      name: "openclaw",
+      name: "alien",
       version: "2026.5.3-beta.1",
     });
     writeJson(path.join(rootDir, "extensions/matrix/package.json"), {
-      name: "@openclaw/matrix",
+      name: "@alien/matrix",
       version: "2026.5.3-beta.1",
     });
     fs.mkdirSync(path.join(rootDir, "extensions/matrix"), { recursive: true });
@@ -134,7 +134,7 @@ describe("syncPluginVersions", () => {
     const summary = syncPluginVersions(rootDir);
     const changelog = fs.readFileSync(path.join(rootDir, "extensions/matrix/CHANGELOG.md"), "utf8");
 
-    expect(summary.changelogged).toEqual(["@openclaw/matrix"]);
+    expect(summary.changelogged).toEqual(["@alien/matrix"]);
     expect(changelog).toContain("## 2026.5.3\n\n### Changes\n- Version alignment");
     expect(changelog).not.toContain("## 2026.5.3-beta.1");
 

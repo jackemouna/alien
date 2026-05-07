@@ -1,7 +1,7 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { loadPluginLookUpTable } from "../plugins/plugin-lookup-table.js";
 import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
@@ -21,9 +21,9 @@ type GatewayStartupTrace = {
 };
 
 export function resolveGatewayStartupMaintenanceConfig(params: {
-  cfgAtStart: OpenClawConfig;
-  startupRuntimeConfig: OpenClawConfig;
-}): OpenClawConfig {
+  cfgAtStart: AlienConfig;
+  startupRuntimeConfig: AlienConfig;
+}): AlienConfig {
   return params.cfgAtStart.channels === undefined &&
     params.startupRuntimeConfig.channels !== undefined
     ? {
@@ -34,9 +34,9 @@ export function resolveGatewayStartupMaintenanceConfig(params: {
 }
 
 export async function prepareGatewayPluginBootstrap(params: {
-  cfgAtStart: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
-  startupRuntimeConfig: OpenClawConfig;
+  cfgAtStart: AlienConfig;
+  activationSourceConfig?: AlienConfig;
+  startupRuntimeConfig: AlienConfig;
   pluginMetadataSnapshot?: PluginMetadataSnapshot;
   minimalTestGateway: boolean;
   log: GatewayPluginBootstrapLog;
@@ -146,8 +146,8 @@ export async function prepareGatewayPluginBootstrap(params: {
 }
 
 export async function loadGatewayStartupPluginRuntime(params: {
-  cfg: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  cfg: AlienConfig;
+  activationSourceConfig?: AlienConfig;
   workspaceDir: string;
   log: GatewayPluginBootstrapLog;
   baseMethods: string[];

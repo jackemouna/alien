@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { isBlockedObjectKey } from "../../infra/prototype-keys.js";
 import { getCurrentPluginMetadataSnapshot } from "../../plugins/current-plugin-metadata-snapshot.js";
 import { isInstalledPluginEnabled } from "../../plugins/installed-plugin-index.js";
@@ -58,7 +58,7 @@ export function resolveReadOnlyChannelCommandDefaults(
     env?: NodeJS.ProcessEnv;
     stateDir?: string;
     workspaceDir?: string;
-    config: OpenClawConfig;
+    config: AlienConfig;
   },
 ): ChannelCommandDefaults | undefined {
   const normalizedChannelId = normalizeOptionalString(channelId) ?? "";

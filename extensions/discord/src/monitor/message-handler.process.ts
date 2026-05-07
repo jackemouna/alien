@@ -1,33 +1,33 @@
-import { resolveAckReaction, resolveHumanDelayConfig } from "openclaw/plugin-sdk/agent-runtime";
+import { resolveAckReaction, resolveHumanDelayConfig } from "alien/plugin-sdk/agent-runtime";
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
   logAckFailure,
   logTypingFailure,
   shouldAckReaction as shouldAckReactionGate,
-} from "openclaw/plugin-sdk/channel-feedback";
+} from "alien/plugin-sdk/channel-feedback";
 import {
   createChannelMessageReplyPipeline,
   defineFinalizableLivePreviewAdapter,
   deliverWithFinalizableLivePreviewAdapter,
   resolveChannelMessageSourceReplyDeliveryMode,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   formatChannelProgressDraftLine,
   formatChannelProgressDraftLineForEntry,
   resolveChannelStreamingBlockEnabled,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { recordInboundSession } from "openclaw/plugin-sdk/conversation-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { recordInboundSession } from "alien/plugin-sdk/conversation-runtime";
 import {
   hasFinalInboundReplyDispatch,
   runInboundReplyTurn,
-} from "openclaw/plugin-sdk/inbound-reply-dispatch";
-import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
-import { getAgentScopedMediaLocalRoots } from "openclaw/plugin-sdk/media-runtime";
-import { resolveChunkMode } from "openclaw/plugin-sdk/reply-chunking";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-dispatch-runtime";
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
-import { danger, logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/inbound-reply-dispatch";
+import { resolveMarkdownTableMode } from "alien/plugin-sdk/markdown-table-runtime";
+import { getAgentScopedMediaLocalRoots } from "alien/plugin-sdk/media-runtime";
+import { resolveChunkMode } from "alien/plugin-sdk/reply-chunking";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-dispatch-runtime";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
+import { danger, logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
 import { resolveDiscordMaxLinesPerMessage } from "../accounts.js";
 import { createDiscordRestClient } from "../client.js";
 import { removeReactionDiscord } from "../send.js";
@@ -57,10 +57,10 @@ function sleep(ms: number): Promise<void> {
 }
 
 const DISCORD_TYPING_MAX_DURATION_MS = 20 * 60_000;
-let replyRuntimePromise: Promise<typeof import("openclaw/plugin-sdk/reply-runtime")> | undefined;
+let replyRuntimePromise: Promise<typeof import("alien/plugin-sdk/reply-runtime")> | undefined;
 
 async function loadReplyRuntime() {
-  replyRuntimePromise ??= import("openclaw/plugin-sdk/reply-runtime");
+  replyRuntimePromise ??= import("alien/plugin-sdk/reply-runtime");
   return await replyRuntimePromise;
 }
 

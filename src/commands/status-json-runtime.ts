@@ -1,12 +1,12 @@
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import type { UpdateCheckResult } from "../infra/update-check.js";
 import { buildStatusJsonPayload } from "./status-json-payload.ts";
 import { buildStatusOverviewSurfaceFromScan } from "./status-overview-surface.ts";
 import { resolveStatusRuntimeSnapshot } from "./status-runtime-shared.ts";
 
 type StatusJsonScanLike = {
-  cfg: OpenClawConfig;
-  sourceConfig: OpenClawConfig;
+  cfg: AlienConfig;
+  sourceConfig: AlienConfig;
   summary: Record<string, unknown>;
   update: UpdateCheckResult;
   osSummary: unknown;

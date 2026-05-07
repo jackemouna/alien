@@ -1,15 +1,15 @@
 import { spawn } from "node:child_process";
 import type { Writable } from "node:stream";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import type { PluginRuntime, RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
 import {
   getRealtimeTranscriptionProvider,
   listRealtimeTranscriptionProviders,
   type RealtimeTranscriptionProviderConfig,
   type RealtimeTranscriptionProviderPlugin,
   type RealtimeTranscriptionSession,
-} from "openclaw/plugin-sdk/realtime-transcription";
+} from "alien/plugin-sdk/realtime-transcription";
 import {
   createRealtimeVoiceAgentTalkbackQueue,
   createRealtimeVoiceBridgeSession,
@@ -36,9 +36,9 @@ import {
   type TalkEvent,
   type TalkEventInput,
   type TalkSessionController,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import {
-  consultOpenClawAgentForGoogleMeet,
+  consultAlienAgentForGoogleMeet,
   handleGoogleMeetRealtimeConsultToolCall,
   resolveGoogleMeetRealtimeTools,
 } from "./agent-consult.js";
@@ -265,7 +265,7 @@ function alawByteToLinear(value: number): number {
 
 export function resolveGoogleMeetRealtimeProvider(params: {
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   providers?: RealtimeVoiceProviderPlugin[];
 }): ResolvedRealtimeProvider {
   const providerId = params.config.realtime.voiceProvider ?? params.config.realtime.provider;
@@ -281,7 +281,7 @@ export function resolveGoogleMeetRealtimeProvider(params: {
 
 export function resolveGoogleMeetRealtimeTranscriptionProvider(params: {
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   providers?: RealtimeTranscriptionProviderPlugin[];
 }): ResolvedRealtimeTranscriptionProvider {
   const providers = params.providers ?? listRealtimeTranscriptionProviders(params.fullConfig);
@@ -315,7 +315,7 @@ export function resolveGoogleMeetRealtimeTranscriptionProvider(params: {
 
 export function buildGoogleMeetSpeakExactUserMessage(text: string): string {
   return [
-    "Speak this exact OpenClaw answer to the meeting, without adding, removing, or rephrasing words.",
+    "Speak this exact Alien answer to the meeting, without adding, removing, or rephrasing words.",
     `Answer: ${JSON.stringify(text)}`,
   ].join("\n");
 }
@@ -450,7 +450,7 @@ export function summarizeGoogleMeetTalkEvents(
 
 export async function startCommandAgentAudioBridge(params: {
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   runtime: PluginRuntime;
   meetingSessionId: string;
   requesterSessionKey?: string;
@@ -690,7 +690,7 @@ export async function startCommandAgentAudioBridge(params: {
     responseStyle: "Brief, natural spoken answer for a live meeting.",
     fallbackText: "I hit an error while checking that. Please try again.",
     consult: ({ question, responseStyle }) =>
-      consultOpenClawAgentForGoogleMeet({
+      consultAlienAgentForGoogleMeet({
         config: params.config,
         fullConfig: params.fullConfig,
         runtime: params.runtime,
@@ -803,7 +803,7 @@ export async function startCommandAgentAudioBridge(params: {
 
 export async function startCommandRealtimeAudioBridge(params: {
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   runtime: PluginRuntime;
   meetingSessionId: string;
   requesterSessionKey?: string;
@@ -1099,7 +1099,7 @@ export async function startCommandRealtimeAudioBridge(params: {
     responseStyle: "Brief, natural spoken answer for a live meeting.",
     fallbackText: "I hit an error while checking that. Please try again.",
     consult: ({ question, responseStyle }) =>
-      consultOpenClawAgentForGoogleMeet({
+      consultAlienAgentForGoogleMeet({
         config: params.config,
         fullConfig: params.fullConfig,
         runtime: params.runtime,

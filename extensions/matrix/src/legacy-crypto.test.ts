@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { withTempHome } from "openclaw/plugin-sdk/test-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { withTempHome } from "alien/plugin-sdk/test-env";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const legacyCryptoInspectorAvailability = vi.hoisted(() => ({
@@ -27,7 +27,7 @@ import {
   writeMatrixCredentials,
 } from "./test-helpers.js";
 
-function createDefaultMatrixConfig(): OpenClawConfig {
+function createDefaultMatrixConfig(): AlienConfig {
   return {
     channels: {
       matrix: {
@@ -40,7 +40,7 @@ function createDefaultMatrixConfig(): OpenClawConfig {
 }
 
 function writeDefaultLegacyCryptoFixture(home: string) {
-  const stateDir = path.join(home, ".openclaw");
+  const stateDir = path.join(home, ".alien");
   const cfg = createDefaultMatrixConfig();
   const { rootDir } = resolveMatrixAccountStorageRoot({
     stateDir,
@@ -60,7 +60,7 @@ function createOpsLegacyCryptoFixture(params: {
   accessToken?: string;
   includeStoredCredentials?: boolean;
 }) {
-  const stateDir = path.join(params.home, ".openclaw");
+  const stateDir = path.join(params.home, ".alien");
   writeFile(
     path.join(stateDir, "matrix", "crypto", "bot-sdk.json"),
     JSON.stringify({ deviceId: MATRIX_OPS_DEVICE_ID }),
@@ -173,7 +173,7 @@ describe("matrix legacy encrypted-state migration", () => {
         home,
         includeStoredCredentials: true,
       });
-      const cfg: OpenClawConfig = {
+      const cfg: AlienConfig = {
         channels: {
           matrix: {
             accounts: {

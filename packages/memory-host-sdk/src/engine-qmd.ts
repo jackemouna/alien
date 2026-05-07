@@ -16,7 +16,7 @@ export {
   isSessionArchiveArtifactName,
   isUsageCountedSessionTranscriptFileName,
   parseUsageCountedSessionIdFromFileName,
-} from "./host/openclaw-runtime-session.js";
+} from "./host/alien-runtime-session.js";
 export { parseQmdQueryJson, type QmdQueryResult } from "./host/qmd-query-parser.js";
 export {
   deriveQmdScopeChannel,

@@ -2,10 +2,10 @@ import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
   type MessageReceiptPartKind,
-} from "openclaw/plugin-sdk/channel-message";
-import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
-import { convertMarkdownTables } from "openclaw/plugin-sdk/text-runtime";
-import { loadOutboundMediaFromUrl, type OpenClawConfig } from "../runtime-api.js";
+} from "alien/plugin-sdk/channel-message";
+import { resolveMarkdownTableMode } from "alien/plugin-sdk/markdown-table-runtime";
+import { convertMarkdownTables } from "alien/plugin-sdk/text-runtime";
+import { loadOutboundMediaFromUrl, type AlienConfig } from "../runtime-api.js";
 import {
   classifyMSTeamsSendError,
   formatMSTeamsSendErrorHint,
@@ -27,7 +27,7 @@ import { resolveMSTeamsSendContext, type MSTeamsProactiveContext } from "./send-
 
 type SendMSTeamsMessageParams = {
   /** Full config (for credentials) */
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Message text */
@@ -98,7 +98,7 @@ function createMSTeamsSendResult(params: {
 
 type SendMSTeamsPollParams = {
   /** Full config (for credentials) */
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Poll question */
@@ -117,7 +117,7 @@ type SendMSTeamsPollResult = {
 
 type SendMSTeamsCardParams = {
   /** Full config (for credentials) */
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Adaptive Card JSON object */
@@ -588,7 +588,7 @@ export async function sendAdaptiveCardMSTeams(
 
 type EditMSTeamsMessageParams = {
   /** Full config (for credentials) */
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   /** Conversation ID or user ID */
   to: string;
   /** Activity ID of the message to edit */
@@ -603,7 +603,7 @@ type EditMSTeamsMessageResult = {
 
 type DeleteMSTeamsMessageParams = {
   /** Full config (for credentials) */
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   /** Conversation ID or user ID */
   to: string;
   /** Activity ID of the message to delete */

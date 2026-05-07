@@ -7,7 +7,7 @@ import {
 } from "../config/io.js";
 import { formatConfigIssueLines } from "../config/issue-format.js";
 import type { LegacyConfigIssue } from "../config/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { note } from "../terminal/note.js";
 import { resolveHomeDir } from "../utils.js";
 import { noteIncludeConfinementWarning } from "./doctor-config-analysis.js";
@@ -20,8 +20,8 @@ async function maybeMigrateLegacyConfig(): Promise<string[]> {
     return changes;
   }
 
-  const targetDir = path.join(home, ".openclaw");
-  const targetPath = path.join(targetDir, "openclaw.json");
+  const targetDir = path.join(home, ".alien");
+  const targetPath = path.join(targetDir, "alien.json");
   try {
     await fs.access(targetPath);
     return changes;
@@ -58,7 +58,7 @@ async function maybeMigrateLegacyConfig(): Promise<string[]> {
 
 export type DoctorConfigPreflightResult = {
   snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>;
-  baseConfig: OpenClawConfig;
+  baseConfig: AlienConfig;
 };
 
 function collectDoctorLegacyIssues(
@@ -111,13 +111,13 @@ export async function runDoctorConfigPreflight(
   let snapshot = addDoctorLegacyIssues(await readConfigFileSnapshot());
   if (options.repairPrefixedConfig === true && snapshot.exists && !snapshot.valid) {
     if (await recoverConfigFromJsonRootSuffix(snapshot)) {
-      note("Removed non-JSON prefix from openclaw.json; original saved as .clobbered.*.", "Config");
+      note("Removed non-JSON prefix from alien.json; original saved as .clobbered.*.", "Config");
       snapshot = addDoctorLegacyIssues(await readConfigFileSnapshot());
     } else if (
       await recoverConfigFromLastKnownGood({ snapshot, reason: "doctor-invalid-config" })
     ) {
       note(
-        "Restored openclaw.json from last-known-good; original saved as .clobbered.*.",
+        "Restored alien.json from last-known-good; original saved as .clobbered.*.",
         "Config",
       );
       snapshot = addDoctorLegacyIssues(await readConfigFileSnapshot());

@@ -1,6 +1,6 @@
-import type { ReplyToMode } from "openclaw/plugin-sdk/config-types";
-import { createReplyReferencePlanner } from "openclaw/plugin-sdk/reply-reference";
-import { normalizeOptionalString, truncateUtf16Safe } from "openclaw/plugin-sdk/text-runtime";
+import type { ReplyToMode } from "alien/plugin-sdk/config-types";
+import { createReplyReferencePlanner } from "alien/plugin-sdk/reply-reference";
+import { normalizeOptionalString, truncateUtf16Safe } from "alien/plugin-sdk/text-runtime";
 import { ChannelType, getChannelMessage, type Client } from "../internal/discord.js";
 import {
   resolveDiscordChannelIdSafe,

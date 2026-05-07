@@ -1,9 +1,9 @@
 import path from "node:path";
 import Ajv from "ajv";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { Type } from "typebox";
-import { resolvePreferredOpenClawTmpDir, withTempWorkspace } from "../api.js";
-import type { OpenClawPluginApi } from "../api.js";
+import { resolvePreferredAlienTmpDir, withTempWorkspace } from "../api.js";
+import type { AlienPluginApi } from "../api.js";
 
 const AjvCtor = Ajv as unknown as typeof import("ajv").default;
 
@@ -64,7 +64,7 @@ type LlmTaskParams = {
   timeoutMs?: unknown;
 };
 
-type ThinkingPolicy = ReturnType<OpenClawPluginApi["runtime"]["agent"]["resolveThinkingPolicy"]>;
+type ThinkingPolicy = ReturnType<AlienPluginApi["runtime"]["agent"]["resolveThinkingPolicy"]>;
 
 function formatThinkingPolicy(policy: ThinkingPolicy): string {
   return policy.levels.map((level) => level.label).join(", ");
@@ -72,17 +72,17 @@ function formatThinkingPolicy(policy: ThinkingPolicy): string {
 
 function supportsThinkingPolicyLevel(
   policy: ThinkingPolicy,
-  level: ReturnType<OpenClawPluginApi["runtime"]["agent"]["normalizeThinkingLevel"]>,
+  level: ReturnType<AlienPluginApi["runtime"]["agent"]["normalizeThinkingLevel"]>,
 ): boolean {
   return !!level && policy.levels.some((entry) => entry.id === level);
 }
 
-export function createLlmTaskTool(api: OpenClawPluginApi) {
+export function createLlmTaskTool(api: AlienPluginApi) {
   return {
     name: "llm-task",
     label: "LLM Task",
     description:
-      "Run a generic JSON-only LLM task and return schema-validated JSON. Designed for orchestration from Lobster workflows via openclaw.invoke.",
+      "Run a generic JSON-only LLM task and return schema-validated JSON. Designed for orchestration from Lobster workflows via alien.invoke.",
     parameters: Type.Object({
       prompt: Type.String({ description: "Task instruction for the LLM." }),
       input: Type.Optional(Type.Unknown({ description: "Optional input payload for the task." })),
@@ -152,7 +152,7 @@ export function createLlmTaskTool(api: OpenClawPluginApi) {
 
       const thinkingRaw =
         typeof params.thinking === "string" && params.thinking.trim() ? params.thinking : undefined;
-      let thinkLevel: ReturnType<OpenClawPluginApi["runtime"]["agent"]["normalizeThinkingLevel"]> =
+      let thinkLevel: ReturnType<AlienPluginApi["runtime"]["agent"]["normalizeThinkingLevel"]> =
         undefined;
       if (thinkingRaw) {
         const thinkingPolicy = api.runtime.agent.resolveThinkingPolicy({ provider, model });
@@ -208,7 +208,7 @@ export function createLlmTaskTool(api: OpenClawPluginApi) {
       const fullPrompt = `${system}\n\nTASK:\n${prompt}\n\nINPUT_JSON:\n${inputJson}\n`;
 
       return await withTempWorkspace(
-        { rootDir: resolvePreferredOpenClawTmpDir(), prefix: "openclaw-llm-task-" },
+        { rootDir: resolvePreferredAlienTmpDir(), prefix: "alien-llm-task-" },
         async ({ dir: tmpDir }) => {
           const sessionId = `llm-task-${Date.now()}`;
           const sessionFile = path.join(tmpDir, "session.json");

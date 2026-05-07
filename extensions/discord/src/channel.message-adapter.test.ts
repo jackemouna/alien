@@ -2,7 +2,7 @@ import {
   verifyChannelMessageAdapterCapabilityProofs,
   verifyChannelMessageLiveCapabilityAdapterProofs,
   verifyChannelMessageLiveFinalizerProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   createDiscordOutboundHoisted,

@@ -27,9 +27,9 @@ export function createChangedCheckChildEnv(baseEnv = process.env) {
   const resolvedBaseEnv = resolveLocalHeavyCheckEnv(baseEnv);
   return {
     ...resolvedBaseEnv,
-    OPENCLAW_OXLINT_SKIP_LOCK: "1",
-    OPENCLAW_TEST_HEAVY_CHECK_LOCK_HELD: "1",
-    OPENCLAW_TSGO_HEAVY_CHECK_LOCK_HELD: "1",
+    ALIEN_OXLINT_SKIP_LOCK: "1",
+    ALIEN_TEST_HEAVY_CHECK_LOCK_HELD: "1",
+    ALIEN_TSGO_HEAVY_CHECK_LOCK_HELD: "1",
   };
 }
 
@@ -41,10 +41,10 @@ function isTruthyEnvFlag(value) {
 }
 
 export function shouldDelegateChangedCheckToTestbox(argv = [], env = process.env) {
-  if (!isTruthyEnvFlag(env.OPENCLAW_TESTBOX)) {
+  if (!isTruthyEnvFlag(env.ALIEN_TESTBOX)) {
     return false;
   }
-  if (isTruthyEnvFlag(env.OPENCLAW_TESTBOX_REMOTE_RUN)) {
+  if (isTruthyEnvFlag(env.ALIEN_TESTBOX_REMOTE_RUN)) {
     return false;
   }
   if (isTruthyEnvFlag(env.CI) || isTruthyEnvFlag(env.GITHUB_ACTIONS)) {
@@ -60,8 +60,8 @@ export function buildChangedCheckTestboxArgs(argv = []) {
   return [
     "testbox:run",
     "--",
-    "OPENCLAW_TESTBOX=1",
-    "OPENCLAW_TESTBOX_REMOTE_RUN=1",
+    "ALIEN_TESTBOX=1",
+    "ALIEN_TESTBOX_REMOTE_RUN=1",
     "pnpm",
     "check:changed",
     ...argv,
@@ -70,7 +70,7 @@ export function buildChangedCheckTestboxArgs(argv = []) {
 
 export async function runChangedCheckViaTestbox(argv = [], env = process.env) {
   console.error(
-    "[check:changed] OPENCLAW_TESTBOX=1 set; delegating to Blacksmith Testbox via `pnpm testbox:run`.",
+    "[check:changed] ALIEN_TESTBOX=1 set; delegating to Blacksmith Testbox via `pnpm testbox:run`.",
   );
   return await runManagedCommand({
     bin: "pnpm",
@@ -191,8 +191,8 @@ export function createChangedCheckPlan(result, options = {}) {
     addCommand("live Docker shell syntax", "bash", ["-n", ...LIVE_DOCKER_AUTH_SHELL_TARGETS]);
     addCommand("live Docker scheduler dry run", "node", ["scripts/test-docker-all.mjs"], {
       ...baseEnv,
-      OPENCLAW_DOCKER_ALL_DRY_RUN: "1",
-      OPENCLAW_DOCKER_ALL_LIVE_MODE: "only",
+      ALIEN_DOCKER_ALL_DRY_RUN: "1",
+      ALIEN_DOCKER_ALL_LIVE_MODE: "only",
     });
   }
 

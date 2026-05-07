@@ -2,10 +2,10 @@ import {
   verifyChannelMessageAdapterCapabilityProofs,
   verifyChannelMessageLiveCapabilityAdapterProofs,
   verifyChannelMessageLiveFinalizerProofs,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { slackPlugin } from "./channel.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 
 const cfg = {
   channels: {
@@ -14,7 +14,7 @@ const cfg = {
       appToken: "xapp-test",
     },
   },
-} as OpenClawConfig;
+} as AlienConfig;
 
 describe("slack channel message adapter", () => {
   const sendSlack = vi.fn();

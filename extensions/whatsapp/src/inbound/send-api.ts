@@ -4,7 +4,7 @@ import type {
   WAMessage,
   WAPresence,
 } from "@whiskeysockets/baileys";
-import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
+import { recordChannelActivity } from "alien/plugin-sdk/channel-activity-runtime";
 import { isWhatsAppNewsletterJid } from "../normalize.js";
 import { buildQuotedMessageOptions } from "../quoted-message.js";
 import { toWhatsappJid, toWhatsappJidWithLid } from "../text-runtime.js";

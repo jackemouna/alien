@@ -1,4 +1,4 @@
-import type { ChannelConfigUiHint } from "openclaw/plugin-sdk/channel-core";
+import type { ChannelConfigUiHint } from "alien/plugin-sdk/channel-core";
 
 export const msTeamsChannelConfigUiHints = {
   "": {
@@ -19,7 +19,7 @@ export const msTeamsChannelConfigUiHints = {
   },
   "streaming.progress.labels": {
     label: "MS Teams Progress Label Pool",
-    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use OpenClaw built-in progress labels.',
+    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use Alien built-in progress labels.',
   },
   "streaming.progress.maxLines": {
     label: "MS Teams Progress Max Lines",

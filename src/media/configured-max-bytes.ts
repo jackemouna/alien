@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { maxBytesForKind, type MediaKind } from "./constants.js";
 
 const MB = 1024 * 1024;
 
-export function resolveConfiguredMediaMaxBytes(cfg?: OpenClawConfig): number | undefined {
+export function resolveConfiguredMediaMaxBytes(cfg?: AlienConfig): number | undefined {
   const configured = cfg?.agents?.defaults?.mediaMaxMb;
   if (typeof configured === "number" && Number.isFinite(configured) && configured > 0) {
     return Math.floor(configured * MB);
@@ -11,12 +11,12 @@ export function resolveConfiguredMediaMaxBytes(cfg?: OpenClawConfig): number | u
   return undefined;
 }
 
-export function resolveGeneratedMediaMaxBytes(cfg: OpenClawConfig | undefined, kind: MediaKind) {
+export function resolveGeneratedMediaMaxBytes(cfg: AlienConfig | undefined, kind: MediaKind) {
   return resolveConfiguredMediaMaxBytes(cfg) ?? maxBytesForKind(kind);
 }
 
 export function resolveChannelAccountMediaMaxMb(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   channel?: string | null;
   accountId?: string | null;
 }): number | undefined {

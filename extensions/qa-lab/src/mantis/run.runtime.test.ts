@@ -19,7 +19,7 @@ describe("mantis before/after runtime", () => {
     const commands: { args: readonly string[]; command: string; cwd?: string }[] = [];
     const runner = vi.fn(async (command: string, args: readonly string[]) => {
       commands.push({ command, args });
-      if (command !== "pnpm" || !args.includes("openclaw")) {
+      if (command !== "pnpm" || !args.includes("alien")) {
         return;
       }
       const repoRootArg = args[args.indexOf("--repo-root") + 1];
@@ -75,9 +75,9 @@ describe("mantis before/after runtime", () => {
       ]),
     ).toEqual([
       ["git", "worktree", "add", "--detach", expect.stringContaining("baseline")],
-      ["pnpm", "--dir", expect.stringContaining("baseline"), "openclaw", "qa"],
+      ["pnpm", "--dir", expect.stringContaining("baseline"), "alien", "qa"],
       ["git", "worktree", "add", "--detach", expect.stringContaining("candidate")],
-      ["pnpm", "--dir", expect.stringContaining("candidate"), "openclaw", "qa"],
+      ["pnpm", "--dir", expect.stringContaining("candidate"), "alien", "qa"],
     ]);
 
     const comparison = JSON.parse(await fs.readFile(result.comparisonPath, "utf8")) as {
@@ -106,7 +106,7 @@ describe("mantis before/after runtime", () => {
 
   it("supports the Discord thread filePath attachment Mantis scenario", async () => {
     const runner = vi.fn(async (command: string, args: readonly string[]) => {
-      if (command !== "pnpm" || !args.includes("openclaw")) {
+      if (command !== "pnpm" || !args.includes("alien")) {
         return;
       }
       const repoRootArg = args[args.indexOf("--repo-root") + 1];

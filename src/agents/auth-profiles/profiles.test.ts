@@ -8,7 +8,7 @@ import { loadAuthProfileStoreForRuntime, saveAuthProfileStore } from "./store.js
 
 describe("promoteAuthProfileInOrder", () => {
   it("moves a relogin profile to the front of an existing per-agent provider order", async () => {
-    const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-order-promote-"));
+    const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-auth-order-promote-"));
     try {
       const newProfileId = "openai-codex:bunsthedev@gmail.com";
       const staleProfileId = "openai-codex:val@viewdue.ai";

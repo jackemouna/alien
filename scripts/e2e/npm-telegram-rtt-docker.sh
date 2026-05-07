@@ -4,19 +4,19 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-image.sh"
 
-IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-npm-telegram-rtt-e2e" OPENCLAW_NPM_TELEGRAM_RTT_E2E_IMAGE)"
-DOCKER_TARGET="${OPENCLAW_NPM_TELEGRAM_DOCKER_TARGET:-build}"
-PACKAGE_SPEC="${OPENCLAW_NPM_TELEGRAM_PACKAGE_SPEC:-openclaw@beta}"
-PACKAGE_TGZ="${OPENCLAW_NPM_TELEGRAM_PACKAGE_TGZ:-${OPENCLAW_CURRENT_PACKAGE_TGZ:-}}"
-PACKAGE_LABEL="${OPENCLAW_NPM_TELEGRAM_PACKAGE_LABEL:-}"
-OUTPUT_DIR="${OPENCLAW_NPM_TELEGRAM_OUTPUT_DIR:-.artifacts/qa-e2e/npm-telegram-rtt}"
+IMAGE_NAME="$(docker_e2e_resolve_image "alien-npm-telegram-rtt-e2e" ALIEN_NPM_TELEGRAM_RTT_E2E_IMAGE)"
+DOCKER_TARGET="${ALIEN_NPM_TELEGRAM_DOCKER_TARGET:-build}"
+PACKAGE_SPEC="${ALIEN_NPM_TELEGRAM_PACKAGE_SPEC:-alien@beta}"
+PACKAGE_TGZ="${ALIEN_NPM_TELEGRAM_PACKAGE_TGZ:-${ALIEN_CURRENT_PACKAGE_TGZ:-}}"
+PACKAGE_LABEL="${ALIEN_NPM_TELEGRAM_PACKAGE_LABEL:-}"
+OUTPUT_DIR="${ALIEN_NPM_TELEGRAM_OUTPUT_DIR:-.artifacts/qa-e2e/npm-telegram-rtt}"
 
-validate_openclaw_package_spec() {
+validate_alien_package_spec() {
   local spec="$1"
-  if [[ "$spec" =~ ^openclaw@(main|alpha|beta|latest|[0-9]{4}\.[1-9][0-9]*\.[1-9][0-9]*(-[1-9][0-9]*|-(alpha|beta)\.[1-9][0-9]*)?)$ ]]; then
+  if [[ "$spec" =~ ^alien@(main|alpha|beta|latest|[0-9]{4}\.[1-9][0-9]*\.[1-9][0-9]*(-[1-9][0-9]*|-(alpha|beta)\.[1-9][0-9]*)?)$ ]]; then
     return 0
   fi
-  echo "OPENCLAW_NPM_TELEGRAM_PACKAGE_SPEC must be openclaw@main, openclaw@alpha, openclaw@beta, openclaw@latest, or an exact OpenClaw release version; got: $spec" >&2
+  echo "ALIEN_NPM_TELEGRAM_PACKAGE_SPEC must be alien@main, alien@alpha, alien@beta, alien@latest, or an exact Alien release version; got: $spec" >&2
   exit 1
 }
 
@@ -26,13 +26,13 @@ resolve_package_tgz() {
     return 0
   fi
   if [ ! -f "$candidate" ]; then
-    echo "OPENCLAW_NPM_TELEGRAM_PACKAGE_TGZ must point to an existing .tgz file; got: $candidate" >&2
+    echo "ALIEN_NPM_TELEGRAM_PACKAGE_TGZ must point to an existing .tgz file; got: $candidate" >&2
     exit 1
   fi
   case "$candidate" in
     *.tgz) ;;
     *)
-      echo "OPENCLAW_NPM_TELEGRAM_PACKAGE_TGZ must point to a .tgz file; got: $candidate" >&2
+      echo "ALIEN_NPM_TELEGRAM_PACKAGE_TGZ must point to a .tgz file; got: $candidate" >&2
       exit 1
       ;;
   esac
@@ -50,7 +50,7 @@ if [ -n "$resolved_package_tgz" ]; then
   package_install_source="/package-under-test/$(basename "$resolved_package_tgz")"
   package_mount_args=(-v "$resolved_package_tgz:$package_install_source:ro")
 else
-  validate_openclaw_package_spec "$PACKAGE_SPEC"
+  validate_alien_package_spec "$PACKAGE_SPEC"
 fi
 if [ -z "$PACKAGE_LABEL" ]; then
   if [ -n "$resolved_package_tgz" ]; then
@@ -61,9 +61,9 @@ if [ -z "$PACKAGE_LABEL" ]; then
 fi
 
 for key in \
-  OPENCLAW_QA_TELEGRAM_GROUP_ID \
-  OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN \
-  OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN; do
+  ALIEN_QA_TELEGRAM_GROUP_ID \
+  ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN \
+  ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN; do
   if [ -z "${!key:-}" ]; then
     echo "Missing required env: $key" >&2
     exit 1
@@ -73,25 +73,25 @@ done
 docker_e2e_build_or_reuse "$IMAGE_NAME" npm-telegram-rtt "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR" "$DOCKER_TARGET"
 
 mkdir -p "$ROOT_DIR/.artifacts/qa-e2e"
-run_log="$(mktemp "${TMPDIR:-/tmp}/openclaw-npm-telegram-rtt.XXXXXX")"
+run_log="$(mktemp "${TMPDIR:-/tmp}/alien-npm-telegram-rtt.XXXXXX")"
 npm_prefix_host="$(mktemp -d "$ROOT_DIR/.artifacts/qa-e2e/npm-telegram-rtt-prefix.XXXXXX")"
 trap 'rm -f "$run_log"; rm -rf "$npm_prefix_host"' EXIT
 
 docker_env=(
   -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-  -e OPENCLAW_NPM_TELEGRAM_INSTALL_SOURCE="$package_install_source"
-  -e OPENCLAW_NPM_TELEGRAM_PACKAGE_LABEL="$PACKAGE_LABEL"
-  -e OPENCLAW_NPM_TELEGRAM_OUTPUT_DIR="$OUTPUT_DIR"
-  -e OPENCLAW_QA_TELEGRAM_GROUP_ID
-  -e OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN
-  -e OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN
-  -e OPENCLAW_QA_TELEGRAM_CANARY_TIMEOUT_MS="${OPENCLAW_QA_TELEGRAM_CANARY_TIMEOUT_MS:-180000}"
-  -e OPENCLAW_QA_TELEGRAM_SCENARIO_TIMEOUT_MS="${OPENCLAW_QA_TELEGRAM_SCENARIO_TIMEOUT_MS:-180000}"
-  -e OPENCLAW_NPM_TELEGRAM_SCENARIOS="${OPENCLAW_NPM_TELEGRAM_SCENARIOS:-telegram-mentioned-message-reply}"
-  -e OPENCLAW_NPM_TELEGRAM_PROVIDER_MODE="${OPENCLAW_NPM_TELEGRAM_PROVIDER_MODE:-mock-openai}"
-  -e OPENCLAW_NPM_TELEGRAM_WARM_SAMPLES="${OPENCLAW_NPM_TELEGRAM_WARM_SAMPLES:-20}"
-  -e OPENCLAW_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS="${OPENCLAW_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS:-30000}"
-  -e OPENCLAW_NPM_TELEGRAM_MAX_FAILURES="${OPENCLAW_NPM_TELEGRAM_MAX_FAILURES:-${OPENCLAW_NPM_TELEGRAM_WARM_SAMPLES:-20}}"
+  -e ALIEN_NPM_TELEGRAM_INSTALL_SOURCE="$package_install_source"
+  -e ALIEN_NPM_TELEGRAM_PACKAGE_LABEL="$PACKAGE_LABEL"
+  -e ALIEN_NPM_TELEGRAM_OUTPUT_DIR="$OUTPUT_DIR"
+  -e ALIEN_QA_TELEGRAM_GROUP_ID
+  -e ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN
+  -e ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN
+  -e ALIEN_QA_TELEGRAM_CANARY_TIMEOUT_MS="${ALIEN_QA_TELEGRAM_CANARY_TIMEOUT_MS:-180000}"
+  -e ALIEN_QA_TELEGRAM_SCENARIO_TIMEOUT_MS="${ALIEN_QA_TELEGRAM_SCENARIO_TIMEOUT_MS:-180000}"
+  -e ALIEN_NPM_TELEGRAM_SCENARIOS="${ALIEN_NPM_TELEGRAM_SCENARIOS:-telegram-mentioned-message-reply}"
+  -e ALIEN_NPM_TELEGRAM_PROVIDER_MODE="${ALIEN_NPM_TELEGRAM_PROVIDER_MODE:-mock-openai}"
+  -e ALIEN_NPM_TELEGRAM_WARM_SAMPLES="${ALIEN_NPM_TELEGRAM_WARM_SAMPLES:-20}"
+  -e ALIEN_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS="${ALIEN_NPM_TELEGRAM_SAMPLE_TIMEOUT_MS:-30000}"
+  -e ALIEN_NPM_TELEGRAM_MAX_FAILURES="${ALIEN_NPM_TELEGRAM_MAX_FAILURES:-${ALIEN_NPM_TELEGRAM_WARM_SAMPLES:-20}}"
 )
 
 run_logged() {
@@ -113,20 +113,20 @@ run_logged docker run --rm \
   -i "$IMAGE_NAME" bash -s <<'EOF'
 set -euo pipefail
 
-export HOME="$(mktemp -d "/tmp/openclaw-npm-telegram-rtt.XXXXXX")"
+export HOME="$(mktemp -d "/tmp/alien-npm-telegram-rtt.XXXXXX")"
 export NPM_CONFIG_PREFIX="/npm-global"
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-export OPENAI_API_KEY="sk-openclaw-rtt"
-export GATEWAY_AUTH_TOKEN_REF="openclaw-rtt"
-export TELEGRAM_BOT_TOKEN="$OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN"
-export OPENCLAW_DISABLE_BONJOUR="1"
+export OPENAI_API_KEY="sk-alien-rtt"
+export GATEWAY_AUTH_TOKEN_REF="alien-rtt"
+export TELEGRAM_BOT_TOKEN="$ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN"
+export ALIEN_DISABLE_BONJOUR="1"
 
-install_source="${OPENCLAW_NPM_TELEGRAM_INSTALL_SOURCE:?missing OPENCLAW_NPM_TELEGRAM_INSTALL_SOURCE}"
-package_label="${OPENCLAW_NPM_TELEGRAM_PACKAGE_LABEL:-$install_source}"
-mock_port="${OPENCLAW_NPM_TELEGRAM_MOCK_PORT:-44080}"
-config_path="$HOME/.openclaw/openclaw.json"
-gateway_log="/tmp/openclaw-npm-telegram-rtt-gateway.log"
-mock_log="/tmp/openclaw-npm-telegram-rtt-mock.log"
+install_source="${ALIEN_NPM_TELEGRAM_INSTALL_SOURCE:?missing ALIEN_NPM_TELEGRAM_INSTALL_SOURCE}"
+package_label="${ALIEN_NPM_TELEGRAM_PACKAGE_LABEL:-$install_source}"
+mock_port="${ALIEN_NPM_TELEGRAM_MOCK_PORT:-44080}"
+config_path="$HOME/.alien/alien.json"
+gateway_log="/tmp/alien-npm-telegram-rtt-gateway.log"
+mock_log="/tmp/alien-npm-telegram-rtt-mock.log"
 export MOCK_PORT="$mock_port"
 
 dump_logs() {
@@ -148,9 +148,9 @@ trap 'status=$?; kill ${gateway_pid:-} ${mock_pid:-} 2>/dev/null || true; dump_l
 
 echo "Installing ${package_label} from ${install_source}..."
 npm install -g "$install_source" --no-fund --no-audit
-command -v openclaw
-openclaw --version
-installed_version="$(node -p "require('/npm-global/lib/node_modules/openclaw/package.json').version")"
+command -v alien
+alien --version
+installed_version="$(node -p "require('/npm-global/lib/node_modules/alien/package.json').version")"
 
 node /app/scripts/e2e/mock-openai-server.mjs >"$mock_log" 2>&1 &
 mock_pid="$!"
@@ -161,17 +161,17 @@ for _ in $(seq 1 60); do
   sleep 1
 done
 
-mkdir -p "$(dirname "$config_path")" "$HOME/.openclaw/workspace" "$HOME/.openclaw/agents/main/sessions" "$HOME/workspace"
+mkdir -p "$(dirname "$config_path")" "$HOME/.alien/workspace" "$HOME/.alien/agents/main/sessions" "$HOME/workspace"
 
 node /app/scripts/e2e/npm-telegram-rtt-config.mjs \
   "$config_path" \
   "$mock_port" \
-  "$OPENCLAW_QA_TELEGRAM_GROUP_ID" \
-  "$OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN" \
-  "$OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN" \
+  "$ALIEN_QA_TELEGRAM_GROUP_ID" \
+  "$ALIEN_QA_TELEGRAM_DRIVER_BOT_TOKEN" \
+  "$ALIEN_QA_TELEGRAM_SUT_BOT_TOKEN" \
   "$installed_version"
 
-openclaw gateway run --verbose >"$gateway_log" 2>&1 &
+alien gateway run --verbose >"$gateway_log" 2>&1 &
 gateway_pid="$!"
 for _ in $(seq 1 120); do
   if ! kill -0 "$gateway_pid" 2>/dev/null; then

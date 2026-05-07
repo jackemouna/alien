@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { bundledPluginRootAt } from "openclaw/plugin-sdk/test-fixtures";
+import { bundledPluginRootAt } from "alien/plugin-sdk/test-fixtures";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import type { PluginNpmIntegrityDriftParams } from "./install.js";
 
 const APP_ROOT = "/app";
@@ -70,8 +70,8 @@ function createSuccessfulNpmUpdateResult(params?: {
 }) {
   return {
     ok: true,
-    pluginId: params?.pluginId ?? "opik-openclaw",
-    targetDir: params?.targetDir ?? "/tmp/opik-openclaw",
+    pluginId: params?.pluginId ?? "opik-alien",
+    targetDir: params?.targetDir ?? "/tmp/opik-alien",
     version: params?.version ?? "0.2.6",
     extensions: ["index.ts"],
     ...(params?.npmResolution ? { npmResolution: params.npmResolution } : {}),
@@ -87,7 +87,7 @@ function createSuccessfulClawHubUpdateResult(params?: {
   return {
     ok: true,
     pluginId: params?.pluginId ?? "legacy-chat",
-    targetDir: params?.targetDir ?? "/tmp/openclaw-plugins/legacy-chat",
+    targetDir: params?.targetDir ?? "/tmp/alien-plugins/legacy-chat",
     version: params?.version ?? "2026.5.1-beta.2",
     extensions: ["index.ts"],
     packageName: params?.clawhubPackage ?? "legacy-chat",
@@ -147,7 +147,7 @@ function createMarketplaceInstallConfig(params: {
   marketplaceSource: string;
   marketplacePlugin: string;
   marketplaceName?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     plugins: {
       installs: {
@@ -171,7 +171,7 @@ function createClawHubInstallConfig(params: {
   clawhubFamily: "bundle-plugin" | "code-plugin";
   clawhubChannel: "community" | "official" | "private";
   spec?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     plugins: {
       installs: {
@@ -194,7 +194,7 @@ function createGitInstallConfig(params: {
   spec: string;
   installPath: string;
   commit?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     plugins: {
       installs: {
@@ -214,7 +214,7 @@ function createBundledPathInstallConfig(params: {
   installPath: string;
   sourcePath?: string;
   spec?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   return {
     plugins: {
       load: { paths: params.loadPaths },
@@ -238,10 +238,10 @@ function createCodexAppServerInstallConfig(params: {
   return {
     plugins: {
       installs: {
-        "openclaw-codex-app-server": {
+        "alien-codex-app-server": {
           source: "npm" as const,
           spec: params.spec,
-          installPath: "/tmp/openclaw-codex-app-server",
+          installPath: "/tmp/alien-codex-app-server",
           ...(params.resolvedName ? { resolvedName: params.resolvedName } : {}),
           ...(params.resolvedSpec ? { resolvedSpec: params.resolvedSpec } : {}),
         },
@@ -255,7 +255,7 @@ function createInstalledPackageDir(params: {
   version: string;
   peerDependencies?: Record<string, string>;
 }): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-plugin-update-test-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-plugin-update-test-"));
   tempDirs.push(dir);
   fs.writeFileSync(
     path.join(dir, "package.json"),
@@ -272,8 +272,8 @@ function createInstalledPackageDir(params: {
   return dir;
 }
 
-function createOpenClawPeerLinkFixtures(plugins: Array<{ pluginId: string; packageName: string }>) {
-  const peerTarget = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-peer-target-"));
+function createAlienPeerLinkFixtures(plugins: Array<{ pluginId: string; packageName: string }>) {
+  const peerTarget = fs.mkdtempSync(path.join(os.tmpdir(), "alien-peer-target-"));
   tempDirs.push(peerTarget);
   const installPaths = Object.fromEntries(
     plugins.map(({ pluginId, packageName }) => [
@@ -281,12 +281,12 @@ function createOpenClawPeerLinkFixtures(plugins: Array<{ pluginId: string; packa
       createInstalledPackageDir({
         name: packageName,
         version: "2026.5.4",
-        peerDependencies: { openclaw: ">=2026.5.4" },
+        peerDependencies: { alien: ">=2026.5.4" },
       }),
     ]),
   );
   const peerLinkPath = (pluginId: string) =>
-    path.join(installPaths[pluginId], "node_modules", "openclaw");
+    path.join(installPaths[pluginId], "node_modules", "alien");
   const linkPeer = (pluginId: string) => {
     fs.mkdirSync(path.dirname(peerLinkPath(pluginId)), { recursive: true });
     fs.symlinkSync(peerTarget, peerLinkPath(pluginId), "junction");
@@ -333,7 +333,7 @@ function createBundledSource(params?: { pluginId?: string; localPath?: string; n
   return {
     pluginId,
     localPath: params?.localPath ?? appBundledPluginRoot(pluginId),
-    npmSpec: params?.npmSpec ?? `@openclaw/${pluginId}`,
+    npmSpec: params?.npmSpec ?? `@alien/${pluginId}`,
   };
 }
 
@@ -363,10 +363,10 @@ function expectCodexAppServerInstallState(params: {
   version: string;
   resolvedSpec?: string;
 }) {
-  expect(params.result.config.plugins?.installs?.["openclaw-codex-app-server"]).toMatchObject({
+  expect(params.result.config.plugins?.installs?.["alien-codex-app-server"]).toMatchObject({
     source: "npm",
     spec: params.spec,
-    installPath: "/tmp/openclaw-codex-app-server",
+    installPath: "/tmp/alien-codex-app-server",
     version: params.version,
     ...(params.resolvedSpec ? { resolvedSpec: params.resolvedSpec } : {}),
   });
@@ -394,52 +394,52 @@ describe("updateNpmInstalledPlugins", () => {
     {
       name: "skips integrity drift checks for unpinned npm specs during dry-run updates",
       config: createNpmInstallConfig({
-        pluginId: "opik-openclaw",
-        spec: "@opik/opik-openclaw",
+        pluginId: "opik-alien",
+        spec: "@opik/opik-alien",
         integrity: "sha512-old",
-        installPath: "/tmp/opik-openclaw",
+        installPath: "/tmp/opik-alien",
       }),
-      pluginIds: ["opik-openclaw"],
+      pluginIds: ["opik-alien"],
       dryRun: true,
       expectedCall: {
-        spec: "@opik/opik-openclaw",
+        spec: "@opik/opik-alien",
         expectedIntegrity: undefined,
       },
     },
     {
       name: "keeps integrity drift checks for exact-version npm specs during dry-run updates",
       config: createNpmInstallConfig({
-        pluginId: "opik-openclaw",
-        spec: "@opik/opik-openclaw@0.2.5",
+        pluginId: "opik-alien",
+        spec: "@opik/opik-alien@0.2.5",
         integrity: "sha512-old",
-        installPath: "/tmp/opik-openclaw",
+        installPath: "/tmp/opik-alien",
       }),
-      pluginIds: ["opik-openclaw"],
+      pluginIds: ["opik-alien"],
       dryRun: true,
       expectedCall: {
-        spec: "@opik/opik-openclaw@0.2.5",
+        spec: "@opik/opik-alien@0.2.5",
         expectedIntegrity: "sha512-old",
       },
     },
     {
       name: "skips recorded integrity checks when an explicit npm version override changes the spec",
       config: createNpmInstallConfig({
-        pluginId: "openclaw-codex-app-server",
-        spec: "openclaw-codex-app-server@0.2.0-beta.3",
+        pluginId: "alien-codex-app-server",
+        spec: "alien-codex-app-server@0.2.0-beta.3",
         integrity: "sha512-old",
-        installPath: "/tmp/openclaw-codex-app-server",
+        installPath: "/tmp/alien-codex-app-server",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       specOverrides: {
-        "openclaw-codex-app-server": "openclaw-codex-app-server@0.2.0-beta.4",
+        "alien-codex-app-server": "alien-codex-app-server@0.2.0-beta.4",
       },
       installerResult: createSuccessfulNpmUpdateResult({
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-beta.4",
       }),
       expectedCall: {
-        spec: "openclaw-codex-app-server@0.2.0-beta.4",
+        spec: "alien-codex-app-server@0.2.0-beta.4",
         expectedIntegrity: undefined,
       },
     },
@@ -505,11 +505,11 @@ describe("updateNpmInstalledPlugins", () => {
 
   it("trusts official catalog npm updates when the installed package matches the catalog", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.2-beta.1",
     });
     mockNpmViewMetadata({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.2-beta.2",
     });
     installPluginFromNpmSpecMock.mockResolvedValue(
@@ -523,10 +523,10 @@ describe("updateNpmInstalledPlugins", () => {
     await updateNpmInstalledPlugins({
       config: createNpmInstallConfig({
         pluginId: "acpx",
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         installPath,
-        resolvedName: "@openclaw/acpx",
-        resolvedSpec: "@openclaw/acpx@2026.5.2-beta.1",
+        resolvedName: "@alien/acpx",
+        resolvedSpec: "@alien/acpx@2026.5.2-beta.1",
         resolvedVersion: "2026.5.2-beta.1",
       }),
       pluginIds: ["acpx"],
@@ -534,7 +534,7 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         expectedPluginId: "acpx",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -543,11 +543,11 @@ describe("updateNpmInstalledPlugins", () => {
 
   it("does not skip trusted official default updates when latest resolves to the installed prerelease", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.2-beta.2",
     });
     mockNpmViewMetadata({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.2-beta.2",
       integrity: "sha512-beta",
       shasum: "beta",
@@ -558,9 +558,9 @@ describe("updateNpmInstalledPlugins", () => {
         targetDir: installPath,
         version: "2026.5.2",
         npmResolution: {
-          name: "@openclaw/acpx",
+          name: "@alien/acpx",
           version: "2026.5.2",
-          resolvedSpec: "@openclaw/acpx@2026.5.2",
+          resolvedSpec: "@alien/acpx@2026.5.2",
         },
       }),
     );
@@ -568,12 +568,12 @@ describe("updateNpmInstalledPlugins", () => {
     const result = await updateNpmInstalledPlugins({
       config: createNpmInstallConfig({
         pluginId: "acpx",
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         installPath,
         integrity: "sha512-beta",
         shasum: "beta",
-        resolvedName: "@openclaw/acpx",
-        resolvedSpec: "@openclaw/acpx@2026.5.2-beta.2",
+        resolvedName: "@alien/acpx",
+        resolvedSpec: "@alien/acpx@2026.5.2-beta.2",
         resolvedVersion: "2026.5.2-beta.2",
       }),
       pluginIds: ["acpx"],
@@ -581,7 +581,7 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         expectedPluginId: "acpx",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -596,11 +596,11 @@ describe("updateNpmInstalledPlugins", () => {
 
   it("updates trusted official npm plugins when latest resolves to a stable correction release", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.3",
     });
     mockNpmViewMetadata({
-      name: "@openclaw/acpx",
+      name: "@alien/acpx",
       version: "2026.5.3-1",
       integrity: "sha512-correction",
       shasum: "correction",
@@ -611,9 +611,9 @@ describe("updateNpmInstalledPlugins", () => {
         targetDir: installPath,
         version: "2026.5.3-1",
         npmResolution: {
-          name: "@openclaw/acpx",
+          name: "@alien/acpx",
           version: "2026.5.3-1",
-          resolvedSpec: "@openclaw/acpx@2026.5.3-1",
+          resolvedSpec: "@alien/acpx@2026.5.3-1",
         },
       }),
     );
@@ -621,10 +621,10 @@ describe("updateNpmInstalledPlugins", () => {
     const result = await updateNpmInstalledPlugins({
       config: createNpmInstallConfig({
         pluginId: "acpx",
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         installPath,
-        resolvedName: "@openclaw/acpx",
-        resolvedSpec: "@openclaw/acpx@2026.5.3",
+        resolvedName: "@alien/acpx",
+        resolvedSpec: "@alien/acpx@2026.5.3",
         resolvedVersion: "2026.5.3",
       }),
       pluginIds: ["acpx"],
@@ -632,7 +632,7 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/acpx",
+        spec: "@alien/acpx",
         expectedPluginId: "acpx",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -693,7 +693,7 @@ describe("updateNpmInstalledPlugins", () => {
       shasum: "same",
     });
     installPluginFromNpmSpecMock.mockRejectedValue(new Error("installer should not run"));
-    const config: OpenClawConfig = {
+    const config: AlienConfig = {
       plugins: {
         installs: {
           "lossless-claw": {
@@ -742,14 +742,14 @@ describe("updateNpmInstalledPlugins", () => {
     ]);
   });
 
-  it("repairs missing openclaw peer links before skipping unchanged npm plugins", async () => {
+  it("repairs missing alien peer links before skipping unchanged npm plugins", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.3",
-      peerDependencies: { openclaw: ">=2026.5.3" },
+      peerDependencies: { alien: ">=2026.5.3" },
     });
     mockNpmViewMetadata({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.3",
       integrity: "sha512-same",
       shasum: "same",
@@ -760,22 +760,22 @@ describe("updateNpmInstalledPlugins", () => {
         targetDir: installPath,
         version: "2026.5.3",
         npmResolution: {
-          name: "@openclaw/codex",
+          name: "@alien/codex",
           version: "2026.5.3",
-          resolvedSpec: "@openclaw/codex@2026.5.3",
+          resolvedSpec: "@alien/codex@2026.5.3",
         },
       }),
     );
-    const config: OpenClawConfig = {
+    const config: AlienConfig = {
       plugins: {
         installs: {
           codex: {
             source: "npm",
-            spec: "@openclaw/codex",
+            spec: "@alien/codex",
             installPath,
-            resolvedName: "@openclaw/codex",
+            resolvedName: "@alien/codex",
             resolvedVersion: "2026.5.3",
-            resolvedSpec: "@openclaw/codex@2026.5.3",
+            resolvedSpec: "@alien/codex@2026.5.3",
             integrity: "sha512-same",
             shasum: "same",
           },
@@ -790,7 +790,7 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/codex",
+        spec: "@alien/codex",
         mode: "update",
         expectedPluginId: "codex",
       }),
@@ -807,15 +807,15 @@ describe("updateNpmInstalledPlugins", () => {
     ]);
   });
 
-  it("skips unchanged npm plugins when the openclaw peer link already resolves", async () => {
+  it("skips unchanged npm plugins when the alien peer link already resolves", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.3",
-      peerDependencies: { openclaw: ">=2026.5.3" },
+      peerDependencies: { alien: ">=2026.5.3" },
     });
-    fs.mkdirSync(path.join(installPath, "node_modules", "openclaw"), { recursive: true });
+    fs.mkdirSync(path.join(installPath, "node_modules", "alien"), { recursive: true });
     mockNpmViewMetadata({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.3",
       integrity: "sha512-same",
       shasum: "same",
@@ -828,11 +828,11 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             codex: {
               source: "npm",
-              spec: "@openclaw/codex",
+              spec: "@alien/codex",
               installPath,
-              resolvedName: "@openclaw/codex",
+              resolvedName: "@alien/codex",
               resolvedVersion: "2026.5.3",
-              resolvedSpec: "@openclaw/codex@2026.5.3",
+              resolvedSpec: "@alien/codex@2026.5.3",
               integrity: "sha512-same",
               shasum: "same",
             },
@@ -855,13 +855,13 @@ describe("updateNpmInstalledPlugins", () => {
     ]);
   });
 
-  it("repairs openclaw peer links after batch npm updates prune earlier plugin links", async () => {
+  it("repairs alien peer links after batch npm updates prune earlier plugin links", async () => {
     const plugins = [
-      { pluginId: "brave", packageName: "@openclaw/brave-plugin" },
-      { pluginId: "codex", packageName: "@openclaw/codex" },
-      { pluginId: "discord", packageName: "@openclaw/discord" },
+      { pluginId: "brave", packageName: "@alien/brave-plugin" },
+      { pluginId: "codex", packageName: "@alien/codex" },
+      { pluginId: "discord", packageName: "@alien/discord" },
     ];
-    const { installPaths, peerLinkPath, linkPeer } = createOpenClawPeerLinkFixtures(plugins);
+    const { installPaths, peerLinkPath, linkPeer } = createAlienPeerLinkFixtures(plugins);
     for (const { packageName } of plugins) {
       mockNpmViewMetadata({
         name: packageName,
@@ -931,17 +931,17 @@ describe("updateNpmInstalledPlugins", () => {
     );
   });
 
-  it("repairs sibling openclaw peer links after a targeted npm update prunes the shared install tree", async () => {
+  it("repairs sibling alien peer links after a targeted npm update prunes the shared install tree", async () => {
     const plugins = [
-      { pluginId: "brave", packageName: "@openclaw/brave-plugin" },
-      { pluginId: "codex", packageName: "@openclaw/codex" },
-      { pluginId: "discord", packageName: "@openclaw/discord" },
+      { pluginId: "brave", packageName: "@alien/brave-plugin" },
+      { pluginId: "codex", packageName: "@alien/codex" },
+      { pluginId: "discord", packageName: "@alien/discord" },
     ];
-    const { installPaths, peerLinkPath, linkPeer } = createOpenClawPeerLinkFixtures(plugins);
+    const { installPaths, peerLinkPath, linkPeer } = createAlienPeerLinkFixtures(plugins);
     linkPeer("brave");
     linkPeer("discord");
     mockNpmViewMetadata({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.4",
       integrity: "sha512-same",
       shasum: "same",
@@ -957,9 +957,9 @@ describe("updateNpmInstalledPlugins", () => {
           targetDir: installPaths.codex,
           version: "2026.5.4",
           npmResolution: {
-            name: "@openclaw/codex",
+            name: "@alien/codex",
             version: "2026.5.4",
-            resolvedSpec: "@openclaw/codex@2026.5.4",
+            resolvedSpec: "@alien/codex@2026.5.4",
           },
         }),
       );
@@ -994,21 +994,21 @@ describe("updateNpmInstalledPlugins", () => {
     }
   });
 
-  it("continues repairing sibling openclaw peer links after one recorded npm install cannot be relinked", async () => {
+  it("continues repairing sibling alien peer links after one recorded npm install cannot be relinked", async () => {
     const plugins = [
-      { pluginId: "brave", packageName: "@openclaw/brave-plugin" },
-      { pluginId: "codex", packageName: "@openclaw/codex" },
+      { pluginId: "brave", packageName: "@alien/brave-plugin" },
+      { pluginId: "codex", packageName: "@alien/codex" },
     ];
-    const { installPaths, peerLinkPath, linkPeer } = createOpenClawPeerLinkFixtures(plugins);
+    const { installPaths, peerLinkPath, linkPeer } = createAlienPeerLinkFixtures(plugins);
     const brokenInstallPath = createInstalledPackageDir({
-      name: "@openclaw/broken-plugin",
+      name: "@alien/broken-plugin",
       version: "2026.5.4",
-      peerDependencies: { openclaw: ">=2026.5.4" },
+      peerDependencies: { alien: ">=2026.5.4" },
     });
     fs.writeFileSync(path.join(brokenInstallPath, "node_modules"), "not a directory");
     linkPeer("brave");
     mockNpmViewMetadata({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.4",
       integrity: "sha512-same",
       shasum: "same",
@@ -1024,9 +1024,9 @@ describe("updateNpmInstalledPlugins", () => {
           targetDir: installPaths.codex,
           version: "2026.5.4",
           npmResolution: {
-            name: "@openclaw/codex",
+            name: "@alien/codex",
             version: "2026.5.4",
-            resolvedSpec: "@openclaw/codex@2026.5.4",
+            resolvedSpec: "@alien/codex@2026.5.4",
           },
         }),
       );
@@ -1039,11 +1039,11 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             broken: {
               source: "npm",
-              spec: "@openclaw/broken-plugin",
+              spec: "@alien/broken-plugin",
               installPath: brokenInstallPath,
-              resolvedName: "@openclaw/broken-plugin",
+              resolvedName: "@alien/broken-plugin",
               resolvedVersion: "2026.5.4",
-              resolvedSpec: "@openclaw/broken-plugin@2026.5.4",
+              resolvedSpec: "@alien/broken-plugin@2026.5.4",
             },
             ...Object.fromEntries(
               plugins.map(({ pluginId, packageName }) => [
@@ -1071,7 +1071,7 @@ describe("updateNpmInstalledPlugins", () => {
     expect(fs.existsSync(peerLinkPath("brave"))).toBe(true);
     expect(fs.existsSync(peerLinkPath("codex"))).toBe(true);
     expect(warnMessages).toContainEqual(
-      expect.stringContaining('Could not repair openclaw peer link for "broken"'),
+      expect.stringContaining('Could not repair alien peer link for "broken"'),
     );
   });
 
@@ -1125,9 +1125,9 @@ describe("updateNpmInstalledPlugins", () => {
   });
 
   it("expands home-relative install paths before checking installed npm versions", async () => {
-    const home = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-plugin-update-home-"));
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), "alien-plugin-update-home-"));
     tempDirs.push(home);
-    const installPath = path.join(home, ".openclaw", "extensions", "lossless-claw");
+    const installPath = path.join(home, ".alien", "extensions", "lossless-claw");
     fs.mkdirSync(installPath, { recursive: true });
     fs.writeFileSync(
       path.join(installPath, "package.json"),
@@ -1146,7 +1146,7 @@ describe("updateNpmInstalledPlugins", () => {
       config: createNpmInstallConfig({
         pluginId: "lossless-claw",
         spec: "@martian-engineering/lossless-claw",
-        installPath: "~/.openclaw/extensions/lossless-claw",
+        installPath: "~/.alien/extensions/lossless-claw",
         resolvedName: "@martian-engineering/lossless-claw",
         resolvedVersion: "0.9.0",
         resolvedSpec: "@martian-engineering/lossless-claw@0.9.0",
@@ -1274,7 +1274,7 @@ describe("updateNpmInstalledPlugins", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies AlienConfig,
     },
     {
       source: "ClawHub",
@@ -1298,7 +1298,7 @@ describe("updateNpmInstalledPlugins", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies AlienConfig,
     },
     {
       source: "marketplace",
@@ -1319,7 +1319,7 @@ describe("updateNpmInstalledPlugins", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies AlienConfig,
     },
   ])("skips disabled $source installs before update network calls", async ({ config }) => {
     installPluginFromNpmSpecMock.mockRejectedValue(new Error("npm installer should not run"));
@@ -1355,11 +1355,11 @@ describe("updateNpmInstalledPlugins", () => {
 
   it("updates disabled trusted official npm installs from the channel spec when requested", async () => {
     const installPath = createInstalledPackageDir({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.3",
     });
     mockNpmViewMetadata({
-      name: "@openclaw/codex",
+      name: "@alien/codex",
       version: "2026.5.4",
       integrity: "sha512-next",
       shasum: "next",
@@ -1370,9 +1370,9 @@ describe("updateNpmInstalledPlugins", () => {
         targetDir: installPath,
         version: "2026.5.4",
         npmResolution: {
-          name: "@openclaw/codex",
+          name: "@alien/codex",
           version: "2026.5.4",
-          resolvedSpec: "@openclaw/codex@2026.5.4",
+          resolvedSpec: "@alien/codex@2026.5.4",
         },
       }),
     );
@@ -1389,7 +1389,7 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             codex: {
               source: "npm",
-              spec: "@openclaw/codex@2026.5.3",
+              spec: "@alien/codex@2026.5.3",
               installPath,
             },
           },
@@ -1401,7 +1401,7 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/codex",
+        spec: "@alien/codex",
         expectedPluginId: "codex",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -1413,11 +1413,11 @@ describe("updateNpmInstalledPlugins", () => {
     });
     expect(result.config.plugins?.installs?.codex).toMatchObject({
       source: "npm",
-      spec: "@openclaw/codex",
+      spec: "@alien/codex",
       version: "2026.5.4",
-      resolvedName: "@openclaw/codex",
+      resolvedName: "@alien/codex",
       resolvedVersion: "2026.5.4",
-      resolvedSpec: "@openclaw/codex@2026.5.4",
+      resolvedSpec: "@alien/codex@2026.5.4",
     });
     expect(result.outcomes[0]).toMatchObject({
       pluginId: "codex",
@@ -1465,7 +1465,7 @@ describe("updateNpmInstalledPlugins", () => {
         pluginId: "diagnostics-otel",
         targetDir: "/tmp/diagnostics-otel",
         version: "2026.5.4",
-        clawhubPackage: "@openclaw/diagnostics-otel",
+        clawhubPackage: "@alien/diagnostics-otel",
       }),
     );
 
@@ -1473,10 +1473,10 @@ describe("updateNpmInstalledPlugins", () => {
       pluginId: "diagnostics-otel",
       installPath: "/tmp/diagnostics-otel",
       clawhubUrl: "https://clawhub.ai",
-      clawhubPackage: "@openclaw/diagnostics-otel",
+      clawhubPackage: "@alien/diagnostics-otel",
       clawhubFamily: "code-plugin",
       clawhubChannel: "official",
-      spec: "clawhub:@openclaw/diagnostics-otel@2026.5.3",
+      spec: "clawhub:@alien/diagnostics-otel@2026.5.3",
     });
     const result = await updateNpmInstalledPlugins({
       config: {
@@ -1497,15 +1497,15 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromClawHubMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "clawhub:@openclaw/diagnostics-otel",
+        spec: "clawhub:@alien/diagnostics-otel",
         expectedPluginId: "diagnostics-otel",
       }),
     );
     expect(result.config.plugins?.installs?.["diagnostics-otel"]).toMatchObject({
       source: "clawhub",
-      spec: "clawhub:@openclaw/diagnostics-otel",
+      spec: "clawhub:@alien/diagnostics-otel",
       version: "2026.5.4",
-      clawhubPackage: "@openclaw/diagnostics-otel",
+      clawhubPackage: "@alien/diagnostics-otel",
       clawhubChannel: "official",
     });
     expect(result.config.plugins?.entries?.["diagnostics-otel"]).toEqual({
@@ -1520,7 +1520,7 @@ describe("updateNpmInstalledPlugins", () => {
         pluginId: "diagnostics-prometheus",
         targetDir: "/tmp/diagnostics-prometheus",
         version: "2026.5.4",
-        clawhubPackage: "@openclaw/diagnostics-prometheus",
+        clawhubPackage: "@alien/diagnostics-prometheus",
       }),
     );
 
@@ -1530,7 +1530,7 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             "diagnostics-prometheus": {
               source: "clawhub",
-              spec: "clawhub:@openclaw/diagnostics-prometheus@2026.5.3",
+              spec: "clawhub:@alien/diagnostics-prometheus@2026.5.3",
               installPath: "/tmp/diagnostics-prometheus",
             },
           },
@@ -1541,15 +1541,15 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromClawHubMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "clawhub:@openclaw/diagnostics-prometheus",
+        spec: "clawhub:@alien/diagnostics-prometheus",
         expectedPluginId: "diagnostics-prometheus",
       }),
     );
     expect(result.config.plugins?.installs?.["diagnostics-prometheus"]).toMatchObject({
       source: "clawhub",
-      spec: "clawhub:@openclaw/diagnostics-prometheus",
+      spec: "clawhub:@alien/diagnostics-prometheus",
       version: "2026.5.4",
-      clawhubPackage: "@openclaw/diagnostics-prometheus",
+      clawhubPackage: "@alien/diagnostics-prometheus",
       clawhubChannel: "official",
     });
   });
@@ -1574,7 +1574,7 @@ describe("updateNpmInstalledPlugins", () => {
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     const result = await updateNpmInstalledPlugins({
       config,
@@ -1622,7 +1622,7 @@ describe("updateNpmInstalledPlugins", () => {
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies AlienConfig;
 
     const result = await updateNpmInstalledPlugins({
       config,
@@ -1638,7 +1638,7 @@ describe("updateNpmInstalledPlugins", () => {
       }),
     );
     const message =
-      'Disabled "demo" after plugin update failure; OpenClaw will continue without it. Failed to update demo: registry timeout';
+      'Disabled "demo" after plugin update failure; Alien will continue without it. Failed to update demo: registry timeout';
     expect(warn).toHaveBeenCalledWith(message);
     expect(result.changed).toBe(true);
     expect(result.config.plugins?.entries?.demo).toEqual({
@@ -1668,14 +1668,14 @@ describe("updateNpmInstalledPlugins", () => {
           actualIntegrity: "sha512-new",
           resolution: {
             integrity: "sha512-new",
-            resolvedSpec: "@opik/opik-openclaw@0.2.5",
+            resolvedSpec: "@opik/opik-alien@0.2.5",
             version: "0.2.5",
           },
         });
         if (proceed === false) {
           return {
             ok: false,
-            error: "aborted: npm package integrity drift detected for @opik/opik-openclaw@0.2.5",
+            error: "aborted: npm package integrity drift detected for @opik/opik-alien@0.2.5",
           };
         }
         return createSuccessfulNpmUpdateResult();
@@ -1683,28 +1683,28 @@ describe("updateNpmInstalledPlugins", () => {
     );
 
     const config = createNpmInstallConfig({
-      pluginId: "opik-openclaw",
-      spec: "@opik/opik-openclaw@0.2.5",
+      pluginId: "opik-alien",
+      spec: "@opik/opik-alien@0.2.5",
       integrity: "sha512-old",
-      installPath: "/tmp/opik-openclaw",
+      installPath: "/tmp/opik-alien",
     });
     const result = await updateNpmInstalledPlugins({
       config,
-      pluginIds: ["opik-openclaw"],
+      pluginIds: ["opik-alien"],
       logger: { warn },
     });
 
     expect(warn).toHaveBeenCalledWith(
-      'Integrity drift for "opik-openclaw" (@opik/opik-openclaw@0.2.5): expected sha512-old, got sha512-new',
+      'Integrity drift for "opik-alien" (@opik/opik-alien@0.2.5): expected sha512-old, got sha512-new',
     );
     expect(result.changed).toBe(false);
     expect(result.config).toBe(config);
     expect(result.outcomes).toEqual([
       {
-        pluginId: "opik-openclaw",
+        pluginId: "opik-alien",
         status: "error",
         message:
-          "Failed to update opik-openclaw: aborted: npm package integrity drift detected for @opik/opik-openclaw@0.2.5",
+          "Failed to update opik-alien: aborted: npm package integrity drift detected for @opik/opik-alien@0.2.5",
       },
     ]);
   });
@@ -1715,15 +1715,15 @@ describe("updateNpmInstalledPlugins", () => {
       installerResult: {
         ok: false,
         code: "npm_package_not_found",
-        error: "Package not found on npm: @openclaw/missing.",
+        error: "Package not found on npm: @alien/missing.",
       },
       config: createNpmInstallConfig({
         pluginId: "missing",
-        spec: "@openclaw/missing",
+        spec: "@alien/missing",
         installPath: "/tmp/missing",
       }),
       pluginId: "missing",
-      expectedMessage: "Failed to check missing: npm package not found for @openclaw/missing.",
+      expectedMessage: "Failed to check missing: npm package not found for @alien/missing.",
     },
     {
       name: "falls back to raw installer error for unknown error codes",
@@ -1763,42 +1763,42 @@ describe("updateNpmInstalledPlugins", () => {
       name: "reuses a recorded npm dist-tag spec for id-based updates",
       installerResult: {
         ok: true,
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-beta.4",
         extensions: ["index.ts"],
       },
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server@beta",
-        resolvedName: "openclaw-codex-app-server",
-        resolvedSpec: "openclaw-codex-app-server@0.2.0-beta.3",
+        spec: "alien-codex-app-server@beta",
+        resolvedName: "alien-codex-app-server",
+        resolvedSpec: "alien-codex-app-server@0.2.0-beta.3",
       }),
-      expectedSpec: "openclaw-codex-app-server@beta",
+      expectedSpec: "alien-codex-app-server@beta",
       expectedVersion: "0.2.0-beta.4",
     },
     {
       name: "uses and persists an explicit npm spec override during updates",
       installerResult: {
         ok: true,
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-beta.4",
         extensions: ["index.ts"],
         npmResolution: {
-          name: "openclaw-codex-app-server",
+          name: "alien-codex-app-server",
           version: "0.2.0-beta.4",
-          resolvedSpec: "openclaw-codex-app-server@0.2.0-beta.4",
+          resolvedSpec: "alien-codex-app-server@0.2.0-beta.4",
         },
       },
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
       specOverrides: {
-        "openclaw-codex-app-server": "openclaw-codex-app-server@beta",
+        "alien-codex-app-server": "alien-codex-app-server@beta",
       },
-      expectedSpec: "openclaw-codex-app-server@beta",
+      expectedSpec: "alien-codex-app-server@beta",
       expectedVersion: "0.2.0-beta.4",
-      expectedResolvedSpec: "openclaw-codex-app-server@0.2.0-beta.4",
+      expectedResolvedSpec: "alien-codex-app-server@0.2.0-beta.4",
     },
   ] as const)(
     "$name",
@@ -1814,13 +1814,13 @@ describe("updateNpmInstalledPlugins", () => {
 
       const result = await updateNpmInstalledPlugins({
         config,
-        pluginIds: ["openclaw-codex-app-server"],
+        pluginIds: ["alien-codex-app-server"],
         ...(specOverrides ? { specOverrides } : {}),
       });
 
       expectNpmUpdateCall({
         spec: expectedSpec,
-        expectedPluginId: "openclaw-codex-app-server",
+        expectedPluginId: "alien-codex-app-server",
       });
       expectCodexAppServerInstallState({
         result,
@@ -1834,34 +1834,34 @@ describe("updateNpmInstalledPlugins", () => {
   it("tries npm beta for default npm specs on beta channel without persisting the beta tag", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-beta.4",
         npmResolution: {
-          name: "openclaw-codex-app-server",
+          name: "alien-codex-app-server",
           version: "0.2.0-beta.4",
-          resolvedSpec: "openclaw-codex-app-server@0.2.0-beta.4",
+          resolvedSpec: "alien-codex-app-server@0.2.0-beta.4",
         },
       }),
     );
 
     const result = await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       updateChannel: "beta",
     });
 
     expectNpmUpdateCall({
-      spec: "openclaw-codex-app-server@beta",
-      expectedPluginId: "openclaw-codex-app-server",
+      spec: "alien-codex-app-server@beta",
+      expectedPluginId: "alien-codex-app-server",
     });
     expectCodexAppServerInstallState({
       result,
-      spec: "openclaw-codex-app-server",
+      spec: "alien-codex-app-server",
       version: "0.2.0-beta.4",
-      resolvedSpec: "openclaw-codex-app-server@0.2.0-beta.4",
+      resolvedSpec: "alien-codex-app-server@0.2.0-beta.4",
     });
   });
 
@@ -1870,17 +1870,17 @@ describe("updateNpmInstalledPlugins", () => {
       .mockResolvedValueOnce({
         ok: false,
         error:
-          "npm ERR! code ETARGET\nnpm ERR! No matching version found for openclaw-codex-app-server@beta.",
+          "npm ERR! code ETARGET\nnpm ERR! No matching version found for alien-codex-app-server@beta.",
       })
       .mockResolvedValueOnce(
         createSuccessfulNpmUpdateResult({
-          pluginId: "openclaw-codex-app-server",
-          targetDir: "/tmp/openclaw-codex-app-server",
+          pluginId: "alien-codex-app-server",
+          targetDir: "/tmp/alien-codex-app-server",
           version: "0.2.6",
           npmResolution: {
-            name: "openclaw-codex-app-server",
+            name: "alien-codex-app-server",
             version: "0.2.6",
-            resolvedSpec: "openclaw-codex-app-server@0.2.6",
+            resolvedSpec: "alien-codex-app-server@0.2.6",
           },
         }),
       );
@@ -1888,9 +1888,9 @@ describe("updateNpmInstalledPlugins", () => {
     const warnMessages: string[] = [];
     const result = await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       updateChannel: "beta",
       logger: { warn: (msg) => warnMessages.push(msg) },
     });
@@ -1898,21 +1898,21 @@ describe("updateNpmInstalledPlugins", () => {
     expect(installPluginFromNpmSpecMock).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        spec: "openclaw-codex-app-server@beta",
+        spec: "alien-codex-app-server@beta",
       }),
     );
     expect(installPluginFromNpmSpecMock).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
     );
     expect(warnMessages).toEqual([expect.stringContaining("has no beta npm release")]);
     expectCodexAppServerInstallState({
       result,
-      spec: "openclaw-codex-app-server",
+      spec: "alien-codex-app-server",
       version: "0.2.6",
-      resolvedSpec: "openclaw-codex-app-server@0.2.6",
+      resolvedSpec: "alien-codex-app-server@0.2.6",
     });
   });
 
@@ -1924,13 +1924,13 @@ describe("updateNpmInstalledPlugins", () => {
       })
       .mockResolvedValueOnce(
         createSuccessfulNpmUpdateResult({
-          pluginId: "openclaw-codex-app-server",
-          targetDir: "/tmp/openclaw-codex-app-server",
+          pluginId: "alien-codex-app-server",
+          targetDir: "/tmp/alien-codex-app-server",
           version: "0.2.6",
           npmResolution: {
-            name: "openclaw-codex-app-server",
+            name: "alien-codex-app-server",
             version: "0.2.6",
-            resolvedSpec: "openclaw-codex-app-server@0.2.6",
+            resolvedSpec: "alien-codex-app-server@0.2.6",
           },
         }),
       );
@@ -1938,9 +1938,9 @@ describe("updateNpmInstalledPlugins", () => {
     const warnMessages: string[] = [];
     const result = await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       updateChannel: "beta",
       logger: { warn: (msg) => warnMessages.push(msg) },
     });
@@ -1948,21 +1948,21 @@ describe("updateNpmInstalledPlugins", () => {
     expect(installPluginFromNpmSpecMock).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        spec: "openclaw-codex-app-server@beta",
+        spec: "alien-codex-app-server@beta",
       }),
     );
     expect(installPluginFromNpmSpecMock).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
     );
     expect(warnMessages).toEqual([expect.stringContaining("failed beta npm update")]);
     expectCodexAppServerInstallState({
       result,
-      spec: "openclaw-codex-app-server",
+      spec: "alien-codex-app-server",
       version: "0.2.6",
-      resolvedSpec: "openclaw-codex-app-server@0.2.6",
+      resolvedSpec: "alien-codex-app-server@0.2.6",
     });
   });
 
@@ -1980,19 +1980,19 @@ describe("updateNpmInstalledPlugins", () => {
 
     const result = await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server",
+        spec: "alien-codex-app-server",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       updateChannel: "beta",
     });
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledTimes(2);
     expect(result.outcomes).toEqual([
       {
-        pluginId: "openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
         status: "error",
         message:
-          "Failed to update openclaw-codex-app-server: npm package not found for openclaw-codex-app-server.",
+          "Failed to update alien-codex-app-server: npm package not found for alien-codex-app-server.",
       },
     ]);
   });
@@ -2000,24 +2000,24 @@ describe("updateNpmInstalledPlugins", () => {
   it("preserves explicit npm tags when updating on the beta channel", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-rc.1",
       }),
     );
 
     await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server@rc",
+        spec: "alien-codex-app-server@rc",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       updateChannel: "beta",
       dryRun: true,
     });
 
     expectNpmUpdateCall({
-      spec: "openclaw-codex-app-server@rc",
-      expectedPluginId: "openclaw-codex-app-server",
+      spec: "alien-codex-app-server@rc",
+      expectedPluginId: "alien-codex-app-server",
     });
   });
 
@@ -2355,8 +2355,8 @@ describe("updateNpmInstalledPlugins", () => {
   it("migrates legacy unscoped install keys when a scoped npm package updates", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue({
       ok: true,
-      pluginId: "@openclaw/voice-call",
-      targetDir: "/tmp/openclaw-voice-call",
+      pluginId: "@alien/voice-call",
+      targetDir: "/tmp/alien-voice-call",
       version: "0.0.2",
       extensions: ["index.ts"],
     });
@@ -2376,7 +2376,7 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             "voice-call": {
               source: "npm",
-              spec: "@openclaw/voice-call",
+              spec: "@alien/voice-call",
               installPath: "/tmp/voice-call",
             },
           },
@@ -2387,22 +2387,22 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/voice-call",
+        spec: "@alien/voice-call",
         expectedPluginId: "voice-call",
       }),
     );
-    expect(result.config.plugins?.allow).toEqual(["@openclaw/voice-call"]);
-    expect(result.config.plugins?.deny).toEqual(["@openclaw/voice-call"]);
-    expect(result.config.plugins?.slots?.memory).toBe("@openclaw/voice-call");
-    expect(result.config.plugins?.entries?.["@openclaw/voice-call"]).toEqual({
+    expect(result.config.plugins?.allow).toEqual(["@alien/voice-call"]);
+    expect(result.config.plugins?.deny).toEqual(["@alien/voice-call"]);
+    expect(result.config.plugins?.slots?.memory).toBe("@alien/voice-call");
+    expect(result.config.plugins?.entries?.["@alien/voice-call"]).toEqual({
       enabled: false,
       hooks: { allowPromptInjection: false },
     });
     expect(result.config.plugins?.entries?.["voice-call"]).toBeUndefined();
-    expect(result.config.plugins?.installs?.["@openclaw/voice-call"]).toMatchObject({
+    expect(result.config.plugins?.installs?.["@alien/voice-call"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/voice-call",
-      installPath: "/tmp/openclaw-voice-call",
+      spec: "@alien/voice-call",
+      installPath: "/tmp/alien-voice-call",
       version: "0.0.2",
     });
     expect(result.config.plugins?.installs?.["voice-call"]).toBeUndefined();
@@ -2411,8 +2411,8 @@ describe("updateNpmInstalledPlugins", () => {
   it("migrates context engine slot when a plugin id changes during update", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue({
       ok: true,
-      pluginId: "@openclaw/context-engine",
-      targetDir: "/tmp/openclaw-context-engine",
+      pluginId: "@alien/context-engine",
+      targetDir: "/tmp/alien-context-engine",
       version: "0.0.2",
       extensions: ["index.ts"],
     });
@@ -2424,20 +2424,20 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             "context-engine": {
               source: "npm",
-              spec: "@openclaw/context-engine",
+              spec: "@alien/context-engine",
               installPath: "/tmp/context-engine",
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       pluginIds: ["context-engine"],
     });
 
-    expect(result.config.plugins?.slots?.contextEngine).toBe("@openclaw/context-engine");
-    expect(result.config.plugins?.installs?.["@openclaw/context-engine"]).toMatchObject({
+    expect(result.config.plugins?.slots?.contextEngine).toBe("@alien/context-engine");
+    expect(result.config.plugins?.installs?.["@alien/context-engine"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/context-engine",
-      installPath: "/tmp/openclaw-context-engine",
+      spec: "@alien/context-engine",
+      installPath: "/tmp/alien-context-engine",
       version: "0.0.2",
     });
     expect(result.config.plugins?.installs?.["context-engine"]).toBeUndefined();
@@ -2567,32 +2567,32 @@ describe("updateNpmInstalledPlugins", () => {
   it("forwards dangerous force unsafe install to plugin update installers", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
-        pluginId: "openclaw-codex-app-server",
-        targetDir: "/tmp/openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
+        targetDir: "/tmp/alien-codex-app-server",
         version: "0.2.0-beta.4",
       }),
     );
 
     await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "openclaw-codex-app-server@beta",
+        spec: "alien-codex-app-server@beta",
       }),
-      pluginIds: ["openclaw-codex-app-server"],
+      pluginIds: ["alien-codex-app-server"],
       dangerouslyForceUnsafeInstall: true,
     });
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "openclaw-codex-app-server@beta",
+        spec: "alien-codex-app-server@beta",
         dangerouslyForceUnsafeInstall: true,
-        expectedPluginId: "openclaw-codex-app-server",
+        expectedPluginId: "alien-codex-app-server",
       }),
     );
   });
 
   it("reuses the recorded managed extensions root when updating external plugins", async () => {
-    const installPath = "/var/openclaw/extensions/demo";
-    const extensionsDir = "/var/openclaw/extensions";
+    const installPath = "/var/alien/extensions/demo";
+    const extensionsDir = "/var/alien/extensions";
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "demo",
@@ -2705,7 +2705,7 @@ describe("syncPluginsForUpdateChannel", () => {
       config: createBundledPathInstallConfig({
         loadPaths: [appBundledPluginRoot("feishu")],
         installPath: appBundledPluginRoot("feishu"),
-        spec: "@openclaw/feishu",
+        spec: "@alien/feishu",
       }),
       expectedChanged: false,
       expectedLoadPaths: [appBundledPluginRoot("feishu")],
@@ -2716,7 +2716,7 @@ describe("syncPluginsForUpdateChannel", () => {
       config: createBundledPathInstallConfig({
         loadPaths: [],
         installPath: "/tmp/old-feishu",
-        spec: "@openclaw/feishu",
+        spec: "@alien/feishu",
       }),
       expectedChanged: true,
       expectedLoadPaths: [appBundledPluginRoot("feishu")],
@@ -2740,14 +2740,14 @@ describe("syncPluginsForUpdateChannel", () => {
         install: result.config.plugins?.installs?.feishu,
         sourcePath: appBundledPluginRoot("feishu"),
         installPath: expectedInstallPath,
-        spec: "@openclaw/feishu",
+        spec: "@alien/feishu",
       });
     },
   );
 
   it("forwards an explicit env to bundled plugin source resolution", async () => {
     resolveBundledPluginSourcesMock.mockReturnValue(new Map());
-    const env = { OPENCLAW_HOME: "/srv/openclaw-home" } as NodeJS.ProcessEnv;
+    const env = { ALIEN_HOME: "/srv/alien-home" } as NodeJS.ProcessEnv;
 
     await syncPluginsForUpdateChannel({
       channel: "beta",
@@ -2763,7 +2763,7 @@ describe("syncPluginsForUpdateChannel", () => {
   });
 
   it("uses the provided env when matching bundled load and install paths", async () => {
-    const bundledHome = "/tmp/openclaw-home";
+    const bundledHome = "/tmp/alien-home";
     mockBundledSources(
       createBundledSource({
         localPath: `${bundledHome}/plugins/feishu`,
@@ -2777,7 +2777,7 @@ describe("syncPluginsForUpdateChannel", () => {
         channel: "beta",
         env: {
           ...process.env,
-          OPENCLAW_HOME: bundledHome,
+          ALIEN_HOME: bundledHome,
           HOME: "/tmp/ignored-home",
         },
         config: {
@@ -2788,7 +2788,7 @@ describe("syncPluginsForUpdateChannel", () => {
                 source: "path",
                 sourcePath: "~/plugins/feishu",
                 installPath: "~/plugins/feishu",
-                spec: "@openclaw/feishu",
+                spec: "@alien/feishu",
               },
             },
           },
@@ -2816,12 +2816,12 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "legacy-chat",
-        targetDir: "/tmp/openclaw-plugins/legacy-chat",
+        targetDir: "/tmp/alien-plugins/legacy-chat",
         version: "2.0.0",
         npmResolution: {
-          name: "@openclaw/legacy-chat",
+          name: "@alien/legacy-chat",
           version: "2.0.0",
-          resolvedSpec: "@openclaw/legacy-chat@2.0.0",
+          resolvedSpec: "@alien/legacy-chat@2.0.0",
         },
       }),
     );
@@ -2831,7 +2831,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -2856,7 +2856,7 @@ describe("syncPluginsForUpdateChannel", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/legacy-chat",
+        spec: "@alien/legacy-chat",
         mode: "update",
         expectedPluginId: "legacy-chat",
       }),
@@ -2872,12 +2872,12 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.load?.paths).toEqual([]);
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/legacy-chat",
-      installPath: "/tmp/openclaw-plugins/legacy-chat",
+      spec: "@alien/legacy-chat",
+      installPath: "/tmp/alien-plugins/legacy-chat",
       version: "2.0.0",
-      resolvedName: "@openclaw/legacy-chat",
+      resolvedName: "@alien/legacy-chat",
       resolvedVersion: "2.0.0",
-      resolvedSpec: "@openclaw/legacy-chat@2.0.0",
+      resolvedSpec: "@alien/legacy-chat@2.0.0",
     });
   });
 
@@ -2886,7 +2886,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "voice-call",
-        targetDir: "/tmp/openclaw-plugins/voice-call",
+        targetDir: "/tmp/alien-plugins/voice-call",
         version: "0.0.2-beta.1",
       }),
     );
@@ -2896,7 +2896,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "voice-call",
-          npmSpec: "@openclaw/voice-call",
+          npmSpec: "@alien/voice-call",
           channelIds: ["voice-call"],
         },
       ],
@@ -2921,7 +2921,7 @@ describe("syncPluginsForUpdateChannel", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/voice-call",
+        spec: "@alien/voice-call",
         expectedPluginId: "voice-call",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -2933,7 +2933,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromClawHubMock.mockResolvedValue(
       createSuccessfulClawHubUpdateResult({
         pluginId: "legacy-chat",
-        targetDir: "/tmp/openclaw-plugins/legacy-chat",
+        targetDir: "/tmp/alien-plugins/legacy-chat",
         version: "2026.5.1-beta.2",
         clawhubPackage: "legacy-chat",
       }),
@@ -2947,7 +2947,7 @@ describe("syncPluginsForUpdateChannel", () => {
           preferredSource: "clawhub",
           clawhubSpec: "clawhub:legacy-chat@2026.5.1-beta.2",
           clawhubUrl: "https://clawhub.ai",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -2987,7 +2987,7 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "clawhub",
       spec: "clawhub:legacy-chat@2026.5.1-beta.2",
-      installPath: "/tmp/openclaw-plugins/legacy-chat",
+      installPath: "/tmp/alien-plugins/legacy-chat",
       version: "2026.5.1-beta.2",
       integrity: "sha256-clawpack",
       clawhubUrl: "https://clawhub.ai",
@@ -3016,7 +3016,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "legacy-chat",
-        targetDir: "/tmp/openclaw-plugins/legacy-chat",
+        targetDir: "/tmp/alien-plugins/legacy-chat",
         version: "2.0.0",
       }),
     );
@@ -3028,7 +3028,7 @@ describe("syncPluginsForUpdateChannel", () => {
           bundledPluginId: "legacy-chat",
           preferredSource: "clawhub",
           clawhubSpec: "clawhub:legacy-chat@2026.5.1-beta.2",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3053,7 +3053,7 @@ describe("syncPluginsForUpdateChannel", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/legacy-chat",
+        spec: "@alien/legacy-chat",
         mode: "update",
         expectedPluginId: "legacy-chat",
       }),
@@ -3067,13 +3067,13 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.summary.switchedToClawHub).toEqual([]);
     expect(result.summary.switchedToNpm).toEqual(["legacy-chat"]);
     expect(result.summary.warnings).toEqual([
-      "ClawHub clawhub:legacy-chat@2026.5.1-beta.2 unavailable for legacy-chat; falling back to npm @openclaw/legacy-chat.",
+      "ClawHub clawhub:legacy-chat@2026.5.1-beta.2 unavailable for legacy-chat; falling back to npm @alien/legacy-chat.",
     ]);
     expect(result.summary.errors).toEqual([]);
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/legacy-chat",
-      installPath: "/tmp/openclaw-plugins/legacy-chat",
+      spec: "@alien/legacy-chat",
+      installPath: "/tmp/alien-plugins/legacy-chat",
       version: "2.0.0",
     });
   });
@@ -3088,7 +3088,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "voice-call",
-        targetDir: "/tmp/openclaw-plugins/voice-call",
+        targetDir: "/tmp/alien-plugins/voice-call",
         version: "0.0.2-beta.1",
       }),
     );
@@ -3099,8 +3099,8 @@ describe("syncPluginsForUpdateChannel", () => {
         {
           bundledPluginId: "voice-call",
           preferredSource: "clawhub",
-          clawhubSpec: "clawhub:@openclaw/voice-call",
-          npmSpec: "@openclaw/voice-call",
+          clawhubSpec: "clawhub:@alien/voice-call",
+          npmSpec: "@alien/voice-call",
           channelIds: ["voice-call"],
         },
       ],
@@ -3125,7 +3125,7 @@ describe("syncPluginsForUpdateChannel", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/voice-call",
+        spec: "@alien/voice-call",
         expectedPluginId: "voice-call",
         trustedSourceLinkedOfficialInstall: true,
       }),
@@ -3137,7 +3137,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromClawHubMock.mockResolvedValue(
       createSuccessfulClawHubUpdateResult({
         pluginId: "legacy-chat",
-        targetDir: "/tmp/openclaw-plugins/legacy-chat",
+        targetDir: "/tmp/alien-plugins/legacy-chat",
         version: "2026.5.1-beta.2",
         clawhubPackage: "legacy-chat",
       }),
@@ -3150,7 +3150,7 @@ describe("syncPluginsForUpdateChannel", () => {
           bundledPluginId: "legacy-chat",
           preferredSource: "clawhub",
           clawhubSpec: "clawhub:legacy-chat@2026.5.1-beta.2",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3164,8 +3164,8 @@ describe("syncPluginsForUpdateChannel", () => {
           installs: {
             "legacy-chat": {
               source: "npm",
-              spec: "@openclaw/legacy-chat",
-              installPath: "/tmp/openclaw-plugins/legacy-chat",
+              spec: "@alien/legacy-chat",
+              installPath: "/tmp/alien-plugins/legacy-chat",
             },
           },
         },
@@ -3185,7 +3185,7 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "clawhub",
       spec: "clawhub:legacy-chat@2026.5.1-beta.2",
-      installPath: "/tmp/openclaw-plugins/legacy-chat",
+      installPath: "/tmp/alien-plugins/legacy-chat",
     });
   });
 
@@ -3196,7 +3196,7 @@ describe("syncPluginsForUpdateChannel", () => {
       code: "archive_integrity_mismatch",
       error: "ClawHub ClawPack integrity mismatch.",
     });
-    const config: OpenClawConfig = {
+    const config: AlienConfig = {
       channels: {
         "legacy-chat": {
           enabled: true,
@@ -3221,7 +3221,7 @@ describe("syncPluginsForUpdateChannel", () => {
           bundledPluginId: "legacy-chat",
           preferredSource: "clawhub",
           clawhubSpec: "clawhub:legacy-chat@2026.5.1-beta.2",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3241,7 +3241,7 @@ describe("syncPluginsForUpdateChannel", () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
         pluginId: "default-chat",
-        targetDir: "/tmp/openclaw-plugins/default-chat",
+        targetDir: "/tmp/alien-plugins/default-chat",
         version: "2.0.0",
       }),
     );
@@ -3252,7 +3252,7 @@ describe("syncPluginsForUpdateChannel", () => {
         {
           bundledPluginId: "default-chat",
           enabledByDefault: true,
-          npmSpec: "@openclaw/default-chat",
+          npmSpec: "@alien/default-chat",
           channelIds: ["default-chat"],
         },
       ],
@@ -3261,7 +3261,7 @@ describe("syncPluginsForUpdateChannel", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@openclaw/default-chat",
+        spec: "@alien/default-chat",
         mode: "update",
         expectedPluginId: "default-chat",
       }),
@@ -3270,8 +3270,8 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.summary.switchedToNpm).toEqual(["default-chat"]);
     expect(result.config.plugins?.installs?.["default-chat"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/default-chat",
-      installPath: "/tmp/openclaw-plugins/default-chat",
+      spec: "@alien/default-chat",
+      installPath: "/tmp/alien-plugins/default-chat",
       version: "2.0.0",
     });
   });
@@ -3284,7 +3284,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3320,7 +3320,7 @@ describe("syncPluginsForUpdateChannel", () => {
       ok: false,
       error: "package unavailable",
     });
-    const config: OpenClawConfig = {
+    const config: AlienConfig = {
       channels: {
         "legacy-chat": {
           enabled: true,
@@ -3343,7 +3343,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3363,7 +3363,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3407,7 +3407,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3445,7 +3445,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3462,8 +3462,8 @@ describe("syncPluginsForUpdateChannel", () => {
           installs: {
             "legacy-chat": {
               source: "npm",
-              spec: "@openclaw/legacy-chat",
-              installPath: "/tmp/openclaw-plugins/legacy-chat",
+              spec: "@alien/legacy-chat",
+              installPath: "/tmp/alien-plugins/legacy-chat",
             },
           },
         },
@@ -3475,7 +3475,7 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.load?.paths).toEqual(["/workspace/plugins/other"]);
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/legacy-chat",
+      spec: "@alien/legacy-chat",
     });
   });
 
@@ -3487,7 +3487,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3504,8 +3504,8 @@ describe("syncPluginsForUpdateChannel", () => {
           installs: {
             "legacy-chat": {
               source: "npm",
-              resolvedName: "@openclaw/legacy-chat",
-              installPath: "/tmp/openclaw-plugins/legacy-chat",
+              resolvedName: "@alien/legacy-chat",
+              installPath: "/tmp/alien-plugins/legacy-chat",
             },
           },
         },
@@ -3517,7 +3517,7 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.load?.paths).toEqual(["/workspace/plugins/other"]);
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "npm",
-      resolvedName: "@openclaw/legacy-chat",
+      resolvedName: "@alien/legacy-chat",
     });
   });
 
@@ -3529,7 +3529,7 @@ describe("syncPluginsForUpdateChannel", () => {
       externalizedBundledPluginBridges: [
         {
           bundledPluginId: "legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3546,9 +3546,9 @@ describe("syncPluginsForUpdateChannel", () => {
           installs: {
             "legacy-chat": {
               source: "npm",
-              spec: "@openclaw/legacy-chat@1.2.3",
-              resolvedSpec: "@openclaw/legacy-chat@1.2.3",
-              installPath: "/tmp/openclaw-plugins/legacy-chat",
+              spec: "@alien/legacy-chat@1.2.3",
+              resolvedSpec: "@alien/legacy-chat@1.2.3",
+              installPath: "/tmp/alien-plugins/legacy-chat",
             },
           },
         },
@@ -3560,7 +3560,7 @@ describe("syncPluginsForUpdateChannel", () => {
     expect(result.config.plugins?.load?.paths).toEqual(["/workspace/plugins/other"]);
     expect(result.config.plugins?.installs?.["legacy-chat"]).toMatchObject({
       source: "npm",
-      spec: "@openclaw/legacy-chat@1.2.3",
+      spec: "@alien/legacy-chat@1.2.3",
     });
   });
 
@@ -3574,7 +3574,7 @@ describe("syncPluginsForUpdateChannel", () => {
           bundledPluginId: "legacy-chat",
           preferredSource: "clawhub",
           clawhubSpec: "clawhub:legacy-chat",
-          npmSpec: "@openclaw/legacy-chat",
+          npmSpec: "@alien/legacy-chat",
           channelIds: ["legacy-chat"],
         },
       ],
@@ -3593,7 +3593,7 @@ describe("syncPluginsForUpdateChannel", () => {
               source: "clawhub",
               spec: "clawhub:legacy-chat@2026.5.1",
               clawhubPackage: "legacy-chat",
-              installPath: "/tmp/openclaw-plugins/legacy-chat",
+              installPath: "/tmp/alien-plugins/legacy-chat",
             },
           },
         },

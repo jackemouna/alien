@@ -1,12 +1,12 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { PluginEntryConfig } from "../config/types.plugins.js";
 import { hasExplicitPluginConfig } from "./config-policy.js";
 import { normalizePluginId } from "./config-state.js";
 
 export function withBundledPluginAllowlistCompat(params: {
-  config: OpenClawConfig | undefined;
+  config: AlienConfig | undefined;
   pluginIds: readonly string[];
-}): OpenClawConfig | undefined {
+}): AlienConfig | undefined {
   if (params.config?.plugins?.bundledDiscovery !== "compat") {
     return params.config;
   }
@@ -38,9 +38,9 @@ export function withBundledPluginAllowlistCompat(params: {
 }
 
 export function withBundledPluginEnablementCompat(params: {
-  config: OpenClawConfig | undefined;
+  config: AlienConfig | undefined;
   pluginIds: readonly string[];
-}): OpenClawConfig | undefined {
+}): AlienConfig | undefined {
   const existingEntries = params.config?.plugins?.entries ?? {};
   const forcePluginsEnabled = params.config?.plugins?.enabled === false;
   const useCompatDiscovery = params.config?.plugins?.bundledDiscovery === "compat";
@@ -85,10 +85,10 @@ export function withBundledPluginEnablementCompat(params: {
 }
 
 export function withBundledPluginVitestCompat(params: {
-  config: OpenClawConfig | undefined;
+  config: AlienConfig | undefined;
   pluginIds: readonly string[];
   env?: NodeJS.ProcessEnv;
-}): OpenClawConfig | undefined {
+}): AlienConfig | undefined {
   const env = params.env ?? process.env;
   const isVitest = Boolean(env.VITEST);
   if (

@@ -6,11 +6,11 @@ title: "Groups"
 sidebarTitle: "Groups"
 ---
 
-OpenClaw treats group chats consistently across surfaces: Discord, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo.
+Alien treats group chats consistently across surfaces: Discord, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo.
 
 ## Beginner intro (2 minutes)
 
-OpenClaw "lives" on your own messaging accounts. There is no separate WhatsApp bot user. If **you** are in a group, OpenClaw can see that group and respond there.
+Alien "lives" on your own messaging accounts. There is no separate WhatsApp bot user. If **you** are in a group, Alien can see that group and respond there.
 
 Default behavior:
 
@@ -18,7 +18,7 @@ Default behavior:
 - Replies require a mention unless you explicitly disable mention gating.
 - Normal final replies in groups/channels are private by default. Visible room output uses the `message` tool.
 
-Translation: allowlisted senders can trigger OpenClaw by mentioning it.
+Translation: allowlisted senders can trigger Alien by mentioning it.
 
 <Note>
 **TL;DR**
@@ -40,8 +40,8 @@ otherwise -> reply
 
 ## Visible replies
 
-For group/channel rooms, OpenClaw defaults to `messages.groupChat.visibleReplies: "message_tool"`.
-`openclaw doctor --fix` writes this default into configured-channel configs that omit it.
+For group/channel rooms, Alien defaults to `messages.groupChat.visibleReplies: "message_tool"`.
+`alien doctor --fix` writes this default into configured-channel configs that omit it.
 That means the agent still processes the turn and can update memory/session state, but its normal final answer is not automatically posted back into the room. To speak visibly, the agent uses `message(action=send)`.
 
 This default depends on a model/runtime that reliably calls tools. If logs show
@@ -52,9 +52,9 @@ group/channel sessions, or set
 `messages.groupChat.visibleReplies: "automatic"` to restore legacy visible
 final replies.
 
-If the message tool is unavailable under the active tool policy, OpenClaw falls
+If the message tool is unavailable under the active tool policy, Alien falls
 back to automatic visible replies instead of silently suppressing the response.
-`openclaw doctor` warns about this mismatch.
+`alien doctor` warns about this mismatch.
 
 For direct chats and any other source turn, use `messages.visibleReplies: "message_tool"` to apply the same tool-only visible-reply behavior globally. Harnesses can also choose this as their unset default; the Codex harness does this for Codex-mode direct chats. `messages.groupChat.visibleReplies` remains the more specific override for group/channel rooms.
 
@@ -96,7 +96,7 @@ Two different controls are involved in group safety:
 - **Trigger authorization**: who can trigger the agent (`groupPolicy`, `groups`, `groupAllowFrom`, channel-specific allowlists).
 - **Context visibility**: what supplemental context is injected into the model (reply text, quotes, thread history, forwarded metadata).
 
-By default, OpenClaw prioritizes normal chat behavior and keeps context mostly as received. This means allowlists primarily decide who can trigger actions, not a universal redaction boundary for every quoted or historical snippet.
+By default, Alien prioritizes normal chat behavior and keeps context mostly as received. This means allowlists primarily decide who can trigger actions, not a universal redaction boundary for every quoted or historical snippet.
 
 <AccordionGroup>
   <Accordion title="Current behavior is channel-specific">
@@ -333,7 +333,7 @@ Replying to a bot message counts as an implicit mention when the channel support
       {
         id: "main",
         groupChat: {
-          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
+          mentionPatterns: ["@alien", "alien", "\\+15555550123"],
           historyLimit: 50,
         },
       },

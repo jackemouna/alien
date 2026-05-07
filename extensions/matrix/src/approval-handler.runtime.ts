@@ -3,23 +3,23 @@ import type {
   ChannelApprovalCapabilityHandlerContext,
   PendingApprovalView,
   ResolvedApprovalView,
-} from "openclaw/plugin-sdk/approval-handler-runtime";
-import { createChannelApprovalNativeRuntimeAdapter } from "openclaw/plugin-sdk/approval-handler-runtime";
-import { buildChannelApprovalNativeTargetKey } from "openclaw/plugin-sdk/approval-native-runtime";
+} from "alien/plugin-sdk/approval-handler-runtime";
+import { createChannelApprovalNativeRuntimeAdapter } from "alien/plugin-sdk/approval-handler-runtime";
+import { buildChannelApprovalNativeTargetKey } from "alien/plugin-sdk/approval-native-runtime";
 import {
   buildExecApprovalPendingReplyPayload,
   buildPluginApprovalPendingReplyPayload,
   type ExecApprovalReplyDecision,
-} from "openclaw/plugin-sdk/approval-reply-runtime";
-import { buildPluginApprovalResolvedReplyPayload } from "openclaw/plugin-sdk/approval-runtime";
+} from "alien/plugin-sdk/approval-reply-runtime";
+import { buildPluginApprovalResolvedReplyPayload } from "alien/plugin-sdk/approval-runtime";
 import type {
   ExecApprovalRequest,
   PluginApprovalRequest,
-} from "openclaw/plugin-sdk/approval-runtime";
+} from "alien/plugin-sdk/approval-runtime";
 import {
   listMessageReceiptPlatformIds,
   resolveMessageReceiptPrimaryId,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 import {
   buildMatrixApprovalReactionHint,
   listMatrixApprovalReactionBindings,
@@ -42,8 +42,8 @@ import {
 import { resolveMatrixTargetIdentity } from "./matrix/target-ids.js";
 import type { CoreConfig } from "./types.js";
 
-// OpenClaw Matrix custom event content for capable clients; body and reactions remain fallback.
-const MATRIX_APPROVAL_METADATA_KEY = "com.openclaw.approval" as const;
+// Alien Matrix custom event content for capable clients; body and reactions remain fallback.
+const MATRIX_APPROVAL_METADATA_KEY = "com.alien.approval" as const;
 
 type PendingMessage = {
   roomId: string;

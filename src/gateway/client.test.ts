@@ -170,7 +170,7 @@ function expectSecurityConnectError(
     }),
   );
   const error = onConnectError.mock.calls[0]?.[0] as Error;
-  expect(error.message).toContain("openclaw doctor --fix");
+  expect(error.message).toContain("alien doctor --fix");
   if (params?.expectTailscaleHint) {
     expect(error.message).toContain("Tailscale Serve/Funnel");
   }
@@ -182,9 +182,9 @@ beforeAll(async () => {
 
 describe("GatewayClient security checks", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_ALLOW_INSECURE_PRIVATE_WS",
-    "OPENCLAW_PROXY_ACTIVE",
-    "OPENCLAW_PROXY_LOOPBACK_MODE",
+    "ALIEN_ALLOW_INSECURE_PRIVATE_WS",
+    "ALIEN_PROXY_ACTIVE",
+    "ALIEN_PROXY_LOOPBACK_MODE",
     "HTTP_PROXY",
     "GLOBAL_AGENT_HTTP_PROXY",
     "GLOBAL_AGENT_FORCE_GLOBAL_AGENT",
@@ -192,9 +192,9 @@ describe("GatewayClient security checks", () => {
 
   beforeEach(() => {
     envSnapshot.restore();
-    delete process.env.OPENCLAW_ALLOW_INSECURE_PRIVATE_WS;
-    delete process.env.OPENCLAW_PROXY_ACTIVE;
-    delete process.env.OPENCLAW_PROXY_LOOPBACK_MODE;
+    delete process.env.ALIEN_ALLOW_INSECURE_PRIVATE_WS;
+    delete process.env.ALIEN_PROXY_ACTIVE;
+    delete process.env.ALIEN_PROXY_LOOPBACK_MODE;
     delete process.env.HTTP_PROXY;
     delete process.env.GLOBAL_AGENT_HTTP_PROXY;
     delete process.env.GLOBAL_AGENT_FORCE_GLOBAL_AGENT;
@@ -204,9 +204,9 @@ describe("GatewayClient security checks", () => {
 
   afterEach(() => {
     envSnapshot.restore();
-    delete process.env.OPENCLAW_ALLOW_INSECURE_PRIVATE_WS;
-    delete process.env.OPENCLAW_PROXY_ACTIVE;
-    delete process.env.OPENCLAW_PROXY_LOOPBACK_MODE;
+    delete process.env.ALIEN_ALLOW_INSECURE_PRIVATE_WS;
+    delete process.env.ALIEN_PROXY_ACTIVE;
+    delete process.env.ALIEN_PROXY_LOOPBACK_MODE;
     delete process.env.HTTP_PROXY;
     delete process.env.GLOBAL_AGENT_HTTP_PROXY;
     delete process.env.GLOBAL_AGENT_FORCE_GLOBAL_AGENT;
@@ -258,8 +258,8 @@ describe("GatewayClient security checks", () => {
   });
 
   it("bootstraps inherited managed proxy routing before proxy-mode loopback WebSocket creation", () => {
-    process.env.OPENCLAW_PROXY_ACTIVE = "1";
-    process.env.OPENCLAW_PROXY_LOOPBACK_MODE = "proxy";
+    process.env.ALIEN_PROXY_ACTIVE = "1";
+    process.env.ALIEN_PROXY_LOOPBACK_MODE = "proxy";
     process.env.HTTP_PROXY = "http://127.0.0.1:3128";
     process.env.GLOBAL_AGENT_HTTP_PROXY = "http://127.0.0.1:3128";
     const onConnectError = vi.fn();
@@ -343,8 +343,8 @@ describe("GatewayClient security checks", () => {
     client.stop();
   });
 
-  it("allows ws:// to private addresses only with OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1", () => {
-    process.env.OPENCLAW_ALLOW_INSECURE_PRIVATE_WS = "1";
+  it("allows ws:// to private addresses only with ALIEN_ALLOW_INSECURE_PRIVATE_WS=1", () => {
+    process.env.ALIEN_ALLOW_INSECURE_PRIVATE_WS = "1";
     const onConnectError = vi.fn();
     const client = new GatewayClient({
       url: "ws://192.168.1.100:18789",
@@ -358,11 +358,11 @@ describe("GatewayClient security checks", () => {
     client.stop();
   });
 
-  it("allows ws:// hostnames with OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1", () => {
-    process.env.OPENCLAW_ALLOW_INSECURE_PRIVATE_WS = "1";
+  it("allows ws:// hostnames with ALIEN_ALLOW_INSECURE_PRIVATE_WS=1", () => {
+    process.env.ALIEN_ALLOW_INSECURE_PRIVATE_WS = "1";
     const onConnectError = vi.fn();
     const client = new GatewayClient({
-      url: "ws://openclaw-gateway.ai:18789",
+      url: "ws://alien-gateway.ai:18789",
       onConnectError,
     });
 
@@ -943,7 +943,7 @@ describe("GatewayClient connect auth payload", () => {
     });
     const env = {
       ...process.env,
-      OPENCLAW_STATE_DIR: "/tmp/openclaw-client-service-state",
+      ALIEN_STATE_DIR: "/tmp/alien-client-service-state",
     } as NodeJS.ProcessEnv;
     const client = new GatewayClient({
       url: "ws://127.0.0.1:18789",

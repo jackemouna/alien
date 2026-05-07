@@ -1,9 +1,9 @@
-import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+import { verifyChannelMessageAdapterCapabilityProofs } from "alien/plugin-sdk/channel-message";
 import {
   createSendCfgThreadingRuntime,
   expectProvidedCfgSkipsRuntimeLoad,
-} from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig as CoreConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienConfig as CoreConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({

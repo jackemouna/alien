@@ -1,5 +1,5 @@
-# Tlon (OpenClaw plugin)
+# Tlon (Alien plugin)
 
-Tlon/Urbit channel plugin for OpenClaw. Supports DMs, group mentions, and thread replies.
+Tlon/Urbit channel plugin for Alien. Supports DMs, group mentions, and thread replies.
 
-Docs: https://docs.openclaw.ai/channels/tlon
+Docs: https://docs.alien.ai/channels/tlon

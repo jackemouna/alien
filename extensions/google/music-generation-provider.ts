@@ -1,11 +1,11 @@
-import { extensionForMime } from "openclaw/plugin-sdk/media-mime";
+import { extensionForMime } from "alien/plugin-sdk/media-mime";
 import type {
   GeneratedMusicAsset,
   MusicGenerationProvider,
   MusicGenerationRequest,
-} from "openclaw/plugin-sdk/music-generation";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/music-generation";
+import { resolveApiKeyForProvider } from "alien/plugin-sdk/provider-auth-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveGoogleGenerativeAiApiOrigin } from "./api.js";
 import {
   createGoogleMusicGenerationProviderMetadata,

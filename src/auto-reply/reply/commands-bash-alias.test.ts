@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import { handleBashCommand } from "./commands-bash.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 
@@ -21,7 +21,7 @@ function buildBashParams(commandBodyNormalized: string): HandleCommandsParams {
     cfg: {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig,
+    } as AlienConfig,
     ctx: {
       Provider: "whatsapp",
       Surface: "whatsapp",

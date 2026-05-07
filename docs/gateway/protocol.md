@@ -8,7 +8,7 @@ title: "Gateway protocol"
 ---
 
 The Gateway WS protocol is the **single control plane + node transport** for
-OpenClaw. All clients (CLI, web UI, macOS app, iOS/Android nodes, headless
+Alien. All clients (CLI, web UI, macOS app, iOS/Android nodes, headless
 nodes) connect over WebSocket and declare their **role** + **scope** at
 handshake time.
 
@@ -59,7 +59,7 @@ Client → Gateway:
     "permissions": {},
     "auth": { "token": "…" },
     "locale": "en-US",
-    "userAgent": "openclaw-cli/1.2.3",
+    "userAgent": "alien-cli/1.2.3",
     "device": {
       "id": "device_fingerprint",
       "publicKey": "…",
@@ -189,7 +189,7 @@ roles still need scopes under their own role prefix.
     "permissions": { "camera.capture": true, "screen.record": false },
     "auth": { "token": "…" },
     "locale": "en-US",
-    "userAgent": "openclaw-ios/1.2.3",
+    "userAgent": "alien-ios/1.2.3",
     "device": {
       "id": "device_fingerprint",
       "publicKey": "…",
@@ -373,7 +373,7 @@ enumeration of `src/gateway/server-methods/*.ts`.
     - `talk.session.close` closes a Gateway-owned relay, transcription, or managed-room session and emits terminal Talk events.
     - `talk.mode` sets/broadcasts the current Talk mode state for WebChat/Control UI clients.
     - `talk.client.create` creates a client-owned realtime provider session using `webrtc` or `provider-websocket` while the Gateway owns config, credentials, instructions, and tool policy.
-    - `talk.client.toolCall` lets client-owned realtime transports forward provider tool calls to Gateway policy. The first supported tool is `openclaw_agent_consult`; clients receive a run id and wait for normal chat lifecycle events before submitting the provider-specific tool result.
+    - `talk.client.toolCall` lets client-owned realtime transports forward provider tool calls to Gateway policy. The first supported tool is `alien_agent_consult`; clients receive a run id and wait for normal chat lifecycle events before submitting the provider-specific tool result.
     - `talk.event` is the single Talk event channel for realtime, transcription, STT/TTS, managed-room, telephony, and meeting adapters.
     - `talk.speak` synthesizes speech through the active Talk speech provider.
     - `tts.status` returns TTS enabled state, active provider, fallback providers, and provider config state.
@@ -538,7 +538,7 @@ enumeration of `src/gateway/server-methods/*.ts`.
   - ClawHub mode: `{ source: "clawhub", slug, version?, force? }` installs a
     skill folder into the default agent workspace `skills/` directory.
   - Gateway installer mode: `{ name, installId, dangerouslyForceUnsafeInstall?, timeoutMs? }`
-    runs a declared `metadata.openclaw.install` action on the gateway host.
+    runs a declared `metadata.alien.install` action on the gateway host.
 - Operators may call `skills.update` (`operator.admin`) in two modes:
   - ClawHub mode updates one tracked slug or all tracked ClawHub installs in
     the default agent workspace.
@@ -669,7 +669,7 @@ rather than the pre-handshake defaults.
 - Pairing approvals are required for new device IDs unless local auto-approval
   is enabled.
 - Pairing auto-approval is centered on direct local loopback connects.
-- OpenClaw also has a narrow backend/container-local self-connect path for
+- Alien also has a narrow backend/container-local self-connect path for
   trusted shared-secret helper flows.
 - Same-host tailnet or LAN connects are still treated as remote for pairing and
   require approval.

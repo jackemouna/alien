@@ -7,7 +7,7 @@ import {
   resolveStateDir,
 } from "../../config/config.js";
 import type {
-  OpenClawConfig,
+  AlienConfig,
   ConfigFileSnapshot,
   GatewayBindMode,
   GatewayControlUiConfig,
@@ -66,8 +66,8 @@ type PortStatusSummary = {
 
 type DaemonConfigContext = {
   mergedDaemonEnv: Record<string, string | undefined>;
-  cliCfg: OpenClawConfig;
-  daemonCfg: OpenClawConfig;
+  cliCfg: AlienConfig;
+  daemonCfg: AlienConfig;
   cliConfigSummary: ConfigSummary;
   daemonConfigSummary: ConfigSummary;
   configMismatch: boolean;
@@ -75,7 +75,7 @@ type DaemonConfigContext = {
 
 type StatusConfigRead = {
   summary: ConfigSummary;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   mode: "fast" | "full";
 };
 
@@ -121,18 +121,18 @@ function loadRestartHealthModule() {
   return restartHealthModuleLoader.load();
 }
 
-function resolveSnapshotRuntimeConfig(snapshot: ConfigFileSnapshot | null): OpenClawConfig | null {
+function resolveSnapshotRuntimeConfig(snapshot: ConfigFileSnapshot | null): AlienConfig | null {
   if (!snapshot?.valid || !snapshot.runtimeConfig) {
     return null;
   }
   return snapshot.runtimeConfig;
 }
 
-function coerceStatusConfig(value: unknown): OpenClawConfig {
+function coerceStatusConfig(value: unknown): AlienConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
-  return value as OpenClawConfig;
+  return value as AlienConfig;
 }
 
 function hasOwnKey(value: unknown, key: string): boolean {
@@ -340,8 +340,8 @@ async function loadDaemonConfigContext(
 }
 
 async function resolveGatewayStatusSummary(params: {
-  daemonCfg: OpenClawConfig;
-  cliCfg: OpenClawConfig;
+  daemonCfg: AlienConfig;
+  cliCfg: AlienConfig;
   mergedDaemonEnv: Record<string, string | undefined>;
   commandProgramArguments?: string[];
   rpcUrlOverride?: string;

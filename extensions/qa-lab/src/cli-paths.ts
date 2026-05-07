@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { assertNoSymlinkParents, pathScope } from "openclaw/plugin-sdk/security-runtime";
+import { assertNoSymlinkParents, pathScope } from "alien/plugin-sdk/security-runtime";
 
 export function resolveRepoRelativeOutputDir(repoRoot: string, outputDir?: string) {
   if (!outputDir) {

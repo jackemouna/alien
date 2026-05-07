@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { readStringValue } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { readStringValue } from "alien/plugin-sdk/text-runtime";
 import { runFirecrawlScrape } from "./src/firecrawl-client.js";
 
 export type FetchFirecrawlContentParams = {
@@ -26,7 +26,7 @@ export type FetchFirecrawlContentResult = {
 export async function fetchFirecrawlContent(
   params: FetchFirecrawlContentParams,
 ): Promise<FetchFirecrawlContentResult> {
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     plugins: {
       entries: {
         firecrawl: {

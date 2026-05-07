@@ -1,5 +1,5 @@
-import { resolveHumanDelayConfig } from "openclaw/plugin-sdk/agent-runtime";
-import { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
+import { resolveHumanDelayConfig } from "alien/plugin-sdk/agent-runtime";
+import { logTypingFailure } from "alien/plugin-sdk/channel-feedback";
 import {
   buildMentionRegexes,
   createChannelInboundDebouncer,
@@ -9,41 +9,41 @@ import {
   resolveInboundMentionDecision,
   resolveEnvelopeFormatOptions,
   shouldDebounceTextInbound,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { logInboundDrop } from "openclaw/plugin-sdk/channel-inbound";
-import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-inbound";
+import { logInboundDrop } from "alien/plugin-sdk/channel-inbound";
+import { createChannelMessageReplyPipeline } from "alien/plugin-sdk/channel-message";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "openclaw/plugin-sdk/channel-policy";
-import { resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
-import { hasControlCommand } from "openclaw/plugin-sdk/command-auth";
-import { recordInboundSession } from "openclaw/plugin-sdk/conversation-runtime";
+} from "alien/plugin-sdk/channel-policy";
+import { resolveControlCommandGate } from "alien/plugin-sdk/command-auth";
+import { hasControlCommand } from "alien/plugin-sdk/command-auth";
+import { recordInboundSession } from "alien/plugin-sdk/conversation-runtime";
 import {
   createInternalHookEvent,
   fireAndForgetHook,
   toInternalMessageReceivedContext,
   triggerInternalHook,
-} from "openclaw/plugin-sdk/hook-runtime";
-import { runInboundReplyTurn } from "openclaw/plugin-sdk/inbound-reply-dispatch";
-import { kindFromMime } from "openclaw/plugin-sdk/media-runtime";
+} from "alien/plugin-sdk/hook-runtime";
+import { runInboundReplyTurn } from "alien/plugin-sdk/inbound-reply-dispatch";
+import { kindFromMime } from "alien/plugin-sdk/media-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
-} from "openclaw/plugin-sdk/reply-history";
-import { dispatchInboundMessage } from "openclaw/plugin-sdk/reply-runtime";
-import { finalizeInboundContext } from "openclaw/plugin-sdk/reply-runtime";
-import { createReplyDispatcherWithTyping } from "openclaw/plugin-sdk/reply-runtime";
-import { settleReplyDispatcher } from "openclaw/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/reply-history";
+import { dispatchInboundMessage } from "alien/plugin-sdk/reply-runtime";
+import { finalizeInboundContext } from "alien/plugin-sdk/reply-runtime";
+import { createReplyDispatcherWithTyping } from "alien/plugin-sdk/reply-runtime";
+import { settleReplyDispatcher } from "alien/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { danger, logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
 import {
   DM_GROUP_ACCESS_REASON,
   resolvePinnedMainDmOwnerFromAllowlist,
-} from "openclaw/plugin-sdk/security-runtime";
-import { readSessionUpdatedAt, resolveStorePath } from "openclaw/plugin-sdk/session-store-runtime";
-import { enqueueSystemEvent } from "openclaw/plugin-sdk/system-event-runtime";
-import { normalizeE164, normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/security-runtime";
+import { readSessionUpdatedAt, resolveStorePath } from "alien/plugin-sdk/session-store-runtime";
+import { enqueueSystemEvent } from "alien/plugin-sdk/system-event-runtime";
+import { normalizeE164, normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   formatSignalPairingIdLine,
   formatSignalSenderDisplay,

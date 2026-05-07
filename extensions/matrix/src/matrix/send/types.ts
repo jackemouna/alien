@@ -1,4 +1,4 @@
-import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
+import type { MessageReceipt } from "alien/plugin-sdk/channel-message";
 import type { CoreConfig } from "../../types.js";
 import { MATRIX_ANNOTATION_RELATION_TYPE, MATRIX_REACTION_EVENT_TYPE } from "../reaction-common.js";
 import type {
@@ -35,7 +35,7 @@ export const EventType = {
   RoomMessage: "m.room.message",
 } as const;
 
-export const MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY = "com.openclaw.finalized_preview" as const;
+export const MATRIX_ALIEN_FINALIZED_PREVIEW_KEY = "com.alien.finalized_preview" as const;
 
 export type MatrixDirectAccountData = Record<string, string[]>;
 

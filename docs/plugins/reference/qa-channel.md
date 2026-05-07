@@ -1,5 +1,5 @@
 ---
-summary: "Adds the QA Channel surface for sending and receiving OpenClaw messages."
+summary: "Adds the QA Channel surface for sending and receiving Alien messages."
 read_when:
   - You are installing, configuring, or auditing the qa-channel plugin
 title: "QA Channel plugin"
@@ -7,11 +7,11 @@ title: "QA Channel plugin"
 
 # QA Channel plugin
 
-Adds the QA Channel surface for sending and receiving OpenClaw messages.
+Adds the QA Channel surface for sending and receiving Alien messages.
 
 ## Distribution
 
-- Package: `@openclaw/qa-channel`
+- Package: `@alien/qa-channel`
 - Install route: source checkout only
 
 ## Surface

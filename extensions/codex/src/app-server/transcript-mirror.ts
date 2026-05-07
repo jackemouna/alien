@@ -8,7 +8,7 @@ import {
   runAgentHarnessBeforeMessageWriteHook,
   type AgentMessage,
   type SessionWriteLockAcquireTimeoutConfig,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 
 type MirroredAgentMessage = Extract<AgentMessage, { role: "user" | "assistant" }>;
 
@@ -25,20 +25,20 @@ const MIRROR_IDENTITY_META_KEY = "mirrorIdentity" as const;
  */
 export function attachCodexMirrorIdentity<T extends AgentMessage>(message: T, identity: string): T {
   const record = message as unknown as Record<string, unknown>;
-  const existing = record.__openclaw;
+  const existing = record.__alien;
   const baseMeta =
     existing && typeof existing === "object" && !Array.isArray(existing)
       ? (existing as Record<string, unknown>)
       : {};
   return {
     ...record,
-    __openclaw: { ...baseMeta, [MIRROR_IDENTITY_META_KEY]: identity },
+    __alien: { ...baseMeta, [MIRROR_IDENTITY_META_KEY]: identity },
   } as unknown as T;
 }
 
 function readMirrorIdentity(message: MirroredAgentMessage): string | undefined {
-  const record = message as unknown as { __openclaw?: unknown };
-  const meta = record.__openclaw;
+  const record = message as unknown as { __alien?: unknown };
+  const meta = record.__alien;
   if (!meta || typeof meta !== "object" || Array.isArray(meta)) {
     return undefined;
   }

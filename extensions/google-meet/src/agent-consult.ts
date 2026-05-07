@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import type { PluginRuntime, RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
 import {
   buildRealtimeVoiceAgentConsultWorkingResponse,
   consultRealtimeVoiceAgent,
@@ -11,9 +11,9 @@ import {
   type RealtimeVoiceToolCallEvent,
   type RealtimeVoiceTool,
   type TalkEventInput,
-} from "openclaw/plugin-sdk/realtime-voice";
-import { normalizeAgentId } from "openclaw/plugin-sdk/routing";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/realtime-voice";
+import { normalizeAgentId } from "alien/plugin-sdk/routing";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type { GoogleMeetConfig, GoogleMeetToolPolicy } from "./config.js";
 
 export const GOOGLE_MEET_AGENT_CONSULT_TOOL_NAME = REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME;
@@ -42,9 +42,9 @@ export function submitGoogleMeetConsultWorkingResponse(
   });
 }
 
-export async function consultOpenClawAgentForGoogleMeet(params: {
+export async function consultAlienAgentForGoogleMeet(params: {
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   runtime: PluginRuntime;
   logger: RuntimeLogger;
   meetingSessionId: string;
@@ -83,7 +83,7 @@ export function handleGoogleMeetRealtimeConsultToolCall(params: {
   session: RealtimeVoiceBridgeSession;
   event: RealtimeVoiceToolCallEvent;
   config: GoogleMeetConfig;
-  fullConfig: OpenClawConfig;
+  fullConfig: AlienConfig;
   runtime: PluginRuntime;
   logger: RuntimeLogger;
   meetingSessionId: string;
@@ -125,7 +125,7 @@ export function handleGoogleMeetRealtimeConsultToolCall(params: {
     payload: { name: params.event.name, status: "working" },
   });
   submitGoogleMeetConsultWorkingResponse(params.session, callId);
-  void consultOpenClawAgentForGoogleMeet({
+  void consultAlienAgentForGoogleMeet({
     config: params.config,
     fullConfig: params.fullConfig,
     runtime: params.runtime,

@@ -23,9 +23,9 @@ let server: Awaited<ReturnType<typeof startGatewayServer>>;
 let port = 0;
 
 beforeAll(async () => {
-  const configPath = process.env.OPENCLAW_CONFIG_PATH;
+  const configPath = process.env.ALIEN_CONFIG_PATH;
   if (!configPath) {
-    throw new Error("OPENCLAW_CONFIG_PATH missing in gateway test environment");
+    throw new Error("ALIEN_CONFIG_PATH missing in gateway test environment");
   }
   port = await getFreePort();
   testState.gatewayAuth = undefined;

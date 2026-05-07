@@ -1,12 +1,12 @@
 ---
-summary: "Messaging platforms OpenClaw can connect to"
+summary: "Messaging platforms Alien can connect to"
 read_when:
-  - You want to choose a chat channel for OpenClaw
+  - You want to choose a chat channel for Alien
   - You need a quick overview of supported messaging platforms
 title: "Chat channels"
 ---
 
-OpenClaw can talk to you on any chat app you already use. Each channel connects via the Gateway.
+Alien can talk to you on any chat app you already use. Each channel connects via the Gateway.
 Text is supported everywhere; media and reactions vary by channel.
 
 ## Delivery notes
@@ -21,11 +21,11 @@ Text is supported everywhere; media and reactions vary by channel.
 
 ## Supported channels
 
-- [BlueBubbles](/channels/bluebubbles) - Legacy iMessage bridge via the BlueBubbles macOS server REST API; deprecated for new OpenClaw setups but still supported for existing configs and richer private-API actions.
+- [BlueBubbles](/channels/bluebubbles) - Legacy iMessage bridge via the BlueBubbles macOS server REST API; deprecated for new Alien setups but still supported for existing configs and richer private-API actions.
 - [Discord](/channels/discord) - Discord Bot API + Gateway; supports servers, channels, and DMs.
 - [Feishu](/channels/feishu) - Feishu/Lark bot via WebSocket (bundled plugin).
 - [Google Chat](/channels/googlechat) - Google Chat API app via HTTP webhook (downloadable plugin).
-- [iMessage](/channels/imessage) - Native macOS integration via the imsg CLI; preferred for new OpenClaw iMessage setups when host permissions and Messages access fit.
+- [iMessage](/channels/imessage) - Native macOS integration via the imsg CLI; preferred for new Alien iMessage setups when host permissions and Messages access fit.
 - [IRC](/channels/irc) - Classic IRC servers; channels + DMs with pairing/allowlist controls.
 - [LINE](/channels/line) - LINE Messaging API bot (downloadable plugin).
 - [Matrix](/channels/matrix) - Matrix protocol (downloadable plugin).
@@ -50,7 +50,7 @@ Text is supported everywhere; media and reactions vary by channel.
 
 ## Notes
 
-- Channels can run simultaneously; configure multiple and OpenClaw will route per chat.
+- Channels can run simultaneously; configure multiple and Alien will route per chat.
 - Fastest setup is usually **Telegram** (simple bot token). WhatsApp requires QR pairing and
   stores more state on disk.
 - Group behavior varies by channel; see [Groups](/channels/groups).

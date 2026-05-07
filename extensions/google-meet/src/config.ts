@@ -2,11 +2,11 @@ import {
   REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
   resolveRealtimeVoiceAgentConsultToolPolicy,
   type RealtimeVoiceAgentConsultToolPolicy,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 
 export type GoogleMeetTransport = "chrome" | "chrome-node" | "twilio";
 export type GoogleMeetMode = "agent" | "bidi" | "transcribe";
@@ -184,7 +184,7 @@ const DEFAULT_GOOGLE_MEET_BARGE_IN_RMS_THRESHOLD = 650;
 const DEFAULT_GOOGLE_MEET_BARGE_IN_PEAK_THRESHOLD = 2500;
 const DEFAULT_GOOGLE_MEET_BARGE_IN_COOLDOWN_MS = 900;
 
-const DEFAULT_GOOGLE_MEET_REALTIME_INSTRUCTIONS = `You are joining a private Google Meet as an OpenClaw voice transport. Keep spoken replies brief and natural. In agent mode, wait for OpenClaw consult results and speak them exactly. In bidi mode, answer directly and call ${REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME} for deeper reasoning, current information, or tools.`;
+const DEFAULT_GOOGLE_MEET_REALTIME_INSTRUCTIONS = `You are joining a private Google Meet as an Alien voice transport. Keep spoken replies brief and natural. In agent mode, wait for Alien consult results and speak them exactly. In bidi mode, answer directly and call ${REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME} for deeper reasoning, current information, or tools.`;
 const DEFAULT_GOOGLE_MEET_REALTIME_INTRO_MESSAGE = "Say exactly: I'm here and listening.";
 
 const DEFAULT_GOOGLE_MEET_CONFIG: GoogleMeetConfig = {
@@ -200,7 +200,7 @@ const DEFAULT_GOOGLE_MEET_CONFIG: GoogleMeetConfig = {
     audioFormat: DEFAULT_GOOGLE_MEET_CHROME_AUDIO_FORMAT,
     audioBufferBytes: DEFAULT_GOOGLE_MEET_AUDIO_BUFFER_BYTES,
     launch: true,
-    guestName: "OpenClaw Agent",
+    guestName: "Alien Agent",
     reuseExistingTab: true,
     autoJoin: true,
     joinTimeoutMs: 30_000,
@@ -234,29 +234,29 @@ const DEFAULT_GOOGLE_MEET_CONFIG: GoogleMeetConfig = {
   },
 };
 
-const GOOGLE_MEET_CLIENT_ID_KEYS = ["OPENCLAW_GOOGLE_MEET_CLIENT_ID", "GOOGLE_MEET_CLIENT_ID"];
+const GOOGLE_MEET_CLIENT_ID_KEYS = ["ALIEN_GOOGLE_MEET_CLIENT_ID", "GOOGLE_MEET_CLIENT_ID"];
 const GOOGLE_MEET_CLIENT_SECRET_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_CLIENT_SECRET",
+  "ALIEN_GOOGLE_MEET_CLIENT_SECRET",
   "GOOGLE_MEET_CLIENT_SECRET",
 ] as const;
 const GOOGLE_MEET_REFRESH_TOKEN_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_REFRESH_TOKEN",
+  "ALIEN_GOOGLE_MEET_REFRESH_TOKEN",
   "GOOGLE_MEET_REFRESH_TOKEN",
 ] as const;
 const GOOGLE_MEET_ACCESS_TOKEN_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_ACCESS_TOKEN",
+  "ALIEN_GOOGLE_MEET_ACCESS_TOKEN",
   "GOOGLE_MEET_ACCESS_TOKEN",
 ] as const;
 const GOOGLE_MEET_ACCESS_TOKEN_EXPIRES_AT_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_ACCESS_TOKEN_EXPIRES_AT",
+  "ALIEN_GOOGLE_MEET_ACCESS_TOKEN_EXPIRES_AT",
   "GOOGLE_MEET_ACCESS_TOKEN_EXPIRES_AT",
 ] as const;
 const GOOGLE_MEET_DEFAULT_MEETING_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_DEFAULT_MEETING",
+  "ALIEN_GOOGLE_MEET_DEFAULT_MEETING",
   "GOOGLE_MEET_DEFAULT_MEETING",
 ] as const;
 const GOOGLE_MEET_PREVIEW_ACK_KEYS = [
-  "OPENCLAW_GOOGLE_MEET_PREVIEW_ACK",
+  "ALIEN_GOOGLE_MEET_PREVIEW_ACK",
   "GOOGLE_MEET_PREVIEW_ACK",
 ] as const;
 

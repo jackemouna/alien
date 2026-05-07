@@ -1,10 +1,10 @@
 import { spawn } from "node:child_process";
 // Live prompt probe for Anthropic setup-token and Claude CLI prompt-path debugging.
 // Usage:
-// OPENCLAW_PROMPT_TRANSPORT=direct|gateway
-// OPENCLAW_PROMPT_MODE=extra|override
-// OPENCLAW_PROMPT_TEXT='...'
-// OPENCLAW_PROMPT_CAPTURE=1
+// ALIEN_PROMPT_TRANSPORT=direct|gateway
+// ALIEN_PROMPT_MODE=extra|override
+// ALIEN_PROMPT_TEXT='...'
+// ALIEN_PROMPT_CAPTURE=1
 // pnpm probe:anthropic:prompt
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
@@ -20,25 +20,25 @@ import { callGateway } from "../src/gateway/call.js";
 import { extractPayloadText } from "../src/gateway/test-helpers.agent-results.js";
 import { getFreePortBlockWithPermissionFallback } from "../src/test-utils/ports.js";
 
-const TRANSPORT = process.env.OPENCLAW_PROMPT_TRANSPORT?.trim() === "direct" ? "direct" : "gateway";
+const TRANSPORT = process.env.ALIEN_PROMPT_TRANSPORT?.trim() === "direct" ? "direct" : "gateway";
 const GATEWAY_PROMPT_MODE =
-  process.env.OPENCLAW_PROMPT_MODE?.trim() === "override" ? "override" : "extra";
-const PROMPT_TEXT = process.env.OPENCLAW_PROMPT_TEXT?.trim() ?? "";
-const PROMPT_LIST_JSON = process.env.OPENCLAW_PROMPT_LIST_JSON?.trim() ?? "";
-const USER_PROMPT = process.env.OPENCLAW_USER_PROMPT?.trim() || "is clawd here?";
-const ENABLE_CAPTURE = process.env.OPENCLAW_PROMPT_CAPTURE === "1";
-const INCLUDE_RAW = process.env.OPENCLAW_PROMPT_INCLUDE_RAW === "1";
+  process.env.ALIEN_PROMPT_MODE?.trim() === "override" ? "override" : "extra";
+const PROMPT_TEXT = process.env.ALIEN_PROMPT_TEXT?.trim() ?? "";
+const PROMPT_LIST_JSON = process.env.ALIEN_PROMPT_LIST_JSON?.trim() ?? "";
+const USER_PROMPT = process.env.ALIEN_USER_PROMPT?.trim() || "is clawd here?";
+const ENABLE_CAPTURE = process.env.ALIEN_PROMPT_CAPTURE === "1";
+const INCLUDE_RAW = process.env.ALIEN_PROMPT_INCLUDE_RAW === "1";
 const CLAUDE_BIN = process.env.CLAUDE_BIN?.trim() || "claude";
-const NODE_BIN = process.env.OPENCLAW_NODE_BIN?.trim() || process.execPath;
-const TIMEOUT_MS = Number(process.env.OPENCLAW_PROMPT_TIMEOUT_MS ?? "45000");
-const GATEWAY_TIMEOUT_MS = Number(process.env.OPENCLAW_PROMPT_GATEWAY_TIMEOUT_MS ?? "120000");
-const SETUP_TOKEN_RAW = process.env.OPENCLAW_LIVE_SETUP_TOKEN?.trim() ?? "";
-const SETUP_TOKEN_VALUE = process.env.OPENCLAW_LIVE_SETUP_TOKEN_VALUE?.trim() ?? "";
-const SETUP_TOKEN_PROFILE = process.env.OPENCLAW_LIVE_SETUP_TOKEN_PROFILE?.trim() ?? "";
+const NODE_BIN = process.env.ALIEN_NODE_BIN?.trim() || process.execPath;
+const TIMEOUT_MS = Number(process.env.ALIEN_PROMPT_TIMEOUT_MS ?? "45000");
+const GATEWAY_TIMEOUT_MS = Number(process.env.ALIEN_PROMPT_GATEWAY_TIMEOUT_MS ?? "120000");
+const SETUP_TOKEN_RAW = process.env.ALIEN_LIVE_SETUP_TOKEN?.trim() ?? "";
+const SETUP_TOKEN_VALUE = process.env.ALIEN_LIVE_SETUP_TOKEN_VALUE?.trim() ?? "";
+const SETUP_TOKEN_PROFILE = process.env.ALIEN_LIVE_SETUP_TOKEN_PROFILE?.trim() ?? "";
 const DIRECT_CLAUDE_ARGS = ["-p", "--append-system-prompt"];
 
 if (!PROMPT_TEXT && !PROMPT_LIST_JSON) {
-  throw new Error("missing OPENCLAW_PROMPT_TEXT or OPENCLAW_PROMPT_LIST_JSON");
+  throw new Error("missing ALIEN_PROMPT_TEXT or ALIEN_PROMPT_LIST_JSON");
 }
 
 type CaptureSummary = {
@@ -200,7 +200,7 @@ function resolveSetupTokenSource(): TokenSource {
   const match = pickSetupTokenProfile(candidates);
   if (!match) {
     throw new Error(
-      "no Anthropics setup-token profile found; set OPENCLAW_LIVE_SETUP_TOKEN_VALUE or OPENCLAW_LIVE_SETUP_TOKEN_PROFILE",
+      "no Anthropics setup-token profile found; set ALIEN_LIVE_SETUP_TOKEN_VALUE or ALIEN_LIVE_SETUP_TOKEN_PROFILE",
     );
   }
   return { profileId: match.id, token: validateSetupToken(match.token) };
@@ -365,7 +365,7 @@ async function getFreePort(): Promise<number> {
 }
 
 async function runDirectPrompt(prompt: string): Promise<PromptResult> {
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-direct-prompt-probe-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-direct-prompt-probe-"));
   const proxyPort = ENABLE_CAPTURE ? await getFreePort() : undefined;
   const proxy =
     ENABLE_CAPTURE && proxyPort
@@ -425,23 +425,23 @@ async function startGatewayProcess(params: {
   const logFile = await fs.open(params.logPath, "a");
   const child = spawn(
     NODE_BIN,
-    ["openclaw.mjs", "gateway", "--port", String(params.port), "--bind", "loopback", "--force"],
+    ["alien.mjs", "gateway", "--port", String(params.port), "--bind", "loopback", "--force"],
     {
       cwd: process.cwd(),
       env: {
         ...process.env,
-        OPENCLAW_CONFIG_PATH: params.configPath,
-        OPENCLAW_STATE_DIR: params.stateDir,
-        OPENCLAW_AGENT_DIR: params.agentDir,
-        OPENCLAW_GATEWAY_TOKEN: params.gatewayToken,
-        OPENCLAW_SKIP_CHANNELS: "1",
-        OPENCLAW_SKIP_GMAIL_WATCHER: "1",
-        OPENCLAW_SKIP_CANVAS_HOST: "1",
-        OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1",
-        OPENCLAW_DISABLE_BONJOUR: "1",
-        OPENCLAW_SKIP_CRON: "1",
-        OPENCLAW_TEST_MINIMAL_GATEWAY: "1",
-        OPENCLAW_BUNDLED_PLUGINS_DIR: params.bundledPluginsDir,
+        ALIEN_CONFIG_PATH: params.configPath,
+        ALIEN_STATE_DIR: params.stateDir,
+        ALIEN_AGENT_DIR: params.agentDir,
+        ALIEN_GATEWAY_TOKEN: params.gatewayToken,
+        ALIEN_SKIP_CHANNELS: "1",
+        ALIEN_SKIP_GMAIL_WATCHER: "1",
+        ALIEN_SKIP_CANVAS_HOST: "1",
+        ALIEN_SKIP_BROWSER_CONTROL_SERVER: "1",
+        ALIEN_DISABLE_BONJOUR: "1",
+        ALIEN_SKIP_CRON: "1",
+        ALIEN_TEST_MINIMAL_GATEWAY: "1",
+        ALIEN_BUNDLED_PLUGINS_DIR: params.bundledPluginsDir,
         ANTHROPIC_API_KEY: "",
         ANTHROPIC_API_KEY_OLD: "",
       },
@@ -490,11 +490,11 @@ async function readLogTail(logPath: string): Promise<string> {
 
 async function runGatewayPrompt(prompt: string): Promise<PromptResult> {
   const tokenSource = resolveSetupTokenSource();
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-prompt-probe-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-gateway-prompt-probe-"));
   const stateDir = path.join(tmpDir, "state");
   const agentDir = path.join(stateDir, "agents", "main", "agent");
   const bundledPluginsDir = path.join(tmpDir, "bundled-plugins-empty");
-  const configPath = path.join(tmpDir, "openclaw.json");
+  const configPath = path.join(tmpDir, "alien.json");
   const logPath = path.join(tmpDir, "gateway.log");
   const gatewayToken = `gw-${randomUUID()}`;
   const port = await getFreePort();

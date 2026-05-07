@@ -31,13 +31,13 @@ describe("run-oxlint", () => {
       "node scripts/prepare-extension-package-boundary-artifacts.mjs",
     );
     expect(shardedLintRunner).toContain("prepare-extension-package-boundary-artifacts.mjs");
-    expect(shardedLintRunner).toContain('OPENCLAW_OXLINT_SKIP_PREPARE: "1"');
+    expect(shardedLintRunner).toContain('ALIEN_OXLINT_SKIP_PREPARE: "1"');
   });
 
   it("lets dev update preflight run oxlint shards serially", () => {
     const shardedLintRunner = readFileSync("scripts/run-oxlint-shards.mjs", "utf8");
 
-    expect(shardedLintRunner).toContain("OPENCLAW_OXLINT_SHARDS_SERIAL");
+    expect(shardedLintRunner).toContain("ALIEN_OXLINT_SHARDS_SERIAL");
     expect(shardedLintRunner).toContain("runShardsSerial");
   });
 

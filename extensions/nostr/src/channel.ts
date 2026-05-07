@@ -1,15 +1,15 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
 import {
   createScopedDmSecurityResolver,
   createTopLevelChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createChannelMessageAdapterFromOutbound } from "alien/plugin-sdk/channel-message";
 import {
   buildPassiveChannelStatusSummary,
   buildTrafficStatusSummary,
-} from "openclaw/plugin-sdk/extension-shared";
-import { createComputedAccountStatusAdapter } from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/extension-shared";
+import { createComputedAccountStatusAdapter } from "alien/plugin-sdk/status-helpers";
 import {
   buildChannelConfigSchema,
   collectStatusIssuesFromLastError,

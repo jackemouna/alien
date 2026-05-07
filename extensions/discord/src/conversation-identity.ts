@@ -1,7 +1,7 @@
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { parseDiscordTarget } from "./target-parsing.js";
 
 function normalizeDiscordTarget(

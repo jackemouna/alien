@@ -2,14 +2,14 @@ import {
   buildExecApprovalPendingReplyPayload,
   resolveExecApprovalRequestAllowedDecisions,
   resolveExecApprovalCommandDisplay,
-} from "openclaw/plugin-sdk/approval-reply-runtime";
-import type { ExecApprovalRequest } from "openclaw/plugin-sdk/approval-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeMessageChannel } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/approval-reply-runtime";
+import type { ExecApprovalRequest } from "alien/plugin-sdk/approval-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeMessageChannel } from "alien/plugin-sdk/routing";
 import { isTelegramExecApprovalClientEnabled } from "./exec-approvals.js";
 
 export function shouldSuppressTelegramExecApprovalForwardingFallback(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   target: { channel: string; accountId?: string | null };
   request: ExecApprovalRequest;
 }): boolean {

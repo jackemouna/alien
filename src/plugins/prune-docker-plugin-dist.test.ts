@@ -16,7 +16,7 @@ function makeRepoRoot(prefix: string): string {
 function writeDistPluginFile(repoRoot: string, root: "dist" | "dist-runtime", pluginId: string) {
   const pluginDir = path.join(repoRoot, root, "extensions", pluginId);
   fs.mkdirSync(pluginDir, { recursive: true });
-  fs.writeFileSync(path.join(pluginDir, "openclaw.plugin.json"), "{}\n", "utf8");
+  fs.writeFileSync(path.join(pluginDir, "alien.plugin.json"), "{}\n", "utf8");
 }
 
 afterEach(() => {
@@ -33,7 +33,7 @@ describe("pruneDockerPluginDist", () => {
   });
 
   it("removes package-excluded plugin dist unless Docker explicitly opts it in", () => {
-    const repoRoot = makeRepoRoot("openclaw-docker-plugin-dist-");
+    const repoRoot = makeRepoRoot("alien-docker-plugin-dist-");
     writeJsonFile(path.join(repoRoot, "package.json"), {
       files: ["dist/**", "!dist/extensions/diagnostics-otel/**", "!dist/extensions/feishu/**"],
     });
@@ -44,7 +44,7 @@ describe("pruneDockerPluginDist", () => {
 
     const removed = pruneDockerPluginDist({
       repoRoot,
-      env: { OPENCLAW_EXTENSIONS: "diagnostics-otel" } as NodeJS.ProcessEnv,
+      env: { ALIEN_EXTENSIONS: "diagnostics-otel" } as NodeJS.ProcessEnv,
     });
 
     expect(removed).toEqual(["dist/extensions/feishu", "dist-runtime/extensions/feishu"]);

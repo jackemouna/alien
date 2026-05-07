@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { Logger as TsLogger } from "tslog";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import { emitDiagnosticEvent } from "../infra/diagnostic-events.js";
 import {
   getActiveDiagnosticTraceContext,
@@ -15,9 +15,9 @@ import { expandHomePrefix } from "../infra/home-dir.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
 import { appendRegularFileSync } from "../infra/regular-file.js";
 import {
-  POSIX_OPENCLAW_TMP_DIR,
-  resolvePreferredOpenClawTmpDir,
-} from "../infra/tmp-openclaw-dir.js";
+  POSIX_ALIEN_TMP_DIR,
+  resolvePreferredAlienTmpDir,
+} from "../infra/tmp-alien-dir.js";
 import { readLoggingConfig, shouldSkipMutatingLoggingConfigRead } from "./config.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
@@ -44,19 +44,19 @@ function canUseNodeFs(): boolean {
 }
 
 function resolveDefaultLogDir(): string {
-  return canUseNodeFs() ? resolvePreferredOpenClawTmpDir() : POSIX_OPENCLAW_TMP_DIR;
+  return canUseNodeFs() ? resolvePreferredAlienTmpDir() : POSIX_ALIEN_TMP_DIR;
 }
 
 function resolveDefaultLogFile(defaultLogDir: string): string {
   return canUseNodeFs()
-    ? path.join(defaultLogDir, "openclaw.log")
-    : `${POSIX_OPENCLAW_TMP_DIR}/openclaw.log`;
+    ? path.join(defaultLogDir, "alien.log")
+    : `${POSIX_ALIEN_TMP_DIR}/alien.log`;
 }
 
 export const DEFAULT_LOG_DIR = resolveDefaultLogDir();
 export const DEFAULT_LOG_FILE = resolveDefaultLogFile(DEFAULT_LOG_DIR); // legacy single-file path
 
-const LOG_PREFIX = "openclaw";
+const LOG_PREFIX = "alien";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 const DEFAULT_MAX_LOG_FILE_BYTES = 100 * 1024 * 1024; // 100 MB
@@ -71,7 +71,7 @@ type ResolvedSettings = {
 };
 export type LoggerResolvedSettings = ResolvedSettings;
 type TsLogRecord = Record<string, unknown>;
-type LoggerConfigLoader = () => OpenClawConfig["logging"] | undefined;
+type LoggerConfigLoader = () => AlienConfig["logging"] | undefined;
 
 type DiagnosticLogCode = {
   line?: number;
@@ -457,7 +457,7 @@ function attachDiagnosticEventTransport(logger: TsLogger<LogObj>): void {
 function canUseSilentVitestFileLogFastPath(envLevel: LogLevel | undefined): boolean {
   return (
     process.env.VITEST === "true" &&
-    process.env.OPENCLAW_TEST_FILE_LOG !== "1" &&
+    process.env.ALIEN_TEST_FILE_LOG !== "1" &&
     !envLevel &&
     !loggingState.overrideSettings
   );
@@ -483,10 +483,10 @@ function resolveSettings(): ResolvedSettings {
     };
   }
 
-  const cfg: OpenClawConfig["logging"] | undefined =
+  const cfg: AlienConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? loadLoggerConfig();
   const defaultLevel =
-    process.env.VITEST === "true" && process.env.OPENCLAW_TEST_FILE_LOG !== "1" ? "silent" : "info";
+    process.env.VITEST === "true" && process.env.ALIEN_TEST_FILE_LOG !== "1" ? "silent" : "info";
   const fromConfig = normalizeLogLevel(cfg?.level, defaultLevel);
   const level = envLevel ?? fromConfig;
   const file = cfg?.file ?? defaultRollingPathForToday();
@@ -517,7 +517,7 @@ export function isFileLogLevelEnabled(level: LogLevel): boolean {
 
 function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
   const logger = new TsLogger<LogObj>({
-    name: "openclaw",
+    name: "alien",
     minLevel: levelToMinLevel(settings.level),
     type: "hidden", // no ansi formatting
   });
@@ -565,7 +565,7 @@ function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
         } else if (!warnedAboutRotationFailure) {
           warnedAboutRotationFailure = true;
           process.stderr.write(
-            `[openclaw] log file rotation failed; continuing writes file=${activeFile} maxFileBytes=${settings.maxFileBytes}\n`,
+            `[alien] log file rotation failed; continuing writes file=${activeFile} maxFileBytes=${settings.maxFileBytes}\n`,
           );
         }
       }

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../../config/types.js";
+import type { AlienConfig } from "../../../config/types.js";
 import { buildMemorySystemPromptAddition } from "../../../context-engine/delegate.js";
 import {
   clearMemoryPluginState,
@@ -150,9 +150,9 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
         prompt: [
           "visible ask",
           "",
-          "<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<BEGIN_ALIEN_INTERNAL_CONTEXT>>>",
           "secret runtime context",
-          "<<<END_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<END_ALIEN_INTERNAL_CONTEXT>>>",
         ].join("\n"),
         transcriptPrompt: "visible ask",
       },
@@ -173,19 +173,19 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: "custom",
-          customType: "openclaw.runtime-context",
+          customType: "alien.runtime-context",
           display: false,
           content:
-            "<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nsecret runtime context\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>",
+            "<<<BEGIN_ALIEN_INTERNAL_CONTEXT>>>\nsecret runtime context\n<<<END_ALIEN_INTERNAL_CONTEXT>>>",
         }),
       ]),
     );
     expect(JSON.stringify(seen.messages)).not.toContain(
-      "OpenClaw runtime context for the immediately preceding user message.",
+      "Alien runtime context for the immediately preceding user message.",
     );
     expect(JSON.stringify(seen.messages)).not.toContain("not user-authored");
     expect(seen.systemPrompt).not.toContain("secret runtime context");
-    expect(seen.systemPrompt).not.toContain("OPENCLAW_INTERNAL_CONTEXT");
+    expect(seen.systemPrompt).not.toContain("ALIEN_INTERNAL_CONTEXT");
     const trajectoryEvents = (
       await fs.readFile(path.join(tempPaths[0] ?? "", "session.trajectory.jsonl"), "utf8")
     )
@@ -207,13 +207,13 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       modelCompleted?.data?.finalPromptText,
       traceArtifacts?.data?.finalPromptText,
     ]) {
-      expect(String(value)).not.toContain("OPENCLAW_INTERNAL_CONTEXT");
+      expect(String(value)).not.toContain("ALIEN_INTERNAL_CONTEXT");
       expect(String(value)).not.toContain("secret runtime context");
     }
   });
 
   it("rebuilds skill prompt inputs from the sandbox workspace for non-rw sandbox runs", async () => {
-    const sandboxWorkspace = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sandbox-skills-"));
+    const sandboxWorkspace = await fs.mkdtemp(path.join(os.tmpdir(), "alien-sandbox-skills-"));
     tempPaths.push(sandboxWorkspace);
     hoisted.resolveSandboxContextMock.mockResolvedValue({
       enabled: true,
@@ -228,22 +228,22 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       attemptOverrides: {
         skillsSnapshot: {
           prompt:
-            "<available_skills><skill><location>~/.openclaw/skills/smaug/SKILL.md</location></skill></available_skills>",
+            "<available_skills><skill><location>~/.alien/skills/smaug/SKILL.md</location></skill></available_skills>",
           skills: [{ name: "smaug" }],
           resolvedSkills: [
             {
               name: "smaug",
               description: "Host copy",
               disableModelInvocation: false,
-              filePath: "/Users/alice/.openclaw/skills/smaug/SKILL.md",
-              baseDir: "/Users/alice/.openclaw/skills/smaug",
-              source: "openclaw-workspace",
+              filePath: "/Users/alice/.alien/skills/smaug/SKILL.md",
+              baseDir: "/Users/alice/.alien/skills/smaug",
+              source: "alien-workspace",
               sourceInfo: {
-                path: "/Users/alice/.openclaw/skills/smaug/SKILL.md",
-                source: "openclaw-workspace",
+                path: "/Users/alice/.alien/skills/smaug/SKILL.md",
+                source: "alien-workspace",
                 scope: "project",
                 origin: "top-level",
-                baseDir: "/Users/alice/.openclaw/skills/smaug",
+                baseDir: "/Users/alice/.alien/skills/smaug",
               },
             },
           ],
@@ -300,7 +300,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: "custom",
-          customType: "openclaw.runtime-context",
+          customType: "alien.runtime-context",
           display: false,
           content: "dynamic hook context",
         }),
@@ -314,13 +314,13 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       bootstrapFiles: [
         {
           name: "AGENTS.md",
-          path: "/tmp/openclaw-warning-workspace/AGENTS.md",
+          path: "/tmp/alien-warning-workspace/AGENTS.md",
           content: "A".repeat(200),
           missing: false,
         },
       ],
       contextFiles: [
-        { path: "/tmp/openclaw-warning-workspace/AGENTS.md", content: "A".repeat(20) },
+        { path: "/tmp/alien-warning-workspace/AGENTS.md", content: "A".repeat(20) },
       ],
     });
 
@@ -336,7 +336,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
               bootstrapTotalMaxChars: 50,
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         prompt: "visible ask",
         transcriptPrompt: "visible ask",
       },
@@ -358,21 +358,21 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
   it("preserves bootstrap system context when system prompt override is configured", async () => {
     const seen: { prompt?: string; messages?: unknown[] } = {};
     hoisted.isWorkspaceBootstrapPendingMock.mockResolvedValueOnce(true);
-    hoisted.createOpenClawCodingToolsMock.mockImplementationOnce(() => [
+    hoisted.createAlienCodingToolsMock.mockImplementationOnce(() => [
       { name: "read", execute: async () => "" },
     ]);
     hoisted.resolveBootstrapContextForRunMock.mockResolvedValueOnce({
       bootstrapFiles: [
         {
           name: "BOOTSTRAP.md",
-          path: "/tmp/openclaw-override-workspace/BOOTSTRAP.md",
+          path: "/tmp/alien-override-workspace/BOOTSTRAP.md",
           content: "Ask who I am.",
           missing: false,
         },
       ],
       contextFiles: [
         {
-          path: "/tmp/openclaw-override-workspace/BOOTSTRAP.md",
+          path: "/tmp/alien-override-workspace/BOOTSTRAP.md",
           content: "Ask who I am.",
         },
       ],
@@ -389,7 +389,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
               systemPromptOverride: "Custom override prompt.",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         disableTools: false,
         prompt: "visible ask",
         transcriptPrompt: "visible ask",
@@ -414,12 +414,12 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
     expect(systemPrompt).toContain("Custom override prompt.");
     expect(systemPrompt).toContain("## Bootstrap Pending");
     expect(systemPrompt).toContain("BOOTSTRAP.md is included below in Project Context");
-    expect(systemPrompt).toContain("## /tmp/openclaw-override-workspace/BOOTSTRAP.md");
+    expect(systemPrompt).toContain("## /tmp/alien-override-workspace/BOOTSTRAP.md");
     expect(systemPrompt).toContain("Ask who I am.");
   });
 
   it("includes hook-adjusted bootstrap files preloaded before routing", async () => {
-    const workspaceDir = "/tmp/openclaw-hook-workspace";
+    const workspaceDir = "/tmp/alien-hook-workspace";
     hoisted.resolveBootstrapFilesForRunMock.mockResolvedValueOnce([
       {
         name: "BOOTSTRAP.md",
@@ -440,7 +440,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
               systemPromptOverride: "Custom override prompt.",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         prompt: "visible ask",
         transcriptPrompt: "visible ask",
         trigger: "user",
@@ -478,9 +478,9 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
         prompt: [
           "what does this mean?",
           "",
-          "<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<BEGIN_ALIEN_INTERNAL_CONTEXT>>>",
           "secret runtime context",
-          "<<<END_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<END_ALIEN_INTERNAL_CONTEXT>>>",
         ].join("\n"),
         transcriptPrompt: "what does this mean?",
         currentTurnContext: {
@@ -505,7 +505,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
     expect(seenPrompt).toContain("WT daily plan - Sat May 2");
     expect(seenPrompt).toContain("./quoted-secret.png");
     expect(seenPrompt).toContain("media://inbound/quoted.png");
-    expect(seenPrompt).not.toContain("OPENCLAW_INTERNAL_CONTEXT");
+    expect(seenPrompt).not.toContain("ALIEN_INTERNAL_CONTEXT");
     expect(seenPrompt).not.toContain("secret runtime context");
     expect(result.finalPromptText).toBe(seenPrompt);
     expect(hoisted.detectAndLoadPromptImagesMock).toHaveBeenCalledTimes(1);
@@ -535,9 +535,9 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
         prompt: [
           "visible ask",
           "",
-          "<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<BEGIN_ALIEN_INTERNAL_CONTEXT>>>",
           "secret runtime context",
-          "<<<END_OPENCLAW_INTERNAL_CONTEXT>>>",
+          "<<<END_ALIEN_INTERNAL_CONTEXT>>>",
         ].join("\n"),
         transcriptPrompt: "visible ask",
         inputProvenance: {
@@ -582,8 +582,8 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       },
     });
 
-    expect(seenPrompt).toBe("Continue the OpenClaw runtime event.");
-    expect(result.finalPromptText).toBe("Continue the OpenClaw runtime event.");
+    expect(seenPrompt).toBe("Continue the Alien runtime event.");
+    expect(result.finalPromptText).toBe("Continue the Alien runtime event.");
     expect(result.messagesSnapshot).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -599,7 +599,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       .split("\n")
       .map((line) => JSON.parse(line) as TrajectoryEvent);
     const contextCompiled = trajectoryEvents.find((event) => event.type === "context.compiled");
-    expect(contextCompiled?.data?.prompt).toBe("Continue the OpenClaw runtime event.");
+    expect(contextCompiled?.data?.prompt).toBe("Continue the Alien runtime event.");
     expect(contextCompiled?.data?.systemPrompt).toContain("internal heartbeat event");
   });
 
@@ -1281,7 +1281,7 @@ describe("runEmbeddedAttempt context engine mid-turn precheck integration", () =
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       },
     });
 
@@ -1326,7 +1326,7 @@ describe("runEmbeddedAttempt context engine mid-turn precheck integration", () =
               },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
       },
       sessionMessages: [seedMessage],
       sessionPrompt: async (session) => {

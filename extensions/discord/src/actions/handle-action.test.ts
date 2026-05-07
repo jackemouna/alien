@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const runtimeModule = await import("./runtime.js");
@@ -23,7 +23,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok", actions: { moderation: true } } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       requesterSenderId: "trusted-sender-id",
       toolContext: { currentChannelProvider: "discord" },
     });
@@ -55,7 +55,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       toolContext: { currentMessageId: "9001" },
     });
 
@@ -79,7 +79,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       toolContext: {
         currentChannelProvider: "discord",
         currentChannelId: "user:U1",
@@ -107,7 +107,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       toolContext: {
         currentChannelProvider: "discord",
         currentChannelId: "channel:123",
@@ -146,7 +146,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       mediaAccess,
       mediaLocalRoots: ["/tmp/agent-root"],
       mediaReadFile,
@@ -181,7 +181,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       toolContext: {
         currentChannelProvider: "discord",
         currentChannelId: "channel:123",
@@ -209,7 +209,7 @@ describe("handleDiscordMessageAction", () => {
         },
         cfg: {
           channels: { discord: { token: "tok" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
       }),
     ).rejects.toThrow(/upload-file requires filePath, path, or media/i);
 
@@ -228,7 +228,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok", actions: { threads: true } } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       mediaLocalRoots: ["/tmp/agent-root"],
       mediaReadFile,
     });
@@ -259,7 +259,7 @@ describe("handleDiscordMessageAction", () => {
       },
       cfg: {
         channels: { discord: { token: "tok" } },
-      } as OpenClawConfig,
+      } as AlienConfig,
       toolContext: {
         currentChannelProvider: "discord",
         currentChannelId: "channel:123",
@@ -287,7 +287,7 @@ describe("handleDiscordMessageAction", () => {
         },
         cfg: {
           channels: { discord: { token: "tok" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         toolContext: {
           currentChannelProvider: "telegram",
           currentChannelId: "channel:123",
@@ -307,7 +307,7 @@ describe("handleDiscordMessageAction", () => {
         },
         cfg: {
           channels: { discord: { token: "tok" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
         toolContext: {
           currentChannelProvider: "telegram",
           currentChannelId: "user:U1",
@@ -329,7 +329,7 @@ describe("handleDiscordMessageAction", () => {
         },
         cfg: {
           channels: { discord: { token: "tok" } },
-        } as OpenClawConfig,
+        } as AlienConfig,
       }),
     ).rejects.toThrow(/messageId required/i);
 

@@ -1,8 +1,8 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
+} from "alien/plugin-sdk/channel-config-helpers";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,

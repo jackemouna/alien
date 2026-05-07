@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { withOpenClawTestState } from "../test-utils/openclaw-test-state.js";
+import { withAlienTestState } from "../test-utils/alien-test-state.js";
 import type { AuthProfileStore } from "./auth-profiles.js";
 import { CHUTES_TOKEN_ENDPOINT } from "./chutes-oauth.js";
 
@@ -42,10 +42,10 @@ describe("auth-profiles (chutes)", () => {
   });
 
   it("refreshes expired Chutes OAuth credentials", async () => {
-    await withOpenClawTestState(
+    await withAlienTestState(
       {
         layout: "state-only",
-        prefix: "openclaw-chutes-",
+        prefix: "alien-chutes-",
         agentEnv: "main",
         env: {
           CHUTES_CLIENT_ID: undefined,

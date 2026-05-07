@@ -1,19 +1,19 @@
 {
-  "name": "@openclaw/synology-chat",
+  "name": "@alien/synology-chat",
   "version": "2026.5.6",
-  "description": "Synology Chat channel plugin for OpenClaw",
+  "description": "Synology Chat channel plugin for Alien",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openclaw/openclaw"
+    "url": "https://github.com/alien/alien"
   },
   "type": "module",
   "dependencies": {
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ],
@@ -24,11 +24,11 @@
       "selectionLabel": "Synology Chat (Webhook)",
       "docsPath": "/channels/synology-chat",
       "docsLabel": "synology-chat",
-      "blurb": "Connect your Synology NAS Chat to OpenClaw with full agent capabilities.",
+      "blurb": "Connect your Synology NAS Chat to Alien with full agent capabilities.",
       "order": 90
     },
     "install": {
-      "npmSpec": "@openclaw/synology-chat",
+      "npmSpec": "@alien/synology-chat",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -36,7 +36,7 @@
       "pluginApi": ">=2026.5.6"
     },
     "build": {
-      "openclawVersion": "2026.5.6"
+      "alienVersion": "2026.5.6"
     },
     "release": {
       "publishToClawHub": true,

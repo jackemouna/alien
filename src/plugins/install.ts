@@ -11,15 +11,15 @@ import {
 import { resolveNpmIntegrityDriftWithDefaultMessage } from "../infra/npm-integrity.js";
 import {
   readManagedNpmRootInstalledDependency,
-  readOpenClawManagedNpmRootOverrides,
-  repairManagedNpmRootOpenClawPeer,
+  readAlienManagedNpmRootOverrides,
+  repairManagedNpmRootAlienPeer,
   removeManagedNpmRootDependency,
   resolveManagedNpmRootDependencySpec,
   upsertManagedNpmRootDependency,
   type ManagedNpmRootInstalledDependency,
 } from "../infra/npm-managed-root.js";
 import {
-  compareOpenClawReleaseVersions,
+  compareAlienReleaseVersions,
   formatPrereleaseResolutionError,
   isExactSemverVersion,
   isPrereleaseSemverVersion,
@@ -53,8 +53,8 @@ import {
 } from "./manifest.js";
 import { validatePackageExtensionEntriesForInstall } from "./package-entry-resolution.js";
 import {
-  linkOpenClawPeerDependencies,
-  relinkOpenClawPeerDependenciesInManagedNpmRoot,
+  linkAlienPeerDependencies,
+  relinkAlienPeerDependenciesInManagedNpmRoot,
 } from "./plugin-peer-link.js";
 
 export { resolvePluginInstallDir } from "./install-paths.js";
@@ -77,25 +77,25 @@ type PackageManifest = PluginPackageManifest & {
 };
 
 const MISSING_EXTENSIONS_ERROR =
-  'package.json missing openclaw.extensions; update the plugin package to include openclaw.extensions (for example ["./dist/index.js"]). See https://docs.openclaw.ai/help/troubleshooting#plugin-install-fails-with-missing-openclaw-extensions';
+  'package.json missing alien.extensions; update the plugin package to include alien.extensions (for example ["./dist/index.js"]). See https://docs.alien.ai/help/troubleshooting#plugin-install-fails-with-missing-alien-extensions';
 const PLUGIN_ARCHIVE_ROOT_MARKERS = [
   "package.json",
-  "openclaw.plugin.json",
+  "alien.plugin.json",
   ".codex-plugin/plugin.json",
   ".claude-plugin/plugin.json",
   ".cursor-plugin/plugin.json",
 ];
-const MANAGED_NPM_PACK_ARCHIVE_DIR = "_openclaw-pack-archives";
+const MANAGED_NPM_PACK_ARCHIVE_DIR = "_alien-pack-archives";
 
 export const PLUGIN_INSTALL_ERROR_CODE = {
   INVALID_NPM_SPEC: "invalid_npm_spec",
   INVALID_MIN_HOST_VERSION: "invalid_min_host_version",
   UNKNOWN_HOST_VERSION: "unknown_host_version",
   INCOMPATIBLE_HOST_VERSION: "incompatible_host_version",
-  MISSING_OPENCLAW_EXTENSIONS: "missing_openclaw_extensions",
+  MISSING_ALIEN_EXTENSIONS: "missing_alien_extensions",
   MISSING_PLUGIN_MANIFEST: "missing_plugin_manifest",
-  EMPTY_OPENCLAW_EXTENSIONS: "empty_openclaw_extensions",
-  INVALID_OPENCLAW_EXTENSIONS: "invalid_openclaw_extensions",
+  EMPTY_ALIEN_EXTENSIONS: "empty_alien_extensions",
+  INVALID_ALIEN_EXTENSIONS: "invalid_alien_extensions",
   NPM_PACKAGE_NOT_FOUND: "npm_package_not_found",
   PLUGIN_ID_MISMATCH: "plugin_id_mismatch",
   SECURITY_SCAN_BLOCKED: "security_scan_blocked",
@@ -132,7 +132,7 @@ type PluginInstallPolicyRequest = {
 
 const defaultLogger: PluginInstallLogger = {};
 
-function ensureOpenClawExtensions(params: { manifest: PackageManifest }):
+function ensureAlienExtensions(params: { manifest: PackageManifest }):
   | {
       ok: true;
       entries: string[];
@@ -147,14 +147,14 @@ function ensureOpenClawExtensions(params: { manifest: PackageManifest }):
     return {
       ok: false,
       error: MISSING_EXTENSIONS_ERROR,
-      code: PLUGIN_INSTALL_ERROR_CODE.MISSING_OPENCLAW_EXTENSIONS,
+      code: PLUGIN_INSTALL_ERROR_CODE.MISSING_ALIEN_EXTENSIONS,
     };
   }
   if (resolved.status === "empty") {
     return {
       ok: false,
-      error: "package.json openclaw.extensions is empty",
-      code: PLUGIN_INSTALL_ERROR_CODE.EMPTY_OPENCLAW_EXTENSIONS,
+      error: "package.json alien.extensions is empty",
+      code: PLUGIN_INSTALL_ERROR_CODE.EMPTY_ALIEN_EXTENSIONS,
     };
   }
   return {
@@ -172,7 +172,7 @@ function isNpmPackageNotFoundMessage(error: string): boolean {
 }
 
 function compareNpmSemver(a: string, b: string): number {
-  const releaseCmp = compareOpenClawReleaseVersions(a, b);
+  const releaseCmp = compareAlienReleaseVersions(a, b);
   if (releaseCmp !== null) {
     return releaseCmp;
   }
@@ -190,7 +190,7 @@ async function resolveTrustedOfficialPrereleaseResolution(params: {
   timeoutMs: number;
   logger: PluginInstallLogger;
 }): Promise<TrustedOfficialPrereleaseResolution | null> {
-  if (!params.spec.name.startsWith("@openclaw/")) {
+  if (!params.spec.name.startsWith("@alien/")) {
     return null;
   }
   const versions = await runCommandWithTimeout(
@@ -236,12 +236,12 @@ async function resolveTrustedOfficialPrereleaseResolution(params: {
           return null;
         }
         params.logger.warn?.(
-          `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; using newest prerelease ${prereleaseSpec} because this trusted official OpenClaw package has no stable npm versions yet.`,
+          `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; using newest prerelease ${prereleaseSpec} because this trusted official Alien package has no stable npm versions yet.`,
         );
         return { kind: "prerelease-only", resolution: metadataResult.metadata };
       }
       params.logger.warn?.(
-        `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; allowing it because this trusted official OpenClaw package has no stable npm versions yet.`,
+        `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; allowing it because this trusted official Alien package has no stable npm versions yet.`,
       );
       return { kind: "allow-prerelease-only" };
     }
@@ -257,7 +257,7 @@ async function resolveTrustedOfficialPrereleaseResolution(params: {
     return null;
   }
   params.logger.warn?.(
-    `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; falling back to stable ${stableSpec} for this trusted official OpenClaw install.`,
+    `Resolved ${params.spec.raw} to prerelease version ${params.resolvedPrereleaseVersion}; falling back to stable ${stableSpec} for this trusted official Alien install.`,
   );
   return { kind: "stable", resolution: metadataResult.metadata };
 }
@@ -365,7 +365,7 @@ async function rollbackManagedNpmPluginInstall(params: {
     );
   }
   try {
-    await relinkOpenClawPeerDependenciesInManagedNpmRoot({
+    await relinkAlienPeerDependenciesInManagedNpmRoot({
       npmRoot: params.npmRoot,
       logger: params.logger,
     });
@@ -472,21 +472,21 @@ async function installPluginFromManagedNpmRoot(
   }
 
   logger.info?.(`Installing ${params.displaySpec} into ${npmRoot}…`);
-  if (params.packageName !== "openclaw") {
-    const repairedOpenClawPeer = await repairManagedNpmRootOpenClawPeer({
+  if (params.packageName !== "alien") {
+    const repairedAlienPeer = await repairManagedNpmRootAlienPeer({
       npmRoot,
       timeoutMs,
       logger,
     });
-    if (repairedOpenClawPeer) {
-      logger.info?.(`Repaired stale openclaw peer dependency in ${npmRoot}`);
+    if (repairedAlienPeer) {
+      logger.info?.(`Repaired stale alien peer dependency in ${npmRoot}`);
     }
   }
   await upsertManagedNpmRootDependency({
     npmRoot,
     packageName: params.packageName,
     dependencySpec: params.dependencySpec,
-    managedOverrides: await readOpenClawManagedNpmRootOverrides(),
+    managedOverrides: await readAlienManagedNpmRootOverrides(),
   });
   const install = await runCommandWithTimeout(
     [
@@ -525,17 +525,17 @@ async function installPluginFromManagedNpmRoot(
       error: `npm install failed: ${install.stderr.trim() || install.stdout.trim()}`,
     };
   }
-  if (params.packageName !== "openclaw") {
-    const repairedOpenClawPeer = await repairManagedNpmRootOpenClawPeer({
+  if (params.packageName !== "alien") {
+    const repairedAlienPeer = await repairManagedNpmRootAlienPeer({
       npmRoot,
       timeoutMs,
       logger,
     });
-    if (repairedOpenClawPeer) {
-      logger.info?.(`Repaired stale openclaw peer dependency in ${npmRoot} after npm install`);
+    if (repairedAlienPeer) {
+      logger.info?.(`Repaired stale alien peer dependency in ${npmRoot} after npm install`);
     }
   }
-  await relinkOpenClawPeerDependenciesInManagedNpmRoot({ npmRoot, logger });
+  await relinkAlienPeerDependenciesInManagedNpmRoot({ npmRoot, logger });
 
   let installedDependency: ManagedNpmRootInstalledDependency | null;
   try {
@@ -739,7 +739,7 @@ async function runInstallSourceScan(params: {
   } catch (err) {
     return {
       ok: false,
-      error: `${params.subject} installation blocked: code safety scan failed (${String(err)}). Run "openclaw security audit --deep" for details.`,
+      error: `${params.subject} installation blocked: code safety scan failed (${String(err)}). Run "alien security audit --deep" for details.`,
       code: PLUGIN_INSTALL_ERROR_CODE.SECURITY_SCAN_FAILED,
     };
   }
@@ -984,7 +984,7 @@ async function detectNativePackageInstallSource(packageDir: string): Promise<boo
 
   try {
     const manifest = await runtime.readJsonFile<PackageManifest>(manifestPath);
-    return ensureOpenClawExtensions({ manifest }).ok;
+    return ensureAlienExtensions({ manifest }).ok;
   } catch {
     return false;
   }
@@ -1030,7 +1030,7 @@ async function validatePackagePluginInstallSource(params: {
     return { ok: false, error: `invalid package.json: ${String(err)}` };
   }
 
-  const extensionsResult = ensureOpenClawExtensions({
+  const extensionsResult = ensureAlienExtensions({
     manifest,
   });
   if (!extensionsResult.ok) {
@@ -1048,7 +1048,7 @@ async function validatePackagePluginInstallSource(params: {
   if (!ocManifestResult.ok && params.requirePluginManifest) {
     return {
       ok: false,
-      error: `package missing valid openclaw.plugin.json: ${ocManifestResult.error}`,
+      error: `package missing valid alien.plugin.json: ${ocManifestResult.error}`,
       code: PLUGIN_INSTALL_ERROR_CODE.MISSING_PLUGIN_MANIFEST,
     };
   }
@@ -1092,20 +1092,20 @@ async function validatePackagePluginInstallSource(params: {
     if (minHostVersionCheck.kind === "invalid") {
       return {
         ok: false,
-        error: `invalid package.json openclaw.install.minHostVersion: ${minHostVersionCheck.error}`,
+        error: `invalid package.json alien.install.minHostVersion: ${minHostVersionCheck.error}`,
         code: PLUGIN_INSTALL_ERROR_CODE.INVALID_MIN_HOST_VERSION,
       };
     }
     if (minHostVersionCheck.kind === "unknown_host_version") {
       return {
         ok: false,
-        error: `plugin "${pluginId}" requires OpenClaw >=${minHostVersionCheck.requirement.minimumLabel}, but this host version could not be determined. Re-run from a released build or set OPENCLAW_VERSION and retry.`,
+        error: `plugin "${pluginId}" requires Alien >=${minHostVersionCheck.requirement.minimumLabel}, but this host version could not be determined. Re-run from a released build or set ALIEN_VERSION and retry.`,
         code: PLUGIN_INSTALL_ERROR_CODE.UNKNOWN_HOST_VERSION,
       };
     }
     return {
       ok: false,
-      error: `plugin "${pluginId}" requires OpenClaw >=${minHostVersionCheck.requirement.minimumLabel}, but this host is ${minHostVersionCheck.currentVersion}. Upgrade OpenClaw and retry.`,
+      error: `plugin "${pluginId}" requires Alien >=${minHostVersionCheck.requirement.minimumLabel}, but this host is ${minHostVersionCheck.currentVersion}. Upgrade Alien and retry.`,
       code: PLUGIN_INSTALL_ERROR_CODE.INCOMPATIBLE_HOST_VERSION,
     };
   }
@@ -1119,7 +1119,7 @@ async function validatePackagePluginInstallSource(params: {
     return {
       ok: false,
       error: extensionValidation.error,
-      code: PLUGIN_INSTALL_ERROR_CODE.INVALID_OPENCLAW_EXTENSIONS,
+      code: PLUGIN_INSTALL_ERROR_CODE.INVALID_ALIEN_EXTENSIONS,
     };
   }
 
@@ -1185,7 +1185,7 @@ async function scanAndLinkInstalledPackage(params: {
   if (scanResult) {
     return scanResult;
   }
-  await linkOpenClawPeerDependencies({
+  await linkAlienPeerDependencies({
     installedDir: params.installedDir,
     peerDependencies: params.peerDependencies,
     logger: params.logger,
@@ -1336,7 +1336,7 @@ export async function installPluginFromArchive(
 
   return await runtime.withExtractedArchiveRoot({
     archivePath,
-    tempDirPrefix: "openclaw-plugin-",
+    tempDirPrefix: "alien-plugin-",
     timeoutMs,
     logger,
     rootMarkers: PLUGIN_ARCHIVE_ROOT_MARKERS,

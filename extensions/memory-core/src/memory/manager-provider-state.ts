@@ -1,7 +1,7 @@
 import type {
-  OpenClawConfig,
+  AlienConfig,
   ResolvedMemorySearchConfig,
-} from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
+} from "alien/plugin-sdk/memory-core-host-engine-foundation";
 import {
   resolveEmbeddingProviderFallbackModel,
   type EmbeddingProvider,
@@ -74,7 +74,7 @@ export function applyMemoryFallbackProviderState(params: {
 }
 
 export function resolveMemoryFallbackProviderRequest(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   settings: ResolvedMemorySearchConfig;
   currentProviderId: string | null;
 }): {

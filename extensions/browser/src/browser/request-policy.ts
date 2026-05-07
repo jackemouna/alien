@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 type BrowserRequestProfileParams = {
   query?: Record<string, unknown>;

@@ -1,9 +1,9 @@
-import { resolveInboundMentionDecision } from "openclaw/plugin-sdk/channel-inbound";
-import { expandAllowFromWithAccessGroups } from "openclaw/plugin-sdk/security-runtime";
+import { resolveInboundMentionDecision } from "alien/plugin-sdk/channel-inbound";
+import { expandAllowFromWithAccessGroups } from "alien/plugin-sdk/security-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import {
   GROUP_POLICY_BLOCKED_LABEL,
   createChannelPairingController,
@@ -14,7 +14,7 @@ import {
   resolveDmGroupAccessWithLists,
   resolveSenderScopedGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-  type OpenClawConfig,
+  type AlienConfig,
 } from "../runtime-api.js";
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
 import { sendGoogleChatMessage } from "./api.js";
@@ -141,7 +141,7 @@ function warnMutableGroupKeysConfigured(
 
 export async function applyGoogleChatInboundAccessPolicy(params: {
   account: ResolvedGoogleChatAccount;
-  config: OpenClawConfig;
+  config: AlienConfig;
   core: GoogleChatCoreRuntime;
   space: GoogleChatSpace;
   message: GoogleChatMessage;

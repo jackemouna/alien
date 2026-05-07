@@ -27,7 +27,7 @@ inputs:
     required: false
     default: "true"
   package-artifact-name:
-    description: Workflow artifact name containing openclaw-current.tgz.
+    description: Workflow artifact name containing alien-current.tgz.
     required: false
     default: docker-e2e-package
 outputs:
@@ -47,7 +47,7 @@ outputs:
     description: "1 when selected lanes require building the live Docker image."
     value: ${{ steps.plan.outputs.needs_live_image }}
   needs_package:
-    description: "1 when selected lanes require the OpenClaw package tarball."
+    description: "1 when selected lanes require the Alien package tarball."
     value: ${{ steps.plan.outputs.needs_package }}
   plan_json:
     description: Path to the generated plan JSON.
@@ -72,12 +72,12 @@ runs:
           prepare)
             plan_path=".artifacts/docker-tests/plan.json"
             if [[ "$INCLUDE_RELEASE_PATH_SUITES" == "true" ]]; then
-              export OPENCLAW_DOCKER_ALL_PROFILE=release-path
-              export OPENCLAW_DOCKER_ALL_PLAN_RELEASE_ALL=1
+              export ALIEN_DOCKER_ALL_PROFILE=release-path
+              export ALIEN_DOCKER_ALL_PLAN_RELEASE_ALL=1
             elif [[ -n "$LANES" ]]; then
-              export OPENCLAW_DOCKER_ALL_LANES="$LANES"
+              export ALIEN_DOCKER_ALL_LANES="$LANES"
             elif [[ "$INCLUDE_OPENWEBUI" == "true" ]]; then
-              export OPENCLAW_DOCKER_ALL_LANES=openwebui
+              export ALIEN_DOCKER_ALL_LANES=openwebui
             fi
             ;;
           chunk)
@@ -85,8 +85,8 @@ runs:
               echo "chunk input is required for Docker E2E chunk planning." >&2
               exit 1
             fi
-            export OPENCLAW_DOCKER_ALL_PROFILE=release-path
-            export OPENCLAW_DOCKER_ALL_CHUNK="$CHUNK"
+            export ALIEN_DOCKER_ALL_PROFILE=release-path
+            export ALIEN_DOCKER_ALL_CHUNK="$CHUNK"
             plan_path=".artifacts/docker-tests/release-${CHUNK}-plan.json"
             ;;
           targeted)
@@ -95,9 +95,9 @@ runs:
               exit 1
             fi
             if [[ "$INCLUDE_RELEASE_PATH_SUITES" == "true" ]]; then
-              export OPENCLAW_DOCKER_ALL_PROFILE=release-path
+              export ALIEN_DOCKER_ALL_PROFILE=release-path
             fi
-            export OPENCLAW_DOCKER_ALL_LANES="$LANES"
+            export ALIEN_DOCKER_ALL_LANES="$LANES"
             plan_path=".artifacts/docker-tests/targeted-plan.json"
             ;;
           *)
@@ -106,12 +106,12 @@ runs:
             ;;
         esac
 
-        export OPENCLAW_DOCKER_ALL_INCLUDE_OPENWEBUI="$INCLUDE_OPENWEBUI"
+        export ALIEN_DOCKER_ALL_INCLUDE_OPENWEBUI="$INCLUDE_OPENWEBUI"
         node scripts/test-docker-all.mjs --plan-json > "$plan_path"
         node scripts/docker-e2e.mjs github-outputs "$plan_path" >> "$GITHUB_OUTPUT"
         echo "plan_json=$plan_path" >> "$GITHUB_OUTPUT"
 
-    - name: Download OpenClaw Docker E2E package
+    - name: Download Alien Docker E2E package
       if: inputs.hydrate-artifacts == 'true' && steps.plan.outputs.needs_package == '1'
       uses: actions/download-artifact@v8
       with:
@@ -123,14 +123,14 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        docker pull "${OPENCLAW_DOCKER_E2E_BARE_IMAGE}"
+        docker pull "${ALIEN_DOCKER_E2E_BARE_IMAGE}"
 
     - name: Pull shared functional Docker E2E image
       if: inputs.hydrate-artifacts == 'true' && steps.plan.outputs.needs_functional_image == '1'
       shell: bash
       run: |
         set -euo pipefail
-        docker pull "${OPENCLAW_DOCKER_E2E_FUNCTIONAL_IMAGE}"
+        docker pull "${ALIEN_DOCKER_E2E_FUNCTIONAL_IMAGE}"
 
     - name: Validate Docker E2E credentials
       if: inputs.hydrate-artifacts == 'true'

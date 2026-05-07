@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createSlackWebClient, createSlackWriteClient } from "@openclaw/slack/api.js";
+import { createSlackWebClient, createSlackWriteClient } from "@alien/slack/api.js";
 import type { WebClient } from "@slack/web-api";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import { z } from "zod";
 import { startQaGatewayChild } from "../../gateway-child.js";
 import { DEFAULT_QA_LIVE_PROVIDER_MODE } from "../../providers/index.js";
@@ -160,14 +160,14 @@ type SlackQaSummary = {
 type SlackCredentialLease = Awaited<ReturnType<typeof acquireQaCredentialLease<SlackQaRuntimeEnv>>>;
 type SlackCredentialHeartbeat = ReturnType<typeof startQaCredentialLeaseHeartbeat>;
 
-const SLACK_QA_CAPTURE_CONTENT_ENV = "OPENCLAW_QA_SLACK_CAPTURE_CONTENT";
-const QA_REDACT_PUBLIC_METADATA_ENV = "OPENCLAW_QA_REDACT_PUBLIC_METADATA";
+const SLACK_QA_CAPTURE_CONTENT_ENV = "ALIEN_QA_SLACK_CAPTURE_CONTENT";
+const QA_REDACT_PUBLIC_METADATA_ENV = "ALIEN_QA_REDACT_PUBLIC_METADATA";
 const SLACK_QA_WEB_API_TIMEOUT_MS = 45_000;
 const SLACK_QA_ENV_KEYS = [
-  "OPENCLAW_QA_SLACK_CHANNEL_ID",
-  "OPENCLAW_QA_SLACK_DRIVER_BOT_TOKEN",
-  "OPENCLAW_QA_SLACK_SUT_BOT_TOKEN",
-  "OPENCLAW_QA_SLACK_SUT_APP_TOKEN",
+  "ALIEN_QA_SLACK_CHANNEL_ID",
+  "ALIEN_QA_SLACK_DRIVER_BOT_TOKEN",
+  "ALIEN_QA_SLACK_SUT_BOT_TOKEN",
+  "ALIEN_QA_SLACK_SUT_APP_TOKEN",
 ] as const;
 
 const slackQaCredentialPayloadSchema = z.object({
@@ -242,7 +242,7 @@ const SLACK_QA_SCENARIOS: SlackQaScenarioDefinition[] = [
     standardId: "allowlist-block",
     title: "Slack non-allowlisted sender does not trigger",
     timeoutMs: 8_000,
-    configOverrides: { users: ["U_OPENCLAW_QA_NEVER_ALLOWED"] },
+    configOverrides: { users: ["U_ALIEN_QA_NEVER_ALLOWED"] },
     buildRun: (sutUserId) => {
       const token = `SLACK_QA_BLOCK_${randomUUID().slice(0, 8).toUpperCase()}`;
       return {
@@ -400,7 +400,7 @@ function inferSlackCredentialSource(
   env: NodeJS.ProcessEnv = process.env,
 ): "convex" | "env" {
   const normalized =
-    value?.trim().toLowerCase() || env.OPENCLAW_QA_CREDENTIAL_SOURCE?.trim().toLowerCase();
+    value?.trim().toLowerCase() || env.ALIEN_QA_CREDENTIAL_SOURCE?.trim().toLowerCase();
   return normalized === "convex" ? "convex" : "env";
 }
 
@@ -427,12 +427,12 @@ function validateSlackQaRuntimeEnv(runtimeEnv: SlackQaRuntimeEnv, label: string)
 
 function resolveSlackQaRuntimeEnv(env: NodeJS.ProcessEnv = process.env): SlackQaRuntimeEnv {
   const runtimeEnv = {
-    channelId: resolveEnvValue(env, "OPENCLAW_QA_SLACK_CHANNEL_ID"),
-    driverBotToken: resolveEnvValue(env, "OPENCLAW_QA_SLACK_DRIVER_BOT_TOKEN"),
-    sutBotToken: resolveEnvValue(env, "OPENCLAW_QA_SLACK_SUT_BOT_TOKEN"),
-    sutAppToken: resolveEnvValue(env, "OPENCLAW_QA_SLACK_SUT_APP_TOKEN"),
+    channelId: resolveEnvValue(env, "ALIEN_QA_SLACK_CHANNEL_ID"),
+    driverBotToken: resolveEnvValue(env, "ALIEN_QA_SLACK_DRIVER_BOT_TOKEN"),
+    sutBotToken: resolveEnvValue(env, "ALIEN_QA_SLACK_SUT_BOT_TOKEN"),
+    sutAppToken: resolveEnvValue(env, "ALIEN_QA_SLACK_SUT_APP_TOKEN"),
   };
-  return validateSlackQaRuntimeEnv(runtimeEnv, "OPENCLAW_QA_SLACK");
+  return validateSlackQaRuntimeEnv(runtimeEnv, "ALIEN_QA_SLACK");
 }
 
 function parseSlackQaCredentialPayload(payload: unknown): SlackQaRuntimeEnv {
@@ -455,7 +455,7 @@ function findScenario(ids?: string[]) {
 }
 
 function buildSlackQaConfig(
-  baseCfg: OpenClawConfig,
+  baseCfg: AlienConfig,
   params: {
     channelId: string;
     driverBotUserId: string;
@@ -464,7 +464,7 @@ function buildSlackQaConfig(
     sutAppToken: string;
     sutBotToken: string;
   },
-): OpenClawConfig {
+): AlienConfig {
   const pluginAllow = [...new Set([...(baseCfg.plugins?.allow ?? []), "slack"])];
   return {
     ...baseCfg,

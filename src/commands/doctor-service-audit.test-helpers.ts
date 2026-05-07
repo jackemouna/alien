@@ -17,7 +17,7 @@ export function readEmbeddedGatewayTokenForTest(
     environmentValueSources?: Record<string, GatewayServiceEnvironmentValueSource>;
   } | null,
 ) {
-  return isEnvironmentFileOnlySource(command?.environmentValueSources?.OPENCLAW_GATEWAY_TOKEN)
+  return isEnvironmentFileOnlySource(command?.environmentValueSources?.ALIEN_GATEWAY_TOKEN)
     ? undefined
-    : normalizeOptionalString(command?.environment?.OPENCLAW_GATEWAY_TOKEN);
+    : normalizeOptionalString(command?.environment?.ALIEN_GATEWAY_TOKEN);
 }

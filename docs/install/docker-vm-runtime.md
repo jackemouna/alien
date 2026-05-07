@@ -1,7 +1,7 @@
 ---
-summary: "Shared Docker VM runtime steps for long-lived OpenClaw Gateway hosts"
+summary: "Shared Docker VM runtime steps for long-lived Alien Gateway hosts"
 read_when:
-  - You are deploying OpenClaw on a cloud VM with Docker
+  - You are deploying Alien on a cloud VM with Docker
   - You need the shared binary bake, persistence, and update flow
 title: "Docker VM runtime"
 ---
@@ -83,7 +83,7 @@ The URLs above are examples. For ARM-based VMs, choose the `arm64` assets. For r
 
 ```bash
 docker compose build
-docker compose up -d openclaw-gateway
+docker compose up -d alien-gateway
 ```
 
 If build fails with `Killed` or `exit code 137` during `pnpm install --frozen-lockfile`, the VM is out of memory.
@@ -92,9 +92,9 @@ Use a larger machine class before retrying.
 Verify binaries:
 
 ```bash
-docker compose exec openclaw-gateway which gog
-docker compose exec openclaw-gateway which goplaces
-docker compose exec openclaw-gateway which wacli
+docker compose exec alien-gateway which gog
+docker compose exec alien-gateway which goplaces
+docker compose exec alien-gateway which wacli
 ```
 
 Expected output:
@@ -108,7 +108,7 @@ Expected output:
 Verify Gateway:
 
 ```bash
-docker compose logs -f openclaw-gateway
+docker compose logs -f alien-gateway
 ```
 
 Expected output:
@@ -119,18 +119,18 @@ Expected output:
 
 ## What persists where
 
-OpenClaw runs in Docker, but Docker is not the source of truth.
+Alien runs in Docker, but Docker is not the source of truth.
 All long-lived state must survive restarts, rebuilds, and reboots.
 
 | Component           | Location                                               | Persistence mechanism  | Notes                                                         |
 | ------------------- | ------------------------------------------------------ | ---------------------- | ------------------------------------------------------------- |
-| Gateway config      | `/home/node/.openclaw/`                                | Host volume mount      | Includes `openclaw.json`, `.env`                              |
-| Model auth profiles | `/home/node/.openclaw/agents/`                         | Host volume mount      | `agents/<agentId>/agent/auth-profiles.json` (OAuth, API keys) |
-| Skill configs       | `/home/node/.openclaw/skills/`                         | Host volume mount      | Skill-level state                                             |
-| Agent workspace     | `/home/node/.openclaw/workspace/`                      | Host volume mount      | Code and agent artifacts                                      |
-| WhatsApp session    | `/home/node/.openclaw/`                                | Host volume mount      | Preserves QR login                                            |
-| Gmail keyring       | `/home/node/.openclaw/`                                | Host volume + password | Requires `GOG_KEYRING_PASSWORD`                               |
-| Plugin packages     | `/home/node/.openclaw/npm`, `/home/node/.openclaw/git` | Host volume mount      | Downloadable plugin package roots                             |
+| Gateway config      | `/home/node/.alien/`                                | Host volume mount      | Includes `alien.json`, `.env`                              |
+| Model auth profiles | `/home/node/.alien/agents/`                         | Host volume mount      | `agents/<agentId>/agent/auth-profiles.json` (OAuth, API keys) |
+| Skill configs       | `/home/node/.alien/skills/`                         | Host volume mount      | Skill-level state                                             |
+| Agent workspace     | `/home/node/.alien/workspace/`                      | Host volume mount      | Code and agent artifacts                                      |
+| WhatsApp session    | `/home/node/.alien/`                                | Host volume mount      | Preserves QR login                                            |
+| Gmail keyring       | `/home/node/.alien/`                                | Host volume + password | Requires `GOG_KEYRING_PASSWORD`                               |
+| Plugin packages     | `/home/node/.alien/npm`, `/home/node/.alien/git` | Host volume mount      | Downloadable plugin package roots                             |
 | External binaries   | `/usr/local/bin/`                                      | Docker image           | Must be baked at build time                                   |
 | Node runtime        | Container filesystem                                   | Docker image           | Rebuilt every image build                                     |
 | OS packages         | Container filesystem                                   | Docker image           | Do not install at runtime                                     |
@@ -138,7 +138,7 @@ All long-lived state must survive restarts, rebuilds, and reboots.
 
 ## Updates
 
-To update OpenClaw on the VM:
+To update Alien on the VM:
 
 ```bash
 git pull

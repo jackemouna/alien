@@ -5,23 +5,23 @@ import {
   TRUSTED_CLIENT_TOKEN,
   generateSecMsGecToken,
 } from "node-edge-tts/dist/drm.js";
-import { isVoiceCompatibleAudio } from "openclaw/plugin-sdk/media-runtime";
-import { assertOkOrThrowProviderError } from "openclaw/plugin-sdk/provider-http";
+import { isVoiceCompatibleAudio } from "alien/plugin-sdk/media-runtime";
+import { assertOkOrThrowProviderError } from "alien/plugin-sdk/provider-http";
 import {
   captureHttpExchange,
   isDebugProxyGlobalFetchPatchInstalled,
-} from "openclaw/plugin-sdk/proxy-capture";
+} from "alien/plugin-sdk/proxy-capture";
 import type {
   SpeechProviderConfig,
   SpeechProviderPlugin,
   SpeechVoiceOption,
-} from "openclaw/plugin-sdk/speech";
-import { asBoolean, asFiniteNumber, asObject, trimToUndefined } from "openclaw/plugin-sdk/speech";
+} from "alien/plugin-sdk/speech";
+import { asBoolean, asFiniteNumber, asObject, trimToUndefined } from "alien/plugin-sdk/speech";
 import {
   fetchWithSsrFGuard,
   ssrfPolicyFromHttpBaseUrlAllowedHostname,
-} from "openclaw/plugin-sdk/ssrf-runtime";
-import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+} from "alien/plugin-sdk/ssrf-runtime";
+import { tempWorkspace, resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
 import { edgeTTS, inferEdgeExtension } from "./tts.js";
 
 const DEFAULT_EDGE_VOICE = "en-US-MichelleNeural";
@@ -237,7 +237,7 @@ export function buildMicrosoftSpeechProvider(): SpeechProviderPlugin {
     synthesize: async (req) => {
       const config = readMicrosoftProviderConfig(req.providerConfig);
       const temp = await tempWorkspace({
-        rootDir: resolvePreferredOpenClawTmpDir(),
+        rootDir: resolvePreferredAlienTmpDir(),
         prefix: "tts-microsoft-",
       });
       const tempDir = temp.dir;

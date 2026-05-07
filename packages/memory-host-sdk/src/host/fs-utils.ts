@@ -1,15 +1,15 @@
-import { configureFsSafePython } from "@openclaw/fs-safe/config";
-export { root } from "@openclaw/fs-safe/root";
-export { isPathInside } from "@openclaw/fs-safe/path";
+import { configureFsSafePython } from "@alien/fs-safe/config";
+export { root } from "@alien/fs-safe/root";
+export { isPathInside } from "@alien/fs-safe/path";
 export {
   readRegularFile,
   statRegularFile,
   type RegularFileStatResult,
-} from "@openclaw/fs-safe/advanced";
-export { walkDirectory, type WalkDirectoryEntry } from "@openclaw/fs-safe/walk";
+} from "@alien/fs-safe/advanced";
+export { walkDirectory, type WalkDirectoryEntry } from "@alien/fs-safe/walk";
 
 const hasPythonModeOverride =
-  process.env.FS_SAFE_PYTHON_MODE != null || process.env.OPENCLAW_FS_SAFE_PYTHON_MODE != null;
+  process.env.FS_SAFE_PYTHON_MODE != null || process.env.ALIEN_FS_SAFE_PYTHON_MODE != null;
 
 if (!hasPythonModeOverride) {
   configureFsSafePython({ mode: "off" });

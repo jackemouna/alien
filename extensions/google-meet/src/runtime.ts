@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import type { PluginRuntime, RuntimeLogger } from "alien/plugin-sdk/plugin-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type {
   GoogleMeetConfig,
   GoogleMeetMode,
@@ -168,7 +168,7 @@ function evaluateSpeechReadiness(session: GoogleMeetSession): {
       reason: health.manualActionReason ?? "browser-unverified",
       message:
         health.manualActionMessage ??
-        "Resolve the Google Meet browser prompt before asking OpenClaw to speak.",
+        "Resolve the Google Meet browser prompt before asking Alien to speak.",
     };
   }
   if (health?.inCall === true) {
@@ -176,7 +176,7 @@ function evaluateSpeechReadiness(session: GoogleMeetSession): {
       return {
         ready: false,
         reason: "meet-microphone-muted",
-        message: "Turn on the OpenClaw Google Meet microphone before asking OpenClaw to speak.",
+        message: "Turn on the Alien Google Meet microphone before asking Alien to speak.",
       };
     }
     if (session.chrome.audioBridge) {
@@ -230,7 +230,7 @@ export class GoogleMeetRuntime {
   constructor(
     private readonly params: {
       config: GoogleMeetConfig;
-      fullConfig: OpenClawConfig;
+      fullConfig: AlienConfig;
       runtime: PluginRuntime;
       logger: RuntimeLogger;
     },

@@ -1,11 +1,11 @@
 import { rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { definePluginEntry, type OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+import { definePluginEntry, type AlienPluginApi } from "alien/plugin-sdk/plugin-entry";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 
 type DevicePairApiModule = typeof import("./api.js");
 type NotifyModule = typeof import("./notify.js");
@@ -214,7 +214,7 @@ function isLoopbackHost(host: string): boolean {
 }
 
 function resolveScheme(
-  cfg: OpenClawPluginApi["config"],
+  cfg: AlienPluginApi["config"],
   opts?: { forceSecure?: boolean },
 ): "ws" | "wss" {
   if (opts?.forceSecure) {
@@ -349,12 +349,12 @@ async function resolveTailnetHost(): Promise<string | null> {
   );
 }
 
-function resolveAuthLabel(cfg: OpenClawPluginApi["config"]): ResolveAuthLabelResult {
+function resolveAuthLabel(cfg: AlienPluginApi["config"]): ResolveAuthLabelResult {
   const mode = cfg.gateway?.auth?.mode;
   const token =
-    pickFirstDefined([process.env.OPENCLAW_GATEWAY_TOKEN, cfg.gateway?.auth?.token]) ?? undefined;
+    pickFirstDefined([process.env.ALIEN_GATEWAY_TOKEN, cfg.gateway?.auth?.token]) ?? undefined;
   const password =
-    pickFirstDefined([process.env.OPENCLAW_GATEWAY_PASSWORD, cfg.gateway?.auth?.password]) ??
+    pickFirstDefined([process.env.ALIEN_GATEWAY_PASSWORD, cfg.gateway?.auth?.password]) ??
     undefined;
 
   if (mode === "token" || mode === "password") {
@@ -393,7 +393,7 @@ function resolveRequiredAuthLabel(
     : { error: "Gateway auth is set to password, but no password is configured." };
 }
 
-async function resolveGatewayUrl(api: OpenClawPluginApi): Promise<ResolveUrlResult> {
+async function resolveGatewayUrl(api: AlienPluginApi): Promise<ResolveUrlResult> {
   const { resolveGatewayBindUrl, resolveGatewayPort } = await loadDevicePairApiModule();
   const cfg = api.config;
   const pluginCfg = (api.pluginConfig ?? {}) as DevicePairPluginConfig;
@@ -446,7 +446,7 @@ async function resolveGatewayUrl(api: OpenClawPluginApi): Promise<ResolveUrlResu
   };
 }
 
-async function resolveMobilePairingGatewayUrl(api: OpenClawPluginApi): Promise<ResolveUrlResult> {
+async function resolveMobilePairingGatewayUrl(api: AlienPluginApi): Promise<ResolveUrlResult> {
   const result = await resolveGatewayUrl(api);
   if (!result.url) {
     return result;
@@ -610,7 +610,7 @@ async function issueSetupPayload(url: string): Promise<SetupPayload> {
 }
 
 async function sendQrPngToSupportedChannel(params: {
-  api: OpenClawPluginApi;
+  api: AlienPluginApi;
   ctx: QrCommandContext;
   target: string;
   caption: string;
@@ -644,8 +644,8 @@ async function sendQrPngToSupportedChannel(params: {
 export default definePluginEntry({
   id: "device-pair",
   name: "Device Pair",
-  description: "QR/bootstrap pairing helpers for OpenClaw devices",
-  register(api: OpenClawPluginApi) {
+  description: "QR/bootstrap pairing helpers for Alien devices",
+  register(api: AlienPluginApi) {
     let notifierService: ReturnType<NotifyModule["createPairingNotifierService"]> | undefined;
     api.registerService({
       id: "device-pair-notifier",
@@ -781,11 +781,11 @@ export default definePluginEntry({
           if (target && canSendQrPngToChannel(channel)) {
             let qrFilePath: string | undefined;
             try {
-              const { resolvePreferredOpenClawTmpDir, writeQrPngTempFile } =
+              const { resolvePreferredAlienTmpDir, writeQrPngTempFile } =
                 await loadDevicePairApiModule();
               qrFilePath = (
                 await writeQrPngTempFile(setupCode, {
-                  tmpRoot: resolvePreferredOpenClawTmpDir(),
+                  tmpRoot: resolvePreferredAlienTmpDir(),
                   dirPrefix: "device-pair-qr-",
                   fileName: "pair-qr.png",
                 })
@@ -794,7 +794,7 @@ export default definePluginEntry({
                 api,
                 ctx,
                 target,
-                caption: ["Scan this QR code with the OpenClaw iOS app:", "", ...infoLines].join(
+                caption: ["Scan this QR code with the Alien iOS app:", "", ...infoLines].join(
                   "\n",
                 ),
                 qrFilePath,
@@ -845,7 +845,7 @@ export default definePluginEntry({
             }
             return {
               text: [
-                "Scan this QR code with the OpenClaw iOS app:",
+                "Scan this QR code with the Alien iOS app:",
                 "",
                 formatQrInfoMarkdown({
                   payload,

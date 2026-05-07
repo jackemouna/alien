@@ -4,7 +4,7 @@ export {
   resolveSafeInstallDir,
   safeDirName,
   safePathSegmentHashed,
-} from "@openclaw/fs-safe/advanced";
+} from "@alien/fs-safe/advanced";
 
 export function unscopedPackageName(name: string): string {
   const trimmed = name.trim();

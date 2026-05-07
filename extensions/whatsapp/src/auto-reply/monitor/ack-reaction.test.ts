@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WhatsAppSendResult } from "../../inbound/send-result.js";
 import type { WebInboundMessage } from "../../inbound/types.js";
@@ -40,8 +40,8 @@ function createMessage(overrides: Partial<WebInboundMessage> = {}): WebInboundMe
 
 function createConfig(
   reactionLevel: "off" | "ack" | "minimal" | "extensive",
-  extras?: Partial<NonNullable<OpenClawConfig["channels"]>["whatsapp"]>,
-): OpenClawConfig {
+  extras?: Partial<NonNullable<AlienConfig["channels"]>["whatsapp"]>,
+): AlienConfig {
   return {
     channels: {
       whatsapp: {
@@ -54,7 +54,7 @@ function createConfig(
         ...extras,
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 type AckReactionParams = Parameters<typeof maybeSendAckReaction>[0];

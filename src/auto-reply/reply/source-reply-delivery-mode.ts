@@ -1,5 +1,5 @@
 import { normalizeChatType } from "../../channels/chat-type.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { SessionSendPolicyDecision } from "../../sessions/send-policy.js";
 import type { SourceReplyDeliveryMode } from "../get-reply-options.types.js";
 
@@ -18,7 +18,7 @@ export function isExplicitSourceReplyCommand(ctx: SourceReplyDeliveryModeContext
 }
 
 export function resolveSourceReplyDeliveryMode(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ctx: SourceReplyDeliveryModeContext;
   requested?: SourceReplyDeliveryMode;
   messageToolAvailable?: boolean;
@@ -60,7 +60,7 @@ export type SourceReplyVisibilityPolicy = {
 };
 
 export function resolveSourceReplyVisibilityPolicy(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ctx: SourceReplyDeliveryModeContext;
   requested?: SourceReplyDeliveryMode;
   sendPolicy: SessionSendPolicyDecision;

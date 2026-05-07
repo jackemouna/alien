@@ -12,7 +12,7 @@ const contextTestState = vi.hoisted(() => {
   const state = {
     loadConfigImpl: () => ({}) as unknown,
     discoveredModels: [] as DiscoveredModel[],
-    ensureOpenClawModelsJson: vi.fn(async () => {}),
+    ensureAlienModelsJson: vi.fn(async () => {}),
     discoverAuthStorage: vi.fn(() => ({})),
     discoverModels: vi.fn(() => ({
       getAll: () => state.discoveredModels,
@@ -26,7 +26,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("./models-config.runtime.js", () => ({
-  ensureOpenClawModelsJson: contextTestState.ensureOpenClawModelsJson,
+  ensureAlienModelsJson: contextTestState.ensureAlienModelsJson,
 }));
 
 vi.mock("./pi-model-discovery-runtime.js", () => ({
@@ -40,8 +40,8 @@ function mockContextDeps(params: {
 }) {
   contextTestState.loadConfigImpl = params.getRuntimeConfig;
   contextTestState.discoveredModels = params.discoveredModels ?? [];
-  contextTestState.ensureOpenClawModelsJson.mockClear();
-  return { ensureOpenClawModelsJson: contextTestState.ensureOpenClawModelsJson };
+  contextTestState.ensureAlienModelsJson.mockClear();
+  return { ensureAlienModelsJson: contextTestState.ensureAlienModelsJson };
 }
 
 function mockContextModuleDeps(loadConfigImpl: () => unknown) {
@@ -108,7 +108,7 @@ describe("lookupContextTokens", () => {
   beforeEach(() => {
     contextTestState.loadConfigImpl = () => ({});
     contextTestState.discoveredModels = [];
-    contextTestState.ensureOpenClawModelsJson.mockClear();
+    contextTestState.ensureAlienModelsJson.mockClear();
     contextTestState.discoverAuthStorage.mockClear();
     contextTestState.discoverModels.mockClear();
     contextModule.resetContextWindowCacheForTest();
@@ -198,37 +198,37 @@ describe("lookupContextTokens", () => {
     expect(secondLoadConfigMock).not.toHaveBeenCalled();
   });
 
-  it("only warms eagerly for real openclaw startup commands that need model metadata", async () => {
+  it("only warms eagerly for real alien startup commands that need model metadata", async () => {
     const { shouldEagerWarmContextWindowCache } = await importContextModule();
 
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "chat"])).toBe(true);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "chat", "--help"])).toBe(false);
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "chat"])).toBe(true);
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "chat", "--help"])).toBe(false);
     expect(
-      shouldEagerWarmContextWindowCache(["node", "openclaw", "matrix", "encryption", "help"]),
+      shouldEagerWarmContextWindowCache(["node", "alien", "matrix", "encryption", "help"]),
     ).toBe(false);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "help", "matrix"])).toBe(false);
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "help", "matrix"])).toBe(false);
     expect(
-      shouldEagerWarmContextWindowCache(["node", "openclaw", "browser", "status", "--help"]),
+      shouldEagerWarmContextWindowCache(["node", "alien", "browser", "status", "--help"]),
     ).toBe(false);
     expect(
       shouldEagerWarmContextWindowCache([
         "node",
-        "openclaw",
+        "alien",
         "--profile",
         "--",
         "config",
         "validate",
       ]),
     ).toBe(false);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "logs", "--limit", "5"])).toBe(
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "logs", "--limit", "5"])).toBe(
       false,
     );
     expect(
-      shouldEagerWarmContextWindowCache(["node", "openclaw", "memory", "search", "--json"]),
+      shouldEagerWarmContextWindowCache(["node", "alien", "memory", "search", "--json"]),
     ).toBe(false);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "message", "read"])).toBe(false);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "status", "--json"])).toBe(false);
-    expect(shouldEagerWarmContextWindowCache(["node", "openclaw", "sessions", "--json"])).toBe(
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "message", "read"])).toBe(false);
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "status", "--json"])).toBe(false);
+    expect(shouldEagerWarmContextWindowCache(["node", "alien", "sessions", "--json"])).toBe(
       false,
     );
     expect(
@@ -297,7 +297,7 @@ describe("lookupContextTokens", () => {
 
     expect(contextTestState.discoverModels).toHaveBeenCalledWith(
       expect.anything(),
-      expect.stringMatching(/\/\.openclaw\/agents\/main\/agent$/),
+      expect.stringMatching(/\/\.alien\/agents\/main\/agent$/),
       { normalizeModels: false },
     );
     expect(lookupContextTokens("anthropic/claude-opus-4.7-20260219")).toBe(1_048_576);

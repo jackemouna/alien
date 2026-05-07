@@ -3,12 +3,12 @@ export {
   parsePluginBindingApprovalCustomId,
   recordInboundSession,
   resolvePluginConversationBindingApproval,
-} from "openclaw/plugin-sdk/conversation-runtime";
-export { dispatchPluginInteractiveHandler } from "openclaw/plugin-sdk/plugin-runtime";
+} from "alien/plugin-sdk/conversation-runtime";
+export { dispatchPluginInteractiveHandler } from "alien/plugin-sdk/plugin-runtime";
 export {
   createReplyReferencePlanner,
   dispatchReplyWithBufferedBlockDispatcher,
   finalizeInboundContext,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "openclaw/plugin-sdk/reply-runtime";
+} from "alien/plugin-sdk/reply-runtime";

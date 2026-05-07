@@ -1,10 +1,10 @@
-import type { ChatCommandDefinition, CommandArgs } from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { applyModelOverrideToSessionEntry } from "openclaw/plugin-sdk/model-session-runtime";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { resolveStorePath, updateSessionStore } from "openclaw/plugin-sdk/session-store-runtime";
-import { withTimeout } from "openclaw/plugin-sdk/text-runtime";
+import type { ChatCommandDefinition, CommandArgs } from "alien/plugin-sdk/command-auth";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { applyModelOverrideToSessionEntry } from "alien/plugin-sdk/model-session-runtime";
+import type { ResolvedAgentRoute } from "alien/plugin-sdk/routing";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { resolveStorePath, updateSessionStore } from "alien/plugin-sdk/session-store-runtime";
+import { withTimeout } from "alien/plugin-sdk/text-runtime";
 import type { ButtonInteraction, StringSelectMenuInteraction } from "../internal/discord.js";
 import {
   recordDiscordModelPickerRecentModel,
@@ -13,7 +13,7 @@ import {
 import type { DispatchDiscordCommandInteraction } from "./native-command-dispatch.js";
 import type { ThreadBindingManager } from "./thread-bindings.js";
 
-type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<AlienConfig["channels"]>["discord"];
 
 type DiscordModelPickerSelectionCommand = {
   prompt: string;
@@ -29,7 +29,7 @@ type DiscordModelPickerApplyResult =
   | { status: "failed"; noticeMessage: string };
 
 async function persistDiscordModelPickerOverride(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   route: ResolvedAgentRoute;
   provider: string;
   model: string;
@@ -62,7 +62,7 @@ export async function applyDiscordModelPickerSelection(params: {
   interaction: ButtonInteraction | StringSelectMenuInteraction;
   selectionCommand: DiscordModelPickerSelectionCommand;
   dispatchCommandInteraction: DispatchDiscordCommandInteraction;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   discordConfig: DiscordConfig;
   accountId: string;
   sessionPrefix: string;

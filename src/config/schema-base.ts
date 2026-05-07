@@ -11,7 +11,7 @@ import {
 import { FIELD_LABELS } from "./schema.labels.js";
 import { asSchemaObject, cloneSchema } from "./schema.shared.js";
 import { applyDerivedTags } from "./schema.tags.js";
-import { OpenClawSchema } from "./zod-schema.js";
+import { AlienSchema } from "./zod-schema.js";
 
 type ConfigSchema = Record<string, unknown>;
 
@@ -229,18 +229,18 @@ function computeBaseConfigSchemaStablePayload(): BaseConfigSchemaStablePayload {
       version: baseConfigSchemaStablePayload.version,
     };
   }
-  const schema = OpenClawSchema.toJSONSchema({
+  const schema = AlienSchema.toJSONSchema({
     target: "draft-07",
     unrepresentable: "any",
   });
-  schema.title = "OpenClawConfig";
+  schema.title = "AlienConfig";
   const schemaRoot = asJsonSchemaObject(schema);
   if (schemaRoot) {
     applyFieldDocumentation(schemaRoot, buildFieldDocumentation());
   }
-  const baseHints = mapSensitivePaths(OpenClawSchema, "", buildBaseHints());
+  const baseHints = mapSensitivePaths(AlienSchema, "", buildBaseHints());
   const sensitiveUrlPaths = collectMatchingSchemaPaths(
-    OpenClawSchema,
+    AlienSchema,
     "",
     isSensitiveUrlConfigPath,
   );

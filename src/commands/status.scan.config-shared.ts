@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { resolveConfigPath } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import { resolveGatewayAuthTokenSourceConflict } from "../gateway/auth-token-source-conflict.js";
 
 export function shouldSkipStatusScanMissingConfigFastPath(
@@ -21,16 +21,16 @@ export function resolveStatusScanColdStart(params?: {
 
 export async function loadStatusScanCommandConfig(params: {
   commandName: string;
-  readBestEffortConfig: () => Promise<OpenClawConfig>;
+  readBestEffortConfig: () => Promise<AlienConfig>;
   resolveConfig: (
-    sourceConfig: OpenClawConfig,
-  ) => Promise<{ resolvedConfig: OpenClawConfig; diagnostics: string[] }>;
+    sourceConfig: AlienConfig,
+  ) => Promise<{ resolvedConfig: AlienConfig; diagnostics: string[] }>;
   env?: NodeJS.ProcessEnv;
   allowMissingConfigFastPath?: boolean;
 }): Promise<{
   coldStart: boolean;
-  sourceConfig: OpenClawConfig;
-  resolvedConfig: OpenClawConfig;
+  sourceConfig: AlienConfig;
+  resolvedConfig: AlienConfig;
   secretDiagnostics: string[];
 }> {
   const env = params.env ?? process.env;

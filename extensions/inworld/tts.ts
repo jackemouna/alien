@@ -1,5 +1,5 @@
-import type { SpeechVoiceOption } from "openclaw/plugin-sdk/speech-core";
-import { fetchWithSsrFGuard, type SsrFPolicy } from "openclaw/plugin-sdk/ssrf-runtime";
+import type { SpeechVoiceOption } from "alien/plugin-sdk/speech-core";
+import { fetchWithSsrFGuard, type SsrFPolicy } from "alien/plugin-sdk/ssrf-runtime";
 
 const DEFAULT_INWORLD_BASE_URL = "https://api.inworld.ai";
 export const DEFAULT_INWORLD_VOICE_ID = "Sarah";

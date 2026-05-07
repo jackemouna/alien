@@ -11,12 +11,12 @@ import {
   resetAgentEventsForTest,
   type AgentEventPayload,
   type EmbeddedRunAttemptParams,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import {
   initializeGlobalHookRunner,
   resetGlobalHookRunner,
-} from "openclaw/plugin-sdk/hook-runtime";
-import { createMockPluginRegistry } from "openclaw/plugin-sdk/plugin-test-runtime";
+} from "alien/plugin-sdk/hook-runtime";
+import { createMockPluginRegistry } from "alien/plugin-sdk/plugin-test-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CODEX_GPT5_BEHAVIOR_CONTRACT } from "../../prompt-overlay.js";
 import * as elicitationBridge from "./elicitation-bridge.js";
@@ -85,7 +85,7 @@ function threadStartResult(threadId = "thread-1") {
       updatedAt: 1,
       status: { type: "idle" },
       path: null,
-      cwd: tempDir || "/tmp/openclaw-codex-test",
+      cwd: tempDir || "/tmp/alien-codex-test",
       cliVersion: "0.125.0",
       source: "unknown",
       agentNickname: null,
@@ -97,7 +97,7 @@ function threadStartResult(threadId = "thread-1") {
     model: "gpt-5.4-codex",
     modelProvider: "openai",
     serviceTier: null,
-    cwd: tempDir || "/tmp/openclaw-codex-test",
+    cwd: tempDir || "/tmp/alien-codex-test",
     instructionSources: [],
     approvalPolicy: "never",
     approvalsReviewer: "user",
@@ -396,13 +396,13 @@ function extractRelayIdFromThreadRequest(params: unknown): string {
 describe("runCodexAppServerAttempt", () => {
   beforeEach(async () => {
     resetAgentEventsForTest();
-    vi.stubEnv("OPENCLAW_TRAJECTORY", "0");
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-run-"));
+    vi.stubEnv("ALIEN_TRAJECTORY", "0");
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-codex-run-"));
   });
 
   afterEach(async () => {
     __testing.resetCodexAppServerClientFactoryForTests();
-    __testing.resetOpenClawCodingToolsFactoryForTests();
+    __testing.resetAlienCodingToolsFactoryForTests();
     resetCodexRateLimitCacheForTests();
     nativeHookRelayTesting.clearNativeHookRelaysForTests();
     resetAgentEventsForTest();
@@ -436,20 +436,20 @@ describe("runCodexAppServerAttempt", () => {
     ]);
   });
 
-  it("allows Codex dynamic tool filtering to opt back into OpenClaw compatibility", () => {
+  it("allows Codex dynamic tool filtering to opt back into Alien compatibility", () => {
     const tools = ["read", "exec", "message", "custom_tool"].map((name) => ({ name }));
 
     expect(
       __testing
         .applyCodexDynamicToolProfile(tools, {
-          codexDynamicToolsProfile: "openclaw-compat",
+          codexDynamicToolsProfile: "alien-compat",
           codexDynamicToolsExclude: ["custom_tool"],
         })
         .map((tool) => tool.name),
     ).toEqual(["read", "exec", "message"]);
   });
 
-  it("starts Codex threads without duplicate OpenClaw workspace tools by default", async () => {
+  it("starts Codex threads without duplicate Alien workspace tools by default", async () => {
     const sessionFile = path.join(tempDir, "session.jsonl");
     const workspaceDir = path.join(tempDir, "workspace");
     const appServer = createThreadLifecycleAppServerOptions();
@@ -520,7 +520,7 @@ describe("runCodexAppServerAttempt", () => {
     params.sessionKey = "agent:main:main";
 
     expect(
-      __testing.resolveOpenClawCodingToolsSessionKeys(
+      __testing.resolveAlienCodingToolsSessionKeys(
         params,
         "agent:main:telegram:default:direct:1234",
       ),
@@ -529,7 +529,7 @@ describe("runCodexAppServerAttempt", () => {
       runSessionKey: "agent:main:main",
     });
 
-    expect(__testing.resolveOpenClawCodingToolsSessionKeys(params, "agent:main:main")).toEqual({
+    expect(__testing.resolveAlienCodingToolsSessionKeys(params, "agent:main:main")).toEqual({
       sessionKey: "agent:main:main",
       runSessionKey: undefined,
     });
@@ -566,7 +566,7 @@ describe("runCodexAppServerAttempt", () => {
       contentItems: [
         {
           type: "inputText",
-          text: "OpenClaw dynamic tool call timed out after 1ms while running tool message.",
+          text: "Alien dynamic tool call timed out after 1ms while running tool message.",
         },
       ],
     });
@@ -600,7 +600,7 @@ describe("runCodexAppServerAttempt", () => {
       contentItems: [
         {
           type: "inputText",
-          text: "OpenClaw dynamic tool call timed out after 1ms while waiting for process action=poll sessionId=rapid-crustacean. This is a tool RPC timeout, not a session idle timeout.",
+          text: "Alien dynamic tool call timed out after 1ms while waiting for process action=poll sessionId=rapid-crustacean. This is a tool RPC timeout, not a session idle timeout.",
         },
       ],
     });
@@ -656,7 +656,7 @@ describe("runCodexAppServerAttempt", () => {
         {
           type: "inputText",
           text: expect.stringMatching(
-            /^(Unknown OpenClaw tool: message|Action send requires a target\.)$/u,
+            /^(Unknown Alien tool: message|Action send requires a target\.)$/u,
           ),
         },
       ],
@@ -764,7 +764,7 @@ describe("runCodexAppServerAttempt", () => {
         {
           type: "inputText",
           text: expect.stringMatching(
-            /^(Unknown OpenClaw tool: message|Action send requires a target\.)$/u,
+            /^(Unknown Alien tool: message|Action send requires a target\.)$/u,
           ),
         },
       ],
@@ -871,7 +871,7 @@ describe("runCodexAppServerAttempt", () => {
     sessionManager.appendMessage(assistantMessage("Opik default project context", Date.now() + 1));
     const harness = createStartedThreadHarness();
     const params = createParams(sessionFile, workspaceDir);
-    params.prompt = "make the default webpage openclaw";
+    params.prompt = "make the default webpage alien";
 
     const run = runCodexAppServerAttempt(params);
     await harness.waitForMethod("turn/start");
@@ -884,14 +884,14 @@ describe("runCodexAppServerAttempt", () => {
       (turnStart?.params as { input?: Array<{ text?: string }> } | undefined)?.input?.[0]?.text ??
       "";
 
-    expect(inputText).toContain("OpenClaw assembled context for this turn:");
+    expect(inputText).toContain("Alien assembled context for this turn:");
     expect(inputText).toContain("we are fixing the Opik default project");
     expect(inputText).toContain("Opik default project context");
     expect(inputText).toContain("Current user request:");
-    expect(inputText).toContain("make the default webpage openclaw");
+    expect(inputText).toContain("make the default webpage alien");
   });
 
-  it("passes OpenClaw bootstrap files through Codex developer instructions", async () => {
+  it("passes Alien bootstrap files through Codex developer instructions", async () => {
     const sessionFile = path.join(tempDir, "session.jsonl");
     const workspaceDir = path.join(tempDir, "workspace");
     await fs.mkdir(workspaceDir, { recursive: true });
@@ -1987,7 +1987,7 @@ describe("runCodexAppServerAttempt", () => {
   });
 
   it("releases completion when a projector callback throws during turn/completed", async () => {
-    // Regression for openclaw/openclaw#67996: a throw inside the projector's
+    // Regression for alien/alien#67996: a throw inside the projector's
     // turn/completed handler must not strand resolveCompletion, otherwise the
     // gateway session lane stays locked and every follow-up message queues
     // behind a run that will never resolve.
@@ -2628,7 +2628,7 @@ describe("runCodexAppServerAttempt", () => {
     );
   });
 
-  it("builds resume and turn params from the currently selected OpenClaw model", () => {
+  it("builds resume and turn params from the currently selected Alien model", () => {
     const params = createParams("/tmp/session.jsonl", "/tmp/workspace");
     const appServer = {
       start: {
@@ -2687,7 +2687,7 @@ describe("runCodexAppServerAttempt", () => {
         model: "gpt-5.4-codex",
         reasoning_effort: "medium",
         developer_instructions: expect.stringContaining(
-          "This is an OpenClaw heartbeat turn. Apply these instructions only to this heartbeat wake",
+          "This is an Alien heartbeat turn. Apply these instructions only to this heartbeat wake",
         ),
       },
     });

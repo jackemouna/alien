@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { ApplicationCommandType, type APIApplicationCommand } from "discord-api-types/v10";
-import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+import { privateFileStore } from "alien/plugin-sdk/security-runtime";
 import {
   createApplicationCommand,
   deleteApplicationCommand,

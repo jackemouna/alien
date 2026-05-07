@@ -2,11 +2,11 @@ import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
   type GroupToolPolicyConfig,
-} from "openclaw/plugin-sdk/channel-policy";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-policy";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 type WhatsAppGroupContext = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   groupId?: string | null;
   senderId?: string | null;

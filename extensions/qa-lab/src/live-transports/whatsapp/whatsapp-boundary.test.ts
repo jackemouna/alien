@@ -26,8 +26,8 @@ describe("WhatsApp QA transport boundary", () => {
     );
     for (const [file, source] of sources) {
       expect(source, file).not.toMatch(/extensions\/whatsapp\/src/u);
-      expect(source, file).not.toMatch(/@openclaw\/whatsapp\/src/u);
+      expect(source, file).not.toMatch(/@alien\/whatsapp\/src/u);
     }
-    expect(sources.some(([, source]) => source.includes("@openclaw/whatsapp/api.js"))).toBe(true);
+    expect(sources.some(([, source]) => source.includes("@alien/whatsapp/api.js"))).toBe(true);
   });
 });

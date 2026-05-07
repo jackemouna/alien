@@ -1,14 +1,14 @@
 import type {
   ChannelDoctorConfigMutation,
   ChannelDoctorLegacyConfigRule,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   asObjectRecord,
   hasLegacyAccountStreamingAliases,
   hasLegacyStreamingAliases,
   normalizeLegacyChannelAliases,
-} from "openclaw/plugin-sdk/runtime-doctor";
+} from "alien/plugin-sdk/runtime-doctor";
 import { resolveTelegramPreviewStreamMode } from "./preview-streaming.js";
 
 function hasLegacyTelegramStreamingAliases(value: unknown): boolean {
@@ -37,7 +37,7 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
   {
     path: ["channels", "telegram", "groupMentionsOnly"],
     message:
-      'channels.telegram.groupMentionsOnly was removed; use channels.telegram.groups."*".requireMention instead. Run "openclaw doctor --fix".',
+      'channels.telegram.groupMentionsOnly was removed; use channels.telegram.groups."*".requireMention instead. Run "alien doctor --fix".',
   },
   {
     path: ["channels", "telegram"],
@@ -56,7 +56,7 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
 export function normalizeCompatibilityConfig({
   cfg,
 }: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }): ChannelDoctorConfigMutation {
   const rawEntry = asObjectRecord((cfg.channels as Record<string, unknown> | undefined)?.telegram);
   if (!rawEntry) {
@@ -113,8 +113,8 @@ export function normalizeCompatibilityConfig({
       ...cfg,
       channels: {
         ...cfg.channels,
-        telegram: updated as unknown as NonNullable<OpenClawConfig["channels"]>["telegram"],
-      } as OpenClawConfig["channels"],
+        telegram: updated as unknown as NonNullable<AlienConfig["channels"]>["telegram"],
+      } as AlienConfig["channels"],
     },
     changes,
   };

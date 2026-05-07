@@ -2,7 +2,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 import type { SkillStatusEntry, SkillStatusReport } from "../agents/skills-status.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { note } from "../terminal/note.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 
@@ -51,17 +51,17 @@ export function formatUnavailableSkillDoctorLines(skills: SkillStatusEntry[]): s
     lines.push(`- ${skill.name}: ${formatMissingSummary(skill)}`);
     lines.push(...formatInstallHints(skill));
   }
-  lines.push(`Disable unused skills: ${formatCliCommand("openclaw doctor --fix")}`);
+  lines.push(`Disable unused skills: ${formatCliCommand("alien doctor --fix")}`);
   lines.push(
-    `Inspect details: ${formatCliCommand("openclaw skills check --agent <id>")} or ${formatCliCommand("openclaw skills info <name> --agent <id>")}`,
+    `Inspect details: ${formatCliCommand("alien skills check --agent <id>")} or ${formatCliCommand("alien skills info <name> --agent <id>")}`,
   );
   return lines;
 }
 
 export function disableUnavailableSkillsInConfig(
-  config: OpenClawConfig,
+  config: AlienConfig,
   skills: readonly SkillStatusEntry[],
-): OpenClawConfig {
+): AlienConfig {
   if (skills.length === 0) {
     return config;
   }
@@ -82,9 +82,9 @@ export function disableUnavailableSkillsInConfig(
 }
 
 export async function maybeRepairSkillReadiness(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   prompter: DoctorPrompter;
-}): Promise<OpenClawConfig> {
+}): Promise<AlienConfig> {
   const agentId = resolveDefaultAgentId(params.cfg);
   const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
   const report = buildWorkspaceSkillStatus(workspaceDir, {

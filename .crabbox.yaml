@@ -1,4 +1,4 @@
-profile: openclaw-check
+profile: alien-check
 provider: aws
 class: standard
 capacity:
@@ -18,7 +18,7 @@ actions:
   ref: main
   runnerLabels:
     - crabbox
-    - openclaw
+    - alien
   runnerVersion: latest
   ephemeral: true
 aws:
@@ -40,7 +40,7 @@ env:
   allow:
     - CI
     - NODE_OPTIONS
-    - OPENCLAW_*
+    - ALIEN_*
 ssh:
   user: crabbox
   port: "2222"

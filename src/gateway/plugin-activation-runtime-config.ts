@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { isRecord } from "../utils.js";
 
 function hasOwnValue(record: Record<string, unknown>, key: string): boolean {
@@ -6,9 +6,9 @@ function hasOwnValue(record: Record<string, unknown>, key: string): boolean {
 }
 
 function mergeChannelActivationSections(params: {
-  runtimeConfig: OpenClawConfig;
-  activationConfig: OpenClawConfig;
-}): OpenClawConfig {
+  runtimeConfig: AlienConfig;
+  activationConfig: AlienConfig;
+}): AlienConfig {
   const activationChannels = params.activationConfig.channels;
   if (!isRecord(activationChannels)) {
     return params.runtimeConfig;
@@ -37,14 +37,14 @@ function mergeChannelActivationSections(params: {
   }
   return {
     ...params.runtimeConfig,
-    channels: nextChannels as OpenClawConfig["channels"],
+    channels: nextChannels as AlienConfig["channels"],
   };
 }
 
 function mergePluginActivationSections(params: {
-  runtimeConfig: OpenClawConfig;
-  activationConfig: OpenClawConfig;
-}): OpenClawConfig {
+  runtimeConfig: AlienConfig;
+  activationConfig: AlienConfig;
+}): AlienConfig {
   const activationPlugins = params.activationConfig.plugins;
   if (!isRecord(activationPlugins)) {
     return params.runtimeConfig;
@@ -90,14 +90,14 @@ function mergePluginActivationSections(params: {
   }
   return {
     ...params.runtimeConfig,
-    plugins: nextPlugins as OpenClawConfig["plugins"],
+    plugins: nextPlugins as AlienConfig["plugins"],
   };
 }
 
 export function mergeActivationSectionsIntoRuntimeConfig(params: {
-  runtimeConfig: OpenClawConfig;
-  activationConfig: OpenClawConfig;
-}): OpenClawConfig {
+  runtimeConfig: AlienConfig;
+  activationConfig: AlienConfig;
+}): AlienConfig {
   return mergePluginActivationSections({
     ...params,
     runtimeConfig: mergeChannelActivationSections(params),

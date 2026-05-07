@@ -53,11 +53,11 @@ function resolveSystemdUnitPathForName(env: GatewayServiceEnv, name: string): st
 }
 
 function resolveSystemdServiceName(env: GatewayServiceEnv): string {
-  const override = env.OPENCLAW_SYSTEMD_UNIT?.trim();
+  const override = env.ALIEN_SYSTEMD_UNIT?.trim();
   if (override) {
     return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
   }
-  return resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE);
+  return resolveGatewaySystemdServiceName(env.ALIEN_PROFILE);
 }
 
 function resolveSystemdUnitPath(env: GatewayServiceEnv): string {
@@ -625,7 +625,7 @@ async function writeSystemdUnit({
 async function writeSystemdGatewayEnvironmentFile(params: {
   stateDir: string;
   dotenvVars: Record<string, string>;
-  /** OpenClaw-managed keys that must not be preserved from an old env file; stale file values
+  /** Alien-managed keys that must not be preserved from an old env file; stale file values
    *  would override fresh inline Environment= entries because EnvironmentFile takes precedence. */
   inlineManagedKeys?: ReadonlySet<string>;
 }): Promise<{ environmentFiles: string[]; environmentKeys: Set<string> }> {
@@ -641,7 +641,7 @@ async function writeSystemdGatewayEnvironmentFile(params: {
 
   // Read the existing env file first so we can preserve operator-added secrets
   // (e.g. provider API keys) across upgrades and re-stages.
-  // OpenClaw-managed keys (identified by inlineManagedKeys) are excluded: a stale
+  // Alien-managed keys (identified by inlineManagedKeys) are excluded: a stale
   // file copy would override the fresh inline Environment= value because systemd's
   // EnvironmentFile takes precedence over inline Environment= directives.
   let existing: Record<string, string> = {};

@@ -1,23 +1,23 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
-import { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+import { logTypingFailure } from "alien/plugin-sdk/channel-feedback";
+import { createChannelPairingController } from "alien/plugin-sdk/channel-pairing";
 import {
   resolveDirectDmAuthorizationOutcome,
   resolveSenderCommandAuthorizationWithRuntime,
-} from "openclaw/plugin-sdk/command-auth";
-import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveInboundRouteEnvelopeBuilderWithRuntime } from "openclaw/plugin-sdk/inbound-envelope";
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
+} from "alien/plugin-sdk/command-auth";
+import type { MarkdownTableMode, AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveInboundRouteEnvelopeBuilderWithRuntime } from "alien/plugin-sdk/inbound-envelope";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
 import {
   deliverTextOrMediaReply,
   type OutboundReplyPayload,
-} from "openclaw/plugin-sdk/reply-payload";
-import { waitForAbortSignal } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/reply-payload";
+import { waitForAbortSignal } from "alien/plugin-sdk/runtime-env";
 import {
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/runtime-group-policy";
-import { registerPluginHttpRoute, resolveWebhookPath } from "openclaw/plugin-sdk/webhook-ingress";
+} from "alien/plugin-sdk/runtime-group-policy";
+import { registerPluginHttpRoute, resolveWebhookPath } from "alien/plugin-sdk/webhook-ingress";
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -54,7 +54,7 @@ import {
 export type ZaloMonitorOptions = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: AlienConfig;
   runtime: ZaloRuntimeEnv;
   abortSignal: AbortSignal;
   useWebhook?: boolean;
@@ -76,7 +76,7 @@ type ZaloWebhookModule = typeof import("./monitor.webhook.js");
 type ZaloProcessingContext = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: AlienConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   mediaMaxMb: number;
@@ -750,7 +750,7 @@ async function deliverZaloReply(params: {
   chatId: string;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
-  config: OpenClawConfig;
+  config: AlienConfig;
   webhookUrl?: string;
   webhookPath?: string;
   proxyUrl?: string;

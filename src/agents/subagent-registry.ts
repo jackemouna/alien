@@ -6,7 +6,7 @@ import {
   resolveStorePath,
   type SessionEntry,
 } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type { ResolveContextEngineOptions } from "../context-engine/registry.js";
 import type { ContextEngine, SubagentEndReason } from "../context-engine/types.js";
 import { callGateway } from "../gateway/call.js";
@@ -101,7 +101,7 @@ type SubagentRegistryDeps = {
   ensureContextEnginesInitialized?: () => void;
   ensureRuntimePluginsLoaded?: typeof ensureRuntimePluginsLoadedFn;
   resolveContextEngine?: (
-    cfg?: OpenClawConfig,
+    cfg?: AlienConfig,
     options?: ResolveContextEngineOptions,
   ) => Promise<ContextEngine>;
 };
@@ -149,7 +149,7 @@ type ContextEngineInitModule = Pick<
 type ContextEngineRegistryModule = Pick<
   {
     resolveContextEngine: (
-      cfg?: OpenClawConfig,
+      cfg?: AlienConfig,
       options?: ResolveContextEngineOptions,
     ) => Promise<ContextEngine>;
   },
@@ -200,7 +200,7 @@ const LIFECYCLE_TIMEOUT_RETRY_GRACE_MS = 15_000;
 /** Absolute TTL for orphaned pendingLifecycleError / pendingLifecycleTimeout entries. */
 const PENDING_LIFECYCLE_TERMINAL_TTL_MS = 5 * 60_000; // 5 minutes
 /** Grace period before treating a "running" subagent without a live run context as stale. */
-const STALE_ACTIVE_SUBAGENT_GRACE_MS = process.env.OPENCLAW_TEST_FAST === "1" ? 1_000 : 60_000;
+const STALE_ACTIVE_SUBAGENT_GRACE_MS = process.env.ALIEN_TEST_FAST === "1" ? 1_000 : 60_000;
 
 function findSessionEntryByKey(store: Record<string, SessionEntry>, sessionKey: string) {
   const direct = store[sessionKey];
@@ -299,7 +299,7 @@ function loadRuntimePluginsModule(): Promise<RuntimePluginsModule> {
 }
 
 async function ensureSubagentRegistryPluginRuntimeLoaded(params: {
-  config: OpenClawConfig;
+  config: AlienConfig;
   workspaceDir?: string;
   allowGatewaySubagentBinding?: boolean;
 }) {
@@ -312,7 +312,7 @@ async function ensureSubagentRegistryPluginRuntimeLoaded(params: {
 }
 
 async function resolveSubagentRegistryContextEngine(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   options?: ResolveContextEngineOptions,
 ) {
   const initModule = await loadContextEngineInitModule();
@@ -714,7 +714,7 @@ function restoreSubagentRunsOnce() {
   }
 }
 
-function resolveSubagentWaitTimeoutMs(cfg: OpenClawConfig, runTimeoutSeconds?: number) {
+function resolveSubagentWaitTimeoutMs(cfg: AlienConfig, runTimeoutSeconds?: number) {
   return subagentRegistryDeps.resolveAgentTimeoutMs({
     cfg,
     overrideSeconds: runTimeoutSeconds ?? 0,
@@ -984,7 +984,7 @@ const subagentRunManager = createSubagentRunManager({
   callGateway: (request) => subagentRegistryDeps.callGateway(request),
   getRuntimeConfig: () => subagentRegistryDeps.getRuntimeConfig(),
   ensureRuntimePluginsLoaded: (args: {
-    config: OpenClawConfig;
+    config: AlienConfig;
     workspaceDir?: string;
     allowGatewaySubagentBinding?: boolean;
   }) => ensureSubagentRegistryPluginRuntimeLoaded(args),

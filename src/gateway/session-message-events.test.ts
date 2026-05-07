@@ -49,7 +49,7 @@ afterEach(async () => {
 });
 
 async function createSessionStoreFile(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-session-message-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-session-message-"));
   cleanupDirs.push(dir);
   const storePath = path.join(dir, "sessions.json");
   testState.sessionStorePath = storePath;
@@ -313,14 +313,14 @@ describe("session.message websocket events", () => {
         message: {
           role: "user",
           content: [{ type: "text", text: "The agent cannot read this message." }],
-          __openclaw: {
+          __alien: {
             beforeAgentRunBlocked: { blockedBy: "policy-plugin", blockedAt: 1 },
           },
         },
       });
 
       const payload = messageEvent.payload as {
-        message?: { content?: unknown; __openclaw?: { beforeAgentRunBlocked?: unknown } };
+        message?: { content?: unknown; __alien?: { beforeAgentRunBlocked?: unknown } };
       };
       expect(payload.message?.content).toEqual([
         { type: "text", text: "The agent cannot read this message." },
@@ -351,7 +351,7 @@ describe("session.message websocket events", () => {
         message: {
           role: "user",
           content: [{ type: "text", text: "The agent cannot read this message." }],
-          __openclaw: {
+          __alien: {
             beforeAgentRunBlocked: {
               blockedBy: "policy-plugin",
               blockedAt: Date.now(),
@@ -365,7 +365,7 @@ describe("session.message websocket events", () => {
         message?: {
           role?: unknown;
           content?: unknown;
-          __openclaw?: { beforeAgentRunBlocked?: unknown };
+          __alien?: { beforeAgentRunBlocked?: unknown };
         };
       };
       expect(payload.message?.role).toBe("user");

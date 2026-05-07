@@ -1,9 +1,9 @@
 import {
   buildChannelConfigSchema,
   requireOpenAllowFrom,
-} from "openclaw/plugin-sdk/channel-config-schema";
-import { requireChannelOpenAllowFrom } from "openclaw/plugin-sdk/extension-shared";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "alien/plugin-sdk/channel-config-schema";
+import { requireChannelOpenAllowFrom } from "alien/plugin-sdk/extension-shared";
+import { z } from "alien/plugin-sdk/zod";
 
 const DmPolicySchema = z.enum(["open", "allowlist", "pairing", "disabled"]);
 const GroupPolicySchema = z.enum(["open", "allowlist", "disabled"]);

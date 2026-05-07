@@ -35,14 +35,14 @@ const hoisted = vi.hoisted(() => {
   }));
   const resolveAgentModelPrimaryValue = vi.fn(() => "");
   const normalizeProviderId = vi.fn((provider: string) => provider.toLowerCase());
-  const resolveDefaultAgentDir = vi.fn(() => "/tmp/openclaw-state/agents/default/agent");
+  const resolveDefaultAgentDir = vi.fn(() => "/tmp/alien-state/agents/default/agent");
   const isCliProvider = vi.fn(() => false);
   const resolveConfiguredModelRef = vi.fn(() => ({
     provider: "openai",
     model: "gpt-5.4",
   }));
   const resolveEmbeddedAgentRuntime = vi.fn(() => "pi");
-  const ensureOpenClawModelsJson = vi.fn(async () => undefined);
+  const ensureAlienModelsJson = vi.fn(async () => undefined);
   return {
     startPluginServices,
     startGmailWatcherWithLogs,
@@ -68,7 +68,7 @@ const hoisted = vi.hoisted(() => {
     isCliProvider,
     resolveConfiguredModelRef,
     resolveEmbeddedAgentRuntime,
-    ensureOpenClawModelsJson,
+    ensureAlienModelsJson,
   };
 });
 
@@ -88,10 +88,10 @@ vi.mock("../config/paths.js", async () => {
   const actual = await vi.importActual<typeof import("../config/paths.js")>("../config/paths.js");
   return {
     ...actual,
-    STATE_DIR: "/tmp/openclaw-state",
-    resolveConfigPath: vi.fn(() => "/tmp/openclaw-state/openclaw.json"),
+    STATE_DIR: "/tmp/alien-state",
+    resolveConfigPath: vi.fn(() => "/tmp/alien-state/alien.json"),
     resolveGatewayPort: vi.fn(() => 18789),
-    resolveStateDir: vi.fn(() => "/tmp/openclaw-state"),
+    resolveStateDir: vi.fn(() => "/tmp/alien-state"),
   };
 });
 
@@ -156,7 +156,7 @@ vi.mock("../agents/provider-id.js", () => ({
 
 vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentDir: hoisted.resolveDefaultAgentDir,
-  resolveAgentWorkspaceDir: vi.fn(() => "/tmp/openclaw-workspace"),
+  resolveAgentWorkspaceDir: vi.fn(() => "/tmp/alien-workspace"),
   resolveDefaultAgentId: vi.fn(() => "default"),
 }));
 
@@ -175,7 +175,7 @@ vi.mock("../agents/pi-embedded-runner/runtime.js", () => ({
 }));
 
 vi.mock("../agents/models-config.js", () => ({
-  ensureOpenClawModelsJson: hoisted.ensureOpenClawModelsJson,
+  ensureAlienModelsJson: hoisted.ensureAlienModelsJson,
 }));
 
 vi.mock("./server-tailscale.js", () => ({
@@ -192,8 +192,8 @@ type PostAttachRuntimeDeps = NonNullable<Parameters<typeof startGatewayPostAttac
 
 describe("startGatewayPostAttachRuntime", () => {
   beforeEach(() => {
-    vi.stubEnv("OPENCLAW_SKIP_CHANNELS", "0");
-    vi.stubEnv("OPENCLAW_SKIP_PROVIDERS", "0");
+    vi.stubEnv("ALIEN_SKIP_CHANNELS", "0");
+    vi.stubEnv("ALIEN_SKIP_PROVIDERS", "0");
     hoisted.startPluginServices.mockClear();
     hoisted.startGmailWatcherWithLogs.mockClear();
     hoisted.loadInternalHooks.mockClear();
@@ -221,8 +221,8 @@ describe("startGatewayPostAttachRuntime", () => {
     hoisted.resolveConfiguredModelRef.mockClear();
     hoisted.resolveEmbeddedAgentRuntime.mockReset();
     hoisted.resolveEmbeddedAgentRuntime.mockReturnValue("pi");
-    hoisted.ensureOpenClawModelsJson.mockReset();
-    hoisted.ensureOpenClawModelsJson.mockResolvedValue(undefined);
+    hoisted.ensureAlienModelsJson.mockReset();
+    hoisted.ensureAlienModelsJson.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -284,8 +284,8 @@ describe("startGatewayPostAttachRuntime", () => {
   });
 
   it("skips heavy restart sentinel refresh when no sentinel file exists", async () => {
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-no-sentinel-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", stateDir);
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-no-sentinel-"));
+    vi.stubEnv("ALIEN_STATE_DIR", stateDir);
 
     const result = await __testing.refreshLatestUpdateRestartSentinelIfPresent();
 
@@ -295,9 +295,9 @@ describe("startGatewayPostAttachRuntime", () => {
   });
 
   it("refreshes the restart sentinel when the sentinel file exists", async () => {
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-sentinel-"));
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "alien-sentinel-"));
     fs.writeFileSync(path.join(stateDir, "restart-sentinel.json"), "{}\n");
-    vi.stubEnv("OPENCLAW_STATE_DIR", stateDir);
+    vi.stubEnv("ALIEN_STATE_DIR", stateDir);
     const sentinel = { kind: "update", status: "ok", ts: 1 } as const;
     hoisted.refreshLatestUpdateRestartSentinel.mockResolvedValue(sentinel);
 
@@ -309,28 +309,28 @@ describe("startGatewayPostAttachRuntime", () => {
   });
 
   it("expands tilde-based restart sentinel state paths", () => {
-    const osHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-home-"));
+    const osHome = fs.mkdtempSync(path.join(os.tmpdir(), "alien-home-"));
     try {
-      const openclawHome = path.join(osHome, "openclaw-home");
-      const stateDirFromHome = path.join(openclawHome, ".openclaw");
+      const alienHome = path.join(osHome, "alien-home");
+      const stateDirFromHome = path.join(alienHome, ".alien");
       fs.mkdirSync(stateDirFromHome, { recursive: true });
       fs.writeFileSync(path.join(stateDirFromHome, "restart-sentinel.json"), "{}\n");
 
       expect(
         __testing.hasRestartSentinelFileFast({
           HOME: osHome,
-          OPENCLAW_HOME: "~/openclaw-home",
+          ALIEN_HOME: "~/alien-home",
         } as NodeJS.ProcessEnv),
       ).toBe(true);
 
-      const backslashStateDir = path.resolve(`${osHome}\\openclaw-state`);
+      const backslashStateDir = path.resolve(`${osHome}\\alien-state`);
       fs.mkdirSync(backslashStateDir, { recursive: true });
       fs.writeFileSync(path.join(backslashStateDir, "restart-sentinel.json"), "{}\n");
 
       expect(
         __testing.hasRestartSentinelFileFast({
           HOME: osHome,
-          OPENCLAW_STATE_DIR: "~\\openclaw-state",
+          ALIEN_STATE_DIR: "~\\alien-state",
         } as NodeJS.ProcessEnv),
       ).toBe(true);
     } finally {
@@ -488,7 +488,7 @@ describe("startGatewayPostAttachRuntime", () => {
           memory: { backend: "qmd", qmd: { update: { startup: "idle", startupDelayMs: 25 } } },
         } as never,
         pluginRegistry: createPostAttachParams().pluginRegistry,
-        defaultWorkspaceDir: "/tmp/openclaw-workspace",
+        defaultWorkspaceDir: "/tmp/alien-workspace",
         deps: {} as never,
         startChannels: vi.fn(async () => undefined),
         log: { warn: vi.fn() },
@@ -581,20 +581,20 @@ describe("startGatewayPostAttachRuntime", () => {
       },
     } as never;
     hoisted.resolveAgentModelPrimaryValue.mockReturnValue("openai/gpt-5.4");
-    hoisted.resolveDefaultAgentDir.mockReturnValue("/tmp/openclaw-state/agents/ops/agent");
+    hoisted.resolveDefaultAgentDir.mockReturnValue("/tmp/alien-state/agents/ops/agent");
 
     await __testing.prewarmConfiguredPrimaryModel({
       cfg,
-      workspaceDir: "/tmp/openclaw-workspace",
+      workspaceDir: "/tmp/alien-workspace",
       log: { warn: vi.fn() },
     });
 
     expect(hoisted.resolveDefaultAgentDir).toHaveBeenCalledWith(cfg);
-    expect(hoisted.ensureOpenClawModelsJson).toHaveBeenCalledWith(
+    expect(hoisted.ensureAlienModelsJson).toHaveBeenCalledWith(
       cfg,
-      "/tmp/openclaw-state/agents/ops/agent",
+      "/tmp/alien-state/agents/ops/agent",
       expect.objectContaining({
-        workspaceDir: "/tmp/openclaw-workspace",
+        workspaceDir: "/tmp/alien-workspace",
         providerDiscoveryProviderIds: ["openai"],
       }),
     );
@@ -602,7 +602,7 @@ describe("startGatewayPostAttachRuntime", () => {
 
   it("starts channels without waiting for primary model prewarm completion", async () => {
     await withEnvAsync(
-      { OPENCLAW_SKIP_CHANNELS: undefined, OPENCLAW_SKIP_PROVIDERS: undefined },
+      { ALIEN_SKIP_CHANNELS: undefined, ALIEN_SKIP_PROVIDERS: undefined },
       async () => {
         let resolvePrewarm!: () => void;
         const prewarmPrimaryModel = vi.fn(
@@ -619,7 +619,7 @@ describe("startGatewayPostAttachRuntime", () => {
             agents: { defaults: { model: "openai/gpt-5.4" } },
           } as never,
           pluginRegistry: createPostAttachParams().pluginRegistry,
-          defaultWorkspaceDir: "/tmp/openclaw-workspace",
+          defaultWorkspaceDir: "/tmp/alien-workspace",
           deps: {} as never,
           startChannels,
           prewarmPrimaryModel: prewarmPrimaryModel as never,
@@ -640,7 +640,7 @@ describe("startGatewayPostAttachRuntime", () => {
             expect(prewarmPrimaryModel).toHaveBeenCalledTimes(1);
             expect(prewarmPrimaryModel).toHaveBeenCalledWith(
               expect.objectContaining({
-                workspaceDir: "/tmp/openclaw-workspace",
+                workspaceDir: "/tmp/alien-workspace",
               }),
             );
             expect(startChannels).toHaveBeenCalledTimes(1);
@@ -702,7 +702,7 @@ describe("startGatewayPostAttachRuntime", () => {
       await startGatewaySidecars({
         cfg,
         pluginRegistry: createPostAttachParams().pluginRegistry,
-        defaultWorkspaceDir: "/tmp/openclaw-workspace",
+        defaultWorkspaceDir: "/tmp/alien-workspace",
         deps,
         startChannels: vi.fn(async () => undefined),
         log: { warn: vi.fn() },
@@ -729,7 +729,7 @@ describe("startGatewayPostAttachRuntime", () => {
         {
           cfg,
           deps,
-          workspaceDir: "/tmp/openclaw-workspace",
+          workspaceDir: "/tmp/alien-workspace",
         },
       );
       expect(hoisted.triggerInternalHook).toHaveBeenCalledWith(hoisted.startupHookEvent);
@@ -752,7 +752,7 @@ describe("startGatewayPostAttachRuntime", () => {
         acp: { enabled: true, backend: "acpx" },
       } as never,
       pluginRegistry: createPostAttachParams().pluginRegistry,
-      defaultWorkspaceDir: "/tmp/openclaw-workspace",
+      defaultWorkspaceDir: "/tmp/alien-workspace",
       deps: {} as never,
       startChannels: vi.fn(async () => undefined),
       log: { warn: vi.fn() },
@@ -819,7 +819,7 @@ describe("startGatewayPostAttachRuntime", () => {
     expect(ctx).toMatchObject({
       port: 18789,
       config: params.gatewayPluginConfigAtStart,
-      workspaceDir: "/tmp/openclaw-workspace",
+      workspaceDir: "/tmp/alien-workspace",
     });
     expect(typeof ctx.getCron).toBe("function");
     const getCron = ctx.getCron;
@@ -933,7 +933,7 @@ function createPostAttachParams(overrides: Partial<PostAttachParams> = {}): Post
       ],
       typedHooks: [],
     } as never,
-    defaultWorkspaceDir: "/tmp/openclaw-workspace",
+    defaultWorkspaceDir: "/tmp/alien-workspace",
     deps: {} as never,
     startChannels: vi.fn(async () => undefined),
     logHooks: {

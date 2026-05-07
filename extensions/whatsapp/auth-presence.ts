@@ -1,17 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { resolveUserPath } from "openclaw/plugin-sdk/account-resolution";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveOAuthDir } from "openclaw/plugin-sdk/state-paths";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/account-id";
+import { resolveUserPath } from "alien/plugin-sdk/account-resolution";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveOAuthDir } from "alien/plugin-sdk/state-paths";
 import { hasWebCredsSync } from "./src/creds-files.js";
 
 type WhatsAppAuthPresenceParams =
   | {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       env?: NodeJS.ProcessEnv;
     }
-  | OpenClawConfig;
+  | AlienConfig;
 
 function addAccountAuthDirs(
   authDirs: Set<string>,
@@ -28,7 +28,7 @@ function addAccountAuthDirs(
 }
 
 function listWhatsAppAuthDirs(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): readonly string[] {
   const oauthDir = resolveOAuthDir(env);

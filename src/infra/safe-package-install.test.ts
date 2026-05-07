@@ -43,7 +43,7 @@ describe("safe npm install helpers", () => {
           npm_config_workspaces: "true",
         },
         {
-          cacheDir: "/tmp/openclaw-npm-cache",
+          cacheDir: "/tmp/alien-npm-cache",
           ignoreWorkspaces: true,
           legacyPeerDeps: true,
           packageLock: false,
@@ -55,7 +55,7 @@ describe("safe npm install helpers", () => {
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0",
       NPM_CONFIG_IGNORE_SCRIPTS: "true",
       npm_config_audit: "false",
-      npm_config_cache: "/tmp/openclaw-npm-cache",
+      npm_config_cache: "/tmp/alien-npm-cache",
       npm_config_dry_run: "false",
       npm_config_fetch_retries: "5",
       npm_config_fetch_retry_maxtimeout: "120000",

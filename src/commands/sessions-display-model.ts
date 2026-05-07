@@ -4,7 +4,7 @@ import {
   isCliProvider,
 } from "../agents/model-selection.js";
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 
 type SessionDisplayModelRow = {
   key: string;
@@ -36,7 +36,7 @@ function parseModelRef(raw: string, defaultProvider: string): SessionDisplayMode
 }
 
 function resolveAgentPrimaryModel(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId: string | undefined,
 ): string | undefined {
   if (!agentId) {
@@ -65,7 +65,7 @@ function normalizeStoredOverrideModel(params: {
   };
 }
 
-function resolveDefaultModelRef(cfg: OpenClawConfig, agentId?: string): SessionDisplayModelRef {
+function resolveDefaultModelRef(cfg: AlienConfig, agentId?: string): SessionDisplayModelRef {
   const primary =
     resolveAgentPrimaryModel(cfg, agentId) ??
     resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model) ??
@@ -74,7 +74,7 @@ function resolveDefaultModelRef(cfg: OpenClawConfig, agentId?: string): SessionD
 }
 
 export function resolveSessionDisplayDefaults(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId?: string,
 ): SessionDisplayDefaults {
   return {
@@ -83,7 +83,7 @@ export function resolveSessionDisplayDefaults(
 }
 
 function normalizeCliRuntimeDisplayRef(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   ref: SessionDisplayModelRef,
   defaultRef: SessionDisplayModelRef,
 ): SessionDisplayModelRef {
@@ -114,14 +114,14 @@ function normalizeCliRuntimeDisplayRef(
 }
 
 export function resolveSessionDisplayModel(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   row: SessionDisplayModelRow,
 ): string {
   return resolveSessionDisplayModelRef(cfg, row).model;
 }
 
 export function resolveSessionDisplayModelRef(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   row: SessionDisplayModelRow,
 ): SessionDisplayModelRef {
   const agentId = row.key.startsWith("agent:") ? row.key.split(":")[1] : undefined;

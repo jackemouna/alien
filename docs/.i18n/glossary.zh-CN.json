@@ -1,7 +1,7 @@
 [
   {
-    "source": "OpenClaw",
-    "target": "OpenClaw"
+    "source": "Alien",
+    "target": "Alien"
   },
   {
     "source": "ClawHub",
@@ -20,12 +20,12 @@
     "target": "Mantis"
   },
   {
-    "source": "OpenClaw App SDK",
-    "target": "OpenClaw 应用 SDK"
+    "source": "Alien App SDK",
+    "target": "Alien 应用 SDK"
   },
   {
-    "source": "OpenClaw App SDK API design",
-    "target": "OpenClaw 应用 SDK API 设计"
+    "source": "Alien App SDK API design",
+    "target": "Alien 应用 SDK API 设计"
   },
   {
     "source": "Message lifecycle refactor",

@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { loadQaRuntimeModule } from "openclaw/plugin-sdk/qa-runner-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
+import { loadQaRuntimeModule } from "alien/plugin-sdk/qa-runner-runtime";
 import type { QaReportCheck } from "../../report.js";
 import { renderQaMarkdownReport } from "../../report.js";
 import { type QaProviderModeInput } from "../../run-config.js";
@@ -149,7 +149,7 @@ type MatrixQaTimings = {
 };
 
 function shouldWriteMatrixQaProgress() {
-  const override = process.env.OPENCLAW_QA_MATRIX_PROGRESS;
+  const override = process.env.ALIEN_QA_MATRIX_PROGRESS;
   if (override === "0") {
     return false;
   }
@@ -184,7 +184,7 @@ function parsePositiveMatrixQaEnvMs(name: string, fallback: number) {
 
 function createMatrixQaRunDeadline() {
   const timeoutMs = parsePositiveMatrixQaEnvMs(
-    "OPENCLAW_QA_MATRIX_TIMEOUT_MS",
+    "ALIEN_QA_MATRIX_TIMEOUT_MS",
     DEFAULT_MATRIX_QA_RUN_TIMEOUT_MS,
   );
   return {
@@ -195,7 +195,7 @@ function createMatrixQaRunDeadline() {
 
 function resolveMatrixQaCanaryTimeoutMs() {
   return parsePositiveMatrixQaEnvMs(
-    "OPENCLAW_QA_MATRIX_CANARY_TIMEOUT_MS",
+    "ALIEN_QA_MATRIX_CANARY_TIMEOUT_MS",
     DEFAULT_MATRIX_QA_CANARY_TIMEOUT_MS,
   );
 }
@@ -240,7 +240,7 @@ async function cleanupMatrixQaResource(params: {
   recovery?: string;
 }) {
   const timeoutMs = parsePositiveMatrixQaEnvMs(
-    "OPENCLAW_QA_MATRIX_CLEANUP_TIMEOUT_MS",
+    "ALIEN_QA_MATRIX_CLEANUP_TIMEOUT_MS",
     DEFAULT_MATRIX_QA_CLEANUP_TIMEOUT_MS,
   );
   try {
@@ -513,7 +513,7 @@ async function startMatrixQaLiveLaneGateway(params: {
     requiredPluginIds: readonly string[];
     createGatewayConfig: (params: {
       baseUrl: string;
-    }) => Pick<OpenClawConfig, "channels" | "messages">;
+    }) => Pick<AlienConfig, "channels" | "messages">;
   };
   transportBaseUrl: string;
   providerMode: "mock-openai" | "live-frontier";
@@ -521,7 +521,7 @@ async function startMatrixQaLiveLaneGateway(params: {
   alternateModel: string;
   fastMode?: boolean;
   controlUiEnabled?: boolean;
-  mutateConfig?: (cfg: OpenClawConfig) => OpenClawConfig;
+  mutateConfig?: (cfg: AlienConfig) => AlienConfig;
 }): Promise<MatrixQaLiveLaneGatewayHarness> {
   return (await loadQaRuntimeModule().startQaLiveLaneGateway(
     params,
@@ -555,11 +555,11 @@ export async function runMatrixQaLive(params: {
   const scenarios = findMatrixQaScenarios(params.scenarioIds, params.profile);
   const runSuffix = randomUUID().slice(0, 8);
   const topology = buildMatrixQaTopologyForScenarios({
-    defaultRoomName: `OpenClaw Matrix QA ${runSuffix}`,
+    defaultRoomName: `Alien Matrix QA ${runSuffix}`,
     scenarios,
   });
   const observedEvents: MatrixQaObservedEvent[] = [];
-  const includeObservedEventContent = process.env.OPENCLAW_QA_MATRIX_CAPTURE_CONTENT === "1";
+  const includeObservedEventContent = process.env.ALIEN_QA_MATRIX_CAPTURE_CONTENT === "1";
   const startedAtDate = new Date();
   const startedAt = startedAtDate.toISOString();
   const runStartedAtMs = Date.now();
@@ -588,7 +588,7 @@ export async function runMatrixQaLive(params: {
             driverLocalpart: `qa-driver-${runSuffix}`,
             observerLocalpart: `qa-observer-${runSuffix}`,
             registrationToken: harness.registrationToken,
-            roomName: `OpenClaw Matrix QA ${runSuffix}`,
+            roomName: `Alien Matrix QA ${runSuffix}`,
             sutLocalpart: `qa-sut-${runSuffix}`,
             topology,
           }),
@@ -800,7 +800,7 @@ export async function runMatrixQaLive(params: {
                 observerPassword: provisioning.observer.password,
                 observerUserId: provisioning.observer.userId,
                 gatewayRuntimeEnv: scenarioGateway.harness.gateway.runtimeEnv,
-                gatewayStateDir: scenarioGateway.harness.gateway.runtimeEnv?.OPENCLAW_STATE_DIR,
+                gatewayStateDir: scenarioGateway.harness.gateway.runtimeEnv?.ALIEN_STATE_DIR,
                 gatewayCall: async (method, params, opts) =>
                   await scenarioGateway.harness.gateway.call(method, params ?? {}, opts),
                 outputDir,

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   __testing,
@@ -13,7 +13,7 @@ describe("buildDeepgramRealtimeTranscriptionProvider", () => {
   it("normalizes nested provider config", () => {
     const provider = buildDeepgramRealtimeTranscriptionProvider();
     const resolved = provider.resolveConfig?.({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       rawConfig: {
         providers: {
           deepgram: {

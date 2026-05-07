@@ -1,10 +1,10 @@
 {
-  "name": "@openclaw/speech-core",
+  "name": "@alien/speech-core",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw speech runtime package",
+  "description": "Alien speech runtime package",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   }
 }

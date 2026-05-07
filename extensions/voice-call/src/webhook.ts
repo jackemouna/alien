@@ -1,13 +1,13 @@
 import http from "node:http";
 import { URL } from "node:url";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { resolveConfiguredCapabilityProvider } from "openclaw/plugin-sdk/provider-selection-runtime";
-import type { TalkEvent } from "openclaw/plugin-sdk/realtime-voice";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { resolveConfiguredCapabilityProvider } from "alien/plugin-sdk/provider-selection-runtime";
+import type { TalkEvent } from "alien/plugin-sdk/realtime-voice";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   createWebhookInFlightLimiter,
   WEBHOOK_BODY_READ_DEFAULTS,
-} from "openclaw/plugin-sdk/webhook-ingress";
+} from "alien/plugin-sdk/webhook-ingress";
 import {
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
@@ -189,7 +189,7 @@ export class VoiceCallWebhookServer {
   private manager: CallManager;
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
-  private fullConfig: OpenClawConfig | null;
+  private fullConfig: AlienConfig | null;
   private agentRuntime: CoreAgentDeps | null;
   private logger: Logger;
   private stopStaleCallReaper: (() => void) | null = null;
@@ -207,7 +207,7 @@ export class VoiceCallWebhookServer {
     manager: CallManager,
     provider: VoiceCallProvider,
     coreConfig?: CoreConfig,
-    fullConfig?: OpenClawConfig,
+    fullConfig?: AlienConfig,
     agentRuntime?: CoreAgentDeps,
     logger?: Logger,
   ) {
@@ -306,14 +306,14 @@ export class VoiceCallWebhookServer {
   private async initializeMediaStreaming(): Promise<void> {
     const streaming = this.config.streaming;
     const pluginConfig =
-      this.fullConfig ?? (this.coreConfig as unknown as OpenClawConfig | undefined);
+      this.fullConfig ?? (this.coreConfig as unknown as AlienConfig | undefined);
     const { getRealtimeTranscriptionProvider, listRealtimeTranscriptionProviders } =
       await loadRealtimeTranscriptionRuntime();
     const resolution = resolveConfiguredCapabilityProvider({
       configuredProviderId: streaming.provider,
       providerConfigs: streaming.providers,
       cfg: pluginConfig,
-      cfgForResolve: pluginConfig ?? ({} as OpenClawConfig),
+      cfgForResolve: pluginConfig ?? ({} as AlienConfig),
       getConfiguredProvider: (providerId) =>
         getRealtimeTranscriptionProvider(providerId, pluginConfig),
       listProviders: () => listRealtimeTranscriptionProviders(pluginConfig),

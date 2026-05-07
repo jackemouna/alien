@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 import { createManagedOutgoingImageBlocks } from "../managed-image-attachments.js";
 import { normalizeWebchatReplyMediaPathsForDisplay } from "./chat-reply-media.js";
@@ -16,8 +16,8 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   let rootDir = "";
 
   beforeEach(async () => {
-    rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-webchat-reply-media-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(rootDir, "state"));
+    rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "alien-webchat-reply-media-"));
+    vi.stubEnv("ALIEN_STATE_DIR", path.join(rootDir, "state"));
   });
 
   afterEach(async () => {
@@ -30,7 +30,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
     agentDir: string;
     workspaceDir: string;
     allowRead: boolean;
-  }): OpenClawConfig {
+  }): AlienConfig {
     return {
       tools: params.allowRead ? { allow: ["read"] } : { fs: { workspaceOnly: true } },
       agents: {
@@ -53,7 +53,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   }
 
   it("stages Codex-home image paths before Gateway managed-image display", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const sourcePath = await createCodexHomeImage({ agentDir });
@@ -81,7 +81,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("does not expose Codex-home media when host read policy is not enabled", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const sourcePath = await createCodexHomeImage({ agentDir });
@@ -100,7 +100,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("does not stage sensitive media before display suppression", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const sourcePath = await createCodexHomeImage({ agentDir });
@@ -119,7 +119,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("preserves inline data image replies for WebChat rendering", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const dataUrl = `data:image/png;base64,${PNG_BYTES.toString("base64")}`;
@@ -138,7 +138,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("preserves local audio paths for WebChat audio embedding", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const audioPath = path.join(workspaceDir, "voice.mp3");
@@ -161,7 +161,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("preserves data images while staging mixed local image replies", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const sourcePath = await createCodexHomeImage({ agentDir });
@@ -190,7 +190,7 @@ describe("normalizeWebchatReplyMediaPathsForDisplay", () => {
   });
 
   it("does not add a failure warning when a mixed inline image survives", async () => {
-    const stateDir = process.env.OPENCLAW_STATE_DIR ?? "";
+    const stateDir = process.env.ALIEN_STATE_DIR ?? "";
     const agentDir = path.join(stateDir, "agents", "main", "agent");
     const workspaceDir = path.join(stateDir, "workspace");
     const sourcePath = await createCodexHomeImage({ agentDir });

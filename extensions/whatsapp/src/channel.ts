@@ -1,11 +1,11 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import { buildDmGroupAccountAllowlistAdapter } from "openclaw/plugin-sdk/allowlist-config-edit";
-import { createChatChannelPlugin, type ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+import { buildDmGroupAccountAllowlistAdapter } from "alien/plugin-sdk/allowlist-config-edit";
+import { createChatChannelPlugin, type ChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
 import {
   createAsyncComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/status-helpers";
 import { resolveWhatsAppAccount, type ResolvedWhatsAppAccount } from "./accounts.js";
 import { createWhatsAppLoginTool } from "./agent-tools-login.js";
 import { whatsappApprovalAuth } from "./approval-auth.js";

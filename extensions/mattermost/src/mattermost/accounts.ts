@@ -1,14 +1,14 @@
-import { createAccountListHelpers } from "openclaw/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { resolveMergedAccountConfig } from "openclaw/plugin-sdk/account-resolution";
+import { createAccountListHelpers } from "alien/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/account-id";
+import { resolveMergedAccountConfig } from "alien/plugin-sdk/account-resolution";
 import {
   resolveChannelStreamingBlockCoalesce,
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingChunkMode,
   resolveChannelPreviewStreamMode,
   type StreamingMode,
-} from "openclaw/plugin-sdk/channel-streaming";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-streaming";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { normalizeResolvedSecretInputString, normalizeSecretInputString } from "../secret-input.js";
 import type {
   MattermostAccountConfig,
@@ -17,7 +17,7 @@ import type {
   MattermostReplyToMode,
 } from "../types.js";
 import { normalizeMattermostBaseUrl } from "./client.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 
 type MattermostTokenSource = "env" | "config" | "none";
 type MattermostBaseUrlSource = "env" | "config" | "none";
@@ -43,16 +43,16 @@ export type ResolvedMattermostAccount = {
 
 const mattermostAccountHelpers = createAccountListHelpers("mattermost");
 
-export function listMattermostAccountIds(cfg: OpenClawConfig): string[] {
+export function listMattermostAccountIds(cfg: AlienConfig): string[] {
   return mattermostAccountHelpers.listAccountIds(cfg);
 }
 
-export function resolveDefaultMattermostAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultMattermostAccountId(cfg: AlienConfig): string {
   return mattermostAccountHelpers.resolveDefaultAccountId(cfg);
 }
 
 function mergeMattermostAccountConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
 ): MattermostAccountConfig {
   return resolveMergedAccountConfig<MattermostAccountConfig>({
@@ -80,7 +80,7 @@ function resolveMattermostRequireMention(config: MattermostAccountConfig): boole
 }
 
 export function resolveMattermostAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   allowUnresolvedSecretRef?: boolean;
 }): ResolvedMattermostAccount {

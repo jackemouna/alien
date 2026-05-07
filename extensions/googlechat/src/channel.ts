@@ -1,18 +1,18 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "openclaw/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import type { ChannelMessageActionName } from "openclaw/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { buildPassiveProbedChannelStatusSummary } from "openclaw/plugin-sdk/extension-shared";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
+} from "alien/plugin-sdk/channel-config-helpers";
+import type { ChannelMessageActionName } from "alien/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { buildPassiveProbedChannelStatusSummary } from "alien/plugin-sdk/extension-shared";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
-import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
+} from "alien/plugin-sdk/status-helpers";
+import { extractToolSend } from "alien/plugin-sdk/tool-send";
 import { googleChatApprovalAuth } from "./approval-auth.js";
 import {
   formatAllowFromEntry,

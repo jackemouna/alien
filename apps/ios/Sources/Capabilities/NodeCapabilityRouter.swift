@@ -1,5 +1,5 @@
 import Foundation
-import OpenClawKit
+import AlienKit
 
 @MainActor
 final class NodeCapabilityRouter {

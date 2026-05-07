@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { getTailnetHostname } from "../infra/tailscale.js";
 import type { MemoryProviderStatus } from "../memory-host-sdk/engine-storage.js";
 import { getActiveMemorySearchManager } from "../plugins/memory-runtime.js";
@@ -13,7 +13,7 @@ type StatusMemoryManager = {
 };
 
 export async function getMemorySearchManager(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   purpose: "status";
 }): Promise<{ manager: StatusMemoryManager | null }> {

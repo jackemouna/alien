@@ -1,6 +1,6 @@
 import {
-  loadOpenClawProviderIndex,
-  type OpenClawProviderIndexProvider,
+  loadAlienProviderIndex,
+  type AlienProviderIndexProvider,
 } from "../model-catalog/index.js";
 import { normalizePluginsConfig, resolveEffectiveEnableState } from "./config-state.js";
 import {
@@ -30,7 +30,7 @@ export type ProviderInstallCatalogEntry = ProviderAuthChoiceMetadata & {
 };
 
 type ProviderInstallCatalogParams = {
-  config?: import("../config/types.openclaw.js").OpenClawConfig;
+  config?: import("../config/types.alien.js").AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
@@ -139,7 +139,7 @@ function resolveInstallInfoFromRegistryRecord(params: {
 }
 
 function resolveInstallInfoFromProviderIndex(
-  provider: OpenClawProviderIndexProvider,
+  provider: AlienProviderIndexProvider,
 ): PluginPackageInstall | null {
   const install = provider.plugin.install;
   if (!install) {
@@ -210,7 +210,7 @@ function resolveProviderIndexInstallCatalogEntries(params: {
   seenChoiceIds: ReadonlySet<string>;
 }): ProviderInstallCatalogEntry[] {
   const entries: ProviderInstallCatalogEntry[] = [];
-  const index = loadOpenClawProviderIndex();
+  const index = loadAlienProviderIndex();
   for (const provider of Object.values(index.providers)) {
     if (params.installedPluginIds.has(provider.plugin.id)) {
       continue;

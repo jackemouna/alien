@@ -1,15 +1,15 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveThreadBindingIdleTimeoutMs,
   resolveThreadBindingMaxAgeMs,
   resolveThreadBindingsEnabled,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/conversation-runtime";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
 
 export { resolveThreadBindingsEnabled };
 
 export function resolveDiscordThreadBindingIdleTimeoutMs(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
 }): number {
   const accountId = normalizeAccountId(params.accountId);
@@ -22,7 +22,7 @@ export function resolveDiscordThreadBindingIdleTimeoutMs(params: {
 }
 
 export function resolveDiscordThreadBindingMaxAgeMs(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
 }): number {
   const accountId = normalizeAccountId(params.accountId);

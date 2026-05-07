@@ -1,6 +1,6 @@
 export {
   getPluginRuntimeGatewayRequestScope,
-  type OpenClawConfig,
+  type AlienConfig,
   type PluginRuntime,
 } from "./runtime-api.js";
 export { nostrPlugin } from "./src/channel.js";

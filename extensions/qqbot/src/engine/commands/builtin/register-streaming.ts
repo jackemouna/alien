@@ -75,17 +75,17 @@ export function registerStreamingCommands(registry: SlashCommandRegistry): void 
         return [
           `❌ 当前版本不支持该指令`,
           ``,
-          `🦞框架版本：${fwVer}`,
+          `👾框架版本：${fwVer}`,
           `🤖QQBot 插件版本：v${ver}`,
           ``,
           `可通过以下命令手动开启流式消息：`,
           ``,
           `\`\`\`shell`,
           `# 1. 开启流式消息`,
-          `openclaw config set channels.qqbot.streaming true`,
+          `alien config set channels.qqbot.streaming true`,
           ``,
           `# 2. 重启网关使配置生效`,
-          `openclaw gateway restart`,
+          `alien gateway restart`,
           `\`\`\``,
         ].join("\n");
       }

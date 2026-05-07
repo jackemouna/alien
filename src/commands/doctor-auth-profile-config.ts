@@ -1,7 +1,7 @@
 import { splitTrailingAuthProfile } from "../agents/model-ref-profile.js";
 import { collectConfiguredModelRefs } from "../config/model-refs.js";
 import type { AuthProfileConfig } from "../config/types.auth.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -11,7 +11,7 @@ import { isRecord } from "../utils.js";
 const AUTH_PROFILE_MODES = new Set<AuthProfileConfig["mode"]>(["api_key", "oauth", "token"]);
 
 export type AuthProfileConfigProtectionResult = {
-  config: OpenClawConfig;
+  config: AlienConfig;
   repairs: string[];
   warnings: string[];
 };
@@ -47,7 +47,7 @@ function extractProviderFromProfileId(profileId: string): string | null {
   return normalizeProviderId(profileId.slice(0, colon)) || null;
 }
 
-function collectActiveAuthHints(config: OpenClawConfig): {
+function collectActiveAuthHints(config: AlienConfig): {
   activeProviders: Set<string>;
   explicitProfileIds: Set<string>;
   explicitProfileProviders: Map<string, Set<string>>;
@@ -136,7 +136,7 @@ function buildProfileMetadata(params: {
   return repaired;
 }
 
-function ensureAuthProfiles(config: OpenClawConfig): Record<string, AuthProfileConfig> {
+function ensureAuthProfiles(config: AlienConfig): Record<string, AuthProfileConfig> {
   const root = config as Record<string, unknown>;
   const auth: Record<string, unknown> = isRecord(root.auth) ? root.auth : {};
   if (root.auth !== auth) {
@@ -149,8 +149,8 @@ function ensureAuthProfiles(config: OpenClawConfig): Record<string, AuthProfileC
 }
 
 export function protectActiveAuthProfileConfig(params: {
-  before: OpenClawConfig;
-  after: OpenClawConfig;
+  before: AlienConfig;
+  after: AlienConfig;
 }): AuthProfileConfigProtectionResult {
   const { activeProviders, explicitProfileIds, explicitProfileProviders } = collectActiveAuthHints(
     params.before,

@@ -1,6 +1,6 @@
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawPluginApi, PluginRuntime } from "../runtime-api.js";
+import type { AlienPluginApi, PluginRuntime } from "../runtime-api.js";
 
 const createFeishuToolClientMock = vi.hoisted(() => vi.fn());
 const resolveAnyEnabledFeishuToolsConfigMock = vi.hoisted(() => vi.fn());
@@ -22,9 +22,9 @@ function createFeishuToolRuntime(): PluginRuntime {
 }
 
 function createDriveToolApi(params: {
-  config: OpenClawPluginApi["config"];
-  registerTool: OpenClawPluginApi["registerTool"];
-}): OpenClawPluginApi {
+  config: AlienPluginApi["config"];
+  registerTool: AlienPluginApi["registerTool"];
+}): AlienPluginApi {
   return createTestPluginApi({
     id: "feishu-test",
     name: "Feishu Test",

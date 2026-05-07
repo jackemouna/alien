@@ -44,10 +44,10 @@ describe("mantis Slack desktop smoke runtime", () => {
     const runtimeEnv = {
       PATH: process.env.PATH,
       OPENAI_API_KEY: "openai-runtime-key",
-      OPENCLAW_QA_SLACK_CHANNEL_ID: "C123",
-      OPENCLAW_QA_SLACK_DRIVER_BOT_TOKEN: "driver-token",
-      OPENCLAW_QA_SLACK_SUT_APP_TOKEN: "app-token",
-      OPENCLAW_QA_SLACK_SUT_BOT_TOKEN: "sut-token",
+      ALIEN_QA_SLACK_CHANNEL_ID: "C123",
+      ALIEN_QA_SLACK_DRIVER_BOT_TOKEN: "driver-token",
+      ALIEN_QA_SLACK_SUT_APP_TOKEN: "app-token",
+      ALIEN_QA_SLACK_SUT_BOT_TOKEN: "sut-token",
     };
     const runner = vi.fn(
       async (command: string, args: readonly string[], options: { env?: NodeJS.ProcessEnv }) => {
@@ -112,7 +112,7 @@ describe("mantis Slack desktop smoke runtime", () => {
       ["/tmp/crabbox", "stop"],
     ]);
     expect(
-      commands.every((entry) => entry.env?.OPENCLAW_LIVE_OPENAI_KEY === "openai-runtime-key"),
+      commands.every((entry) => entry.env?.ALIEN_LIVE_OPENAI_KEY === "openai-runtime-key"),
     ).toBe(true);
     const runArgs = commands.find(
       (entry) => entry.command === "/tmp/crabbox" && entry.args[0] === "run",
@@ -130,17 +130,17 @@ describe("mantis Slack desktop smoke runtime", () => {
     expect(remoteScript).toContain('sudo apt-get update -y >>"$out/apt.log" 2>&1 || true');
     expect(remoteScript).toContain("slack-desktop-smoke.mp4");
     expect(remoteScript).not.toContain("-video_size");
-    expect(remoteScript).toContain("openclaw qa slack");
+    expect(remoteScript).toContain("alien qa slack");
     expect(remoteScript).toContain("--scenario 'slack-canary'");
-    expect(remoteScript).toContain("OPENCLAW_MANTIS_SLACK_BROWSER_PROFILE_DIR");
+    expect(remoteScript).toContain("ALIEN_MANTIS_SLACK_BROWSER_PROFILE_DIR");
     const rsyncArgs = commands
       .filter((entry) => entry.command === "rsync")
       .flatMap((entry) => entry.args);
     expect(rsyncArgs).not.toContain("--delete");
     expect(rsyncArgs).toEqual(
       expect.arrayContaining([
-        "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/",
-        "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/slack-qa/",
+        "crabbox@203.0.113.10:/tmp/alien-mantis-slack-desktop-2026-05-04T13-00-00-000Z/",
+        "crabbox@203.0.113.10:/tmp/alien-mantis-slack-desktop-2026-05-04T13-00-00-000Z/slack-qa/",
       ]),
     );
     await expect(fs.readFile(result.screenshotPath ?? "", "utf8")).resolves.toBe("png");
@@ -307,8 +307,8 @@ describe("mantis Slack desktop smoke runtime", () => {
       env: {
         CI: "1",
         OPENAI_API_KEY: "openai-runtime-key",
-        OPENCLAW_QA_CONVEX_SECRET_CI: "convex-secret",
-        OPENCLAW_QA_CONVEX_SITE_URL: "https://example.convex.site",
+        ALIEN_QA_CONVEX_SECRET_CI: "convex-secret",
+        ALIEN_QA_CONVEX_SITE_URL: "https://example.convex.site",
         PATH: process.env.PATH,
       },
       gatewaySetup: true,
@@ -334,17 +334,17 @@ describe("mantis Slack desktop smoke runtime", () => {
       (entry) => entry.command === "/tmp/crabbox" && entry.args[0] === "run",
     );
     expect(runCommand?.env).toMatchObject({
-      OPENCLAW_MANTIS_SLACK_APP_TOKEN: "xapp-leased",
-      OPENCLAW_MANTIS_SLACK_BOT_TOKEN: "xoxb-leased",
-      OPENCLAW_MANTIS_SLACK_CHANNEL_ID: "CLEASED",
-      OPENCLAW_QA_SLACK_CHANNEL_ID: "CLEASED",
-      OPENCLAW_QA_SLACK_SUT_APP_TOKEN: "xapp-leased",
-      OPENCLAW_QA_SLACK_SUT_BOT_TOKEN: "xoxb-leased",
+      ALIEN_MANTIS_SLACK_APP_TOKEN: "xapp-leased",
+      ALIEN_MANTIS_SLACK_BOT_TOKEN: "xoxb-leased",
+      ALIEN_MANTIS_SLACK_CHANNEL_ID: "CLEASED",
+      ALIEN_QA_SLACK_CHANNEL_ID: "CLEASED",
+      ALIEN_QA_SLACK_SUT_APP_TOKEN: "xapp-leased",
+      ALIEN_QA_SLACK_SUT_BOT_TOKEN: "xoxb-leased",
     });
     const remoteScript = runCommand?.args.at(-1);
     expect(remoteScript).toContain("setup_gateway=1");
-    expect(remoteScript).toContain("openclaw gateway run");
-    expect(remoteScript).toContain('</dev/null >"$out/openclaw-gateway.log"');
+    expect(remoteScript).toContain("alien gateway run");
+    expect(remoteScript).toContain('</dev/null >"$out/alien-gateway.log"');
     expect(remoteScript).toContain('kill -0 "$gateway_pid"');
     expect(remoteScript).toContain('disown "$gateway_pid"');
     expect(fetchMock.mock.calls.map(([url]) => describeFetchInput(url))).toEqual([
@@ -459,8 +459,8 @@ describe("mantis Slack desktop smoke runtime", () => {
       crabboxBin: "/tmp/crabbox",
       env: {
         OPENAI_API_KEY: "openai-runtime-key",
-        OPENCLAW_MANTIS_SLACK_APP_TOKEN: "xapp-direct",
-        OPENCLAW_MANTIS_SLACK_BOT_TOKEN: "xoxb-direct",
+        ALIEN_MANTIS_SLACK_APP_TOKEN: "xapp-direct",
+        ALIEN_MANTIS_SLACK_BOT_TOKEN: "xoxb-direct",
         PATH: process.env.PATH,
       },
       gatewaySetup: true,

@@ -8,16 +8,16 @@ import {
 
 describe("gh-read helpers", () => {
   it("finds repo from gh args", () => {
-    expect(parseRepoArg(["pr", "view", "42", "-R", "openclaw/openclaw"])).toBe("openclaw/openclaw");
-    expect(parseRepoArg(["run", "list", "--repo=openclaw/docs"])).toBe("openclaw/docs");
+    expect(parseRepoArg(["pr", "view", "42", "-R", "alien/alien"])).toBe("alien/alien");
+    expect(parseRepoArg(["run", "list", "--repo=alien/docs"])).toBe("alien/docs");
     expect(parseRepoArg(["pr", "view", "42"])).toBeNull();
   });
 
   it("normalizes repo strings from common git formats", () => {
-    expect(normalizeRepo("openclaw/openclaw")).toBe("openclaw/openclaw");
-    expect(normalizeRepo("github.com/openclaw/openclaw")).toBe("openclaw/openclaw");
-    expect(normalizeRepo("https://github.com/openclaw/openclaw.git")).toBe("openclaw/openclaw");
-    expect(normalizeRepo("git@github.com:openclaw/openclaw.git")).toBe("openclaw/openclaw");
+    expect(normalizeRepo("alien/alien")).toBe("alien/alien");
+    expect(normalizeRepo("github.com/alien/alien")).toBe("alien/alien");
+    expect(normalizeRepo("https://github.com/alien/alien.git")).toBe("alien/alien");
+    expect(normalizeRepo("git@github.com:alien/alien.git")).toBe("alien/alien");
     expect(normalizeRepo("invalid")).toBeNull();
   });
 

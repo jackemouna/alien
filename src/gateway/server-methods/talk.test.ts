@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import { normalizeResolvedSecretInputString } from "../../config/types.secrets.js";
 import { ErrorCodes } from "../protocol/index.js";
 import { talkHandlers } from "./talk.js";
 
 const mocks = vi.hoisted(() => ({
-  getRuntimeConfig: vi.fn<() => OpenClawConfig>(),
+  getRuntimeConfig: vi.fn<() => AlienConfig>(),
   readConfigFileSnapshot: vi.fn(),
   canonicalizeSpeechProviderId: vi.fn((providerId: string | undefined) => providerId),
   getSpeechProvider: vi.fn(),
@@ -94,7 +94,7 @@ vi.mock("../talk-transcription-relay.js", async (importOriginal) => {
   };
 });
 
-function createTalkConfig(apiKey: unknown): OpenClawConfig {
+function createTalkConfig(apiKey: unknown): AlienConfig {
   return {
     talk: {
       provider: "acme",
@@ -105,7 +105,7 @@ function createTalkConfig(apiKey: unknown): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as AlienConfig;
 }
 
 describe("talk.catalog handler", () => {
@@ -190,7 +190,7 @@ describe("talk.catalog handler", () => {
                 },
               },
             },
-          }) as OpenClawConfig,
+          }) as AlienConfig,
       } as never,
     });
 
@@ -273,7 +273,7 @@ describe("talk.speak handler", () => {
 
     mocks.getRuntimeConfig.mockReturnValue(runtimeConfig);
     mocks.readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/openclaw.json",
+      path: "/tmp/alien.json",
       hash: "test-hash",
       valid: true,
       config: diskConfig,
@@ -288,7 +288,7 @@ describe("talk.speak handler", () => {
       }) => talkProviderConfig,
     });
     mocks.synthesizeSpeech.mockImplementation(
-      async ({ cfg }: { cfg: OpenClawConfig; text: string; disableFallback: boolean }) => {
+      async ({ cfg }: { cfg: AlienConfig; text: string; disableFallback: boolean }) => {
         expect(cfg.messages?.tts?.provider).toBe("acme");
         expect(cfg.messages?.tts?.providers?.acme?.apiKey).toBe("env-acme-key");
         return {
@@ -360,7 +360,7 @@ describe("talk.config handler", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const runtimeConfig = {
       ...sourceConfig,
       messages: {
@@ -374,10 +374,10 @@ describe("talk.config handler", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     mocks.readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/openclaw.json",
+      path: "/tmp/alien.json",
       hash: "test-hash",
       valid: true,
       config: sourceConfig,
@@ -428,7 +428,7 @@ describe("talk.config handler", () => {
             resolved: {
               provider: "acme",
               config: expect.objectContaining({
-                apiKey: "__OPENCLAW_REDACTED__",
+                apiKey: "__ALIEN_REDACTED__",
               }),
             },
           }),
@@ -500,7 +500,7 @@ describe("talk.session unified handlers", () => {
                 providers: { openai: { apiKey: "openai-key" } },
               },
             },
-          }) as OpenClawConfig,
+          }) as AlienConfig,
       } as never,
     });
 
@@ -631,7 +631,7 @@ describe("talk.session unified handlers", () => {
                 },
               },
             },
-          }) as OpenClawConfig,
+          }) as AlienConfig,
       } as never,
     });
 
@@ -692,7 +692,7 @@ describe("talk.session unified handlers", () => {
       isWebchatConnect: () => false,
       respond: createRespond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
     const session = createRespond.mock.calls[0]?.[1] as { sessionId: string; token: string };
@@ -757,7 +757,7 @@ describe("talk.session unified handlers", () => {
       isWebchatConnect: () => false,
       respond: startRespond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
         broadcastToConnIds,
       } as never,
     });
@@ -818,7 +818,7 @@ describe("talk.session unified handlers", () => {
       isWebchatConnect: () => false,
       respond: createRespond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
     const session = createRespond.mock.calls[0]?.[1] as { sessionId: string; token: string };
@@ -955,7 +955,7 @@ describe("talk.session unified handlers", () => {
       isWebchatConnect: () => false,
       respond: rejectedRespond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
 
@@ -982,7 +982,7 @@ describe("talk.session unified handlers", () => {
       isWebchatConnect: () => false,
       respond: createRespond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
 
@@ -1015,7 +1015,7 @@ describe("talk.session unified handlers", () => {
       client: { connId: "conn-1" } as never,
       isWebchatConnect: () => false,
       respond: respond as never,
-      context: { getRuntimeConfig: () => ({}) as OpenClawConfig } as never,
+      context: { getRuntimeConfig: () => ({}) as AlienConfig } as never,
     });
 
     expect(respond).toHaveBeenCalledWith(
@@ -1051,14 +1051,14 @@ describe("talk.client.toolCall handler", () => {
       params: {
         sessionKey: "main",
         callId: "call-1",
-        name: "openclaw_agent_consult",
+        name: "alien_agent_consult",
         args: { question: "What is in this repo?", responseStyle: "one sentence" },
       },
       client: { connId: "conn-1" } as never,
       isWebchatConnect: () => false,
       respond: respond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
 
@@ -1091,14 +1091,14 @@ describe("talk.client.toolCall handler", () => {
         sessionKey: "main",
         relaySessionId: "relay-1",
         callId: "call-1",
-        name: "openclaw_agent_consult",
+        name: "alien_agent_consult",
         args: { question: "What now?" },
       },
       client: { connId: "conn-1" } as never,
       isWebchatConnect: () => false,
       respond: respond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
 
@@ -1129,7 +1129,7 @@ describe("talk.client.toolCall handler", () => {
       isWebchatConnect: () => false,
       respond: respond as never,
       context: {
-        getRuntimeConfig: () => ({}) as OpenClawConfig,
+        getRuntimeConfig: () => ({}) as AlienConfig,
       } as never,
     });
 
@@ -1188,7 +1188,7 @@ describe("talk.client.create handler", () => {
                 voice: "alloy",
               },
             },
-          }) as OpenClawConfig,
+          }) as AlienConfig,
       } as never,
     });
 
@@ -1219,7 +1219,7 @@ describe("talk.client.create handler", () => {
       client: { connId: "conn-1" } as never,
       isWebchatConnect: () => false,
       respond: respond as never,
-      context: { getRuntimeConfig: () => ({}) as OpenClawConfig } as never,
+      context: { getRuntimeConfig: () => ({}) as AlienConfig } as never,
     });
 
     expect(respond).toHaveBeenCalledWith(
@@ -1248,7 +1248,7 @@ describe("talk.client.create handler", () => {
                 brain: "direct-tools",
               },
             },
-          }) as OpenClawConfig,
+          }) as AlienConfig,
       } as never,
     });
 

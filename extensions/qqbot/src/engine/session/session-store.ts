@@ -7,7 +7,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { privateFileStoreSync } from "openclaw/plugin-sdk/security-runtime";
+import { privateFileStoreSync } from "alien/plugin-sdk/security-runtime";
 import { formatErrorMessage } from "../utils/format.js";
 import { debugLog, debugError } from "../utils/log.js";
 import { getQQBotDataDir, getQQBotDataPath } from "../utils/platform.js";

@@ -7,9 +7,9 @@ import {
 } from "./bundle-mcp-adapter-shared.js";
 import { serializeTomlInlineValue } from "./toml-inline.js";
 
-function isOpenClawLoopbackMcpServer(name: string, server: BundleMcpServerConfig): boolean {
+function isAlienLoopbackMcpServer(name: string, server: BundleMcpServerConfig): boolean {
   return (
-    name === "openclaw" &&
+    name === "alien" &&
     typeof server.url === "string" &&
     /^https?:\/\/(?:127\.0\.0\.1|localhost):\d+\/mcp(?:[?#].*)?$/.test(server.url)
   );
@@ -21,7 +21,7 @@ function normalizeCodexServerConfig(
 ): Record<string, unknown> {
   const next: Record<string, unknown> = {};
   applyCommonServerConfig(next, server);
-  if (isOpenClawLoopbackMcpServer(name, server)) {
+  if (isAlienLoopbackMcpServer(name, server)) {
     next.default_tools_approval_mode = "approve";
   }
   const httpHeaders = normalizeStringRecord(server.headers);

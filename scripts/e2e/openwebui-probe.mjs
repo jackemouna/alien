@@ -85,11 +85,11 @@ for (let attempt = 1; attempt <= modelAttempts; attempt += 1) {
     const modelsJson = await modelsRes.json();
     modelIds = extractModelIds(modelsJson);
     targetModel =
-      modelIds.find((id) => id === "openclaw/default") ?? modelIds.find((id) => id === "openclaw");
+      modelIds.find((id) => id === "alien/default") ?? modelIds.find((id) => id === "alien");
     if (targetModel) {
       break;
     }
-    lastModelsError = `missing openclaw model: ${JSON.stringify(modelIds)}`;
+    lastModelsError = `missing alien model: ${JSON.stringify(modelIds)}`;
   } else if (modelsRes) {
     lastModelsError = `HTTP ${modelsRes.status} ${await modelsRes.text()}`;
   }
@@ -97,7 +97,7 @@ for (let attempt = 1; attempt <= modelAttempts; attempt += 1) {
 }
 if (!targetModel) {
   throw new Error(
-    `openclaw model missing from Open WebUI model list after retry: ${JSON.stringify(modelIds)} (${lastModelsError})`,
+    `alien model missing from Open WebUI model list after retry: ${JSON.stringify(modelIds)} (${lastModelsError})`,
   );
 }
 

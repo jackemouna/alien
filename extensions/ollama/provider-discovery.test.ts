@@ -1,9 +1,9 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { ModelDefinitionConfig } from "openclaw/plugin-sdk/provider-onboard";
-import { withFetchPreconnect } from "openclaw/plugin-sdk/test-env";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { ModelDefinitionConfig } from "alien/plugin-sdk/provider-onboard";
+import { withFetchPreconnect } from "alien/plugin-sdk/test-env";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ollamaProviderDiscovery } from "./provider-discovery.js";
 
@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 describe("Ollama provider", () => {
-  const createAgentDir = () => mkdtempSync(join(tmpdir(), "openclaw-test-"));
+  const createAgentDir = () => mkdtempSync(join(tmpdir(), "alien-test-"));
 
   const enableDiscoveryEnv = () => {
     vi.stubEnv("VITEST", "");
@@ -43,7 +43,7 @@ describe("Ollama provider", () => {
     }
   }
 
-  async function runOllamaCatalog(params: { config?: OpenClawConfig; env?: NodeJS.ProcessEnv }) {
+  async function runOllamaCatalog(params: { config?: AlienConfig; env?: NodeJS.ProcessEnv }) {
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       VITEST: "1",

@@ -2,8 +2,8 @@ import type {
   CliBackendConfig,
   CliBackendNormalizeConfigContext,
   CliBackendResolveExecutionArgsContext,
-} from "openclaw/plugin-sdk/cli-backend";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/cli-backend";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import { CLAUDE_CLI_BACKEND_ID } from "./cli-constants.js";
 export {
   CLAUDE_CLI_BACKEND_ID,
@@ -15,7 +15,7 @@ export {
 
 // Claude Code honors provider-routing, auth, and config-root env before
 // consulting its local login state, so inherited shell overrides must not
-// steer OpenClaw-managed Claude CLI runs toward a different provider,
+// steer Alien-managed Claude CLI runs toward a different provider,
 // endpoint, token source, plugin/config tree, or telemetry bootstrap mode.
 export const CLAUDE_CLI_CLEAR_ENV = [
   "ANTHROPIC_API_KEY",
@@ -71,7 +71,7 @@ export function isClaudeCliProvider(providerId: string): boolean {
   return normalizeOptionalLowercaseString(providerId) === CLAUDE_CLI_BACKEND_ID;
 }
 
-function isOpenClawRequestedYolo(context?: CliBackendNormalizeConfigContext): boolean {
+function isAlienRequestedYolo(context?: CliBackendNormalizeConfigContext): boolean {
   const agentExec = context?.agentId
     ? context.config?.agents?.list?.find((agent) => agent.id === context.agentId)?.tools?.exec
     : undefined;
@@ -85,7 +85,7 @@ export function resolveClaudePermissionMode(context?: CliBackendNormalizeConfigC
   mode?: string;
   overrideExisting: boolean;
 } {
-  return isOpenClawRequestedYolo(context)
+  return isAlienRequestedYolo(context)
     ? { mode: CLAUDE_BYPASS_PERMISSION_MODE, overrideExisting: false }
     : { overrideExisting: false };
 }

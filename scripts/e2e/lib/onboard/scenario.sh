@@ -2,14 +2,14 @@
 set -euo pipefail
 trap "" PIPE
 export TERM=xterm-256color
-source scripts/lib/openclaw-e2e-instance.sh
-openclaw_e2e_eval_test_state_from_b64 "${OPENCLAW_TEST_STATE_FUNCTION_B64:?missing OPENCLAW_TEST_STATE_FUNCTION_B64}"
+source scripts/lib/alien-e2e-instance.sh
+alien_e2e_eval_test_state_from_b64 "${ALIEN_TEST_STATE_FUNCTION_B64:?missing ALIEN_TEST_STATE_FUNCTION_B64}"
 ONBOARD_FLAGS="--flow quickstart --auth-choice skip --skip-channels --skip-skills --skip-daemon --skip-ui"
-OPENCLAW_ENTRY="$(openclaw_e2e_resolve_entrypoint)"
-export OPENCLAW_ENTRY
+ALIEN_ENTRY="$(alien_e2e_resolve_entrypoint)"
+export ALIEN_ENTRY
 
 # Provide a minimal trash shim to avoid noisy "missing trash" logs in containers.
-openclaw_e2e_install_trash_shim
+alien_e2e_install_trash_shim
 
 send() {
   local payload="$1"
@@ -49,12 +49,12 @@ wait_for_log() {
 }
 
 start_gateway() {
-  GATEWAY_PID="$(openclaw_e2e_start_gateway "$OPENCLAW_ENTRY" 18789 /tmp/gateway-e2e.log)"
+  GATEWAY_PID="$(alien_e2e_start_gateway "$ALIEN_ENTRY" 18789 /tmp/gateway-e2e.log)"
 }
 
 wait_for_gateway() {
   for _ in $(seq 1 20); do
-    if openclaw_e2e_probe_tcp 127.0.0.1 18789 500 >/dev/null 2>&1; then
+    if alien_e2e_probe_tcp 127.0.0.1 18789 500 >/dev/null 2>&1; then
       return 0
     fi
     if [ -f /tmp/gateway-e2e.log ] && grep -E -q "listening on ws://[^ ]+:18789" /tmp/gateway-e2e.log; then
@@ -70,7 +70,7 @@ wait_for_gateway() {
 }
 
 stop_gateway() {
-  openclaw_e2e_stop_process "$1"
+  alien_e2e_stop_process "$1"
 }
 
 run_wizard_cmd() {
@@ -82,11 +82,11 @@ run_wizard_cmd() {
   local validate_fn="${6:-}"
 
   echo "== Wizard case: $case_name =="
-  set_isolated_openclaw_env "$state_ref"
+  set_isolated_alien_env "$state_ref"
 
-  input_fifo="$(mktemp -u "/tmp/openclaw-onboard-${case_name}.XXXXXX")"
+  input_fifo="$(mktemp -u "/tmp/alien-onboard-${case_name}.XXXXXX")"
   mkfifo "$input_fifo"
-  local log_path="/tmp/openclaw-onboard-${case_name}.log"
+  local log_path="/tmp/alien-onboard-${case_name}.log"
   WIZARD_LOG_PATH="$log_path"
   export WIZARD_LOG_PATH
   # Run under script to keep an interactive TTY for clack prompts.
@@ -129,19 +129,19 @@ run_wizard() {
   local validate_fn="${4:-}"
 
   # Default onboarding command wrapper.
-  run_wizard_cmd "$case_name" "$state_ref" "node \"$OPENCLAW_ENTRY\" onboard $ONBOARD_FLAGS" "$send_fn" true "$validate_fn"
+  run_wizard_cmd "$case_name" "$state_ref" "node \"$ALIEN_ENTRY\" onboard $ONBOARD_FLAGS" "$send_fn" true "$validate_fn"
 }
 
 assert_onboard_config() {
   local scenario="$1"
   shift
-  openclaw_e2e_assert_file "$OPENCLAW_CONFIG_PATH"
-  node scripts/e2e/lib/onboard/assert-config.mjs "$scenario" "$OPENCLAW_CONFIG_PATH" "$@"
+  alien_e2e_assert_file "$ALIEN_CONFIG_PATH"
+  node scripts/e2e/lib/onboard/assert-config.mjs "$scenario" "$ALIEN_CONFIG_PATH" "$@"
 }
 
-set_isolated_openclaw_env() {
+set_isolated_alien_env() {
   local state_ref="$1"
-  openclaw_test_state_create "$state_ref" empty
+  alien_test_state_create "$state_ref" empty
 }
 
 select_skip_hooks() {
@@ -194,8 +194,8 @@ send_skills_flow() {
 }
 
 run_case_local_basic() {
-  set_isolated_openclaw_env local-basic
-  openclaw_e2e_run_logged local-basic node "$OPENCLAW_ENTRY" onboard \
+  set_isolated_alien_env local-basic
+  alien_e2e_run_logged local-basic node "$ALIEN_ENTRY" onboard \
     --non-interactive \
     --accept-risk \
     --flow quickstart \
@@ -207,12 +207,12 @@ run_case_local_basic() {
     --skip-health
 
   # Assert config + workspace scaffolding.
-  workspace_dir="$OPENCLAW_STATE_DIR/workspace"
-  sessions_dir="$OPENCLAW_STATE_DIR/agents/main/sessions"
+  workspace_dir="$ALIEN_STATE_DIR/workspace"
+  sessions_dir="$ALIEN_STATE_DIR/agents/main/sessions"
 
-  openclaw_e2e_assert_dir "$sessions_dir"
+  alien_e2e_assert_dir "$sessions_dir"
   for file in AGENTS.md BOOTSTRAP.md IDENTITY.md SOUL.md TOOLS.md USER.md; do
-    openclaw_e2e_assert_file "$workspace_dir/$file"
+    alien_e2e_assert_file "$workspace_dir/$file"
   done
 
   assert_onboard_config local-basic "$workspace_dir"
@@ -220,9 +220,9 @@ run_case_local_basic() {
 }
 
 run_case_remote_non_interactive() {
-  set_isolated_openclaw_env remote-non-interactive
+  set_isolated_alien_env remote-non-interactive
   # Smoke test non-interactive remote config write.
-  openclaw_e2e_run_logged remote-non-interactive node "$OPENCLAW_ENTRY" onboard --non-interactive --accept-risk \
+  alien_e2e_run_logged remote-non-interactive node "$ALIEN_ENTRY" onboard --non-interactive --accept-risk \
     --mode remote \
     --remote-url ws://gateway.local:18789 \
     --remote-token remote-token \
@@ -233,10 +233,10 @@ run_case_remote_non_interactive() {
 }
 
 run_case_reset() {
-  set_isolated_openclaw_env reset-config
-  node scripts/e2e/lib/onboard/write-config.mjs reset "$OPENCLAW_CONFIG_PATH"
+  set_isolated_alien_env reset-config
+  node scripts/e2e/lib/onboard/write-config.mjs reset "$ALIEN_CONFIG_PATH"
 
-  openclaw_e2e_run_logged reset-config node "$OPENCLAW_ENTRY" onboard \
+  alien_e2e_run_logged reset-config node "$ALIEN_ENTRY" onboard \
     --non-interactive \
     --accept-risk \
     --flow quickstart \
@@ -253,25 +253,25 @@ run_case_reset() {
 
 run_case_channels() {
   # Channels-only configure flow.
-  run_wizard_cmd channels channels "node \"$OPENCLAW_ENTRY\" configure --section channels" send_channels_flow
+  run_wizard_cmd channels channels "node \"$ALIEN_ENTRY\" configure --section channels" send_channels_flow
 
   assert_onboard_config channels
 }
 
 run_case_skills() {
   local home_dir
-  set_isolated_openclaw_env skills
+  set_isolated_alien_env skills
   home_dir="$HOME"
-  node scripts/e2e/lib/onboard/write-config.mjs skills "$OPENCLAW_CONFIG_PATH"
+  node scripts/e2e/lib/onboard/write-config.mjs skills "$ALIEN_CONFIG_PATH"
 
-  run_wizard_cmd skills "$home_dir" "node \"$OPENCLAW_ENTRY\" configure --section skills" send_skills_flow
+  run_wizard_cmd skills "$home_dir" "node \"$ALIEN_ENTRY\" configure --section skills" send_skills_flow
 
   assert_onboard_config skills
 }
 
 validate_local_basic_log() {
   local log_path="$1"
-  openclaw_e2e_assert_log_not_contains "$log_path" "systemctl --user unavailable"
+  alien_e2e_assert_log_not_contains "$log_path" "systemctl --user unavailable"
 }
 
 run_case_local_basic

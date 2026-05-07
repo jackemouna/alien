@@ -5,7 +5,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { upsertAcpSessionMeta } from "../../acp/runtime/session-meta.js";
 import * as jsonFiles from "../../infra/json-files.js";
 import { createSuiteTempRootTracker, withTempDirSync } from "../../test-helpers/temp-dir.js";
-import type { OpenClawConfig } from "../config.js";
+import type { AlienConfig } from "../config.js";
 import type { SessionConfig } from "../types.base.js";
 import { resolveSessionLifecycleTimestamps } from "./lifecycle.js";
 import {
@@ -36,25 +36,25 @@ describe("session path safety", () => {
   });
 
   it("resolves transcript path inside an explicit sessions dir", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
     const resolved = resolveSessionTranscriptPathInDir("sess-1", sessionsDir, "topic/a+b");
 
     expect(resolved).toBe(path.resolve(sessionsDir, "sess-1-topic-topic%2Fa%2Bb.jsonl"));
   });
 
   it("falls back to derived path when sessionFile is outside known agent sessions dirs", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
 
     const resolved = resolveSessionFilePath(
       "sess-1",
-      { sessionFile: "/tmp/openclaw/agents/work/not-sessions/abc-123.jsonl" },
+      { sessionFile: "/tmp/alien/agents/work/not-sessions/abc-123.jsonl" },
       { sessionsDir },
     );
     expect(resolved).toBe(path.resolve(sessionsDir, "sess-1.jsonl"));
   });
 
   it("rotates generated transcript paths when session id changes", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
     const previousSessionFile = path.join(sessionsDir, "sess-1.jsonl");
 
     const resolved = resolveRotatedGeneratedSessionFilePath({
@@ -68,7 +68,7 @@ describe("session path safety", () => {
   });
 
   it("rotates already-stale generated UUID transcript paths", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
     const staleSessionFile = path.join(sessionsDir, "685a51f7-7adf-48b1-89ca-d3ab86dd6e0f.jsonl");
 
     const resolved = resolveRotatedGeneratedSessionFilePath({
@@ -82,7 +82,7 @@ describe("session path safety", () => {
   });
 
   it("does not rotate custom transcript paths when session id changes", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
     const customPath = path.join(sessionsDir, "custom-owned-child-transcript.jsonl");
 
     const resolved = resolveRotatedGeneratedSessionFilePath({
@@ -96,7 +96,7 @@ describe("session path safety", () => {
   });
 
   it("keeps topic transcript paths when the persisted sessionFile matches the session id", () => {
-    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+    const sessionsDir = "/tmp/alien/agents/main/sessions";
     const topicPath = path.join(sessionsDir, "sess-1-topic-456.jsonl");
 
     const resolved = resolveSessionFilePath("sess-1", { sessionFile: topicPath }, { sessionsDir });
@@ -115,7 +115,7 @@ describe("session path safety", () => {
     if (process.platform === "win32") {
       return;
     }
-    withTempDirSync({ prefix: "openclaw-symlink-session-" }, (tmpDir) => {
+    withTempDirSync({ prefix: "alien-symlink-session-" }, (tmpDir) => {
       const realRoot = path.join(tmpDir, "real-state");
       const aliasRoot = path.join(tmpDir, "alias-state");
       const sessionsDir = path.join(realRoot, "agents", "main", "sessions");
@@ -134,7 +134,7 @@ describe("session path safety", () => {
     if (process.platform === "win32") {
       return;
     }
-    withTempDirSync({ prefix: "openclaw-symlink-escape-" }, (tmpDir) => {
+    withTempDirSync({ prefix: "alien-symlink-escape-" }, (tmpDir) => {
       const sessionsDir = path.join(tmpDir, "agents", "main", "sessions");
       const outsideDir = path.join(tmpDir, "outside");
       fs.mkdirSync(sessionsDir, { recursive: true });
@@ -290,7 +290,7 @@ describe("resolveSessionResetPolicy", () => {
 
 describe("session lifecycle timestamps", () => {
   it("falls back to the JSONL session header for legacy session start time", async () => {
-    const dir = await fsPromises.mkdtemp("/tmp/openclaw-lifecycle-test-");
+    const dir = await fsPromises.mkdtemp("/tmp/alien-lifecycle-test-");
     try {
       const storePath = path.join(dir, "sessions.json");
       const sessionFile = path.join(dir, "legacy-session.jsonl");
@@ -324,7 +324,7 @@ describe("session lifecycle timestamps", () => {
 });
 
 describe("session store writer queue", () => {
-  const writerFixtureRootTracker = createSuiteTempRootTracker({ prefix: "openclaw-writer-test-" });
+  const writerFixtureRootTracker = createSuiteTempRootTracker({ prefix: "alien-writer-test-" });
 
   async function makeTmpStore(
     initial: Record<string, unknown> = {},
@@ -533,7 +533,7 @@ describe("session store writer queue", () => {
       session: {
         store: storePath,
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const result = await upsertAcpSessionMeta({
       cfg,

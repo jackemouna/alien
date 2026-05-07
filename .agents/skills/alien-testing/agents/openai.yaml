@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alien Testing"
+  short_description: "Choose cheap, targeted Alien validation"
+  default_prompt: "Use $alien-testing to choose the cheapest safe test or CI verification path, inspect failures, and rerun only the relevant Alien lane."

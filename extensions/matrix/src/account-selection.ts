@@ -3,15 +3,15 @@ import {
   listConfiguredAccountIds,
   resolveListedDefaultAccountId,
   resolveNormalizedAccountEntry,
-} from "openclaw/plugin-sdk/account-core";
+} from "alien/plugin-sdk/account-core";
 import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   normalizeOptionalAccountId,
-} from "openclaw/plugin-sdk/account-id";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
+} from "alien/plugin-sdk/account-id";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { hasConfiguredSecretInput } from "alien/plugin-sdk/secret-input-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/string-coerce-runtime";
 import {
   resolveMatrixAccountStringValues,
   type MatrixResolvedStringField,
@@ -136,12 +136,12 @@ function hasConfiguredDefaultMatrixAccountSource(params: {
   });
 }
 
-export function resolveMatrixChannelConfig(cfg: OpenClawConfig): Record<string, unknown> | null {
+export function resolveMatrixChannelConfig(cfg: AlienConfig): Record<string, unknown> | null {
   return isRecord(cfg.channels?.matrix) ? cfg.channels.matrix : null;
 }
 
 export function findMatrixAccountEntry(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   accountId: string,
 ): Record<string, unknown> | null {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -158,7 +158,7 @@ export function findMatrixAccountEntry(
 }
 
 export function resolveConfiguredMatrixAccountIds(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -182,7 +182,7 @@ export function resolveConfiguredMatrixAccountIds(
 }
 
 export function resolveMatrixDefaultOrOnlyAccountId(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -202,7 +202,7 @@ export function resolveMatrixDefaultOrOnlyAccountId(
 }
 
 export function requiresExplicitMatrixDefaultAccount(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const channel = resolveMatrixChannelConfig(cfg);

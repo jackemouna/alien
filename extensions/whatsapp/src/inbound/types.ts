@@ -1,6 +1,6 @@
 import type { AnyMessageContent, MiscMessageGenerationOptions } from "@whiskeysockets/baileys";
-import type { NormalizedLocation } from "openclaw/plugin-sdk/channel-inbound";
-import type { PollInput } from "openclaw/plugin-sdk/poll-runtime";
+import type { NormalizedLocation } from "alien/plugin-sdk/channel-inbound";
+import type { PollInput } from "alien/plugin-sdk/poll-runtime";
 import type { WhatsAppIdentity, WhatsAppReplyContext, WhatsAppSelfIdentity } from "../identity.js";
 import type { WhatsAppSendResult } from "./send-result.js";
 

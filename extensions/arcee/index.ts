@@ -1,10 +1,10 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "openclaw/plugin-sdk/provider-auth-api-key";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "alien/plugin-sdk/provider-auth-api-key";
 import {
   readConfiguredProviderCatalogEntries,
   type ProviderCatalogContext,
-} from "openclaw/plugin-sdk/provider-catalog-shared";
-import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "openclaw/plugin-sdk/provider-model-shared";
+} from "alien/plugin-sdk/provider-catalog-shared";
+import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "alien/plugin-sdk/provider-model-shared";
 import {
   applyArceeConfig,
   applyArceeOpenRouterConfig,

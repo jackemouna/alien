@@ -33,11 +33,11 @@ const readConfigFileSnapshotWithPluginMetadata = vi.fn(async () => ({
 }));
 const writeDiagnosticStabilityBundleForFailureSync = vi.fn((_reason: string, _error: unknown) => ({
   status: "written" as const,
-  message: "wrote stability bundle: /tmp/openclaw-stability.json",
-  path: "/tmp/openclaw-stability.json",
+  message: "wrote stability bundle: /tmp/alien-stability.json",
+  path: "/tmp/alien-stability.json",
 }));
 const controlUiState = vi.hoisted(() => ({
-  root: "/tmp/openclaw-control-ui" as string | null,
+  root: "/tmp/alien-control-ui" as string | null,
 }));
 const withoutSupervisorEnv = Object.fromEntries(
   SUPERVISOR_HINT_ENV_VARS.map((key) => [key, undefined]),
@@ -46,14 +46,14 @@ const withoutSupervisorEnv = Object.fromEntries(
 const { runtimeErrors, defaultRuntime, resetRuntimeCapture } = createCliRuntimeCapture();
 
 vi.mock("../../config/config.js", () => ({
-  getConfigPath: () => "/tmp/openclaw-test-missing-config.json",
+  getConfigPath: () => "/tmp/alien-test-missing-config.json",
   readBestEffortConfig: () => readBestEffortConfig(),
   readConfigFileSnapshot: async () => configState.snapshot,
   readConfigFileSnapshotWithPluginMetadata: () => readConfigFileSnapshotWithPluginMetadata(),
 }));
 
 vi.mock("../../config/paths.js", () => ({
-  CONFIG_PATH: "/tmp/openclaw-test-missing-config.json",
+  CONFIG_PATH: "/tmp/alien-test-missing-config.json",
   resolveStateDir: () => "/tmp",
   resolveGatewayPort: (cfg?: { gateway?: { port?: number } }) => cfg?.gateway?.port ?? 18789,
 }));
@@ -68,13 +68,13 @@ vi.mock("../../gateway/auth.js", () => ({
     const token =
       (typeof params.authOverride?.token === "string" ? params.authOverride.token : undefined) ??
       (typeof params.authConfig?.token === "string" ? params.authConfig.token : undefined) ??
-      params.env?.OPENCLAW_GATEWAY_TOKEN;
+      params.env?.ALIEN_GATEWAY_TOKEN;
     const password =
       (typeof params.authOverride?.password === "string"
         ? params.authOverride.password
         : undefined) ??
       (typeof params.authConfig?.password === "string" ? params.authConfig.password : undefined) ??
-      params.env?.OPENCLAW_GATEWAY_PASSWORD;
+      params.env?.ALIEN_GATEWAY_PASSWORD;
     return {
       mode,
       token,
@@ -178,7 +178,7 @@ describe("gateway run option collisions", () => {
     configState.snapshot = { exists: false };
     readBestEffortConfig.mockClear();
     readConfigFileSnapshotWithPluginMetadata.mockClear();
-    controlUiState.root = "/tmp/openclaw-control-ui";
+    controlUiState.root = "/tmp/alien-control-ui";
     gatewayLogMessages.length = 0;
     writeDiagnosticStabilityBundleForFailureSync.mockClear();
     startGatewayServer.mockClear();
@@ -258,17 +258,17 @@ describe("gateway run option collisions", () => {
       config: { meta: { lastTouchedVersion: "9999.1.1" } },
       sourceConfig: { meta: { lastTouchedVersion: "9999.1.1" } },
     };
-    const previousMarker = process.env.OPENCLAW_SERVICE_MARKER;
-    process.env.OPENCLAW_SERVICE_MARKER = "gateway";
+    const previousMarker = process.env.ALIEN_SERVICE_MARKER;
+    process.env.ALIEN_SERVICE_MARKER = "gateway";
     try {
       await expect(runGatewayCli(["gateway", "run", "--allow-unconfigured"])).rejects.toThrow(
         "__exit__:78",
       );
     } finally {
       if (previousMarker === undefined) {
-        delete process.env.OPENCLAW_SERVICE_MARKER;
+        delete process.env.ALIEN_SERVICE_MARKER;
       } else {
-        process.env.OPENCLAW_SERVICE_MARKER = previousMarker;
+        process.env.ALIEN_SERVICE_MARKER = previousMarker;
       }
     }
 
@@ -281,12 +281,12 @@ describe("gateway run option collisions", () => {
     ["--cli-backend-logs", "generic flag"],
     ["--claude-cli-logs", "deprecated alias"],
   ])("enables CLI backend log filtering via %s (%s)", async (flag) => {
-    delete process.env.OPENCLAW_CLI_BACKEND_LOG_OUTPUT;
+    delete process.env.ALIEN_CLI_BACKEND_LOG_OUTPUT;
 
     await runGatewayCli(["gateway", "run", flag, "--allow-unconfigured"]);
 
     expect(setConsoleSubsystemFilter).toHaveBeenCalledWith(["agent/cli-backend"]);
-    expect(process.env.OPENCLAW_CLI_BACKEND_LOG_OUTPUT).toBe("1");
+    expect(process.env.ALIEN_CLI_BACKEND_LOG_OUTPUT).toBe("1");
   });
 
   it("starts gateway when token mode has no configured token (startup bootstrap path)", async () => {
@@ -350,7 +350,7 @@ describe("gateway run option collisions", () => {
     await expect(runGatewayCli(["gateway", "run"])).rejects.toThrow("__exit__:78");
 
     expect(runtimeErrors).toContain(
-      "Gateway start blocked: existing config is missing gateway.mode. Treat this as suspicious or clobbered config. Re-run `openclaw onboard --mode local` or `openclaw setup`, set gateway.mode=local manually, or pass --allow-unconfigured.",
+      "Gateway start blocked: existing config is missing gateway.mode. Treat this as suspicious or clobbered config. Re-run `alien onboard --mode local` or `alien setup`, set gateway.mode=local manually, or pass --allow-unconfigured.",
     );
     expect(runtimeErrors).toContain(
       `Config write audit: ${path.join("/tmp", "logs", "config-audit.jsonl")}`,
@@ -364,7 +364,7 @@ describe("gateway run option collisions", () => {
     configState.snapshot = {
       exists: true,
       valid: false,
-      path: "/tmp/openclaw-test-missing-config.json",
+      path: "/tmp/alien-test-missing-config.json",
       config: {},
       parsed: null,
       issues: [{ path: "<root>", message: "JSON5 parse failed" }],
@@ -374,7 +374,7 @@ describe("gateway run option collisions", () => {
     await expect(runGatewayCli(["gateway", "run"])).rejects.toThrow("__exit__:78");
 
     expect(runtimeErrors).toContain(
-      "Gateway start blocked: existing config is missing gateway.mode. Treat this as suspicious or clobbered config. Re-run `openclaw onboard --mode local` or `openclaw setup`, set gateway.mode=local manually, or pass --allow-unconfigured.",
+      "Gateway start blocked: existing config is missing gateway.mode. Treat this as suspicious or clobbered config. Re-run `alien onboard --mode local` or `alien setup`, set gateway.mode=local manually, or pass --allow-unconfigured.",
     );
     expect(runtimeErrors).toContain(
       `Config write audit: ${path.join("/tmp", "logs", "config-audit.jsonl")}`,
@@ -388,7 +388,7 @@ describe("gateway run option collisions", () => {
     configState.snapshot = {
       exists: true,
       valid: false,
-      path: "/tmp/openclaw-test-missing-config.json",
+      path: "/tmp/alien-test-missing-config.json",
       config: {},
       parsed: null,
       issues: [{ path: "<root>", message: "JSON5 parse failed" }],
@@ -429,7 +429,7 @@ describe("gateway run option collisions", () => {
       gateway: {
         auth: {
           mode: "password",
-          password: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_PASSWORD" },
+          password: { source: "env", provider: "default", id: "ALIEN_GATEWAY_PASSWORD" },
         },
       },
       secrets: {
@@ -457,7 +457,7 @@ describe("gateway run option collisions", () => {
 
   it("reads gateway password from --password-file", async () => {
     await withTempSecretFiles(
-      "openclaw-gateway-run-",
+      "alien-gateway-run-",
       { password: "pw_from_file\n" },
       async ({ passwordFile }) => {
         await runGatewayCli([
@@ -482,7 +482,7 @@ describe("gateway run option collisions", () => {
       }),
     );
     expect(runtimeErrors).not.toContain(
-      "Warning: --password can be exposed via process listings. Prefer --password-file or OPENCLAW_GATEWAY_PASSWORD.",
+      "Warning: --password can be exposed via process listings. Prefer --password-file or ALIEN_GATEWAY_PASSWORD.",
     );
   });
 
@@ -498,13 +498,13 @@ describe("gateway run option collisions", () => {
     ]);
 
     expect(runtimeErrors).toContain(
-      "Warning: --password can be exposed via process listings. Prefer --password-file or OPENCLAW_GATEWAY_PASSWORD.",
+      "Warning: --password can be exposed via process listings. Prefer --password-file or ALIEN_GATEWAY_PASSWORD.",
     );
   });
 
   it("rejects using both --password and --password-file", async () => {
     await withTempSecretFiles(
-      "openclaw-gateway-run-",
+      "alien-gateway-run-",
       { password: "pw_from_file\n" },
       async ({ passwordFile }) => {
         await expect(

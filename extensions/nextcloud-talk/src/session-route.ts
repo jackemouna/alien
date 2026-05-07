@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { buildOutboundBaseSessionKey } from "openclaw/plugin-sdk/routing";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { buildOutboundBaseSessionKey } from "alien/plugin-sdk/routing";
 import { stripNextcloudTalkTargetPrefix } from "./normalize.js";
 
 type NextcloudTalkOutboundSessionRouteParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   accountId?: string | null;
   target: string;

@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { tryReadJsonSync } from "../infra/json-files.js";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveAlienPackageRootSync } from "../infra/alien-root.js";
 import { listChannelCatalogEntries } from "../plugins/channel-catalog-registry.js";
 import type { PluginPackageChannel } from "../plugins/manifest.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 
 type ChannelCatalogEntryLike = {
-  openclaw?: {
+  alien?: {
     channel?: PluginPackageChannel;
   };
 };
@@ -24,8 +24,8 @@ const officialCatalogFileCache = new Map<string, ChannelCatalogEntryLike[] | nul
 
 function listPackageRoots(): string[] {
   return [
-    resolveOpenClawPackageRootSync({ cwd: process.cwd() }),
-    resolveOpenClawPackageRootSync({ moduleUrl: import.meta.url }),
+    resolveAlienPackageRootSync({ cwd: process.cwd() }),
+    resolveAlienPackageRootSync({ moduleUrl: import.meta.url }),
   ].filter((entry, index, all): entry is string => Boolean(entry) && all.indexOf(entry) === index);
 }
 
@@ -67,14 +67,14 @@ function readOfficialCatalogFileSync(): ChannelCatalogEntryLike[] {
 function isChannelCatalogEntryLike(
   entry: ChannelCatalogEntryLike | PluginPackageChannel,
 ): entry is ChannelCatalogEntryLike {
-  return "openclaw" in entry;
+  return "alien" in entry;
 }
 
 function toBundledChannelEntry(
   entry: ChannelCatalogEntryLike | PluginPackageChannel,
 ): BundledChannelCatalogEntry | null {
   const channel: PluginPackageChannel | undefined = isChannelCatalogEntryLike(entry)
-    ? entry.openclaw?.channel
+    ? entry.alien?.channel
     : entry;
   const id = normalizeOptionalLowercaseString(channel?.id);
   if (!id || !channel) {

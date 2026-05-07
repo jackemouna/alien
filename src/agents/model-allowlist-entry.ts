@@ -1,12 +1,12 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { DEFAULT_PROVIDER } from "./defaults.js";
 import { resolveStaticAllowlistModelKey } from "./model-ref-shared.js";
 
 export function ensureStaticModelAllowlistEntry(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   modelRef: string;
   defaultProvider?: string;
-}): OpenClawConfig {
+}): AlienConfig {
   const rawModelRef = params.modelRef.trim();
   if (!rawModelRef) {
     return params.cfg;

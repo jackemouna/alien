@@ -1,7 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 
-const ensureOpenClawModelsJsonMock = vi.fn<
+const ensureAlienModelsJsonMock = vi.fn<
   (
     config: unknown,
     agentDir: unknown,
@@ -18,8 +18,8 @@ vi.mock("../agents/agent-scope.js", () => ({
 }));
 
 vi.mock("../agents/models-config.js", () => ({
-  ensureOpenClawModelsJson: (config: unknown, agentDir: unknown, options?: unknown) =>
-    ensureOpenClawModelsJsonMock(config, agentDir, options),
+  ensureAlienModelsJson: (config: unknown, agentDir: unknown, options?: unknown) =>
+    ensureAlienModelsJsonMock(config, agentDir, options),
 }));
 
 vi.mock("../agents/pi-embedded-runner/model.js", () => {
@@ -44,7 +44,7 @@ describe("gateway startup primary model warmup", () => {
   });
 
   beforeEach(() => {
-    ensureOpenClawModelsJsonMock.mockClear();
+    ensureAlienModelsJsonMock.mockClear();
     piModelModuleLoadedMock.mockClear();
     resolveEmbeddedAgentRuntimeMock.mockClear();
     resolveEmbeddedAgentRuntimeMock.mockReturnValue("auto");
@@ -59,14 +59,14 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureOpenClawModelsJsonMock).toHaveBeenCalledWith(
+    expect(ensureAlienModelsJsonMock).toHaveBeenCalledWith(
       cfg,
       "/tmp/agent",
       expect.objectContaining({
@@ -81,11 +81,11 @@ describe("gateway startup primary model warmup", () => {
 
   it("skips warmup when no explicit primary model is configured", async () => {
     await prewarmConfiguredPrimaryModel({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureOpenClawModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureAlienModelsJsonMock).not.toHaveBeenCalled();
     expect(piModelModuleLoadedMock).not.toHaveBeenCalled();
   });
 
@@ -93,12 +93,12 @@ describe("gateway startup primary model warmup", () => {
     expect(shouldSkipStartupModelPrewarm({})).toBe(false);
     expect(
       shouldSkipStartupModelPrewarm({
-        OPENCLAW_SKIP_STARTUP_MODEL_PREWARM: "1",
+        ALIEN_SKIP_STARTUP_MODEL_PREWARM: "1",
       }),
     ).toBe(true);
     expect(
       shouldSkipStartupModelPrewarm({
-        OPENCLAW_SKIP_STARTUP_MODEL_PREWARM: "true",
+        ALIEN_SKIP_STARTUP_MODEL_PREWARM: "true",
       }),
     ).toBe(true);
   });
@@ -119,11 +119,11 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureOpenClawModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureAlienModelsJsonMock).not.toHaveBeenCalled();
     expect(piModelModuleLoadedMock).not.toHaveBeenCalled();
   });
 
@@ -138,11 +138,11 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureOpenClawModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureAlienModelsJsonMock).not.toHaveBeenCalled();
     expect(piModelModuleLoadedMock).not.toHaveBeenCalled();
   });
 
@@ -156,14 +156,14 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureOpenClawModelsJsonMock).toHaveBeenCalledWith(
+    expect(ensureAlienModelsJsonMock).toHaveBeenCalledWith(
       cfg,
       "/tmp/agent",
       expect.objectContaining({
@@ -177,7 +177,7 @@ describe("gateway startup primary model warmup", () => {
   });
 
   it("warns when scoped models.json preparation fails", async () => {
-    ensureOpenClawModelsJsonMock.mockRejectedValueOnce(new Error("models write failed"));
+    ensureAlienModelsJsonMock.mockRejectedValueOnce(new Error("models write failed"));
     const warn = vi.fn();
 
     await prewarmConfiguredPrimaryModel({
@@ -189,7 +189,7 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as AlienConfig,
       log: { warn },
     });
 

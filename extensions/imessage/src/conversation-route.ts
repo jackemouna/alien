@@ -1,14 +1,14 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveConfiguredBindingRoute,
   resolveRuntimeConversationBindingRoute,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/conversation-runtime";
+import { resolveAgentRoute } from "alien/plugin-sdk/routing";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import { resolveIMessageInboundConversationId } from "./conversation-id.js";
 
 export function resolveIMessageConversationRoute(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
   isGroup: boolean;
   peerId: string;

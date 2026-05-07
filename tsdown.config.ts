@@ -69,7 +69,7 @@ function matchesExternalOption(
 }
 
 function buildInputOptions(options: InputOptionsArg): InputOptionsReturn {
-  if (process.env.OPENCLAW_BUILD_VERBOSE === "1") {
+  if (process.env.ALIEN_BUILD_VERBOSE === "1") {
     return undefined;
   }
 
@@ -129,7 +129,7 @@ function nodeBuildConfig(config: UserConfig): UserConfig {
 }
 
 const bundledPluginBuildEntries = collectBundledPluginBuildEntries();
-const shouldBuildPrivateQaEntries = process.env.OPENCLAW_BUILD_PRIVATE_QA === "1";
+const shouldBuildPrivateQaEntries = process.env.ALIEN_BUILD_PRIVATE_QA === "1";
 
 function buildBundledHookEntries(): Record<string, string> {
   const hooksRoot = path.join(process.cwd(), "src", "hooks", "bundled");
@@ -175,7 +175,7 @@ function shouldNeverBundleDependency(id: string): boolean {
 }
 
 function shouldAlwaysBundleDependency(id: string): boolean {
-  return id === "@openclaw/fs-safe" || id.startsWith("@openclaw/fs-safe/");
+  return id === "@alien/fs-safe" || id.startsWith("@alien/fs-safe/");
 }
 
 function listBundledPluginEntrySources(

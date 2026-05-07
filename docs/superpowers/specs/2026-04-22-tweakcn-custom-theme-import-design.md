@@ -4,7 +4,7 @@ Status: approved in terminal on 2026-04-22
 
 ## Summary
 
-Add exactly one browser-local custom Control UI theme slot that can be imported from a tweakcn share link. The existing built-in theme families remain `claw`, `knot`, and `dash`. The new `custom` family behaves like a normal OpenClaw theme family and supports `light`, `dark`, and `system` mode when the imported tweakcn payload includes both light and dark token sets.
+Add exactly one browser-local custom Control UI theme slot that can be imported from a tweakcn share link. The existing built-in theme families remain `claw`, `knot`, and `dash`. The new `custom` family behaves like a normal Alien theme family and supports `light`, `dark`, and `system` mode when the imported tweakcn payload includes both light and dark token sets.
 
 The imported theme is stored only in the current browser profile with the rest of the Control UI settings. It is not written to gateway config and does not sync across devices or browsers.
 
@@ -46,9 +46,9 @@ Users can switch among built-in families and mode variants, but they cannot brin
 
 ## Recommended approach
 
-Add a fourth theme family id, `custom`, to the Control UI theme model. The `custom` family becomes selectable only when a valid tweakcn import is present. The imported payload is normalized into an OpenClaw-specific custom theme record and stored in browser local storage with the rest of the UI settings.
+Add a fourth theme family id, `custom`, to the Control UI theme model. The `custom` family becomes selectable only when a valid tweakcn import is present. The imported payload is normalized into an Alien-specific custom theme record and stored in browser local storage with the rest of the UI settings.
 
-At runtime, OpenClaw renders a managed `<style>` tag that defines the resolved custom CSS variable blocks:
+At runtime, Alien renders a managed `<style>` tag that defines the resolved custom CSS variable blocks:
 
 ```css
 :root[data-theme="custom"] { ... }
@@ -97,7 +97,7 @@ Notes:
 - `sourceUrl` stores the original user input after normalization.
 - `themeId` is the tweakcn theme id extracted from the URL.
 - `label` is the tweakcn `name` field when present, else `Custom`.
-- `light` and `dark` are already normalized OpenClaw token maps, not raw tweakcn payloads.
+- `light` and `dark` are already normalized Alien token maps, not raw tweakcn payloads.
 - The imported payload lives beside other browser-local settings and is serialized in the same local-storage document.
 - If stored custom-theme data is missing or invalid on load, ignore the payload and fall back to `theme: "claw"` when the persisted family was `custom`.
 
@@ -107,7 +107,7 @@ Add a narrow custom-theme stylesheet manager in the Control UI runtime, owned ne
 
 Responsibilities:
 
-- Create or update one stable `<style id="openclaw-custom-theme">` tag in `document.head`.
+- Create or update one stable `<style id="alien-custom-theme">` tag in `document.head`.
 - Emit CSS only when a valid custom theme payload exists.
 - Remove the style tag content when the payload is cleared.
 - Keep built-in family CSS in `ui/src/styles/base.css`; do not splice imported tokens into the checked-in stylesheet.
@@ -161,7 +161,7 @@ If either `cssVars.light` or `cssVars.dark` is missing, reject the import. This 
 
 ## Token mapping
 
-Do not mirror tweakcn variables blindly. Normalize a bounded subset into OpenClaw tokens and derive the rest in a helper.
+Do not mirror tweakcn variables blindly. Normalize a bounded subset into Alien tokens and derive the rest in a helper.
 
 ### Tokens imported directly
 
@@ -195,9 +195,9 @@ From shared `cssVars.theme` when present:
 
 If a mode block overrides `font-sans`, `font-mono`, or `radius`, the mode-local value wins.
 
-### Tokens derived for OpenClaw
+### Tokens derived for Alien
 
-The importer derives OpenClaw-only variables from the imported base colors:
+The importer derives Alien-only variables from the imported base colors:
 
 - `--bg-accent`
 - `--bg-elevated`
@@ -246,7 +246,7 @@ This keeps the scope on the tokens the current Control UI actually needs.
 
 ### Fonts
 
-Font stack strings are imported if present, but OpenClaw does not load remote font assets in v1. If the imported stack references fonts that are unavailable in the browser, normal fallback behavior applies.
+Font stack strings are imported if present, but Alien does not load remote font assets in v1. If the imported stack references fonts that are unavailable in the browser, normal fallback behavior applies.
 
 ## Failure behavior
 
@@ -297,7 +297,7 @@ Minimum implementation coverage:
 - normalize `/themes/{id}` and `/r/themes/{id}` into the fetch URL
 - reject unsupported hosts and malformed ids
 - validate tweakcn payload shape
-- map a valid tweakcn payload into normalized OpenClaw light and dark token maps
+- map a valid tweakcn payload into normalized Alien light and dark token maps
 - load and save the custom payload in browser-local settings
 - resolve `custom` for `light`, `dark`, and `system`
 - disable `Custom` selection when no payload exists

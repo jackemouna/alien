@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   getPrimaryIdentityId,
   getReplyContext,
@@ -31,7 +31,7 @@ export type GroupHistoryEntry = {
 };
 
 type ApplyGroupGatingParams = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   msg: WebInboundMsg;
   mentionText?: string;
   deferMissingMention?: boolean;

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { loadJsonFile } from "openclaw/plugin-sdk/json-store";
+import { loadJsonFile } from "alien/plugin-sdk/json-store";
 import { getHomeDir, getQQBotDataDir, isWindows } from "../../utils/platform.js";
 import type { SlashCommandResult } from "../slash-commands.js";
 
@@ -8,7 +8,7 @@ import type { SlashCommandResult } from "../slash-commands.js";
 function getConfiguredLogFiles(): string[] {
   const homeDir = getHomeDir();
   const files: string[] = [];
-  for (const cli of ["openclaw", "clawdbot", "moltbot"]) {
+  for (const cli of ["alien", "clawdbot", "moltbot"]) {
     try {
       const cfgPath = path.join(homeDir, `.${cli}`, `${cli}.json`);
       const cfg = loadJsonFile<{ logging?: { file?: unknown } }>(cfgPath);
@@ -53,12 +53,12 @@ function collectCandidateLogDirs(): string[] {
     if (!value) {
       continue;
     }
-    if (/STATE_DIR$/i.test(key) && /(OPENCLAW|CLAWDBOT|MOLTBOT)/i.test(key)) {
+    if (/STATE_DIR$/i.test(key) && /(ALIEN|CLAWDBOT|MOLTBOT)/i.test(key)) {
       pushStateDir(value);
     }
   }
 
-  for (const name of [".openclaw", ".clawdbot", ".moltbot", "openclaw", "clawdbot", "moltbot"]) {
+  for (const name of [".alien", ".clawdbot", ".moltbot", "alien", "clawdbot", "moltbot"]) {
     pushDir(path.join(homeDir, name));
     pushDir(path.join(homeDir, name, "logs"));
   }
@@ -78,7 +78,7 @@ function collectCandidateLogDirs(): string[] {
         if (!entry.isDirectory()) {
           continue;
         }
-        if (!/(openclaw|clawdbot|moltbot)/i.test(entry.name)) {
+        if (!/(alien|clawdbot|moltbot)/i.test(entry.name)) {
           continue;
         }
         const base = path.join(root, entry.name);
@@ -91,7 +91,7 @@ function collectCandidateLogDirs(): string[] {
   }
 
   if (!isWindows()) {
-    for (const name of ["openclaw", "clawdbot", "moltbot"]) {
+    for (const name of ["alien", "clawdbot", "moltbot"]) {
       pushDir(path.join("/var/log", name));
     }
   }
@@ -112,7 +112,7 @@ function collectCandidateLogDirs(): string[] {
     tmpRoots.add("/tmp");
   }
   for (const tmpRoot of tmpRoots) {
-    for (const name of ["openclaw", "clawdbot", "moltbot"]) {
+    for (const name of ["alien", "clawdbot", "moltbot"]) {
       pushDir(path.join(tmpRoot, name));
     }
   }
@@ -176,7 +176,7 @@ function collectRecentLogFiles(logDirs: string[]): LogCandidate[] {
   for (const dir of logDirs) {
     pushFile(path.join(dir, "gateway.log"), dir);
     pushFile(path.join(dir, "gateway.err.log"), dir);
-    pushFile(path.join(dir, "openclaw.log"), dir);
+    pushFile(path.join(dir, "alien.log"), dir);
     pushFile(path.join(dir, "clawdbot.log"), dir);
     pushFile(path.join(dir, "moltbot.log"), dir);
 
@@ -189,7 +189,7 @@ function collectRecentLogFiles(logDirs: string[]): LogCandidate[] {
         if (!/\.(log|txt)$/i.test(entry.name)) {
           continue;
         }
-        if (!/(gateway|openclaw|clawdbot|moltbot)/i.test(entry.name)) {
+        if (!/(gateway|alien|clawdbot|moltbot)/i.test(entry.name)) {
           continue;
         }
         pushFile(path.join(dir, entry.name), dir);

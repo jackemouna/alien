@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   resolveManifestCommandAliasOwnerInRegistry,
   type PluginManifestCommandAliasRecord,
@@ -42,7 +42,7 @@ export function shouldUseRootHelpFastPath(
 ): boolean {
   const invocation = resolveCliArgvInvocation(argv);
   return (
-    env.OPENCLAW_DISABLE_CLI_STARTUP_HELP_FAST_PATH !== "1" &&
+    env.ALIEN_DISABLE_CLI_STARTUP_HELP_FAST_PATH !== "1" &&
     (invocation.isRootHelpInvocation ||
       (invocation.commandPath.length === 1 &&
         ROOT_HELP_ALIASES.has(invocation.commandPath[0] ?? "") &&
@@ -57,7 +57,7 @@ export function shouldUseBrowserHelpFastPath(
   argv: string[],
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  if (env.OPENCLAW_DISABLE_CLI_STARTUP_HELP_FAST_PATH === "1") {
+  if (env.ALIEN_DISABLE_CLI_STARTUP_HELP_FAST_PATH === "1") {
     return false;
   }
   const invocation = resolveCliArgvInvocation(argv);
@@ -97,12 +97,12 @@ export function shouldStartProxyForCli(argv: string[]): boolean {
 
 export function resolveMissingPluginCommandMessage(
   pluginId: string,
-  config?: OpenClawConfig,
+  config?: AlienConfig,
   options?: {
     registry?: PluginManifestCommandAliasRegistry;
     resolveCommandAliasOwner?: (params: {
       command: string | undefined;
-      config?: OpenClawConfig;
+      config?: AlienConfig;
       registry?: PluginManifestCommandAliasRegistry;
     }) => PluginManifestCommandAliasRecord | undefined;
   },
@@ -139,7 +139,7 @@ export function resolveMissingPluginCommandMessage(
     }
     if (config?.plugins?.entries?.[parentPluginId]?.enabled === false) {
       return (
-        `The \`openclaw ${normalizedPluginId}\` command is unavailable because ` +
+        `The \`alien ${normalizedPluginId}\` command is unavailable because ` +
         `\`plugins.entries.${parentPluginId}.enabled=false\`. Re-enable that entry if you want ` +
         "the bundled plugin command surface."
       );
@@ -150,14 +150,14 @@ export function resolveMissingPluginCommandMessage(
       config?.plugins?.entries?.[parentPluginId]?.enabled !== true
     ) {
       return (
-        `The \`openclaw ${normalizedPluginId}\` command is provided by the ` +
+        `The \`alien ${normalizedPluginId}\` command is provided by the ` +
         `"${parentPluginId}" plugin, but that bundled plugin is disabled by default. Run ` +
-        `\`openclaw plugins enable ${parentPluginId}\` to enable that CLI surface.`
+        `\`alien plugins enable ${parentPluginId}\` to enable that CLI surface.`
       );
     }
     if (commandAlias.kind === "runtime-slash") {
       const cliHint = commandAlias.cliCommand
-        ? `Use \`openclaw ${commandAlias.cliCommand}\` for related CLI operations, or `
+        ? `Use \`alien ${commandAlias.cliCommand}\` for related CLI operations, or `
         : "Use ";
       return (
         `"${normalizedPluginId}" is a runtime slash command (/${normalizedPluginId}), not a CLI command. ` +
@@ -176,14 +176,14 @@ export function resolveMissingPluginCommandMessage(
       return null;
     }
     return (
-      `The \`openclaw ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`alien ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.allow\` excludes "${normalizedPluginId}". Add "${normalizedPluginId}" to ` +
       `\`plugins.allow\` if you want that bundled plugin CLI surface.`
     );
   }
   if (config?.plugins?.entries?.[normalizedPluginId]?.enabled === false) {
     return (
-      `The \`openclaw ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`alien ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.entries.${normalizedPluginId}.enabled=false\`. Re-enable that entry if you want ` +
       "the bundled plugin CLI surface."
     );

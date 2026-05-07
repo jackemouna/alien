@@ -1,12 +1,12 @@
-import { createUnionActionGate } from "openclaw/plugin-sdk/channel-actions";
+import { createUnionActionGate } from "alien/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
-} from "openclaw/plugin-sdk/channel-contract";
-import type { DiscordActionConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
-import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
+} from "alien/plugin-sdk/channel-contract";
+import type { DiscordActionConfig, AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
+import { extractToolSend } from "alien/plugin-sdk/tool-send";
 import { inspectDiscordAccount } from "./account-inspect.js";
 import { createDiscordActionGate, listDiscordAccountIds } from "./accounts.js";
 import { readDiscordComponentSpec } from "./components.js";
@@ -20,13 +20,13 @@ async function loadDiscordChannelActionsRuntime() {
   return await discordChannelActionsRuntimePromise;
 }
 
-function listDiscoverableDiscordAccounts(cfg: OpenClawConfig) {
+function listDiscoverableDiscordAccounts(cfg: AlienConfig) {
   return listDiscordAccountIds(cfg)
     .map((accountId) => inspectDiscordAccount({ cfg, accountId }))
     .filter((account) => account.enabled && account.configured);
 }
 
-function resolveDiscordActionDiscovery(cfg: OpenClawConfig) {
+function resolveDiscordActionDiscovery(cfg: AlienConfig) {
   const accounts = listDiscoverableDiscordAccounts(cfg);
   if (accounts.length === 0) {
     return null;
@@ -44,7 +44,7 @@ function resolveDiscordActionDiscovery(cfg: OpenClawConfig) {
 }
 
 function resolveScopedDiscordActionDiscovery(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }) {
   if (!params.accountId) {

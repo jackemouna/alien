@@ -18,7 +18,7 @@ function makeBundledChannelCatalogEntry(params: {
   return {
     pluginId: params.pluginId,
     origin: "bundled",
-    rootDir: "/tmp/openclaw-channel-plugin",
+    rootDir: "/tmp/alien-channel-plugin",
     channel: {
       id: params.channelId,
       configuredState: {

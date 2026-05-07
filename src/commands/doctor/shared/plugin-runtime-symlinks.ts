@@ -106,7 +106,7 @@ export async function noteStalePluginRuntimeSymlinks(
   const shortenPath = options.shortenPath ?? shortenHomePath;
   const lines = [
     "- Plugin-runtime symlinks under the global Node prefix point at pruned",
-    `  ${PLUGIN_RUNTIME_DEPS_MARKER} directories from a previous OpenClaw install.`,
+    `  ${PLUGIN_RUNTIME_DEPS_MARKER} directories from a previous Alien install.`,
     "- Bundled plugin ESM imports can fail with ERR_MODULE_NOT_FOUND until repaired.",
   ];
   for (const item of stale.slice(0, MAX_REPORTED)) {
@@ -115,7 +115,7 @@ export async function noteStalePluginRuntimeSymlinks(
   if (stale.length > MAX_REPORTED) {
     lines.push(`  - ...and ${stale.length - MAX_REPORTED} more`);
   }
-  lines.push("- Repair: run `openclaw doctor --fix` to remove the dangling symlinks.");
+  lines.push("- Repair: run `alien doctor --fix` to remove the dangling symlinks.");
   (options.noteFn ?? note)(lines.join("\n"), "Plugin-runtime symlinks");
 }
 

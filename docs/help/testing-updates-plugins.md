@@ -1,7 +1,7 @@
 ---
-summary: "How OpenClaw validates update paths, package migrations, and plugin install/update behavior"
+summary: "How Alien validates update paths, package migrations, and plugin install/update behavior"
 read_when:
-  - Changing OpenClaw update, doctor, package acceptance, or plugin install behavior
+  - Changing Alien update, doctor, package acceptance, or plugin install behavior
   - Preparing or approving a release candidate
   - Debugging package update, plugin dependency cleanup, or plugin install regressions
 title: "Testing: updates and plugins"
@@ -25,7 +25,7 @@ Update and plugin tests protect these contracts:
 - A user can move from an older published package to the candidate package
   without losing config, agents, sessions, workspaces, plugin allowlists, or
   channel config.
-- `openclaw doctor --fix --non-interactive` owns legacy cleanup and repair
+- `alien doctor --fix --non-interactive` owns legacy cleanup and repair
   paths. Startup should not grow hidden compatibility migrations for stale
   plugin state.
 - Plugin installs work from local directories, git repos, npm packages, and the
@@ -90,23 +90,23 @@ Important lanes:
   moving-ref updates, npm registry installs with hoisted transitive
   dependencies, npm update no-ops, local ClawHub fixture installs and update
   no-ops, marketplace update behavior, and Claude-bundle enable/inspect. Set
-  `OPENCLAW_PLUGINS_E2E_CLAWHUB=0` to keep the ClawHub block hermetic/offline.
+  `ALIEN_PLUGINS_E2E_CLAWHUB=0` to keep the ClawHub block hermetic/offline.
 - `test:docker:plugin-lifecycle-matrix` installs the candidate package in a bare
   container, runs an npm plugin through install, inspect, disable, enable,
   explicit upgrade, explicit downgrade, and uninstall after deleting the plugin
   code. It logs RSS and CPU metrics for each phase.
 - `test:docker:plugin-update` validates that an unchanged installed plugin does
-  not reinstall or lose install metadata during `openclaw plugins update`.
+  not reinstall or lose install metadata during `alien plugins update`.
 - `test:docker:upgrade-survivor` installs the candidate tarball over a dirty
   old-user fixture, runs package update plus non-interactive doctor, then starts
   a loopback Gateway and checks state preservation.
 - `test:docker:published-upgrade-survivor` first installs a published baseline,
-  configures it through a baked `openclaw config set` recipe, updates it to the
+  configures it through a baked `alien config set` recipe, updates it to the
   candidate tarball, runs doctor, checks legacy cleanup, starts the Gateway, and
   probes `/healthz`, `/readyz`, and RPC status.
 - `test:docker:update-restart-auth` installs the candidate package, starts a
   managed token-auth Gateway, unsets caller gateway auth env for
-  `openclaw update --yes --json`, and requires the candidate update command to
+  `alien update --yes --json`, and requires the candidate update command to
   restart the Gateway before the normal probes.
 - `test:docker:update-migration` is the cleanup-heavy published-update lane. It
   starts from a configured Discord/Telegram-style user state, runs baseline
@@ -118,19 +118,19 @@ Important lanes:
 Useful published-upgrade survivor variants:
 
 ```bash
-OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC=openclaw@2026.4.23 \
-OPENCLAW_UPGRADE_SURVIVOR_SCENARIO=versioned-runtime-deps \
+ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC=alien@2026.4.23 \
+ALIEN_UPGRADE_SURVIVOR_SCENARIO=versioned-runtime-deps \
 pnpm test:docker:published-upgrade-survivor
 
-OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC=openclaw@latest \
-OPENCLAW_UPGRADE_SURVIVOR_SCENARIO=bootstrap-persona \
+ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC=alien@latest \
+ALIEN_UPGRADE_SURVIVOR_SCENARIO=bootstrap-persona \
 pnpm test:docker:published-upgrade-survivor
 ```
 
 Available scenarios are `base`, `feishu-channel`, `bootstrap-persona`,
 `plugin-deps-cleanup`, `configured-plugin-installs`,
 `stale-source-plugin-shadow`, `tilde-log-path`, and `versioned-runtime-deps`. In aggregate runs,
-`OPENCLAW_UPGRADE_SURVIVOR_SCENARIOS=reported-issues` expands to all reported
+`ALIEN_UPGRADE_SURVIVOR_SCENARIOS=reported-issues` expands to all reported
 issue-shaped scenarios, including the configured-plugin install migration.
 
 Full update migration is intentionally separate from Full Release CI. Use the
@@ -157,7 +157,7 @@ older trusted releases.
 
 Candidate sources:
 
-- `source=npm`: validate `openclaw@beta`, `openclaw@latest`, or an exact
+- `source=npm`: validate `alien@beta`, `alien@latest`, or an exact
   published version.
 - `source=ref`: pack a trusted branch, tag, or commit with the selected current
   harness.
@@ -166,7 +166,7 @@ Candidate sources:
 
 Full Release Validation uses `source=artifact` by default, built from the
 resolved release SHA. For post-publish proof, pass
-`package_acceptance_package_spec=openclaw@YYYY.M.D` so the same upgrade matrix
+`package_acceptance_package_spec=alien@YYYY.M.D` so the same upgrade matrix
 targets the shipped npm package instead.
 
 Release checks call Package Acceptance with the package/update/restart/plugin set:
@@ -188,7 +188,7 @@ tolerance, stale plugin dependency cleanup, offline plugin coverage, plugin
 update behavior, and Telegram package QA on the same resolved artifact without
 making the default release package gate walk every published release.
 
-`last-stable-4` resolves to the four latest stable npm-published OpenClaw
+`last-stable-4` resolves to the four latest stable npm-published Alien
 releases. Release package acceptance pins `2026.4.23` as the first plugin-update
 compatibility boundary, `2026.5.2` as a plugin-architecture churn boundary, and
 `2026.4.15` as an older 2026.4.1x published-update baseline; the resolver
@@ -211,7 +211,7 @@ gh workflow run package-acceptance.yml \
   --ref main \
   -f workflow_ref=main \
   -f source=npm \
-  -f package_spec=openclaw@beta \
+  -f package_spec=alien@beta \
   -f suite_profile=package \
   -f published_upgrade_survivor_baselines="last-stable-4 2026.4.23 2026.5.2 2026.4.15" \
   -f published_upgrade_survivor_scenarios=reported-issues \

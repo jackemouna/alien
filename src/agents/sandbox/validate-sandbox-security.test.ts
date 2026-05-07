@@ -53,9 +53,9 @@ describe("getBlockedBindReason", () => {
     }
   });
 
-  it("still blocks OS-home credential paths when OPENCLAW_HOME points elsewhere", () => {
+  it("still blocks OS-home credential paths when ALIEN_HOME points elsewhere", () => {
     vi.stubEnv("HOME", "/home/tester");
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+    vi.stubEnv("ALIEN_HOME", "/srv/alien-home");
 
     expect(getBlockedBindReason("/home/tester/.gnupg/secring.gpg:/mnt/gnupg:ro")).toEqual(
       expect.objectContaining({
@@ -70,7 +70,7 @@ describe("getBlockedBindReason", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "openclaw-home-"));
+    const dir = mkdtempSync(join(tmpdir(), "alien-home-"));
     const realHome = join(dir, "real-home");
     const aliasHome = join(dir, "alias-home");
     mkdirSync(join(realHome, ".ssh"), { recursive: true });
@@ -92,7 +92,7 @@ describe("validateBindMounts", () => {
   });
 
   it("allows legitimate project directory mounts", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-safe-"));
+    const projectRoot = mkdtempSync(join(tmpdir(), "alien-sbx-safe-"));
     expect(() =>
       validateBindMounts([
         `${join(projectRoot, "source")}:/source:rw`,
@@ -175,20 +175,20 @@ describe("validateBindMounts", () => {
   });
 
   it("allows drive-absolute Windows bind sources", () => {
-    expect(() => validateBindMounts(["D:/data/openclaw/src:/src:ro"])).not.toThrow();
-    expect(() => validateBindMounts(["D:\\data\\openclaw\\output:/output:rw"])).not.toThrow();
+    expect(() => validateBindMounts(["D:/data/alien/src:/src:ro"])).not.toThrow();
+    expect(() => validateBindMounts(["D:\\data\\alien\\output:/output:rw"])).not.toThrow();
   });
 
   it("compares Windows allowed roots case-insensitively", () => {
     expect(() =>
-      validateBindMounts(["d:/DATA/OpenClaw/src:/src:ro"], {
-        allowedSourceRoots: ["D:/data/openclaw"],
+      validateBindMounts(["d:/DATA/Alien/src:/src:ro"], {
+        allowedSourceRoots: ["D:/data/alien"],
       }),
     ).not.toThrow();
 
     expect(() =>
       validateBindMounts(["D:/other/project:/src:ro"], {
-        allowedSourceRoots: ["d:/data/openclaw"],
+        allowedSourceRoots: ["d:/data/alien"],
       }),
     ).toThrow(/outside allowed roots/);
   });
@@ -198,7 +198,7 @@ describe("validateBindMounts", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "openclaw-home-"));
+    const dir = mkdtempSync(join(tmpdir(), "alien-home-"));
     const realHome = join(dir, "real-home");
     const aliasHome = join(dir, "alias-home");
     mkdirSync(join(realHome, ".docker"), { recursive: true });
@@ -216,7 +216,7 @@ describe("validateBindMounts", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "openclaw-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "alien-sbx-"));
     const link = join(dir, "etc-link");
     symlinkSync("/etc", link);
     const run = () => validateBindMounts([`${link}/passwd:/mnt/passwd:ro`]);
@@ -228,7 +228,7 @@ describe("validateBindMounts", () => {
       // Windows symlink semantics differ; POSIX symlink escape coverage runs on POSIX hosts.
       return;
     }
-    const dir = mkdtempSync(join(tmpdir(), "openclaw-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "alien-sbx-"));
     const workspace = join(dir, "workspace");
     const outside = join(dir, "outside");
     mkdirSync(workspace, { recursive: true });
@@ -248,12 +248,12 @@ describe("validateBindMounts", () => {
       // Symlink setup for blocked POSIX targets like /var/run is POSIX-only.
       return;
     }
-    const dir = mkdtempSync(join(tmpdir(), "openclaw-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "alien-sbx-"));
     const workspace = join(dir, "workspace");
     mkdirSync(workspace, { recursive: true });
     const link = join(workspace, "run-link");
     symlinkSync("/var/run", link);
-    const missingLeaf = join(link, "openclaw-not-created");
+    const missingLeaf = join(link, "alien-not-created");
     expect(() =>
       validateBindMounts([`${missingLeaf}:/mnt/run:ro`], {
         allowedSourceRoots: [workspace],
@@ -269,8 +269,8 @@ describe("validateBindMounts", () => {
   });
 
   it("blocks bind sources outside allowed roots when allowlist is configured", () => {
-    const allowedRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-allowed-root-"));
-    const externalRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-external-"));
+    const allowedRoot = mkdtempSync(join(tmpdir(), "alien-sbx-allowed-root-"));
+    const externalRoot = mkdtempSync(join(tmpdir(), "alien-sbx-external-"));
     expect(() =>
       validateBindMounts([`${externalRoot}:/data:ro`], {
         allowedSourceRoots: [allowedRoot],
@@ -279,7 +279,7 @@ describe("validateBindMounts", () => {
   });
 
   it("allows bind sources in allowed roots when allowlist is configured", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-allowed-"));
+    const projectRoot = mkdtempSync(join(tmpdir(), "alien-sbx-allowed-"));
     expect(() =>
       validateBindMounts([`${join(projectRoot, "cache")}:/data:ro`], {
         allowedSourceRoots: [projectRoot],
@@ -288,8 +288,8 @@ describe("validateBindMounts", () => {
   });
 
   it("allows bind sources outside allowed roots with explicit dangerous override", () => {
-    const allowedRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-allowed-root-"));
-    const externalRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-external-"));
+    const allowedRoot = mkdtempSync(join(tmpdir(), "alien-sbx-allowed-root-"));
+    const externalRoot = mkdtempSync(join(tmpdir(), "alien-sbx-external-"));
     expect(() =>
       validateBindMounts([`${externalRoot}:/data:ro`], {
         allowedSourceRoots: [allowedRoot],
@@ -299,14 +299,14 @@ describe("validateBindMounts", () => {
   });
 
   it("blocks reserved container target paths by default", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-reserved-default-"));
+    const projectRoot = mkdtempSync(join(tmpdir(), "alien-sbx-reserved-default-"));
     expect(() =>
       validateBindMounts([`${projectRoot}:/workspace:rw`, `${projectRoot}:/agent/cache:rw`]),
     ).toThrow(/reserved container path/);
   });
 
   it("allows reserved container target paths with explicit dangerous override", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-reserved-"));
+    const projectRoot = mkdtempSync(join(tmpdir(), "alien-sbx-reserved-"));
     expect(() =>
       validateBindMounts([`${projectRoot}:/workspace:rw`], {
         allowReservedContainerTargets: true,
@@ -371,7 +371,7 @@ describe("validateSeccompProfile", () => {
 
 describe("validateApparmorProfile", () => {
   it("allows named profile/undefined", () => {
-    expect(() => validateApparmorProfile("openclaw-sandbox")).not.toThrow();
+    expect(() => validateApparmorProfile("alien-sandbox")).not.toThrow();
     expect(() => validateApparmorProfile(undefined)).not.toThrow();
   });
 });
@@ -396,13 +396,13 @@ describe("profile hardening", () => {
 
 describe("validateSandboxSecurity", () => {
   it("passes with safe config", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "openclaw-sbx-safe-config-"));
+    const projectRoot = mkdtempSync(join(tmpdir(), "alien-sbx-safe-config-"));
     expect(() =>
       validateSandboxSecurity({
         binds: [`${projectRoot}:/src:rw`],
         network: "none",
         seccompProfile: "/tmp/seccomp.json",
-        apparmorProfile: "openclaw-sandbox",
+        apparmorProfile: "alien-sandbox",
       }),
     ).not.toThrow();
   });

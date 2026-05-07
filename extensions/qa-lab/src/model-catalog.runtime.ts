@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+import { resolvePreferredAlienTmpDir } from "alien/plugin-sdk/temp-path";
 import { resolveQaNodeExecPath } from "./node-exec.js";
 import {
   isPreferredQaLiveFrontierCatalogModel,
@@ -105,12 +105,12 @@ function killProcessTree(pid: number | undefined, signal: NodeJS.Signals) {
 
 export async function loadQaRunnerModelOptions(params: { repoRoot: string; signal?: AbortSignal }) {
   const tempRoot = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-qa-model-catalog-"),
+    path.join(resolvePreferredAlienTmpDir(), "alien-qa-model-catalog-"),
   );
   const workspaceDir = path.join(tempRoot, "workspace");
   const stateDir = path.join(tempRoot, "state");
   const homeDir = path.join(tempRoot, "home");
-  const configPath = path.join(tempRoot, "openclaw.json");
+  const configPath = path.join(tempRoot, "alien.json");
 
   try {
     await Promise.all([
@@ -147,11 +147,11 @@ export async function loadQaRunnerModelOptions(params: { repoRoot: string; signa
         env: {
           ...process.env,
           HOME: homeDir,
-          OPENCLAW_HOME: homeDir,
-          OPENCLAW_CONFIG_PATH: configPath,
-          OPENCLAW_STATE_DIR: stateDir,
-          OPENCLAW_OAUTH_DIR: path.join(stateDir, "credentials"),
-          OPENCLAW_CODEX_DISCOVERY_LIVE: "0",
+          ALIEN_HOME: homeDir,
+          ALIEN_CONFIG_PATH: configPath,
+          ALIEN_STATE_DIR: stateDir,
+          ALIEN_OAUTH_DIR: path.join(stateDir, "credentials"),
+          ALIEN_CODEX_DISCOVERY_LIVE: "0",
         },
         detached: process.platform !== "win32",
         stdio: ["ignore", "pipe", "pipe"],

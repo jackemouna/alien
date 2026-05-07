@@ -3,7 +3,7 @@ import {
   acquireFileLock as acquireFsSafeFileLock,
   drainFileLockManagerForTest,
   resetFileLockManagerForTest,
-} from "@openclaw/fs-safe/file-lock";
+} from "@alien/fs-safe/file-lock";
 import { isPidAlive } from "../shared/pid-alive.js";
 
 export type FileLockOptions = {
@@ -34,7 +34,7 @@ export type FileLockTimeoutError = Error & {
   lockPath: string;
 };
 
-const FILE_LOCK_MANAGER_KEY = "openclaw.plugin-sdk.file-lock";
+const FILE_LOCK_MANAGER_KEY = "alien.plugin-sdk.file-lock";
 
 function readLockPayload(value: Record<string, unknown> | null): LockFilePayload | null {
   if (!value) {

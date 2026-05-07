@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/qa-channel",
+  "name": "@alien/qa-channel",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw QA synthetic channel plugin",
+  "description": "Alien QA synthetic channel plugin",
   "type": "module",
   "exports": {
     ".": "./index.ts",
@@ -14,18 +14,18 @@
     "typebox": "1.1.37"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*",
+    "alien": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.5.6"
+    "alien": ">=2026.5.6"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "alien": {
       "optional": true
     }
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "detailLabel": "QA Channel",
       "docsPath": "/channels/qa-channel",
       "docsLabel": "qa-channel",
-      "blurb": "Synthetic Slack-class transport for automated OpenClaw QA scenarios.",
+      "blurb": "Synthetic Slack-class transport for automated Alien QA scenarios.",
       "systemImage": "checklist",
       "order": 999,
       "exposure": {

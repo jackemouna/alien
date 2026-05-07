@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "openclaw/plugin-sdk/provider-model-types";
+import type { ModelProviderConfig } from "alien/plugin-sdk/provider-model-types";
 import { describe, expect, it } from "vitest";
 import { normalizeConfig, resolveThinkingProfile } from "./provider-policy-api.js";
 

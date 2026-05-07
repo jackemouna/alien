@@ -1,11 +1,11 @@
 {
   "entries": [
     {
-      "name": "@openclaw/codex",
-      "description": "OpenClaw Codex harness and model provider plugin",
+      "name": "@alien/codex",
+      "description": "Alien Codex harness and model provider plugin",
       "source": "official",
       "kind": "provider",
-      "openclaw": {
+      "alien": {
         "plugin": {
           "id": "codex",
           "label": "Codex"
@@ -32,7 +32,7 @@
           }
         ],
         "install": {
-          "npmSpec": "@openclaw/codex",
+          "npmSpec": "@alien/codex",
           "defaultChoice": "npm",
           "minHostVersion": ">=2026.5.1-beta.1"
         }

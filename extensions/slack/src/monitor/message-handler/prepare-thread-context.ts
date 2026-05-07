@@ -1,10 +1,10 @@
-import { formatInboundEnvelope } from "openclaw/plugin-sdk/channel-inbound";
-import type { ContextVisibilityMode } from "openclaw/plugin-sdk/config-types";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import { formatInboundEnvelope } from "alien/plugin-sdk/channel-inbound";
+import type { ContextVisibilityMode } from "alien/plugin-sdk/config-types";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
 import {
   filterSupplementalContextItems,
   shouldIncludeSupplementalContext,
-} from "openclaw/plugin-sdk/security-runtime";
+} from "alien/plugin-sdk/security-runtime";
 import type { ResolvedSlackAccount } from "../../accounts.js";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackAllowListMatch } from "../allow-list.js";
@@ -64,7 +64,7 @@ export async function resolveSlackThreadContextData(params: {
   allowNameMatching: boolean;
   contextVisibilityMode: ContextVisibilityMode;
   envelopeOptions: ReturnType<
-    typeof import("openclaw/plugin-sdk/channel-inbound").resolveEnvelopeFormatOptions
+    typeof import("alien/plugin-sdk/channel-inbound").resolveEnvelopeFormatOptions
   >;
   effectiveDirectMedia: SlackMediaResult[] | null;
 }): Promise<SlackThreadContextData> {

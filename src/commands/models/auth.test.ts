@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import type { ProviderPlugin } from "../../plugins/types.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
@@ -43,7 +43,7 @@ vi.mock("../../agents/auth-profiles/usage.js", () => ({
 
 vi.mock("../../plugins/provider-auth-helpers.js", () => ({
   applyAuthProfileConfig: (
-    cfg: OpenClawConfig,
+    cfg: AlienConfig,
     params: {
       profileId: string;
       provider: string;
@@ -51,7 +51,7 @@ vi.mock("../../plugins/provider-auth-helpers.js", () => ({
       email?: string;
       displayName?: string;
     },
-  ): OpenClawConfig => ({
+  ): AlienConfig => ({
     ...cfg,
     auth: {
       ...cfg.auth,
@@ -165,7 +165,7 @@ vi.mock("../../plugins/provider-auth-choice-helpers.js", () => {
       );
     }),
     applyProviderAuthConfigPatch: vi.fn(
-      (cfg: OpenClawConfig, patch: unknown, options?: { replaceDefaultModels?: boolean }) => {
+      (cfg: AlienConfig, patch: unknown, options?: { replaceDefaultModels?: boolean }) => {
         const merged = mergePatch(cfg, patch);
         if (!options?.replaceDefaultModels) {
           return merged;
@@ -186,7 +186,7 @@ vi.mock("../../plugins/provider-auth-choice-helpers.js", () => {
           : merged;
       },
     ),
-    applyDefaultModel: vi.fn((cfg: OpenClawConfig, model: string) => ({
+    applyDefaultModel: vi.fn((cfg: AlienConfig, model: string) => ({
       ...cfg,
       agents: {
         ...cfg.agents,
@@ -263,8 +263,8 @@ function createProvider(params: {
 
 describe("modelsAuthLoginCommand", () => {
   let restoreStdin: (() => void) | null = null;
-  let currentConfig: OpenClawConfig;
-  let lastUpdatedConfig: OpenClawConfig | null;
+  let currentConfig: AlienConfig;
+  let lastUpdatedConfig: AlienConfig | null;
   let runProviderAuth: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -283,13 +283,13 @@ describe("modelsAuthLoginCommand", () => {
     mocks.promoteAuthProfileInOrder.mockReset();
 
     mocks.resolveDefaultAgentId.mockReturnValue("main");
-    mocks.resolveAgentDir.mockReturnValue("/tmp/openclaw/agents/main");
-    mocks.resolveAgentWorkspaceDir.mockReturnValue("/tmp/openclaw/workspace");
-    mocks.resolveDefaultAgentWorkspaceDir.mockReturnValue("/tmp/openclaw/workspace");
+    mocks.resolveAgentDir.mockReturnValue("/tmp/alien/agents/main");
+    mocks.resolveAgentWorkspaceDir.mockReturnValue("/tmp/alien/workspace");
+    mocks.resolveDefaultAgentWorkspaceDir.mockReturnValue("/tmp/alien/workspace");
     mocks.isRemoteEnvironment.mockReturnValue(false);
     mocks.loadValidConfigOrThrow.mockImplementation(async () => currentConfig);
     mocks.updateConfig.mockImplementation(
-      async (mutator: (cfg: OpenClawConfig) => OpenClawConfig) => {
+      async (mutator: (cfg: AlienConfig) => AlienConfig) => {
         lastUpdatedConfig = mutator(currentConfig);
         currentConfig = lastUpdatedConfig;
         return lastUpdatedConfig;
@@ -335,15 +335,15 @@ describe("modelsAuthLoginCommand", () => {
   function useCoderAgentConfig() {
     currentConfig = {
       agents: {
-        list: [{ id: "main" }, { id: "coder", workspace: "/tmp/openclaw/workspaces/coder" }],
+        list: [{ id: "main" }, { id: "coder", workspace: "/tmp/alien/workspaces/coder" }],
       },
     };
     const originalConfig = currentConfig;
-    mocks.resolveAgentDir.mockImplementation((_cfg: OpenClawConfig, agentId: string) =>
-      agentId === "coder" ? "/tmp/openclaw/agents/coder" : "/tmp/openclaw/agents/main",
+    mocks.resolveAgentDir.mockImplementation((_cfg: AlienConfig, agentId: string) =>
+      agentId === "coder" ? "/tmp/alien/agents/coder" : "/tmp/alien/agents/main",
     );
-    mocks.resolveAgentWorkspaceDir.mockImplementation((_cfg: OpenClawConfig, agentId: string) =>
-      agentId === "coder" ? "/tmp/openclaw/workspaces/coder" : "/tmp/openclaw/workspace",
+    mocks.resolveAgentWorkspaceDir.mockImplementation((_cfg: AlienConfig, agentId: string) =>
+      agentId === "coder" ? "/tmp/alien/workspaces/coder" : "/tmp/alien/workspace",
     );
     return originalConfig;
   }
@@ -370,7 +370,7 @@ describe("modelsAuthLoginCommand", () => {
 
     await modelsAuthLoginCommand({ provider: "openai-codex" }, runtime);
 
-    expect(mocks.loadAuthProfileStoreForRuntime).toHaveBeenCalledWith("/tmp/openclaw/agents/main", {
+    expect(mocks.loadAuthProfileStoreForRuntime).toHaveBeenCalledWith("/tmp/alien/agents/main", {
       externalCli: {
         mode: "scoped",
         allowKeychainPrompt: false,
@@ -380,7 +380,7 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.clearAuthProfileCooldown).toHaveBeenCalledWith({
       store: fakeStore,
       profileId: "openai-codex:user@example.com",
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
     expect(mocks.clearAuthProfileCooldown.mock.invocationCallOrder[0]).toBeLessThan(
       runProviderAuth.mock.invocationCallOrder[0],
@@ -392,10 +392,10 @@ describe("modelsAuthLoginCommand", () => {
         type: "oauth",
         provider: "openai-codex",
       }),
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
     expect(mocks.promoteAuthProfileInOrder).toHaveBeenCalledWith({
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
       provider: "openai-codex",
       profileId: "openai-codex:user@example.com",
     });
@@ -410,7 +410,7 @@ describe("modelsAuthLoginCommand", () => {
       "Default model available: openai-codex/gpt-5.5 (use --set-default to apply)",
     );
     expect(runtime.log).toHaveBeenCalledWith(
-      "Tip: Codex-capable models can use native Codex web search. Enable it with openclaw configure --section web (recommended mode: cached). Docs: https://docs.openclaw.ai/tools/web",
+      "Tip: Codex-capable models can use native Codex web search. Enable it with alien configure --section web (recommended mode: cached). Docs: https://docs.alien.ai/tools/web",
     );
   });
 
@@ -433,7 +433,7 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.resolveDefaultAgentId).not.toHaveBeenCalled();
     expect(mocks.resolveAgentDir).toHaveBeenCalledWith(originalConfig, "coder");
     expect(mocks.loadAuthProfileStoreForRuntime).toHaveBeenCalledWith(
-      "/tmp/openclaw/agents/coder",
+      "/tmp/alien/agents/coder",
       {
         externalCli: {
           mode: "scoped",
@@ -444,12 +444,12 @@ describe("modelsAuthLoginCommand", () => {
     );
     expect(runProviderAuth).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw/agents/coder",
-        workspaceDir: "/tmp/openclaw/workspaces/coder",
+        agentDir: "/tmp/alien/agents/coder",
+        workspaceDir: "/tmp/alien/workspaces/coder",
       }),
     );
     expect(mocks.upsertAuthProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ agentDir: "/tmp/openclaw/agents/coder" }),
+      expect.objectContaining({ agentDir: "/tmp/alien/agents/coder" }),
     );
   });
 
@@ -496,7 +496,7 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.resolvePluginProviders).toHaveBeenCalledWith(
       expect.objectContaining({
         config: {},
-        workspaceDir: "/tmp/openclaw/workspace",
+        workspaceDir: "/tmp/alien/workspace",
         bundledProviderAllowlistCompat: true,
         bundledProviderVitestCompat: true,
         includeUntrustedWorkspacePlugins: false,
@@ -540,8 +540,8 @@ describe("modelsAuthLoginCommand", () => {
     const runApiKeyAuth = vi.fn();
     const runClaudeCliMigration = vi.fn().mockImplementation(async (ctx) => {
       expect(ctx.config).toEqual(currentConfig);
-      expect(ctx.agentDir).toBe("/tmp/openclaw/agents/main");
-      expect(ctx.workspaceDir).toBe("/tmp/openclaw/workspace");
+      expect(ctx.agentDir).toBe("/tmp/alien/agents/main");
+      expect(ctx.workspaceDir).toBe("/tmp/alien/workspace");
       expect(ctx.prompter).toMatchObject({ note, select: expect.any(Function) });
       expect(ctx.runtime).toBe(runtime);
       expect(ctx.env).toBe(process.env);
@@ -629,12 +629,12 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.clearAuthProfileCooldown).toHaveBeenNthCalledWith(1, {
       store: fakeStore,
       profileId: "anthropic:claude-cli",
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
     expect(mocks.clearAuthProfileCooldown).toHaveBeenNthCalledWith(2, {
       store: fakeStore,
       profileId: "anthropic:legacy",
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
     expect(
       mocks.clearAuthProfileCooldown.mock.invocationCallOrder.every(
@@ -734,7 +734,7 @@ describe("modelsAuthLoginCommand", () => {
     const runtime = createRuntime();
 
     await expect(modelsAuthLoginCommand({ provider: "anthropic" }, runtime)).rejects.toThrow(
-      'Unknown provider "anthropic". Loaded providers: openai-codex. Verify plugins via `openclaw plugins list --json`.',
+      'Unknown provider "anthropic". Loaded providers: openai-codex. Verify plugins via `alien plugins list --json`.',
     );
   });
 
@@ -775,16 +775,16 @@ describe("modelsAuthLoginCommand", () => {
         provider: "anthropic",
         token: `sk-ant-oat01-${"a".repeat(80)}`,
       },
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
     expect(runtime.log).toHaveBeenCalledWith(
-      "Anthropic setup-token auth is supported in OpenClaw.",
+      "Anthropic setup-token auth is supported in Alien.",
     );
     expect(runtime.log).toHaveBeenCalledWith(
-      "OpenClaw prefers Claude CLI reuse when it is available on the host.",
+      "Alien prefers Claude CLI reuse when it is available on the host.",
     );
     expect(runtime.log).toHaveBeenCalledWith(
-      "Anthropic staff told us this OpenClaw path is allowed again.",
+      "Anthropic staff told us this Alien path is allowed again.",
     );
   });
 
@@ -803,7 +803,7 @@ describe("modelsAuthLoginCommand", () => {
         provider: "openai",
         token: "openai-token",
       },
-      agentDir: "/tmp/openclaw/agents/coder",
+      agentDir: "/tmp/alien/agents/coder",
     });
   });
 
@@ -814,7 +814,7 @@ describe("modelsAuthLoginCommand", () => {
     await expect(
       modelsAuthPasteTokenCommand({ provider: "openai", agent: "missing" }, runtime),
     ).rejects.toThrow(
-      'Unknown agent id "missing". Use "openclaw agents list" to see configured agents.',
+      'Unknown agent id "missing". Use "alien agents list" to see configured agents.',
     );
 
     expect(mocks.clackText).not.toHaveBeenCalled();
@@ -861,7 +861,7 @@ describe("modelsAuthLoginCommand", () => {
         provider: "moonshot",
         token: "moonshot-token",
       },
-      agentDir: "/tmp/openclaw/agents/main",
+      agentDir: "/tmp/alien/agents/main",
     });
   });
 
@@ -900,12 +900,12 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.resolveDefaultAgentId).not.toHaveBeenCalled();
     expect(runTokenAuth).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw/agents/coder",
-        workspaceDir: "/tmp/openclaw/workspaces/coder",
+        agentDir: "/tmp/alien/agents/coder",
+        workspaceDir: "/tmp/alien/workspaces/coder",
       }),
     );
     expect(mocks.upsertAuthProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ agentDir: "/tmp/openclaw/agents/coder" }),
+      expect.objectContaining({ agentDir: "/tmp/alien/agents/coder" }),
     );
   });
 
@@ -945,12 +945,12 @@ describe("modelsAuthLoginCommand", () => {
     expect(mocks.resolveDefaultAgentId).not.toHaveBeenCalled();
     expect(runTokenAuth).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: "/tmp/openclaw/agents/coder",
-        workspaceDir: "/tmp/openclaw/workspaces/coder",
+        agentDir: "/tmp/alien/agents/coder",
+        workspaceDir: "/tmp/alien/workspaces/coder",
       }),
     );
     expect(mocks.upsertAuthProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ agentDir: "/tmp/openclaw/agents/coder" }),
+      expect.objectContaining({ agentDir: "/tmp/alien/agents/coder" }),
     );
   });
 
@@ -975,7 +975,7 @@ describe("modelsAuthLoginCommand", () => {
         provider: "openai",
         token: "openai-token",
       },
-      agentDir: "/tmp/openclaw/agents/coder",
+      agentDir: "/tmp/alien/agents/coder",
     });
   });
 });

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_BUNDLE="${1:-dist/OpenClaw.app}"
+APP_BUNDLE="${1:-dist/Alien.app}"
 IDENTITY="${SIGN_IDENTITY:-}"
 TIMESTAMP_MODE="${CODESIGN_TIMESTAMP:-auto}"
 DISABLE_LIBRARY_VALIDATION="${DISABLE_LIBRARY_VALIDATION:-0}"
 SKIP_TEAM_ID_CHECK="${SKIP_TEAM_ID_CHECK:-0}"
-ENT_TMP_BASE=$(mktemp -t openclaw-entitlements-base.XXXXXX)
-ENT_TMP_APP_BASE=$(mktemp -t openclaw-entitlements-app-base.XXXXXX)
-ENT_TMP_RUNTIME=$(mktemp -t openclaw-entitlements-runtime.XXXXXX)
+ENT_TMP_BASE=$(mktemp -t alien-entitlements-base.XXXXXX)
+ENT_TMP_APP_BASE=$(mktemp -t alien-entitlements-app-base.XXXXXX)
+ENT_TMP_RUNTIME=$(mktemp -t alien-entitlements-runtime.XXXXXX)
 
 if [[ "${APP_BUNDLE}" == "--help" || "${APP_BUNDLE}" == "-h" ]]; then
   cat <<'HELP'
@@ -248,14 +248,14 @@ verify_team_ids() {
 }
 
 # Sign bundled helper binaries before signing the app bundle.
-MLX_TTS_HELPER="$APP_BUNDLE/Contents/MacOS/openclaw-mlx-tts"
+MLX_TTS_HELPER="$APP_BUNDLE/Contents/MacOS/alien-mlx-tts"
 if [ -f "$MLX_TTS_HELPER" ]; then
   echo "Signing MLX TTS helper"; sign_item "$MLX_TTS_HELPER" "$APP_ENTITLEMENTS"
 fi
 
 # Sign main binary
-if [ -f "$APP_BUNDLE/Contents/MacOS/OpenClaw" ]; then
-  echo "Signing main binary"; sign_item "$APP_BUNDLE/Contents/MacOS/OpenClaw" "$APP_ENTITLEMENTS"
+if [ -f "$APP_BUNDLE/Contents/MacOS/Alien" ]; then
+  echo "Signing main binary"; sign_item "$APP_BUNDLE/Contents/MacOS/Alien" "$APP_ENTITLEMENTS"
 fi
 
 # Sign Sparkle deeply if present

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Installs the packed OpenClaw tarball over dirty old-user state. When
-# OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC is set, installs that published
+# Installs the packed Alien tarball over dirty old-user state. When
+# ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC is set, installs that published
 # baseline first and upgrades it to the selected candidate.
 set -euo pipefail
 
@@ -8,38 +8,38 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-image.sh"
 source "$ROOT_DIR/scripts/lib/docker-e2e-package.sh"
 
-IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-upgrade-survivor-e2e" OPENCLAW_UPGRADE_SURVIVOR_E2E_IMAGE)"
-SKIP_BUILD="${OPENCLAW_UPGRADE_SURVIVOR_E2E_SKIP_BUILD:-0}"
-DOCKER_RUN_TIMEOUT="${OPENCLAW_UPGRADE_SURVIVOR_DOCKER_RUN_TIMEOUT:-900s}"
-BASELINE_SPEC="${OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC:-}"
-SCENARIO="${OPENCLAW_UPGRADE_SURVIVOR_SCENARIO:-base}"
-UPDATE_RESTART_MODE="${OPENCLAW_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE:-manual}"
-LANE_ARTIFACT_SUFFIX="${OPENCLAW_DOCKER_ALL_LANE_NAME:-default}"
+IMAGE_NAME="$(docker_e2e_resolve_image "alien-upgrade-survivor-e2e" ALIEN_UPGRADE_SURVIVOR_E2E_IMAGE)"
+SKIP_BUILD="${ALIEN_UPGRADE_SURVIVOR_E2E_SKIP_BUILD:-0}"
+DOCKER_RUN_TIMEOUT="${ALIEN_UPGRADE_SURVIVOR_DOCKER_RUN_TIMEOUT:-900s}"
+BASELINE_SPEC="${ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC:-}"
+SCENARIO="${ALIEN_UPGRADE_SURVIVOR_SCENARIO:-base}"
+UPDATE_RESTART_MODE="${ALIEN_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE:-manual}"
+LANE_ARTIFACT_SUFFIX="${ALIEN_DOCKER_ALL_LANE_NAME:-default}"
 LANE_ARTIFACT_SUFFIX="${LANE_ARTIFACT_SUFFIX//[^A-Za-z0-9_.-]/_}"
-ARTIFACT_DIR="${OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_DIR:-$ROOT_DIR/.artifacts/upgrade-survivor/$LANE_ARTIFACT_SUFFIX}"
+ARTIFACT_DIR="${ALIEN_UPGRADE_SURVIVOR_ARTIFACT_DIR:-$ROOT_DIR/.artifacts/upgrade-survivor/$LANE_ARTIFACT_SUFFIX}"
 
 normalize_npm_candidate() {
   local raw="$1"
   case "$raw" in
     latest | beta)
-      printf 'openclaw@%s\n' "$raw"
+      printf 'alien@%s\n' "$raw"
       ;;
-    openclaw@*)
+    alien@*)
       printf '%s\n' "$raw"
       ;;
     *@*)
-      echo "OPENCLAW_UPGRADE_SURVIVOR_CANDIDATE must be current, latest, beta, openclaw@<version>, a bare version, or a .tgz path." >&2
+      echo "ALIEN_UPGRADE_SURVIVOR_CANDIDATE must be current, latest, beta, alien@<version>, a bare version, or a .tgz path." >&2
       return 1
       ;;
     *)
-      printf 'openclaw@%s\n' "$raw"
+      printf 'alien@%s\n' "$raw"
       ;;
   esac
 }
 
-if [ "${OPENCLAW_UPGRADE_SURVIVOR_PUBLISHED_BASELINE:-0}" = "1" ]; then
+if [ "${ALIEN_UPGRADE_SURVIVOR_PUBLISHED_BASELINE:-0}" = "1" ]; then
   if [ -z "${BASELINE_SPEC// }" ]; then
-    echo "OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SPEC is required for published upgrade survivor" >&2
+    echo "ALIEN_UPGRADE_SURVIVOR_BASELINE_SPEC is required for published upgrade survivor" >&2
     exit 1
   fi
 
@@ -47,61 +47,61 @@ if [ "${OPENCLAW_UPGRADE_SURVIVOR_PUBLISHED_BASELINE:-0}" = "1" ]; then
   chmod -R a+rwX "$ARTIFACT_DIR" || true
 
   DOCKER_E2E_PACKAGE_ARGS=()
-  CANDIDATE_RAW="${OPENCLAW_UPGRADE_SURVIVOR_CANDIDATE:-current}"
+  CANDIDATE_RAW="${ALIEN_UPGRADE_SURVIVOR_CANDIDATE:-current}"
   CANDIDATE_KIND="npm"
   CANDIDATE_SPEC=""
 
-  if [ -n "${OPENCLAW_CURRENT_PACKAGE_TGZ:-}" ]; then
-    PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor "$OPENCLAW_CURRENT_PACKAGE_TGZ")"
+  if [ -n "${ALIEN_CURRENT_PACKAGE_TGZ:-}" ]; then
+    PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor "$ALIEN_CURRENT_PACKAGE_TGZ")"
     docker_e2e_package_mount_args "$PACKAGE_TGZ"
     CANDIDATE_KIND="tarball"
-    CANDIDATE_SPEC="/tmp/openclaw-current.tgz"
+    CANDIDATE_SPEC="/tmp/alien-current.tgz"
   elif [ "$CANDIDATE_RAW" = "current" ]; then
     PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor)"
     docker_e2e_package_mount_args "$PACKAGE_TGZ"
     CANDIDATE_KIND="tarball"
-    CANDIDATE_SPEC="/tmp/openclaw-current.tgz"
+    CANDIDATE_SPEC="/tmp/alien-current.tgz"
   elif [[ "$CANDIDATE_RAW" == *.tgz ]]; then
     if [ ! -f "$CANDIDATE_RAW" ]; then
-      echo "OpenClaw candidate tarball does not exist: $CANDIDATE_RAW" >&2
+      echo "Alien candidate tarball does not exist: $CANDIDATE_RAW" >&2
       exit 1
     fi
     PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor "$CANDIDATE_RAW")"
     docker_e2e_package_mount_args "$PACKAGE_TGZ"
     CANDIDATE_KIND="tarball"
-    CANDIDATE_SPEC="/tmp/openclaw-current.tgz"
+    CANDIDATE_SPEC="/tmp/alien-current.tgz"
   else
     CANDIDATE_KIND="npm"
     CANDIDATE_SPEC="$(normalize_npm_candidate "$CANDIDATE_RAW")"
   fi
 
-  OPENCLAW_TEST_STATE_FUNCTION_B64="$(docker_e2e_test_state_function_b64)"
+  ALIEN_TEST_STATE_FUNCTION_B64="$(docker_e2e_test_state_function_b64)"
 
   docker_e2e_build_or_reuse "$IMAGE_NAME" upgrade-survivor "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR" "bare" "$SKIP_BUILD"
 
   echo "Running published upgrade survivor Docker E2E..."
   docker_e2e_run_with_harness \
     -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
-    -e OPENCLAW_TEST_STATE_FUNCTION_B64="$OPENCLAW_TEST_STATE_FUNCTION_B64" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_BASELINE="$BASELINE_SPEC" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_CANDIDATE_KIND="$CANDIDATE_KIND" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_CANDIDATE_SPEC="$CANDIDATE_SPEC" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_SCENARIO="$SCENARIO" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE="$UPDATE_RESTART_MODE" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_LEGACY_RUNTIME_DEPS_SYMLINK="${OPENCLAW_UPGRADE_SURVIVOR_LEGACY_RUNTIME_DEPS_SYMLINK:-}" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_SUMMARY_JSON=/tmp/openclaw-upgrade-survivor-artifacts/summary.json \
-    -e OPENCLAW_UPGRADE_SURVIVOR_START_BUDGET_SECONDS="${OPENCLAW_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}" \
-    -e OPENCLAW_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS="${OPENCLAW_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}" \
-    -v "$ARTIFACT_DIR:/tmp/openclaw-upgrade-survivor-artifacts" \
+    -e ALIEN_TEST_STATE_FUNCTION_B64="$ALIEN_TEST_STATE_FUNCTION_B64" \
+    -e ALIEN_UPGRADE_SURVIVOR_BASELINE="$BASELINE_SPEC" \
+    -e ALIEN_UPGRADE_SURVIVOR_CANDIDATE_KIND="$CANDIDATE_KIND" \
+    -e ALIEN_UPGRADE_SURVIVOR_CANDIDATE_SPEC="$CANDIDATE_SPEC" \
+    -e ALIEN_UPGRADE_SURVIVOR_SCENARIO="$SCENARIO" \
+    -e ALIEN_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE="$UPDATE_RESTART_MODE" \
+    -e ALIEN_UPGRADE_SURVIVOR_LEGACY_RUNTIME_DEPS_SYMLINK="${ALIEN_UPGRADE_SURVIVOR_LEGACY_RUNTIME_DEPS_SYMLINK:-}" \
+    -e ALIEN_UPGRADE_SURVIVOR_SUMMARY_JSON=/tmp/alien-upgrade-survivor-artifacts/summary.json \
+    -e ALIEN_UPGRADE_SURVIVOR_START_BUDGET_SECONDS="${ALIEN_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}" \
+    -e ALIEN_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS="${ALIEN_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}" \
+    -v "$ARTIFACT_DIR:/tmp/alien-upgrade-survivor-artifacts" \
     "${DOCKER_E2E_PACKAGE_ARGS[@]}" \
     "$IMAGE_NAME" \
     timeout "$DOCKER_RUN_TIMEOUT" bash scripts/e2e/lib/upgrade-survivor/run.sh
   exit 0
 fi
 
-PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor "${OPENCLAW_CURRENT_PACKAGE_TGZ:-}")"
+PACKAGE_TGZ="$(docker_e2e_prepare_package_tgz upgrade-survivor "${ALIEN_CURRENT_PACKAGE_TGZ:-}")"
 docker_e2e_package_mount_args "$PACKAGE_TGZ"
-OPENCLAW_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 upgrade-survivor upgrade-survivor)"
+ALIEN_TEST_STATE_SCRIPT_B64="$(docker_e2e_test_state_shell_b64 upgrade-survivor upgrade-survivor)"
 mkdir -p "$ARTIFACT_DIR"
 chmod -R a+rwX "$ARTIFACT_DIR" || true
 
@@ -110,59 +110,59 @@ docker_e2e_build_or_reuse "$IMAGE_NAME" upgrade-survivor "$ROOT_DIR/scripts/e2e/
 echo "Running upgrade survivor Docker E2E..."
 docker_e2e_run_with_harness \
   -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
-  -e OPENCLAW_TEST_STATE_SCRIPT_B64="$OPENCLAW_TEST_STATE_SCRIPT_B64" \
-  -e OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT=/tmp/openclaw-upgrade-survivor-artifacts \
-  -e OPENCLAW_UPGRADE_SURVIVOR_SCENARIO="$SCENARIO" \
-  -e OPENCLAW_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE="$UPDATE_RESTART_MODE" \
-  -e OPENCLAW_UPGRADE_SURVIVOR_START_BUDGET_SECONDS="${OPENCLAW_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}" \
-  -e OPENCLAW_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS="${OPENCLAW_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}" \
-  -v "$ARTIFACT_DIR:/tmp/openclaw-upgrade-survivor-artifacts" \
+  -e ALIEN_TEST_STATE_SCRIPT_B64="$ALIEN_TEST_STATE_SCRIPT_B64" \
+  -e ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT=/tmp/alien-upgrade-survivor-artifacts \
+  -e ALIEN_UPGRADE_SURVIVOR_SCENARIO="$SCENARIO" \
+  -e ALIEN_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE="$UPDATE_RESTART_MODE" \
+  -e ALIEN_UPGRADE_SURVIVOR_START_BUDGET_SECONDS="${ALIEN_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}" \
+  -e ALIEN_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS="${ALIEN_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}" \
+  -v "$ARTIFACT_DIR:/tmp/alien-upgrade-survivor-artifacts" \
   "${DOCKER_E2E_PACKAGE_ARGS[@]}" \
   "$IMAGE_NAME" \
   timeout "$DOCKER_RUN_TIMEOUT" bash -lc 'set -euo pipefail
-source scripts/lib/openclaw-e2e-instance.sh
+source scripts/lib/alien-e2e-instance.sh
 
 export npm_config_loglevel=error
 export npm_config_fund=false
 export npm_config_audit=false
-export OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT="${OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT:-/tmp/openclaw-upgrade-survivor-artifacts}"
-mkdir -p "$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT"
-export TMPDIR="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/tmp"
-export OPENCLAW_TEST_STATE_TMPDIR="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/state-tmp"
-export npm_config_prefix="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/npm-prefix"
+export ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT="${ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT:-/tmp/alien-upgrade-survivor-artifacts}"
+mkdir -p "$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT"
+export TMPDIR="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/tmp"
+export ALIEN_TEST_STATE_TMPDIR="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/state-tmp"
+export npm_config_prefix="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/npm-prefix"
 export NPM_CONFIG_PREFIX="$npm_config_prefix"
-export npm_config_cache="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/npm-cache"
+export npm_config_cache="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/npm-cache"
 export npm_config_tmp="$TMPDIR"
-mkdir -p "$TMPDIR" "$OPENCLAW_TEST_STATE_TMPDIR" "$npm_config_prefix" "$npm_config_cache"
+mkdir -p "$TMPDIR" "$ALIEN_TEST_STATE_TMPDIR" "$npm_config_prefix" "$npm_config_cache"
 export PATH="$npm_config_prefix/bin:$PATH"
 export CI=true
-export OPENCLAW_NO_ONBOARD=1
-export OPENCLAW_NO_PROMPT=1
-export OPENCLAW_SKIP_PROVIDERS=1
-export OPENCLAW_SKIP_CHANNELS=1
-export OPENCLAW_DISABLE_BONJOUR=1
+export ALIEN_NO_ONBOARD=1
+export ALIEN_NO_PROMPT=1
+export ALIEN_SKIP_PROVIDERS=1
+export ALIEN_SKIP_CHANNELS=1
+export ALIEN_DISABLE_BONJOUR=1
 export GATEWAY_AUTH_TOKEN_REF="upgrade-survivor-token"
-export OPENAI_API_KEY="sk-openclaw-upgrade-survivor"
+export OPENAI_API_KEY="sk-alien-upgrade-survivor"
 export DISCORD_BOT_TOKEN="upgrade-survivor-discord-token"
 export TELEGRAM_BOT_TOKEN="123456:upgrade-survivor-telegram-token"
 export FEISHU_APP_SECRET="upgrade-survivor-feishu-secret"
 export BRAVE_API_KEY="BSA_upgrade_survivor_brave_key"
 
-UPDATE_RESTART_MODE="${OPENCLAW_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE:-manual}"
+UPDATE_RESTART_MODE="${ALIEN_UPGRADE_SURVIVOR_UPDATE_RESTART_MODE:-manual}"
 PORT=18789
-START_BUDGET="${OPENCLAW_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}"
-STATUS_BUDGET="${OPENCLAW_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}"
-GATEWAY_LOG="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/gateway.log"
-SYSTEMCTL_SHIM_LOG="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim.log"
-SYSTEMCTL_SHIM_PID_FILE="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim.pid"
-SYSTEMCTL_SHIM_DAEMON_LOG="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim-gateway.log"
-BASELINE_SERVICE_INSTALL_JSON="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/baseline-service-install.json"
-BASELINE_SERVICE_INSTALL_ERR="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/baseline-service-install.err"
-export OPENCLAW_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_LOG="$SYSTEMCTL_SHIM_LOG"
-export OPENCLAW_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_PID_FILE="$SYSTEMCTL_SHIM_PID_FILE"
-export OPENCLAW_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_DAEMON_LOG="$SYSTEMCTL_SHIM_DAEMON_LOG"
-export OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SERVICE_INSTALL_JSON="$BASELINE_SERVICE_INSTALL_JSON"
-export OPENCLAW_UPGRADE_SURVIVOR_BASELINE_SERVICE_INSTALL_ERR="$BASELINE_SERVICE_INSTALL_ERR"
+START_BUDGET="${ALIEN_UPGRADE_SURVIVOR_START_BUDGET_SECONDS:-90}"
+STATUS_BUDGET="${ALIEN_UPGRADE_SURVIVOR_STATUS_BUDGET_SECONDS:-30}"
+GATEWAY_LOG="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/gateway.log"
+SYSTEMCTL_SHIM_LOG="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim.log"
+SYSTEMCTL_SHIM_PID_FILE="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim.pid"
+SYSTEMCTL_SHIM_DAEMON_LOG="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/systemctl-shim-gateway.log"
+BASELINE_SERVICE_INSTALL_JSON="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/baseline-service-install.json"
+BASELINE_SERVICE_INSTALL_ERR="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/baseline-service-install.err"
+export ALIEN_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_LOG="$SYSTEMCTL_SHIM_LOG"
+export ALIEN_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_PID_FILE="$SYSTEMCTL_SHIM_PID_FILE"
+export ALIEN_UPGRADE_SURVIVOR_SYSTEMCTL_SHIM_DAEMON_LOG="$SYSTEMCTL_SHIM_DAEMON_LOG"
+export ALIEN_UPGRADE_SURVIVOR_BASELINE_SERVICE_INSTALL_JSON="$BASELINE_SERVICE_INSTALL_JSON"
+export ALIEN_UPGRADE_SURVIVOR_BASELINE_SERVICE_INSTALL_ERR="$BASELINE_SERVICE_INSTALL_ERR"
 
 gateway_pid=""
 plugin_registry_pid=""
@@ -170,19 +170,19 @@ cleanup() {
   if [ -n "${plugin_registry_pid:-}" ]; then
     kill "$plugin_registry_pid" >/dev/null 2>&1 || true
   fi
-  openclaw_e2e_terminate_gateways "${gateway_pid:-}"
+  alien_e2e_terminate_gateways "${gateway_pid:-}"
   if [ -s "$SYSTEMCTL_SHIM_PID_FILE" ]; then
-    openclaw_e2e_terminate_gateways "$(cat "$SYSTEMCTL_SHIM_PID_FILE" 2>/dev/null || true)"
+    alien_e2e_terminate_gateways "$(cat "$SYSTEMCTL_SHIM_PID_FILE" 2>/dev/null || true)"
   fi
 }
 trap cleanup EXIT
 
 configure_configured_plugin_install_fixture_registry() {
-  [ "${OPENCLAW_UPGRADE_SURVIVOR_SCENARIO:-base}" = "configured-plugin-installs" ] || return 0
+  [ "${ALIEN_UPGRADE_SURVIVOR_SCENARIO:-base}" = "configured-plugin-installs" ] || return 0
 
-  local fixture_root="$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/configured-plugin-installs-npm-fixture"
+  local fixture_root="$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/configured-plugin-installs-npm-fixture"
   local package_dir="$fixture_root/package"
-  local tarball="$fixture_root/openclaw-brave-plugin-2026.5.2.tgz"
+  local tarball="$fixture_root/alien-brave-plugin-2026.5.2.tgz"
   local port_file="$fixture_root/npm-registry-port"
   local log_file="$fixture_root/npm-registry.log"
   mkdir -p "$package_dir"
@@ -195,16 +195,16 @@ fs.writeFileSync(
   path.join(root, "package.json"),
   `${JSON.stringify(
     {
-      name: "@openclaw/brave-plugin",
+      name: "@alien/brave-plugin",
       version: "2026.5.2",
-      openclaw: { extensions: ["./index.js"] },
+      alien: { extensions: ["./index.js"] },
     },
     null,
     2,
   )}\n`,
 );
 fs.writeFileSync(
-  path.join(root, "openclaw.plugin.json"),
+  path.join(root, "alien.plugin.json"),
   `${JSON.stringify(
     {
       id: "brave",
@@ -239,7 +239,7 @@ NODE
   tar -czf "$tarball" -C "$fixture_root" package
   node scripts/e2e/lib/plugins/npm-registry-server.mjs \
     "$port_file" \
-    "@openclaw/brave-plugin" \
+    "@alien/brave-plugin" \
     "2026.5.2" \
     "$tarball" \
     >"$log_file" 2>&1 &
@@ -263,20 +263,20 @@ NODE
   return 1
 }
 
-openclaw_e2e_eval_test_state_from_b64 "${OPENCLAW_TEST_STATE_SCRIPT_B64:?missing OPENCLAW_TEST_STATE_SCRIPT_B64}"
+alien_e2e_eval_test_state_from_b64 "${ALIEN_TEST_STATE_SCRIPT_B64:?missing ALIEN_TEST_STATE_SCRIPT_B64}"
 node scripts/e2e/lib/upgrade-survivor/assertions.mjs seed
 
-openclaw_e2e_install_package "$OPENCLAW_UPGRADE_SURVIVOR_ARTIFACT_ROOT/install.log" "upgrade survivor package" "$npm_config_prefix"
-command -v openclaw >/dev/null
-package_version="$(node -p "JSON.parse(require(\"node:fs\").readFileSync(process.argv[1] + \"/lib/node_modules/openclaw/package.json\", \"utf8\")).version" "$npm_config_prefix")"
-OPENCLAW_PACKAGE_ACCEPTANCE_LEGACY_COMPAT="$(
+alien_e2e_install_package "$ALIEN_UPGRADE_SURVIVOR_ARTIFACT_ROOT/install.log" "upgrade survivor package" "$npm_config_prefix"
+command -v alien >/dev/null
+package_version="$(node -p "JSON.parse(require(\"node:fs\").readFileSync(process.argv[1] + \"/lib/node_modules/alien/package.json\", \"utf8\")).version" "$npm_config_prefix")"
+ALIEN_PACKAGE_ACCEPTANCE_LEGACY_COMPAT="$(
   node scripts/e2e/lib/package-compat.mjs "$package_version"
 )"
-export OPENCLAW_PACKAGE_ACCEPTANCE_LEGACY_COMPAT
+export ALIEN_PACKAGE_ACCEPTANCE_LEGACY_COMPAT
 
 echo "Checking dirty-state config before update..."
-OPENCLAW_UPGRADE_SURVIVOR_ASSERT_STAGE=baseline node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-config
-OPENCLAW_UPGRADE_SURVIVOR_ASSERT_STAGE=baseline node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-state
+ALIEN_UPGRADE_SURVIVOR_ASSERT_STAGE=baseline node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-config
+ALIEN_UPGRADE_SURVIVOR_ASSERT_STAGE=baseline node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-state
 if [ "$UPDATE_RESTART_MODE" = "auto-auth" ]; then
   # shellcheck disable=SC1091
   source scripts/e2e/lib/upgrade-survivor/update-restart-auth.sh
@@ -284,18 +284,18 @@ if [ "$UPDATE_RESTART_MODE" = "auto-auth" ]; then
 fi
 
 echo "Running package update against the mounted tarball..."
-update_args=(update --tag "${OPENCLAW_CURRENT_PACKAGE_TGZ:?missing OPENCLAW_CURRENT_PACKAGE_TGZ}" --yes --json)
+update_args=(update --tag "${ALIEN_CURRENT_PACKAGE_TGZ:?missing ALIEN_CURRENT_PACKAGE_TGZ}" --yes --json)
 if [ "$UPDATE_RESTART_MODE" != "auto-auth" ]; then
   update_args+=(--no-restart)
 fi
 set +e
-env -u OPENCLAW_GATEWAY_TOKEN -u OPENCLAW_GATEWAY_PASSWORD openclaw "${update_args[@]}" >/tmp/openclaw-upgrade-survivor-update.json 2>/tmp/openclaw-upgrade-survivor-update.err
+env -u ALIEN_GATEWAY_TOKEN -u ALIEN_GATEWAY_PASSWORD alien "${update_args[@]}" >/tmp/alien-upgrade-survivor-update.json 2>/tmp/alien-upgrade-survivor-update.err
 update_status=$?
 set -e
 if [ "$update_status" -ne 0 ]; then
-  echo "openclaw update failed" >&2
-  cat /tmp/openclaw-upgrade-survivor-update.err >&2 || true
-  cat /tmp/openclaw-upgrade-survivor-update.json >&2 || true
+  echo "alien update failed" >&2
+  cat /tmp/alien-upgrade-survivor-update.err >&2 || true
+  cat /tmp/alien-upgrade-survivor-update.json >&2 || true
   exit "$update_status"
 fi
 
@@ -304,14 +304,14 @@ if [ "$UPDATE_RESTART_MODE" = "auto-auth" ]; then
 else
   echo "Running non-interactive doctor repair..."
   configure_configured_plugin_install_fixture_registry
-  if ! openclaw doctor --fix --non-interactive >/tmp/openclaw-upgrade-survivor-doctor.log 2>&1; then
-    echo "openclaw doctor failed" >&2
-    cat /tmp/openclaw-upgrade-survivor-doctor.log >&2 || true
+  if ! alien doctor --fix --non-interactive >/tmp/alien-upgrade-survivor-doctor.log 2>&1; then
+    echo "alien doctor failed" >&2
+    cat /tmp/alien-upgrade-survivor-doctor.log >&2 || true
     exit 1
   fi
-  if ! openclaw config validate >>/tmp/openclaw-upgrade-survivor-doctor.log 2>&1; then
+  if ! alien config validate >>/tmp/alien-upgrade-survivor-doctor.log 2>&1; then
     echo "post-doctor config validation failed" >&2
-    cat /tmp/openclaw-upgrade-survivor-doctor.log >&2 || true
+    cat /tmp/alien-upgrade-survivor-doctor.log >&2 || true
     exit 1
   fi
 fi
@@ -321,13 +321,13 @@ node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-config
 node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-state
 
 if [ "$UPDATE_RESTART_MODE" = "auto-auth" ]; then
-  echo "Gateway restart was handled by openclaw update."
+  echo "Gateway restart was handled by alien update."
 else
   echo "Starting gateway from upgraded state..."
   start_epoch="$(node -e "process.stdout.write(String(Date.now()))")"
-  openclaw gateway --port "$PORT" --bind loopback --allow-unconfigured >"$GATEWAY_LOG" 2>&1 &
+  alien gateway --port "$PORT" --bind loopback --allow-unconfigured >"$GATEWAY_LOG" 2>&1 &
   gateway_pid="$!"
-  openclaw_e2e_wait_gateway_ready "$gateway_pid" "$GATEWAY_LOG" 360
+  alien_e2e_wait_gateway_ready "$gateway_pid" "$GATEWAY_LOG" 360
   ready_epoch="$(node -e "process.stdout.write(String(Date.now()))")"
   start_seconds=$(((ready_epoch - start_epoch + 999) / 1000))
   if [ "$start_seconds" -gt "$START_BUDGET" ]; then
@@ -342,19 +342,19 @@ node scripts/e2e/lib/upgrade-survivor/probe-gateway.mjs \
   --base-url "http://127.0.0.1:$PORT" \
   --path /healthz \
   --expect live \
-  --out /tmp/openclaw-upgrade-survivor-healthz.json
+  --out /tmp/alien-upgrade-survivor-healthz.json
 node scripts/e2e/lib/upgrade-survivor/probe-gateway.mjs \
   --base-url "http://127.0.0.1:$PORT" \
   --path /readyz \
   --expect ready \
   --allow-failing discord,telegram,whatsapp,feishu,matrix \
-  --out /tmp/openclaw-upgrade-survivor-readyz.json
+  --out /tmp/alien-upgrade-survivor-readyz.json
 
 echo "Checking gateway RPC status..."
 status_start="$(node -e "process.stdout.write(String(Date.now()))")"
-if ! openclaw gateway status --url "ws://127.0.0.1:$PORT" --token "$GATEWAY_AUTH_TOKEN_REF" --require-rpc --timeout 30000 --json >/tmp/openclaw-upgrade-survivor-status.json 2>/tmp/openclaw-upgrade-survivor-status.err; then
+if ! alien gateway status --url "ws://127.0.0.1:$PORT" --token "$GATEWAY_AUTH_TOKEN_REF" --require-rpc --timeout 30000 --json >/tmp/alien-upgrade-survivor-status.json 2>/tmp/alien-upgrade-survivor-status.err; then
   echo "gateway status failed" >&2
-  cat /tmp/openclaw-upgrade-survivor-status.err >&2 || true
+  cat /tmp/alien-upgrade-survivor-status.err >&2 || true
   cat "$GATEWAY_LOG" >&2 || true
   cat "$SYSTEMCTL_SHIM_DAEMON_LOG" >&2 || true
   exit 1
@@ -363,10 +363,10 @@ status_end="$(node -e "process.stdout.write(String(Date.now()))")"
 status_seconds=$(((status_end - status_start + 999) / 1000))
 if [ "$status_seconds" -gt "$STATUS_BUDGET" ]; then
   echo "gateway status exceeded survivor budget: ${status_seconds}s > ${STATUS_BUDGET}s" >&2
-  cat /tmp/openclaw-upgrade-survivor-status.json >&2 || true
+  cat /tmp/alien-upgrade-survivor-status.json >&2 || true
   exit 1
 fi
-node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-status-json /tmp/openclaw-upgrade-survivor-status.json
+node scripts/e2e/lib/upgrade-survivor/assertions.mjs assert-status-json /tmp/alien-upgrade-survivor-status.json
 
-echo "Upgrade survivor Docker E2E passed scenario=${OPENCLAW_UPGRADE_SURVIVOR_SCENARIO:-base} updateRestartMode=${UPDATE_RESTART_MODE} startup=${start_seconds}s status=${status_seconds}s."
+echo "Upgrade survivor Docker E2E passed scenario=${ALIEN_UPGRADE_SURVIVOR_SCENARIO:-base} updateRestartMode=${UPDATE_RESTART_MODE} startup=${start_seconds}s status=${status_seconds}s."
 '

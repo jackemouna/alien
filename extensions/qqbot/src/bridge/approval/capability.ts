@@ -11,13 +11,13 @@
  * QQBot falls back to "always handle, anyone can approve".
  */
 
-import { createChannelApprovalCapability } from "openclaw/plugin-sdk/approval-delivery-runtime";
-import { createLazyChannelApprovalNativeRuntimeAdapter } from "openclaw/plugin-sdk/approval-handler-adapter-runtime";
-import type { ChannelApprovalNativeRuntimeAdapter } from "openclaw/plugin-sdk/approval-handler-runtime";
-import { resolveApprovalRequestSessionConversation } from "openclaw/plugin-sdk/approval-native-runtime";
-import type { ChannelApprovalCapability } from "openclaw/plugin-sdk/channel-contract";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { createChannelApprovalCapability } from "alien/plugin-sdk/approval-delivery-runtime";
+import { createLazyChannelApprovalNativeRuntimeAdapter } from "alien/plugin-sdk/approval-handler-adapter-runtime";
+import type { ChannelApprovalNativeRuntimeAdapter } from "alien/plugin-sdk/approval-handler-runtime";
+import { resolveApprovalRequestSessionConversation } from "alien/plugin-sdk/approval-native-runtime";
+import type { ChannelApprovalCapability } from "alien/plugin-sdk/channel-contract";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { resolveApprovalTarget } from "../../engine/approval/index.js";
 import {
   isQQBotExecApprovalClientEnabled,
@@ -40,7 +40,7 @@ import { getBridgeLogger } from "../logger.js";
  * delivery fails with 500 on the QQ Bot API).
  */
 function shouldHandleRequest(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   request: {
     request: {
@@ -65,14 +65,14 @@ function shouldHandleRequest(params: {
 }
 
 function hasExecApprovalConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): boolean {
   return resolveQQBotExecApprovalConfig(params) !== undefined;
 }
 
 function isNativeDeliveryEnabled(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
 }): boolean {
   if (hasExecApprovalConfig(params)) {
@@ -120,7 +120,7 @@ function createQQBotApprovalCapability(): ChannelApprovalCapability {
       cfg,
       accountId,
     }: {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       accountId?: string | null;
       action: "approve";
     }) => {
@@ -132,7 +132,7 @@ function createQQBotApprovalCapability(): ChannelApprovalCapability {
       cfg,
       accountId,
     }: {
-      cfg: OpenClawConfig;
+      cfg: AlienConfig;
       accountId?: string | null;
       action: "approve";
     }) => {

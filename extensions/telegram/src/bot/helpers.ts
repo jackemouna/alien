@@ -1,16 +1,16 @@
 import type { Chat, Message } from "@grammyjs/types";
-import { formatLocationText } from "openclaw/plugin-sdk/channel-inbound";
+import { formatLocationText } from "alien/plugin-sdk/channel-inbound";
 import type {
-  OpenClawConfig,
+  AlienConfig,
   TelegramAccountConfig,
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramDmThreadReplies,
   TelegramTopicConfig,
-} from "openclaw/plugin-sdk/config-types";
-import { readChannelAllowFromStore } from "openclaw/plugin-sdk/conversation-runtime";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/config-types";
+import { readChannelAllowFromStore } from "alien/plugin-sdk/conversation-runtime";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   expandTelegramAllowFromWithAccessGroups,
   firstDefined,
@@ -174,7 +174,7 @@ export function withResolvedTelegramForumFlag<T extends { chat: object }>(
 }
 
 export async function resolveTelegramGroupAllowFromContext(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   chatId: string | number;
   accountId?: string;
   senderId?: string;

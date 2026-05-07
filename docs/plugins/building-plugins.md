@@ -1,21 +1,21 @@
 ---
-summary: "Create your first OpenClaw plugin in minutes"
+summary: "Create your first Alien plugin in minutes"
 title: "Building plugins"
 sidebarTitle: "Getting Started"
 read_when:
-  - You want to create a new OpenClaw plugin
+  - You want to create a new Alien plugin
   - You need a quick-start for plugin development
-  - You are adding a new channel, provider, tool, or other capability to OpenClaw
+  - You are adding a new channel, provider, tool, or other capability to Alien
 ---
 
-Plugins extend OpenClaw with new capabilities: channels, model providers,
+Plugins extend Alien with new capabilities: channels, model providers,
 speech, realtime transcription, realtime voice, media understanding, image
 generation, video generation, web fetch, web search, agent tools, or any
 combination.
 
-You do not need to add your plugin to the OpenClaw repository. Publish to
+You do not need to add your plugin to the Alien repository. Publish to
 [ClawHub](/tools/clawhub) and users install with
-`openclaw plugins install clawhub:<package-name>`. Bare package specs still
+`alien plugins install clawhub:<package-name>`. Bare package specs still
 install from npm during the launch cutover.
 
 ## Prerequisites
@@ -23,14 +23,14 @@ install from npm during the launch cutover.
 - Node >= 22 and a package manager (npm or pnpm)
 - Familiarity with TypeScript (ESM)
 - For in-repo plugins: repository cloned and `pnpm install` done. Source
-  checkout plugin development is pnpm-only because OpenClaw loads bundled
+  checkout plugin development is pnpm-only because Alien loads bundled
   plugins from the `extensions/*` workspace packages.
 
 ## What kind of plugin?
 
 <CardGroup cols={3}>
   <Card title="Channel plugin" icon="messages-square" href="/plugins/sdk-channel-plugins">
-    Connect OpenClaw to a messaging platform (Discord, IRC, etc.)
+    Connect Alien to a messaging platform (Discord, IRC, etc.)
   </Card>
   <Card title="Provider plugin" icon="cpu" href="/plugins/sdk-provider-plugins">
     Add a model provider (LLM, proxy, or custom endpoint)
@@ -42,7 +42,7 @@ install from npm during the launch cutover.
 
 For a channel plugin that isn't guaranteed to be installed when onboarding/setup
 runs, use `createOptionalChannelSetupSurface(...)` from
-`openclaw/plugin-sdk/channel-setup`. It produces a setup adapter + wizard pair
+`alien/plugin-sdk/channel-setup`. It produces a setup adapter + wizard pair
 that advertises the install requirement and fails closed on real config writes
 until the plugin is installed.
 
@@ -56,28 +56,28 @@ and provider plugins have dedicated guides linked above.
     <CodeGroup>
     ```json package.json
     {
-      "name": "@myorg/openclaw-my-plugin",
+      "name": "@myorg/alien-my-plugin",
       "version": "1.0.0",
       "type": "module",
-      "openclaw": {
+      "alien": {
         "extensions": ["./index.ts"],
         "compat": {
           "pluginApi": ">=2026.3.24-beta.2",
           "minGatewayVersion": "2026.3.24-beta.2"
         },
         "build": {
-          "openclawVersion": "2026.3.24-beta.2",
+          "alienVersion": "2026.3.24-beta.2",
           "pluginSdkVersion": "2026.3.24-beta.2"
         }
       }
     }
     ```
 
-    ```json openclaw.plugin.json
+    ```json alien.plugin.json
     {
       "id": "my-plugin",
       "name": "My Plugin",
-      "description": "Adds a custom tool to OpenClaw",
+      "description": "Adds a custom tool to Alien",
       "contracts": {
         "tools": ["my_tool"]
       },
@@ -93,7 +93,7 @@ and provider plugins have dedicated guides linked above.
     </CodeGroup>
 
     Every plugin needs a manifest, even with no config. Runtime-registered tools
-    must be listed in `contracts.tools` so OpenClaw can discover the owning
+    must be listed in `contracts.tools` so Alien can discover the owning
     plugin without loading every plugin runtime. Plugins should also declare
     `activation.onStartup` intentionally. This example sets it to `true`. See
     [Manifest](/plugins/manifest) for the full schema. The canonical ClawHub
@@ -105,13 +105,13 @@ and provider plugins have dedicated guides linked above.
 
     ```typescript
     // index.ts
-    import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+    import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
     import { Type } from "@sinclair/typebox";
 
     export default definePluginEntry({
       id: "my-plugin",
       name: "My Plugin",
-      description: "Adds a custom tool to OpenClaw",
+      description: "Adds a custom tool to Alien",
       register(api) {
         api.registerTool({
           name: "my_tool",
@@ -138,10 +138,10 @@ and provider plugins have dedicated guides linked above.
     ```bash
     clawhub package publish your-org/your-plugin --dry-run
     clawhub package publish your-org/your-plugin
-    openclaw plugins install clawhub:@myorg/openclaw-my-plugin
+    alien plugins install clawhub:@myorg/alien-my-plugin
     ```
 
-    Bare package specs like `@myorg/openclaw-my-plugin` install from npm during
+    Bare package specs like `@myorg/alien-my-plugin` install from npm during
     the launch cutover. Use `clawhub:` when you want ClawHub resolution.
 
     **In-repo plugins:** place under the bundled plugin workspace tree - automatically discovered.
@@ -185,7 +185,7 @@ Bundled plugins can use `api.registerAgentToolResultMiddleware(...)` when they
 need async tool-result rewriting before the model sees the output. Declare the
 targeted runtimes in `contracts.agentToolResultMiddleware`, for example
 `["pi", "codex"]`. This is a trusted bundled-plugin seam; external
-plugins should prefer regular OpenClaw plugin hooks unless OpenClaw grows an
+plugins should prefer regular Alien plugin hooks unless Alien grows an
 explicit trust policy for this capability.
 
 If your plugin registers custom gateway RPC methods, keep them on a
@@ -205,10 +205,10 @@ Hook guard semantics to keep in mind:
 - `message_received`: prefer the typed `threadId` field when you need inbound thread/topic routing. Keep `metadata` for channel-specific extras.
 - `message_sending`: prefer typed `replyToId` / `threadId` routing fields over channel-specific metadata keys.
 
-The `/approve` command handles both exec and plugin approvals with bounded fallback: when an exec approval id is not found, OpenClaw retries the same id through plugin approvals. Plugin approval forwarding can be configured independently via `approvals.plugin` in config.
+The `/approve` command handles both exec and plugin approvals with bounded fallback: when an exec approval id is not found, Alien retries the same id through plugin approvals. Plugin approval forwarding can be configured independently via `approvals.plugin` in config.
 
 If custom approval plumbing needs to detect that same bounded fallback case,
-prefer `isApprovalNotFoundError` from `openclaw/plugin-sdk/error-runtime`
+prefer `isApprovalNotFoundError` from `alien/plugin-sdk/error-runtime`
 instead of matching approval-expiry strings manually.
 
 See [Plugin hooks](/plugins/hooks) for examples and the hook reference.
@@ -261,12 +261,12 @@ plugin manifest:
 }
 ```
 
-OpenClaw captures and caches the validated descriptor from the registered tool,
+Alien captures and caches the validated descriptor from the registered tool,
 so plugins do not duplicate `description` or schema data in the manifest. The
 manifest contract only declares ownership and discovery; execution still calls
 the live registered tool implementation.
 Set `toolMetadata.<tool>.optional: true` for tools registered with
-`api.registerTool(..., { optional: true })` so OpenClaw can avoid loading that
+`api.registerTool(..., { optional: true })` so Alien can avoid loading that
 plugin runtime until the tool is explicitly allowlisted.
 
 Users enable optional tools in config:
@@ -284,8 +284,8 @@ Users enable optional tools in config:
 
 ## Registering CLI commands
 
-Plugins can add root `openclaw` command groups with `api.registerCli`. Provide
-`descriptors` for every top-level command root so OpenClaw can show and route
+Plugins can add root `alien` command groups with `api.registerCli`. Provide
+`descriptors` for every top-level command root so Alien can show and route
 the command without eagerly loading every plugin runtime.
 
 ```typescript
@@ -319,20 +319,20 @@ register(api) {
 After install, verify the runtime registration and execute the command:
 
 ```bash
-openclaw plugins inspect demo-plugin --runtime --json
-openclaw demo-plugin ping
+alien plugins inspect demo-plugin --runtime --json
+alien demo-plugin ping
 ```
 
 ## Import conventions
 
-Always import from focused `openclaw/plugin-sdk/<subpath>` paths:
+Always import from focused `alien/plugin-sdk/<subpath>` paths:
 
 ```typescript
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
+import { definePluginEntry } from "alien/plugin-sdk/plugin-entry";
+import { createPluginRuntimeStore } from "alien/plugin-sdk/runtime-store";
 
 // Wrong: monolithic root (deprecated, will be removed)
-import { ... } from "openclaw/plugin-sdk";
+import { ... } from "alien/plugin-sdk";
 ```
 
 For the full subpath reference, see [SDK Overview](/plugins/sdk-overview).
@@ -348,16 +348,16 @@ barrels unless the seam is truly generic. Current bundled examples:
 - OpenRouter: provider builder plus onboarding/config helpers
 
 If a helper is only useful inside one bundled provider package, keep it on that
-package-root seam instead of promoting it into `openclaw/plugin-sdk/*`.
+package-root seam instead of promoting it into `alien/plugin-sdk/*`.
 
-Some generated `openclaw/plugin-sdk/<bundled-id>` helper seams still exist for
+Some generated `alien/plugin-sdk/<bundled-id>` helper seams still exist for
 bundled-plugin maintenance when they have tracked owner usage. Treat those as
 reserved surfaces, not as the default pattern for new third-party plugins.
 
 ## Pre-submission checklist
 
-<Check>**package.json** has correct `openclaw` metadata</Check>
-<Check>**openclaw.plugin.json** manifest is present and valid</Check>
+<Check>**package.json** has correct `alien` metadata</Check>
+<Check>**alien.plugin.json** manifest is present and valid</Check>
 <Check>Entry point uses `defineChannelPluginEntry` or `definePluginEntry`</Check>
 <Check>All imports use focused `plugin-sdk/<subpath>` paths</Check>
 <Check>Internal imports use local modules, not SDK self-imports</Check>
@@ -366,7 +366,7 @@ reserved surfaces, not as the default pattern for new third-party plugins.
 
 ## Beta release testing
 
-1. Watch for GitHub release tags on [openclaw/openclaw](https://github.com/openclaw/openclaw/releases) and subscribe via `Watch` > `Releases`. Beta tags look like `v2026.3.N-beta.1`. You can also turn on notifications for the official OpenClaw X account [@openclaw](https://x.com/openclaw) for release announcements.
+1. Watch for GitHub release tags on [alien/alien](https://github.com/alien/alien/releases) and subscribe via `Watch` > `Releases`. Beta tags look like `v2026.3.N-beta.1`. You can also turn on notifications for the official Alien X account [@alien](https://x.com/alien) for release announcements.
 2. Test your plugin against the beta tag as soon as it appears. The window before stable is typically only a few hours.
 3. Post in your plugin's thread in the `plugin-forum` Discord channel after testing with either `all good` or what broke. If you do not have a thread yet, create one.
 4. If something breaks, open or update an issue titled `Beta blocker: <plugin-name> - <summary>` and apply the `beta-blocker` label. Put the issue link in your thread.

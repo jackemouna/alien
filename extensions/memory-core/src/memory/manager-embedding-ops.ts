@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 import {
   enforceEmbeddingMaxInputTokens,
   hasNonTextEmbeddingParts,
   type EmbeddingInput,
   type MemoryEmbeddingProviderRuntime,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
+} from "alien/plugin-sdk/memory-core-host-engine-embeddings";
+import { createSubsystemLogger } from "alien/plugin-sdk/memory-core-host-engine-foundation";
 import {
   buildMultimodalChunkForIndexing,
   chunkMarkdown,
@@ -14,7 +14,7 @@ import {
   remapChunkLines,
   type MemoryChunk,
   type MemorySource,
-} from "openclaw/plugin-sdk/memory-core-host-engine-storage";
+} from "alien/plugin-sdk/memory-core-host-engine-storage";
 import {
   MEMORY_BATCH_FAILURE_LIMIT,
   recordMemoryBatchFailure,

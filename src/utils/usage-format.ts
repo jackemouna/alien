@@ -4,7 +4,7 @@ import { resolveDefaultAgentDir } from "../agents/agent-scope-config.js";
 import { modelKey, normalizeModelRef, normalizeProviderId } from "../agents/model-selection.js";
 import type { NormalizedUsage } from "../agents/usage.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { getGatewayModelPricingCacheFingerprint } from "../gateway/model-pricing-cache-state.js";
 import { getCachedGatewayModelPricing } from "../gateway/model-pricing-cache.js";
 import { tryReadJsonSync } from "../infra/json-files.js";
@@ -250,7 +250,7 @@ function loadModelsJsonCostIndex(options?: {
 function findConfiguredProviderCost(params: {
   provider?: string;
   model?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   allowPluginNormalization?: boolean;
 }): ModelCostConfig | undefined {
   const key = toResolvedModelKey(params);
@@ -286,7 +286,7 @@ function serializeCostIndex(
   return Array.from(entries.entries()).toSorted(([a], [b]) => a.localeCompare(b));
 }
 
-export function resolveModelCostConfigFingerprint(config?: OpenClawConfig): string {
+export function resolveModelCostConfigFingerprint(config?: AlienConfig): string {
   return stableCostFingerprintValue({
     configuredRaw: serializeCostIndex(
       buildProviderCostIndex(config?.models?.providers, { allowPluginNormalization: false }),
@@ -301,7 +301,7 @@ export function resolveModelCostConfigFingerprint(config?: OpenClawConfig): stri
 export function resolveModelCostConfig(params: {
   provider?: string;
   model?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   allowPluginNormalization?: boolean;
 }): ModelCostConfig | undefined {
   const rawKey = toDirectModelKey(params);

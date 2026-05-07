@@ -1,8 +1,8 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
-} from "openclaw/plugin-sdk/runtime-config-snapshot";
+} from "alien/plugin-sdk/runtime-config-snapshot";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createDiscordActionGate,
@@ -266,7 +266,7 @@ describe("resolveDiscordAccount runtime config selection", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
     const runtimeCfg = {
       channels: {
         discord: {
@@ -279,7 +279,7 @@ describe("resolveDiscordAccount runtime config selection", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     setRuntimeConfigSnapshot(runtimeCfg, sourceCfg);
 
     const resolved = resolveDiscordAccount({ cfg: sourceCfg });
@@ -299,7 +299,7 @@ describe("resolveDiscordAccount runtime config selection", () => {
             token: { source: "env", provider: "default", id: "DISCORD_BOT_TOKEN" },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as AlienConfig,
       accountId: "default",
     });
 

@@ -13,7 +13,7 @@ import {
   resolveMainVersion,
   resolvePublishedVersion,
   runHarness,
-  validateOpenClawPackageSpec,
+  validateAlienPackageSpec,
   writeJson,
   type RttProviderMode,
 } from "./lib/rtt-harness.ts";
@@ -26,13 +26,13 @@ const DEFAULT_SAMPLE_TIMEOUT_MS = 30_000;
 
 function usage() {
   return [
-    "Usage: pnpm rtt <openclaw@spec> [--package-tgz PATH] [--provider mock-openai|live-frontier] [--runs N] [--samples N] [--sample-timeout-ms N] [--timeout-ms N] [--harness-root PATH] [--output PATH]",
+    "Usage: pnpm rtt <alien@spec> [--package-tgz PATH] [--provider mock-openai|live-frontier] [--runs N] [--samples N] [--sample-timeout-ms N] [--timeout-ms N] [--harness-root PATH] [--output PATH]",
     "",
     "Examples:",
-    "  pnpm rtt openclaw@main --package-tgz .artifacts/package/openclaw.tgz",
-    "  pnpm rtt openclaw@beta",
-    "  pnpm rtt openclaw@2026.4.30",
-    "  pnpm rtt openclaw@latest --provider live-frontier",
+    "  pnpm rtt alien@main --package-tgz .artifacts/package/alien.tgz",
+    "  pnpm rtt alien@beta",
+    "  pnpm rtt alien@2026.4.30",
+    "  pnpm rtt alien@latest --provider live-frontier",
   ].join("\n");
 }
 
@@ -134,7 +134,7 @@ function parseArgs(argv: string[]) {
   }
 
   return {
-    spec: validateOpenClawPackageSpec(spec),
+    spec: validateAlienPackageSpec(spec),
     options: {
       packageTgz,
       providerMode,
@@ -218,11 +218,11 @@ async function main() {
   assertRequiredEnv(process.env);
   await assertHarnessRoot(options.harnessRoot);
   await assertDockerAvailable();
-  if (spec === "openclaw@main" && !options.packageTgz) {
-    throw new Error("openclaw@main requires --package-tgz.");
+  if (spec === "alien@main" && !options.packageTgz) {
+    throw new Error("alien@main requires --package-tgz.");
   }
   const version =
-    spec === "openclaw@main"
+    spec === "alien@main"
       ? await resolveMainVersion(options.harnessRoot)
       : await resolvePublishedVersion(spec);
   let failed = false;

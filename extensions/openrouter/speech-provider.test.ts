@@ -13,7 +13,7 @@ const { assertOkOrThrowHttpErrorMock, postJsonRequestMock, resolveProviderHttpRe
     })),
   }));
 
-vi.mock("openclaw/plugin-sdk/provider-http", () => ({
+vi.mock("alien/plugin-sdk/provider-http", () => ({
   assertOkOrThrowHttpError: assertOkOrThrowHttpErrorMock,
   postJsonRequest: postJsonRequestMock,
   resolveProviderHttpRequestConfig: resolveProviderHttpRequestConfigMock,

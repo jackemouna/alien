@@ -10,22 +10,22 @@ function buildSecretRefCredentialMatrixJson(): string {
   return `${JSON.stringify(buildSecretRefCredentialMatrix(), null, 2)}\n`;
 }
 
-const previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-const previousTrustBundledPluginsDir = process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+const previousBundledPluginsDir = process.env.ALIEN_BUNDLED_PLUGINS_DIR;
+const previousTrustBundledPluginsDir = process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR;
 
-process.env.OPENCLAW_BUNDLED_PLUGINS_DIR ??= "extensions";
-process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR ??= "1";
+process.env.ALIEN_BUNDLED_PLUGINS_DIR ??= "extensions";
+process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR ??= "1";
 
 afterAll(() => {
   if (previousBundledPluginsDir === undefined) {
-    delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+    delete process.env.ALIEN_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+    process.env.ALIEN_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
   }
   if (previousTrustBundledPluginsDir === undefined) {
-    delete process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+    delete process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
+    process.env.ALIEN_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
   }
 });
 

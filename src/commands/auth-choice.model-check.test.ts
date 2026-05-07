@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { warnIfModelConfigLooksOff } from "./auth-choice.model-check.js";
 import { makePrompter } from "./setup/__tests__/test-utils.js";
 
@@ -37,7 +37,7 @@ describe("warnIfModelConfigLooksOff", () => {
           model: "openai-codex/gpt-5.5",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await warnIfModelConfigLooksOff(config, prompter, { validateCatalog: false });
 
@@ -62,7 +62,7 @@ describe("warnIfModelConfigLooksOff", () => {
           model: "openai-codex/gpt-5.5",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await warnIfModelConfigLooksOff(config, prompter);
 

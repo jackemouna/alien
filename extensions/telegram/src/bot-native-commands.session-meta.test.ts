@@ -1,6 +1,6 @@
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { ResolvedAgentRoute } from "alien/plugin-sdk/routing";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TelegramNativeCommandDeps } from "./bot-native-command-deps.runtime.js";
 import {
@@ -16,11 +16,11 @@ import { type RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 // All mocks scoped to this file only — does not affect bot-native-commands.test.ts
 
 type ResolveConfiguredBindingRouteFn =
-  typeof import("openclaw/plugin-sdk/conversation-runtime").resolveConfiguredBindingRoute;
+  typeof import("alien/plugin-sdk/conversation-runtime").resolveConfiguredBindingRoute;
 type EnsureConfiguredBindingRouteReadyFn =
-  typeof import("openclaw/plugin-sdk/conversation-runtime").ensureConfiguredBindingRouteReady;
+  typeof import("alien/plugin-sdk/conversation-runtime").ensureConfiguredBindingRouteReady;
 type DispatchReplyWithBufferedBlockDispatcherFn =
-  typeof import("openclaw/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
+  typeof import("alien/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
 type DispatchReplyWithBufferedBlockDispatcherParams =
   Parameters<DispatchReplyWithBufferedBlockDispatcherFn>[0];
 type DispatchReplyWithBufferedBlockDispatcherResult = Awaited<
@@ -76,9 +76,9 @@ const conversationStoreMocks = vi.hoisted(() => ({
   upsertChannelPairingRequest: vi.fn(async () => ({ code: "PAIRCODE", created: true })),
 }));
 
-vi.mock("openclaw/plugin-sdk/conversation-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/conversation-runtime")>(
-    "openclaw/plugin-sdk/conversation-runtime",
+vi.mock("alien/plugin-sdk/conversation-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/conversation-runtime")>(
+    "alien/plugin-sdk/conversation-runtime",
   );
   return {
     ...actual,
@@ -116,7 +116,7 @@ vi.mock("openclaw/plugin-sdk/conversation-runtime", async () => {
     ensureConfiguredBindingRouteReady: persistentBindingMocks.ensureConfiguredBindingRouteReady,
     recordInboundSessionMetaSafe: vi.fn(
       async (params: {
-        cfg: OpenClawConfig;
+        cfg: AlienConfig;
         agentId: string;
         sessionKey: string;
         ctx: unknown;
@@ -148,9 +148,9 @@ vi.mock("openclaw/plugin-sdk/conversation-runtime", async () => {
     }),
   };
 });
-vi.mock("openclaw/plugin-sdk/session-store-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/session-store-runtime")>(
-    "openclaw/plugin-sdk/session-store-runtime",
+vi.mock("alien/plugin-sdk/session-store-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/session-store-runtime")>(
+    "alien/plugin-sdk/session-store-runtime",
   );
   return {
     ...actual,
@@ -159,9 +159,9 @@ vi.mock("openclaw/plugin-sdk/session-store-runtime", async () => {
     resolveStorePath: sessionMocks.resolveStorePath,
   };
 });
-vi.mock("openclaw/plugin-sdk/command-auth-native", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/command-auth-native")>(
-    "openclaw/plugin-sdk/command-auth-native",
+vi.mock("alien/plugin-sdk/command-auth-native", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/command-auth-native")>(
+    "alien/plugin-sdk/command-auth-native",
   );
   commandAuthMocks.resolveCommandArgMenu.mockImplementation(actual.resolveCommandArgMenu);
   return {
@@ -179,9 +179,9 @@ vi.mock("./bot-native-commands.runtime.js", async () => {
     dispatchReplyWithBufferedBlockDispatcher: replyMocks.dispatchReplyWithBufferedBlockDispatcher,
   };
 });
-vi.mock("openclaw/plugin-sdk/plugin-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/plugin-runtime")>(
-    "openclaw/plugin-sdk/plugin-runtime",
+vi.mock("alien/plugin-sdk/plugin-runtime", async () => {
+  const actual = await vi.importActual<typeof import("alien/plugin-sdk/plugin-runtime")>(
+    "alien/plugin-sdk/plugin-runtime",
   );
   return {
     ...actual,
@@ -205,7 +205,7 @@ type TelegramPluginCommandSpecs = ReturnType<
 >;
 
 function registerAndResolveStatusHandler(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   allowFrom?: string[];
   groupAllowFrom?: string[];
   storeAllowFrom?: string[];
@@ -237,7 +237,7 @@ function registerAndResolveStatusHandler(params: {
 
 function registerAndResolveCommandHandlerBase(params: {
   commandName: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   allowFrom: string[];
   groupAllowFrom: string[];
   storeAllowFrom?: string[];
@@ -298,7 +298,7 @@ function registerAndResolveCommandHandlerBase(params: {
 
 function registerAndResolveCommandHandler(params: {
   commandName: string;
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   allowFrom?: string[];
   groupAllowFrom?: string[];
   storeAllowFrom?: string[];
@@ -468,7 +468,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
     sessionMocks.recordSessionMetaFromInbound.mockClear().mockResolvedValue(undefined);
     sessionMocks.resolveAndPersistSessionFile.mockClear().mockImplementation(async (params) => {
       const sessionFile =
-        params.fallbackSessionFile ?? `/tmp/openclaw-sessions/${params.sessionId}.jsonl`;
+        params.fallbackSessionFile ?? `/tmp/alien-sessions/${params.sessionId}.jsonl`;
       return {
         sessionFile,
         sessionEntry: {
@@ -479,7 +479,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
         },
       };
     });
-    sessionMocks.resolveStorePath.mockClear().mockReturnValue("/tmp/openclaw-sessions.json");
+    sessionMocks.resolveStorePath.mockClear().mockReturnValue("/tmp/alien-sessions.json");
     pluginRuntimeMocks.executePluginCommand.mockClear().mockResolvedValue({ text: "ok" });
     pluginRuntimeMocks.matchPluginCommand.mockClear().mockReturnValue(null);
     replyMocks.dispatchReplyWithBufferedBlockDispatcher
@@ -491,7 +491,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
   });
 
   it("calls recordSessionMetaFromInbound after a native slash command", async () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: AlienConfig = {};
     const { handler } = registerAndResolveStatusHandler({ cfg });
     await handler(createTelegramPrivateCommandContext());
 
@@ -523,7 +523,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:main": {
         providerOverride: "anthropic",
@@ -550,7 +550,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
         model: "claude-opus-4-7",
       }),
     );
-    expect(sessionMocks.loadSessionStore).toHaveBeenCalledWith("/tmp/openclaw-sessions.json");
+    expect(sessionMocks.loadSessionStore).toHaveBeenCalledWith("/tmp/alien-sessions.json");
     expect(sendMessage).toHaveBeenCalledWith(
       100,
       expect.stringContaining("Current thinking level: high.\nChoose level for /think."),
@@ -560,7 +560,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
   });
 
   it("inherits the parent session model when building DM thread native argument menus", async () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: AlienConfig = {};
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:main": {
         providerOverride: "anthropic",
@@ -602,7 +602,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
           thinkingDefault: "medium",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:main": {
         providerOverride: "anthropic",
@@ -650,7 +650,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:main": {
         providerOverride: "anthropic",
@@ -694,7 +694,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     sessionMocks.loadSessionStore.mockReturnValue({});
 
     const { handler, sendMessage } = registerAndResolveCommandHandler({
@@ -728,7 +728,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
     const deferred = createDeferred<void>();
     sessionMocks.recordSessionMetaFromInbound.mockReturnValue(deferred.promise);
 
-    const cfg: OpenClawConfig = {};
+    const cfg: AlienConfig = {};
     const { handler } = registerAndResolveStatusHandler({ cfg });
     const runPromise = handler(createTelegramPrivateCommandContext());
 
@@ -1139,7 +1139,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
   });
 
   it("passes a persisted topic session file to plugin commands", async () => {
-    sessionMocks.resolveStorePath.mockReturnValue("/tmp/openclaw-sessions/sessions.json");
+    sessionMocks.resolveStorePath.mockReturnValue("/tmp/alien-sessions/sessions.json");
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:telegram:group:-1001234567890:topic:42": {
         sessionId: "sess-topic",
@@ -1149,7 +1149,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
 
     const { handler } = registerAndResolveCommandHandler({
       commandName: "codex",
-      cfg: { commands: { allowFrom: { telegram: ["200"] } } } as OpenClawConfig,
+      cfg: { commands: { allowFrom: { telegram: ["200"] } } } as AlienConfig,
       groupAllowFrom: ["-1001234567890"],
       useAccessGroups: false,
       pluginCommandSpecs: [
@@ -1165,7 +1165,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
         name: "codex",
         description: "Codex",
         handler: vi.fn(),
-        pluginId: "openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
         pluginName: "Codex",
         requireAuth: true,
       },
@@ -1180,16 +1180,16 @@ describe("registerTelegramNativeCommands — session metadata", () => {
       expect.objectContaining({
         sessionId: "sess-topic",
         sessionKey: "agent:main:telegram:group:-1001234567890:topic:42",
-        storePath: "/tmp/openclaw-sessions/sessions.json",
-        sessionsDir: "/tmp/openclaw-sessions",
-        fallbackSessionFile: path.resolve("/tmp/openclaw-sessions", "sess-topic-topic-42.jsonl"),
+        storePath: "/tmp/alien-sessions/sessions.json",
+        sessionsDir: "/tmp/alien-sessions",
+        fallbackSessionFile: path.resolve("/tmp/alien-sessions", "sess-topic-topic-42.jsonl"),
       }),
     );
     expect(pluginRuntimeMocks.executePluginCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         sessionKey: "agent:main:telegram:group:-1001234567890:topic:42",
         sessionId: "sess-topic",
-        sessionFile: path.resolve("/tmp/openclaw-sessions", "sess-topic-topic-42.jsonl"),
+        sessionFile: path.resolve("/tmp/alien-sessions", "sess-topic-topic-42.jsonl"),
         messageThreadId: 42,
       }),
     );
@@ -1200,7 +1200,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
 
     const { handler } = registerAndResolveCommandHandler({
       commandName: "codex",
-      cfg: { commands: { allowFrom: { telegram: ["200"] } } } as OpenClawConfig,
+      cfg: { commands: { allowFrom: { telegram: ["200"] } } } as AlienConfig,
       useAccessGroups: false,
       pluginCommandSpecs: [
         {
@@ -1215,7 +1215,7 @@ describe("registerTelegramNativeCommands — session metadata", () => {
         name: "codex",
         description: "Codex",
         handler: vi.fn(),
-        pluginId: "openclaw-codex-app-server",
+        pluginId: "alien-codex-app-server",
         pluginName: "Codex",
         requireAuth: true,
       },

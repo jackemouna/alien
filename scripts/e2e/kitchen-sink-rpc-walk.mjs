@@ -7,8 +7,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 
 const PLUGIN_SPEC =
-  process.env.OPENCLAW_KITCHEN_SINK_NPM_SPEC || "npm:@openclaw/kitchen-sink@latest";
-const PLUGIN_ID = process.env.OPENCLAW_KITCHEN_SINK_PLUGIN_ID || "openclaw-kitchen-sink-fixture";
+  process.env.ALIEN_KITCHEN_SINK_NPM_SPEC || "npm:@alien/kitchen-sink@latest";
+const PLUGIN_ID = process.env.ALIEN_KITCHEN_SINK_PLUGIN_ID || "alien-kitchen-sink-fixture";
 const CHANNEL_ID = "kitchen-sink-channel";
 const CHANNEL_ACCOUNT_ID = "local";
 const TOKEN = "kitchen-sink-rpc-token";
@@ -17,13 +17,13 @@ const EXPECTED_COMMANDS = ["kitchen", "kitchen-sink"];
 const EXPECTED_TOOLS = ["kitchen_sink_text", "kitchen_sink_search", "kitchen_sink_image_job"];
 const EXPECTED_PROVIDERS = ["kitchen-sink-provider", "kitchen-sink-llm"];
 const EXPECTED_SPEECH_PROVIDERS = ["kitchen-sink-speech", "kitchen-sink-speech-provider"];
-const READY_TIMEOUT_MS = readPositiveInt(process.env.OPENCLAW_KITCHEN_SINK_RPC_READY_MS, 240000);
+const READY_TIMEOUT_MS = readPositiveInt(process.env.ALIEN_KITCHEN_SINK_RPC_READY_MS, 240000);
 const COMMAND_TIMEOUT_MS = readPositiveInt(
-  process.env.OPENCLAW_KITCHEN_SINK_RPC_COMMAND_MS,
+  process.env.ALIEN_KITCHEN_SINK_RPC_COMMAND_MS,
   180000,
 );
-const RPC_TIMEOUT_MS = readPositiveInt(process.env.OPENCLAW_KITCHEN_SINK_RPC_CALL_MS, 60000);
-const MAX_RSS_MIB = readPositiveInt(process.env.OPENCLAW_KITCHEN_SINK_MAX_RSS_MIB, 2048);
+const RPC_TIMEOUT_MS = readPositiveInt(process.env.ALIEN_KITCHEN_SINK_RPC_CALL_MS, 60000);
+const MAX_RSS_MIB = readPositiveInt(process.env.ALIEN_KITCHEN_SINK_MAX_RSS_MIB, 2048);
 
 let callGatewayModulePromise;
 
@@ -32,12 +32,12 @@ function readPositiveInt(raw, fallback) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function resolveOpenClawRunner() {
-  if (process.env.OPENCLAW_ENTRY) {
+function resolveAlienRunner() {
+  if (process.env.ALIEN_ENTRY) {
     return {
       command: "node",
-      baseArgs: [process.env.OPENCLAW_ENTRY],
-      label: process.env.OPENCLAW_ENTRY,
+      baseArgs: [process.env.ALIEN_ENTRY],
+      label: process.env.ALIEN_ENTRY,
     };
   }
   for (const candidate of ["dist/index.mjs", "dist/index.js"]) {
@@ -46,26 +46,26 @@ function resolveOpenClawRunner() {
       return { command: "node", baseArgs: [resolved], label: resolved };
     }
   }
-  return { command: "pnpm", baseArgs: ["openclaw"], label: "pnpm openclaw" };
+  return { command: "pnpm", baseArgs: ["alien"], label: "pnpm alien" };
 }
 
 function makeEnv() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-kitchen-sink-rpc-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "alien-kitchen-sink-rpc-"));
   const home = path.join(root, "home");
-  const stateDir = path.join(home, ".openclaw");
+  const stateDir = path.join(home, ".alien");
   fs.mkdirSync(stateDir, { recursive: true });
   return {
     root,
     env: {
       ...process.env,
       HOME: home,
-      OPENCLAW_HOME: stateDir,
-      OPENCLAW_STATE_DIR: stateDir,
-      OPENCLAW_CONFIG_PATH: path.join(stateDir, "openclaw.json"),
-      OPENCLAW_NO_ONBOARD: "1",
-      OPENCLAW_SKIP_PROVIDERS: "0",
-      OPENCLAW_KITCHEN_SINK_PERSONALITY:
-        process.env.OPENCLAW_KITCHEN_SINK_PERSONALITY || "conformance",
+      ALIEN_HOME: stateDir,
+      ALIEN_STATE_DIR: stateDir,
+      ALIEN_CONFIG_PATH: path.join(stateDir, "alien.json"),
+      ALIEN_NO_ONBOARD: "1",
+      ALIEN_SKIP_PROVIDERS: "0",
+      ALIEN_KITCHEN_SINK_PERSONALITY:
+        process.env.ALIEN_KITCHEN_SINK_PERSONALITY || "conformance",
     },
   };
 }
@@ -118,7 +118,7 @@ function runCommand(command, args, options = {}) {
   });
 }
 
-async function runOpenClaw(runner, args, env, options = {}) {
+async function runAlien(runner, args, env, options = {}) {
   return runCommand(runner.command, [...runner.baseArgs, ...args], {
     env,
     timeoutMs: options.timeoutMs ?? COMMAND_TIMEOUT_MS,
@@ -199,8 +199,8 @@ function unwrapRpcPayload(raw) {
 async function rpcCall(method, params, options) {
   const { callGateway } = await loadCallGatewayModule();
   const payload = await callGateway({
-    config: readJson(options.env.OPENCLAW_CONFIG_PATH),
-    configPath: options.env.OPENCLAW_CONFIG_PATH,
+    config: readJson(options.env.ALIEN_CONFIG_PATH),
+    configPath: options.env.ALIEN_CONFIG_PATH,
     url: `ws://127.0.0.1:${options.port}`,
     token: TOKEN,
     method,
@@ -260,7 +260,7 @@ async function fetchJson(url) {
 }
 
 function configureKitchenSink(env, port) {
-  const configPath = env.OPENCLAW_CONFIG_PATH;
+  const configPath = env.ALIEN_CONFIG_PATH;
   const config = fs.existsSync(configPath) ? readJson(configPath) : {};
   config.gateway = {
     ...config.gateway,
@@ -283,7 +283,7 @@ function configureKitchenSink(env, port) {
         enabled: true,
         config: {
           ...config.plugins?.entries?.[PLUGIN_ID]?.config,
-          personality: env.OPENCLAW_KITCHEN_SINK_PERSONALITY,
+          personality: env.ALIEN_KITCHEN_SINK_PERSONALITY,
         },
         hooks: {
           ...config.plugins?.entries?.[PLUGIN_ID]?.hooks,
@@ -531,17 +531,17 @@ function isNonEmptyString(value) {
 }
 
 async function main() {
-  const runner = resolveOpenClawRunner();
-  const port = readPositiveInt(process.env.OPENCLAW_KITCHEN_SINK_RPC_PORT, 19173);
+  const runner = resolveAlienRunner();
+  const port = readPositiveInt(process.env.ALIEN_KITCHEN_SINK_RPC_PORT, 19173);
   const { root, env } = makeEnv();
   const logPath = path.join(root, "gateway.log");
 
   console.log(`Kitchen Sink RPC walk using ${PLUGIN_SPEC} via ${runner.label}`);
-  await runOpenClaw(runner, ["plugins", "install", PLUGIN_SPEC], env, { timeoutMs: 240000 });
+  await runAlien(runner, ["plugins", "install", PLUGIN_SPEC], env, { timeoutMs: 240000 });
   configureKitchenSink(env, port);
-  await runOpenClaw(runner, ["plugins", "enable", PLUGIN_ID], env, { timeoutMs: 60000 });
+  await runAlien(runner, ["plugins", "enable", PLUGIN_ID], env, { timeoutMs: 60000 });
   const inspect = parseJsonOutput(
-    (await runOpenClaw(runner, ["plugins", "inspect", PLUGIN_ID, "--runtime", "--json"], env))
+    (await runAlien(runner, ["plugins", "inspect", PLUGIN_ID, "--runtime", "--json"], env))
       .stdout,
   );
   if (inspect?.plugin?.status !== "loaded") {

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import type { Command } from "commander";
 import JSON5 from "json5";
-import { readBestEffortConfig, type OpenClawConfig } from "../config/config.js";
+import { readBestEffortConfig, type AlienConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import {
   collectExecPolicyScopeSnapshots,
@@ -33,10 +33,10 @@ type ExecApprovalsSnapshot = {
 };
 
 type ConfigSnapshotLike = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
 };
 type ConfigLoadResult = {
-  config: OpenClawConfig | null;
+  config: AlienConfig | null;
   timedOut: boolean;
 };
 type ApprovalsTargetSource = "gateway" | "node" | "local";
@@ -483,7 +483,7 @@ export function registerExecApprovalsCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.openclaw.ai/cli/approvals")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.alien.ai/cli/approvals")}\n`,
     );
 
   const getCmd = approvals
@@ -560,18 +560,18 @@ export function registerExecApprovalsCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatExample(
-          'openclaw approvals allowlist add "~/Projects/**/bin/rg"',
+          'alien approvals allowlist add "~/Projects/**/bin/rg"',
           "Allowlist a local binary pattern for the main agent.",
         )}\n${formatExample(
-          'openclaw approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"',
+          'alien approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"',
           "Allowlist on a specific node/agent.",
         )}\n${formatExample(
-          'openclaw approvals allowlist add --agent "*" "/usr/bin/uname"',
+          'alien approvals allowlist add --agent "*" "/usr/bin/uname"',
           "Allowlist for all agents (wildcard).",
         )}\n${formatExample(
-          'openclaw approvals allowlist remove "~/Projects/**/bin/rg"',
+          'alien approvals allowlist remove "~/Projects/**/bin/rg"',
           "Remove an allowlist pattern.",
-        )}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.openclaw.ai/cli/approvals")}\n`,
+        )}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.alien.ai/cli/approvals")}\n`,
     );
 
   registerAllowlistMutationCommand({

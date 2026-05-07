@@ -6,13 +6,13 @@ let createSlackSystemEventTestHarness: typeof import("./system-event-test-harnes
 type SlackSystemEventTestOverrides =
   import("./system-event-test-harness.js").SlackSystemEventTestOverrides;
 
-vi.mock("openclaw/plugin-sdk/system-event-runtime", () => ({
+vi.mock("alien/plugin-sdk/system-event-runtime", () => ({
   enqueueSystemEvent: (...args: unknown[]) => reactionQueueMock(...args),
 }));
-vi.mock("openclaw/plugin-sdk/system-event-runtime.js", () => ({
+vi.mock("alien/plugin-sdk/system-event-runtime.js", () => ({
   enqueueSystemEvent: (...args: unknown[]) => reactionQueueMock(...args),
 }));
-vi.mock("openclaw/plugin-sdk/security-runtime", () => ({
+vi.mock("alien/plugin-sdk/security-runtime", () => ({
   readStoreAllowFromForDmPolicy: async () => [],
 }));
 

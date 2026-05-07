@@ -15,7 +15,7 @@ type TestConfig = Record<string, unknown>;
 const mockConfig = vi.hoisted(() => {
   const initial = {};
   const state = {
-    path: "/tmp/openclaw.json",
+    path: "/tmp/alien.json",
     exists: true,
     config: initial as TestConfig,
     hash: "mock-hash-0" as string | undefined,
@@ -41,7 +41,7 @@ const mockConfig = vi.hoisted(() => {
   };
   return {
     reset() {
-      state.path = "/tmp/openclaw.json";
+      state.path = "/tmp/alien.json";
       state.exists = true;
       state.config = {};
       state.hash = "mock-hash-0";
@@ -99,7 +99,7 @@ vi.mock("./overview.js", () => ({
       { id: "main", isDefault: true },
       { id: "work", isDefault: false, model: "openai/gpt-5.2" },
     ],
-    config: { path: "/tmp/openclaw.json", exists: true, valid: true, issues: [], hash: null },
+    config: { path: "/tmp/alien.json", exists: true, valid: true, issues: [], hash: null },
     tools: {
       codex: { command: "codex", found: false, error: "not found" },
       claude: { command: "claude", found: false, error: "not found" },
@@ -112,8 +112,8 @@ vi.mock("./overview.js", () => ({
       error: "offline",
     },
     references: {
-      docsUrl: "https://docs.openclaw.ai",
-      sourceUrl: "https://github.com/openclaw/openclaw",
+      docsUrl: "https://docs.alien.ai",
+      sourceUrl: "https://github.com/alien/alien",
     },
   })),
 }));
@@ -152,7 +152,7 @@ vi.mock("../config/model-input.js", () => ({
 describe("parseCrestodianOperation", () => {
   beforeEach(() => {
     mockConfig.reset();
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+    vi.stubEnv("ALIEN_TEST_FAST", "1");
   });
 
   afterEach(() => {
@@ -213,17 +213,17 @@ describe("parseCrestodianOperation", () => {
       kind: "plugin-search",
       query: "calendar sync",
     });
-    expect(parseCrestodianOperation("install npm plugin @openclaw/demo")).toEqual({
+    expect(parseCrestodianOperation("install npm plugin @alien/demo")).toEqual({
       kind: "plugin-install",
-      spec: "npm:@openclaw/demo",
+      spec: "npm:@alien/demo",
     });
-    expect(parseCrestodianOperation("plugin install clawhub:openclaw-demo")).toEqual({
+    expect(parseCrestodianOperation("plugin install clawhub:alien-demo")).toEqual({
       kind: "plugin-install",
-      spec: "clawhub:openclaw-demo",
+      spec: "clawhub:alien-demo",
     });
-    expect(parseCrestodianOperation("plugin uninstall openclaw-demo")).toEqual({
+    expect(parseCrestodianOperation("plugin uninstall alien-demo")).toEqual({
       kind: "plugin-uninstall",
-      pluginId: "openclaw-demo",
+      pluginId: "alien-demo",
     });
   });
 
@@ -268,7 +268,7 @@ describe("parseCrestodianOperation", () => {
   });
 
   it("validates missing config without exiting the process", async () => {
-    mockConfig.missing("/tmp/openclaw.json");
+    mockConfig.missing("/tmp/alien.json");
     const { runtime, lines } = createCrestodianTestRuntime();
 
     await expect(
@@ -280,7 +280,7 @@ describe("parseCrestodianOperation", () => {
 
   it("applies config set through typed deps and writes an audit entry", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-config-set-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     const { runtime, lines } = createCrestodianTestRuntime();
     const runConfigSet = vi.fn(async () => {});
 
@@ -317,7 +317,7 @@ describe("parseCrestodianOperation", () => {
 
   it("applies SecretRef config set through typed deps and writes an audit entry", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-config-ref-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     const { runtime, lines } = createCrestodianTestRuntime();
     const runConfigSet = vi.fn(async () => {});
 
@@ -327,7 +327,7 @@ describe("parseCrestodianOperation", () => {
           kind: "config-set-ref",
           path: "gateway.auth.token",
           source: "env",
-          id: "OPENCLAW_GATEWAY_TOKEN",
+          id: "ALIEN_GATEWAY_TOKEN",
         },
         runtime,
         {
@@ -343,7 +343,7 @@ describe("parseCrestodianOperation", () => {
       cliOptions: {
         refProvider: "default",
         refSource: "env",
-        refId: "OPENCLAW_GATEWAY_TOKEN",
+        refId: "ALIEN_GATEWAY_TOKEN",
       },
     });
     expect(lines.join("\n")).toContain("[crestodian] done: config.setRef");
@@ -391,26 +391,26 @@ describe("parseCrestodianOperation", () => {
 
   it("installs plugins only after approval and audits the write", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-plugin-install-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     const { runtime, lines } = createCrestodianTestRuntime();
     const runPluginInstall = vi.fn(async (spec: string, pluginRuntime: RuntimeEnv) => {
       pluginRuntime.log(`installed ${spec}`);
     });
 
     const plan = await executeCrestodianOperation(
-      { kind: "plugin-install", spec: "clawhub:openclaw-demo" },
+      { kind: "plugin-install", spec: "clawhub:alien-demo" },
       runtime,
       { deps: { runPluginInstall } },
     );
     expect(plan).toMatchObject({
       applied: false,
-      message: "Plan: install plugin clawhub:openclaw-demo. Say yes to apply.",
+      message: "Plan: install plugin clawhub:alien-demo. Say yes to apply.",
     });
     expect(runPluginInstall).not.toHaveBeenCalled();
 
     await expect(
       executeCrestodianOperation(
-        { kind: "plugin-install", spec: "clawhub:openclaw-demo" },
+        { kind: "plugin-install", spec: "clawhub:alien-demo" },
         runtime,
         {
           approved: true,
@@ -420,64 +420,64 @@ describe("parseCrestodianOperation", () => {
       ),
     ).resolves.toMatchObject({ applied: true });
 
-    expect(runPluginInstall).toHaveBeenCalledWith("clawhub:openclaw-demo", expect.any(Object));
+    expect(runPluginInstall).toHaveBeenCalledWith("clawhub:alien-demo", expect.any(Object));
     expect(lines.join("\n")).toContain("[crestodian] done: plugin.install");
     const auditPath = path.join(tempDir, "audit", "crestodian.jsonl");
     const audit = JSON.parse((await fs.readFile(auditPath, "utf8")).trim());
     expect(audit).toMatchObject({
       operation: "plugin.install",
-      summary: "Installed plugin clawhub:openclaw-demo",
+      summary: "Installed plugin clawhub:alien-demo",
       details: {
         rescue: true,
-        spec: "clawhub:openclaw-demo",
+        spec: "clawhub:alien-demo",
       },
     });
   });
 
   it("uninstalls plugins only after approval and audits the write", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-plugin-uninstall-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     const { runtime, lines } = createCrestodianTestRuntime();
     const runPluginUninstall = vi.fn(async (pluginId: string, pluginRuntime: RuntimeEnv) => {
       pluginRuntime.log(`uninstalled ${pluginId}`);
     });
 
     const plan = await executeCrestodianOperation(
-      { kind: "plugin-uninstall", pluginId: "openclaw-demo" },
+      { kind: "plugin-uninstall", pluginId: "alien-demo" },
       runtime,
       { deps: { runPluginUninstall } },
     );
     expect(plan).toMatchObject({
       applied: false,
-      message: "Plan: uninstall plugin openclaw-demo. Say yes to apply.",
+      message: "Plan: uninstall plugin alien-demo. Say yes to apply.",
     });
     expect(runPluginUninstall).not.toHaveBeenCalled();
 
     await expect(
-      executeCrestodianOperation({ kind: "plugin-uninstall", pluginId: "openclaw-demo" }, runtime, {
+      executeCrestodianOperation({ kind: "plugin-uninstall", pluginId: "alien-demo" }, runtime, {
         approved: true,
         deps: { runPluginUninstall },
         auditDetails: { rescue: true },
       }),
     ).resolves.toMatchObject({ applied: true });
 
-    expect(runPluginUninstall).toHaveBeenCalledWith("openclaw-demo", expect.any(Object));
+    expect(runPluginUninstall).toHaveBeenCalledWith("alien-demo", expect.any(Object));
     expect(lines.join("\n")).toContain("[crestodian] done: plugin.uninstall");
     const auditPath = path.join(tempDir, "audit", "crestodian.jsonl");
     const audit = JSON.parse((await fs.readFile(auditPath, "utf8")).trim());
     expect(audit).toMatchObject({
       operation: "plugin.uninstall",
-      summary: "Uninstalled plugin openclaw-demo",
+      summary: "Uninstalled plugin alien-demo",
       details: {
         rescue: true,
-        pluginId: "openclaw-demo",
+        pluginId: "alien-demo",
       },
     });
   });
 
   it("runs setup bootstrap only after approval and audits it", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-setup-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     const { runtime, lines } = createCrestodianTestRuntime();
 
@@ -522,7 +522,7 @@ describe("parseCrestodianOperation", () => {
 
   it("runs doctor repairs only after approval and audits them", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "crestodian-doctor-fix-"));
-    vi.stubEnv("OPENCLAW_STATE_DIR", tempDir);
+    vi.stubEnv("ALIEN_STATE_DIR", tempDir);
     const { runtime, lines } = createCrestodianTestRuntime();
     const runDoctor = vi.fn(async () => {});
 

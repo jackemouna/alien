@@ -1,17 +1,17 @@
 ---
-summary: "Model providers (LLMs) supported by OpenClaw"
+summary: "Model providers (LLMs) supported by Alien"
 read_when:
   - You want to choose a model provider
   - You want quick setup examples for LLM auth + model selection
 title: "Model provider quickstart"
 ---
 
-OpenClaw can use many LLM providers. Pick one, authenticate, then set the default
+Alien can use many LLM providers. Pick one, authenticate, then set the default
 model as `provider/model`.
 
 ## Quick start (two steps)
 
-1. Authenticate with the provider (usually via `openclaw onboard`).
+1. Authenticate with the provider (usually via `alien onboard`).
 2. Set the default model:
 
 ```json5
@@ -52,8 +52,8 @@ model as `provider/model`.
 ## Additional bundled provider variants
 
 - `anthropic-vertex` - implicit Anthropic on Google Vertex support when Vertex credentials are available; no separate onboarding auth choice
-- `copilot-proxy` - local VS Code Copilot Proxy bridge; use `openclaw onboard --auth-choice copilot-proxy`
-- `google-gemini-cli` - unofficial Gemini CLI OAuth flow; requires a local `gemini` install (`brew install gemini-cli` or `npm install -g @google/gemini-cli`); default model `google-gemini-cli/gemini-3-flash-preview`; use `openclaw onboard --auth-choice google-gemini-cli` or `openclaw models auth login --provider google-gemini-cli --set-default`
+- `copilot-proxy` - local VS Code Copilot Proxy bridge; use `alien onboard --auth-choice copilot-proxy`
+- `google-gemini-cli` - unofficial Gemini CLI OAuth flow; requires a local `gemini` install (`brew install gemini-cli` or `npm install -g @google/gemini-cli`); default model `google-gemini-cli/gemini-3-flash-preview`; use `alien onboard --auth-choice google-gemini-cli` or `alien models auth login --provider google-gemini-cli --set-default`
 
 For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,
 see [Model providers](/concepts/model-providers).

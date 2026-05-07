@@ -112,7 +112,7 @@ jobs:
           {
             echo "restore-keys<<EOF"
             for dist_tag in beta latest; do
-              version="$(npm view "openclaw@${dist_tag}" version 2>/dev/null || true)"
+              version="$(npm view "alien@${dist_tag}" version 2>/dev/null || true)"
               if [[ -z "$version" ]]; then
                 echo "Could not resolve npm dist-tag ${dist_tag}; skipping cache seed." >&2
                 continue

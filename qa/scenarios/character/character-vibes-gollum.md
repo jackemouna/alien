@@ -87,7 +87,7 @@ execution:
       - internal error
       - tool failed
       - /var/folders
-      - openclaw-qa-suite
+      - alien-qa-suite
 ```
 
 ```yaml qa-flow

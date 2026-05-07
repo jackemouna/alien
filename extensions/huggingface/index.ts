@@ -1,4 +1,4 @@
-import { defineSingleProviderPluginEntry } from "openclaw/plugin-sdk/provider-entry";
+import { defineSingleProviderPluginEntry } from "alien/plugin-sdk/provider-entry";
 import { applyHuggingfaceConfig, HUGGINGFACE_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildHuggingfaceProvider } from "./provider-catalog.js";
 

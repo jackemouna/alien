@@ -3,7 +3,7 @@ import JSON5 from "json5";
 import { z } from "zod";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OptionalBootstrapFileName } from "../config/types.agent-defaults.js";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { createLazyImportLoader } from "../shared/lazy-promise.js";
@@ -34,7 +34,7 @@ type SetupCommandDeps = {
   mkdir?: (dir: string, options: { recursive: true }) => Promise<unknown>;
   resolveSessionTranscriptsDir?: () => string | Promise<string>;
   replaceConfigFile?: (params: {
-    nextConfig: OpenClawConfig;
+    nextConfig: AlienConfig;
     afterWrite: { mode: "auto" };
   }) => Promise<unknown>;
 };
@@ -89,7 +89,7 @@ async function ensureDefaultAgentWorkspace(
   return ensureAgentWorkspace(params);
 }
 
-async function writeDefaultConfigFile(config: OpenClawConfig): Promise<void> {
+async function writeDefaultConfigFile(config: AlienConfig): Promise<void> {
   const { replaceConfigFile } = await loadConfigIOModule();
   await replaceConfigFile({
     nextConfig: config,
@@ -117,12 +117,12 @@ async function resolveDefaultSessionTranscriptsDir(): Promise<string> {
 
 async function readConfigFileRaw(configPath: string): Promise<{
   exists: boolean;
-  parsed: OpenClawConfig;
+  parsed: AlienConfig;
 }> {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     const parsed = safeParseWithSchema(JsonRecordSchema, JSON5.parse(raw));
-    return { exists: true, parsed: (parsed ?? {}) as OpenClawConfig };
+    return { exists: true, parsed: (parsed ?? {}) as AlienConfig };
   } catch {
     return { exists: false, parsed: {} };
   }
@@ -147,7 +147,7 @@ export async function setupCommand(
   const workspace =
     desiredWorkspace ?? defaults.workspace ?? (await resolveDefaultAgentWorkspaceDir(deps));
 
-  const next: OpenClawConfig = {
+  const next: AlienConfig = {
     ...cfg,
     agents: {
       ...cfg.agents,
@@ -210,7 +210,7 @@ export async function setupCommand(
   runtime.log("");
   runtime.log("Setup complete: local config, workspace, and session directories are ready.");
   runtime.log(
-    `Next: run ${formatCliCommand("openclaw configure")} to choose models, channels, Gateway, plugins, skills, and health checks.`,
+    `Next: run ${formatCliCommand("alien configure")} to choose models, channels, Gateway, plugins, skills, and health checks.`,
   );
-  runtime.log(`For full first-run onboarding, run ${formatCliCommand("openclaw setup --wizard")}.`);
+  runtime.log(`For full first-run onboarding, run ${formatCliCommand("alien setup --wizard")}.`);
 }

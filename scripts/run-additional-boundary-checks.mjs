@@ -110,7 +110,7 @@ export function shouldRunPromptSnapshots(value) {
 }
 
 export function filterChecksForEnvironment(checks, env = process.env) {
-  if (shouldRunPromptSnapshots(env.OPENCLAW_RUN_PROMPT_SNAPSHOTS)) {
+  if (shouldRunPromptSnapshots(env.ALIEN_RUN_PROMPT_SNAPSHOTS)) {
     return checks;
   }
   return checks.filter((check) => check.label !== PROMPT_SNAPSHOT_CHECK_LABEL);
@@ -247,13 +247,13 @@ function resolveCliShardSpec(args, env) {
   if (inlineShard) {
     return inlineShard.slice("--shard=".length);
   }
-  return env.OPENCLAW_ADDITIONAL_BOUNDARY_SHARD ?? "";
+  return env.ALIEN_ADDITIONAL_BOUNDARY_SHARD ?? "";
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const concurrency = resolveConcurrency(
-    process.env.OPENCLAW_ADDITIONAL_BOUNDARY_CONCURRENCY ??
-      process.env.OPENCLAW_EXTENSION_BOUNDARY_CONCURRENCY,
+    process.env.ALIEN_ADDITIONAL_BOUNDARY_CONCURRENCY ??
+      process.env.ALIEN_EXTENSION_BOUNDARY_CONCURRENCY,
   );
   const shard = parseShardSpec(resolveCliShardSpec(process.argv.slice(2), process.env));
   const checks = filterChecksForEnvironment(selectChecksForShard(BOUNDARY_CHECKS, shard));

@@ -92,7 +92,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: true,
         includeShellTools: true,
         includeChannelTools: true,
-        includeOpenClawTools: true,
+        includeAlienTools: true,
         includePluginTools: true,
       },
     });
@@ -106,7 +106,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: false,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: false,
       },
     });
@@ -123,7 +123,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: true,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: true,
       },
     });
@@ -137,7 +137,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: true,
         includeShellTools: false,
         includeChannelTools: false,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: false,
       },
     });
@@ -146,7 +146,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: true,
         includeChannelTools: false,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: false,
       },
     });
@@ -157,7 +157,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: false,
-        includeOpenClawTools: true,
+        includeAlienTools: true,
         includePluginTools: false,
       },
     });
@@ -168,7 +168,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: false,
-        includeOpenClawTools: true,
+        includeAlienTools: true,
         includePluginTools: false,
       },
     });
@@ -182,7 +182,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: true,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: true,
       },
     });
@@ -195,7 +195,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: true,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: true,
       },
     });
@@ -203,7 +203,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
       includeCoreTools: false,
       codingToolConstructionPlan: {
         includeChannelTools: true,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: true,
       },
     });
@@ -219,7 +219,7 @@ describe("resolveEmbeddedAttemptToolConstructionPlan", () => {
         includeBaseCodingTools: false,
         includeShellTools: false,
         includeChannelTools: true,
-        includeOpenClawTools: false,
+        includeAlienTools: false,
         includePluginTools: true,
       },
     });

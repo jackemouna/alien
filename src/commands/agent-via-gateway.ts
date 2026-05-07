@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { resolveSendableOutboundReplyParts } from "openclaw/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "alien/plugin-sdk/reply-payload";
 import { listAgentIds } from "../agents/agent-scope.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { CliDeps } from "../cli/deps.types.js";
 import { withProgress } from "../cli/progress.js";
 import { getRuntimeConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { callGateway, isGatewayTransportError, randomIdempotencyKey } from "../gateway/call.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../gateway/protocol/client-info.js";
 import { routeLogsToStderr } from "../logging/console.js";
@@ -67,7 +67,7 @@ function protectJsonStdout(opts: Pick<AgentCliOpts, "json">): void {
   }
 }
 
-function parseTimeoutSeconds(opts: { cfg: OpenClawConfig; timeout?: string }) {
+function parseTimeoutSeconds(opts: { cfg: AlienConfig; timeout?: string }) {
   const raw =
     opts.timeout !== undefined
       ? Number.parseInt(opts.timeout, 10)
@@ -141,7 +141,7 @@ async function agentViaGatewayCommand(opts: AgentCliOpts, runtime: RuntimeEnv) {
     const knownAgents = listAgentIds(cfg);
     if (!knownAgents.includes(agentId)) {
       throw new Error(
-        `Unknown agent id "${agentIdRaw}". Use "${formatCliCommand("openclaw agents list")}" to see configured agents.`,
+        `Unknown agent id "${agentIdRaw}". Use "${formatCliCommand("alien agents list")}" to see configured agents.`,
       );
     }
   }

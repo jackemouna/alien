@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { getFileExtension } from "openclaw/plugin-sdk/media-mime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { getFileExtension } from "alien/plugin-sdk/media-mime";
+import { logVerbose } from "alien/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 
 type DiscordPreflightAudioRuntime = typeof import("./preflight-audio.runtime.js");
 
@@ -66,7 +66,7 @@ export async function resolveDiscordPreflightAudioMentionContext(params: {
   isDirectMessage: boolean;
   shouldRequireMention: boolean;
   mentionRegexes: RegExp[];
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   abortSignal?: AbortSignal;
 }): Promise<{
   hasAudioAttachment: boolean;

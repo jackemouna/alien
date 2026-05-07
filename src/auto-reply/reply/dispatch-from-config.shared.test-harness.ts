@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
 import type {
   PluginHookBeforeDispatchResult,
@@ -56,14 +56,14 @@ const internalHookMocks = vi.hoisted(() => ({
 }));
 const acpMocks = vi.hoisted(() => ({
   listAcpSessionEntries: vi.fn(async () => []),
-  readAcpSessionEntry: vi.fn<(params: { sessionKey: string; cfg?: OpenClawConfig }) => unknown>(
+  readAcpSessionEntry: vi.fn<(params: { sessionKey: string; cfg?: AlienConfig }) => unknown>(
     () => null,
   ),
   getAcpRuntimeBackend: vi.fn<() => unknown>(() => null),
   upsertAcpSessionMeta: vi.fn<
     (params: {
       sessionKey: string;
-      cfg?: OpenClawConfig;
+      cfg?: AlienConfig;
       mutate: (
         current: Record<string, unknown> | undefined,
         entry: { acp?: Record<string, unknown> } | undefined,
@@ -121,7 +121,7 @@ const ttsMocks = vi.hoisted(() => ({
     return params.payload;
   }),
   normalizeTtsAutoMode: vi.fn((value: unknown) => (typeof value === "string" ? value : undefined)),
-  resolveTtsConfig: vi.fn((_cfg: OpenClawConfig) => ({ mode: "final" })),
+  resolveTtsConfig: vi.fn((_cfg: AlienConfig) => ({ mode: "final" })),
 }));
 const replyMediaPathMocks = vi.hoisted(() => ({
   createReplyMediaPathNormalizer: vi.fn(
@@ -319,7 +319,7 @@ vi.mock("./dispatch-acp-manager.runtime.js", () => ({
 vi.mock("../../tts/tts.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
   normalizeTtsAutoMode: (value: unknown) => ttsMocks.normalizeTtsAutoMode(value),
-  resolveTtsConfig: (cfg: OpenClawConfig) => ttsMocks.resolveTtsConfig(cfg),
+  resolveTtsConfig: (cfg: AlienConfig) => ttsMocks.resolveTtsConfig(cfg),
 }));
 vi.mock("../../tts/tts.runtime.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
@@ -340,18 +340,18 @@ vi.mock("./dispatch-acp-tts.runtime.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
 }));
 vi.mock("./dispatch-acp-session.runtime.js", () => ({
-  readAcpSessionEntry: (params: { sessionKey: string; cfg?: OpenClawConfig }) =>
+  readAcpSessionEntry: (params: { sessionKey: string; cfg?: AlienConfig }) =>
     acpMocks.readAcpSessionEntry(params),
 }));
 vi.mock("../../tts/tts-config.js", () => ({
   normalizeTtsAutoMode: (value: unknown) => ttsMocks.normalizeTtsAutoMode(value),
-  resolveConfiguredTtsMode: (cfg: OpenClawConfig) => ttsMocks.resolveTtsConfig(cfg).mode,
+  resolveConfiguredTtsMode: (cfg: AlienConfig) => ttsMocks.resolveTtsConfig(cfg).mode,
   shouldCleanTtsDirectiveText: () => true,
   shouldAttemptTtsPayload: () => true,
 }));
 
 export const noAbortResult = { handled: false, aborted: false } as const;
-export const emptyConfig = {} as OpenClawConfig;
+export const emptyConfig = {} as AlienConfig;
 
 export function createDispatcher(): ReplyDispatcher {
   const acceptReply = () => true;

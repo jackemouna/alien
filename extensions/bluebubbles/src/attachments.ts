@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
 import path from "node:path";
-import { sanitizeUntrustedFileName } from "openclaw/plugin-sdk/security-runtime";
+import { sanitizeUntrustedFileName } from "alien/plugin-sdk/security-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 import {
   createBlueBubblesClient,
@@ -18,7 +18,7 @@ import {
   getCachedBlueBubblesPrivateApiStatus,
   isBlueBubblesPrivateApiStatusEnabled,
 } from "./probe.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 import { warnBlueBubbles } from "./runtime.js";
 import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./send-helpers.js";
 import { createChatForHandle, resolveChatGuidForTarget } from "./send.js";
@@ -29,7 +29,7 @@ type BlueBubblesAttachmentOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
 };
 
 const AUDIO_MIME_MP3 = new Set(["audio/mpeg", "audio/mp3"]);

@@ -78,8 +78,8 @@ export function resolveAugmentedPluginNpmPackageJson(params) {
     files: plan.packageFiles,
     peerDependencies: plan.packagePeerMetadata.peerDependencies,
     peerDependenciesMeta: plan.packagePeerMetadata.peerDependenciesMeta,
-    openclaw: {
-      ...plan.packageJson.openclaw,
+    alien: {
+      ...plan.packageJson.alien,
       runtimeExtensions: plan.runtimeExtensions,
       ...(plan.runtimeSetupEntry ? { runtimeSetupEntry: plan.runtimeSetupEntry } : {}),
     },
@@ -198,7 +198,7 @@ export function mergeGeneratedChannelConfigs(manifest, generatedChannelConfigs) 
 export function resolveAugmentedPluginNpmManifest(params) {
   const repoRoot = path.resolve(params.repoRoot ?? ".");
   const packageDir = resolvePackageDir(repoRoot, params.packageDir);
-  const manifestPath = path.join(packageDir, "openclaw.plugin.json");
+  const manifestPath = path.join(packageDir, "alien.plugin.json");
   if (!fs.existsSync(manifestPath)) {
     return {
       manifestPath,

@@ -1,12 +1,12 @@
-import { describeWebhookAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createLoggedPairingApprovalNotifier } from "openclaw/plugin-sdk/channel-pairing";
-import { createAllowlistProviderRouteAllowlistWarningCollector } from "openclaw/plugin-sdk/channel-policy";
+import { describeWebhookAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createLoggedPairingApprovalNotifier } from "alien/plugin-sdk/channel-pairing";
+import { createAllowlistProviderRouteAllowlistWarningCollector } from "alien/plugin-sdk/channel-policy";
 import {
   buildWebhookChannelStatusSummary,
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
+} from "alien/plugin-sdk/status-helpers";
 import { resolveNextcloudTalkAccount, type ResolvedNextcloudTalkAccount } from "./accounts.js";
 import { nextcloudTalkApprovalAuth } from "./approval-auth.js";
 import { buildChannelConfigSchema, DEFAULT_ACCOUNT_ID, type ChannelPlugin } from "./channel-api.js";

@@ -1,1 +1,1 @@
-export { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
+export { loadOutboundMediaFromUrl } from "alien/plugin-sdk/outbound-media";

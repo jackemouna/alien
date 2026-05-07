@@ -1,7 +1,7 @@
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import { createReplyMediaPathNormalizer } from "../../auto-reply/reply/reply-media-paths.runtime.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { isAudioFileName } from "../../media/mime.js";
 import { resolveSendableOutboundReplyParts } from "../../plugin-sdk/reply-payload.js";
 
@@ -14,7 +14,7 @@ function shouldPreserveDisplayMediaUrl(mediaUrl: string): boolean {
 }
 
 export async function normalizeWebchatReplyMediaPathsForDisplay(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   sessionKey: string;
   agentId: string;
   workspaceDir?: string;

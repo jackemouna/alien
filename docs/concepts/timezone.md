@@ -1,12 +1,12 @@
 ---
-summary: "Where timezones show up in OpenClaw — envelopes, tool payloads, system prompt"
+summary: "Where timezones show up in Alien — envelopes, tool payloads, system prompt"
 read_when:
   - You want a quick mental model for timezone handling
   - You are deciding where to set or override a timezone
 title: "Timezones"
 ---
 
-OpenClaw standardizes timestamps so the model sees a **single reference time** instead of a mix of provider-local clocks. There are three surfaces where timezones show up, each with its own purpose:
+Alien standardizes timestamps so the model sees a **single reference time** instead of a mix of provider-local clocks. There are three surfaces where timezones show up, each with its own purpose:
 
 ## Three timezone surfaces
 
@@ -30,7 +30,7 @@ The system prompt deliberately omits the live clock to keep prompt caching stabl
 }
 ```
 
-If `userTimezone` is unset, OpenClaw resolves the host timezone at runtime (no config write). `agents.defaults.timeFormat` (`auto` | `12` | `24`) controls 12h/24h rendering in envelopes and downstream surfaces, not in the system prompt section.
+If `userTimezone` is unset, Alien resolves the host timezone at runtime (no config write). `agents.defaults.timeFormat` (`auto` | `12` | `24`) controls 12h/24h rendering in envelopes and downstream surfaces, not in the system prompt section.
 
 ## When to override
 

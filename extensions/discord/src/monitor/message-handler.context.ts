@@ -1,17 +1,17 @@
 import {
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { resolveChannelContextVisibilityMode } from "openclaw/plugin-sdk/context-visibility-runtime";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "openclaw/plugin-sdk/conversation-runtime";
-import { isDangerousNameMatchingEnabled } from "openclaw/plugin-sdk/dangerous-name-runtime";
-import { finalizeInboundContext } from "openclaw/plugin-sdk/reply-dispatch-runtime";
-import { buildPendingHistoryContextFromMap } from "openclaw/plugin-sdk/reply-history";
-import { buildAgentSessionKey, resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { evaluateSupplementalContextVisibility } from "openclaw/plugin-sdk/security-runtime";
-import { readSessionUpdatedAt, resolveStorePath } from "openclaw/plugin-sdk/session-store-runtime";
-import { truncateUtf16Safe } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/channel-inbound";
+import { resolveChannelContextVisibilityMode } from "alien/plugin-sdk/context-visibility-runtime";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "alien/plugin-sdk/conversation-runtime";
+import { isDangerousNameMatchingEnabled } from "alien/plugin-sdk/dangerous-name-runtime";
+import { finalizeInboundContext } from "alien/plugin-sdk/reply-dispatch-runtime";
+import { buildPendingHistoryContextFromMap } from "alien/plugin-sdk/reply-history";
+import { buildAgentSessionKey, resolveThreadSessionKeys } from "alien/plugin-sdk/routing";
+import { danger, logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { evaluateSupplementalContextVisibility } from "alien/plugin-sdk/security-runtime";
+import { readSessionUpdatedAt, resolveStorePath } from "alien/plugin-sdk/session-store-runtime";
+import { truncateUtf16Safe } from "alien/plugin-sdk/text-runtime";
 import { resolveDiscordConversationIdentity } from "../conversation-identity.js";
 import { ChannelType } from "../internal/discord.js";
 import { normalizeDiscordAllowList, normalizeDiscordSlug } from "./allow-list.js";

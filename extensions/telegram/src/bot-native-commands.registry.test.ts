@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { clearPluginCommands, registerPluginCommand } from "openclaw/plugin-sdk/plugin-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { clearPluginCommands, registerPluginCommand } from "alien/plugin-sdk/plugin-runtime";
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 let registerTelegramNativeCommands: typeof import("./bot-native-commands.js").registerTelegramNativeCommands;
-let setActivePluginRegistry: typeof import("openclaw/plugin-sdk/plugin-test-runtime").setActivePluginRegistry;
+let setActivePluginRegistry: typeof import("alien/plugin-sdk/plugin-test-runtime").setActivePluginRegistry;
 let createCommandBot: typeof import("./bot-native-commands.menu-test-support.js").createCommandBot;
 let createNativeCommandTestParams: typeof import("./bot-native-commands.menu-test-support.js").createNativeCommandTestParams;
 let createPrivateCommandContext: typeof import("./bot-native-commands.menu-test-support.js").createPrivateCommandContext;
@@ -112,7 +112,7 @@ async function registerPairMenu(params: {
 
 describe("registerTelegramNativeCommands real plugin registry", () => {
   beforeAll(async () => {
-    ({ setActivePluginRegistry } = await import("openclaw/plugin-sdk/plugin-test-runtime"));
+    ({ setActivePluginRegistry } = await import("alien/plugin-sdk/plugin-test-runtime"));
     ({ registerTelegramNativeCommands } = await import("./bot-native-commands.js"));
     ({
       createCommandBot,
@@ -237,7 +237,7 @@ describe("registerTelegramNativeCommands real plugin registry", () => {
 
     registerTelegramNativeCommands({
       ...createNativeCommandTestParams({
-        commands: { allowFrom: { telegram: ["999"] } } as OpenClawConfig["commands"],
+        commands: { allowFrom: { telegram: ["999"] } } as AlienConfig["commands"],
       }),
       bot,
       allowFrom: ["999"],

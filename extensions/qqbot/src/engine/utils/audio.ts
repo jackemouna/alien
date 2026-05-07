@@ -11,7 +11,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { readRegularFileSync } from "openclaw/plugin-sdk/security-runtime";
+import { readRegularFileSync } from "alien/plugin-sdk/security-runtime";
 import { formatErrorMessage } from "./format.js";
 import { debugLog, debugError, debugWarn } from "./log.js";
 import { normalizeLowercaseStringOrEmpty as normalizeLowercase } from "./string-normalize.js";

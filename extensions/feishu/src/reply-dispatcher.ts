@@ -1,15 +1,15 @@
-import { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
-import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+import { logTypingFailure } from "alien/plugin-sdk/channel-feedback";
+import { createChannelMessageReplyPipeline } from "alien/plugin-sdk/channel-message";
 import {
   formatChannelProgressDraftLineForEntry,
   isChannelProgressDraftWorkToolName,
-} from "openclaw/plugin-sdk/channel-streaming";
+} from "alien/plugin-sdk/channel-streaming";
 import {
   resolveSendableOutboundReplyParts,
   resolveTextChunksWithFallback,
   sendMediaWithLeadingCaption,
-} from "openclaw/plugin-sdk/reply-payload";
-import { stripReasoningTagsFromText } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/reply-payload";
+import { stripReasoningTagsFromText } from "alien/plugin-sdk/text-runtime";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { sendMediaFeishu, shouldSuppressFeishuTextForVoiceMedia } from "./media.js";

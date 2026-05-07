@@ -1,7 +1,7 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { ProviderWrapStreamFnContext } from "openclaw/plugin-sdk/plugin-entry";
-import { createAnthropicThinkingPrefillPayloadWrapper } from "openclaw/plugin-sdk/provider-stream-shared";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
+import type { ProviderWrapStreamFnContext } from "alien/plugin-sdk/plugin-entry";
+import { createAnthropicThinkingPrefillPayloadWrapper } from "alien/plugin-sdk/provider-stream-shared";
+import { createSubsystemLogger } from "alien/plugin-sdk/runtime-env";
 
 const log = createSubsystemLogger("cloudflare-ai-gateway-stream");
 

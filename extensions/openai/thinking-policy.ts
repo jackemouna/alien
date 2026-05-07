@@ -1,4 +1,4 @@
-import type { ProviderThinkingProfile } from "openclaw/plugin-sdk/plugin-entry";
+import type { ProviderThinkingProfile } from "alien/plugin-sdk/plugin-entry";
 
 const OPENAI_THINKING_BASE_LEVELS = [
   { id: "off" },

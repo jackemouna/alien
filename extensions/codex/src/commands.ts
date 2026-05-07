@@ -1,8 +1,8 @@
 import type {
-  OpenClawPluginCommandDefinition,
+  AlienPluginCommandDefinition,
   PluginCommandContext,
   PluginCommandResult,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "alien/plugin-sdk/plugin-entry";
 import { describeControlFailure } from "./app-server/capabilities.js";
 import { formatCodexDisplayText } from "./command-formatters.js";
 import type { CodexCommandDeps } from "./command-handlers.js";
@@ -10,7 +10,7 @@ import type { CodexCommandDeps } from "./command-handlers.js";
 export function createCodexCommand(options: {
   pluginConfig?: unknown;
   deps?: Partial<CodexCommandDeps>;
-}): OpenClawPluginCommandDefinition {
+}): AlienPluginCommandDefinition {
   return {
     name: "codex",
     description: "Inspect and control the Codex app-server harness",

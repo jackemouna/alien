@@ -1,4 +1,4 @@
-import type { ChannelConfigUiHint } from "openclaw/plugin-sdk/channel-core";
+import type { ChannelConfigUiHint } from "alien/plugin-sdk/channel-core";
 
 export const discordChannelConfigUiHints = {
   "": {
@@ -75,7 +75,7 @@ export const discordChannelConfigUiHints = {
   },
   "streaming.progress.labels": {
     label: "Discord Progress Label Pool",
-    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use OpenClaw built-in progress labels.',
+    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use Alien built-in progress labels.',
   },
   "streaming.progress.maxLines": {
     label: "Discord Progress Max Lines",
@@ -115,7 +115,7 @@ export const discordChannelConfigUiHints = {
   },
   "eventQueue.listenerTimeout": {
     label: "Discord EventQueue Listener Timeout (ms)",
-    help: "Canonical Discord listener timeout control in ms for gateway normalization/enqueue handlers. Default is 120000 in OpenClaw; set per account via channels.discord.accounts.<id>.eventQueue.listenerTimeout.",
+    help: "Canonical Discord listener timeout control in ms for gateway normalization/enqueue handlers. Default is 120000 in Alien; set per account via channels.discord.accounts.<id>.eventQueue.listenerTimeout.",
   },
   "eventQueue.maxQueueSize": {
     label: "Discord EventQueue Max Queue Size",
@@ -163,15 +163,15 @@ export const discordChannelConfigUiHints = {
   },
   gatewayInfoTimeoutMs: {
     label: "Discord Gateway Metadata Timeout (ms)",
-    help: "Timeout for Discord /gateway/bot metadata lookup before falling back to the default gateway URL. Default is 30000; OPENCLAW_DISCORD_GATEWAY_INFO_TIMEOUT_MS can override when config is unset.",
+    help: "Timeout for Discord /gateway/bot metadata lookup before falling back to the default gateway URL. Default is 30000; ALIEN_DISCORD_GATEWAY_INFO_TIMEOUT_MS can override when config is unset.",
   },
   gatewayReadyTimeoutMs: {
     label: "Discord Gateway READY Timeout (ms)",
-    help: "Startup wait for the Discord gateway READY event before restarting the socket. Default is 15000; OPENCLAW_DISCORD_READY_TIMEOUT_MS can override when config is unset.",
+    help: "Startup wait for the Discord gateway READY event before restarting the socket. Default is 15000; ALIEN_DISCORD_READY_TIMEOUT_MS can override when config is unset.",
   },
   gatewayRuntimeReadyTimeoutMs: {
     label: "Discord Gateway Runtime READY Timeout (ms)",
-    help: "Runtime reconnect wait for the Discord gateway READY event before force-stopping the lifecycle. Default is 30000; OPENCLAW_DISCORD_RUNTIME_READY_TIMEOUT_MS can override when config is unset.",
+    help: "Runtime reconnect wait for the Discord gateway READY event before force-stopping the lifecycle. Default is 30000; ALIEN_DISCORD_RUNTIME_READY_TIMEOUT_MS can override when config is unset.",
   },
   "voice.enabled": {
     label: "Discord Voice Enabled",
@@ -199,7 +199,7 @@ export const discordChannelConfigUiHints = {
   },
   "voice.reconnectGraceMs": {
     label: "Discord Voice Reconnect Grace (ms)",
-    help: "Grace period for a disconnected Discord voice session to enter Signalling or Connecting before OpenClaw destroys it. Default: 15000.",
+    help: "Grace period for a disconnected Discord voice session to enter Signalling or Connecting before Alien destroys it. Default: 15000.",
   },
   "voice.tts": {
     label: "Discord Voice Text-to-Speech",

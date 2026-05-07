@@ -22,7 +22,7 @@ import type { TokenManager } from "./token.js";
 
 const fetchWithSsrFGuardMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 

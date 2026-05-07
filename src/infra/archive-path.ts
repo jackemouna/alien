@@ -5,4 +5,4 @@ export {
   resolveArchiveOutputPath,
   stripArchivePath,
   validateArchiveEntryPath,
-} from "@openclaw/fs-safe/archive";
+} from "@alien/fs-safe/archive";

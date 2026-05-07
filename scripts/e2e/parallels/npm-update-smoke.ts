@@ -6,13 +6,13 @@ import {
   die,
   ensureValue,
   makeTempDir,
-  packOpenClaw,
+  packAlien,
   parsePlatformList,
   parseProvider,
   repoRoot,
   resolveHostIp,
   resolveLatestVersion,
-  resolveOpenClawRegistryVersion,
+  resolveAlienRegistryVersion,
   resolveProviderAuth,
   resolveWindowsProviderAuth,
   run,
@@ -94,14 +94,14 @@ interface NpmUpdateSummary {
 const macosVm = "macOS Tahoe";
 const windowsVm = "Windows 11";
 const linuxVmDefault = "Ubuntu 24.04.3 ARM64";
-const updateTimeoutSeconds = Number(process.env.OPENCLAW_PARALLELS_NPM_UPDATE_TIMEOUT_S || 1200);
+const updateTimeoutSeconds = Number(process.env.ALIEN_PARALLELS_NPM_UPDATE_TIMEOUT_S || 1200);
 
 function usage(): string {
   return `Usage: bash scripts/e2e/parallels-npm-update-smoke.sh [options]
 
 Options:
-  --package-spec <npm-spec>  Baseline npm package spec. Default: openclaw@latest
-  --update-target <target>    Target passed to guest 'openclaw update --tag'.
+  --package-spec <npm-spec>  Baseline npm package spec. Default: alien@latest
+  --update-target <target>    Target passed to guest 'alien update --tag'.
                              Default: host-served tgz packed from current checkout.
   --fresh-target <npm-spec>   Also run fresh install smoke for this package after update lanes.
   --beta-validation [target]  Resolve a beta tag/alias/version, then run latest->target update
@@ -242,11 +242,11 @@ class NpmUpdateSmoke {
 
   async run(): Promise<void> {
     this.startedAt = Date.now();
-    this.runDir = await makeTempDir("openclaw-parallels-npm-update.");
-    this.tgzDir = await makeTempDir("openclaw-parallels-npm-update-tgz.");
+    this.runDir = await makeTempDir("alien-parallels-npm-update.");
+    this.tgzDir = await makeTempDir("alien-parallels-npm-update-tgz.");
     try {
       this.latestVersion = resolveLatestVersion();
-      this.packageSpec = this.options.packageSpec || `openclaw@${this.latestVersion}`;
+      this.packageSpec = this.options.packageSpec || `alien@${this.latestVersion}`;
       this.currentHead = run("git", ["rev-parse", "HEAD"], { quiet: true }).stdout.trim();
       this.currentHeadShort = run("git", ["rev-parse", "--short=7", "HEAD"], {
         quiet: true,
@@ -265,7 +265,7 @@ class NpmUpdateSmoke {
       await this.runFreshBaselines();
 
       await this.prepareUpdateTarget();
-      say(`Run same-guest openclaw update to ${this.updateTargetEffective}`);
+      say(`Run same-guest alien update to ${this.updateTargetEffective}`);
       await this.runSameGuestUpdates();
 
       if (this.freshTargetSpec) {
@@ -297,7 +297,7 @@ class NpmUpdateSmoke {
     if (this.options.platforms.has("linux")) {
       jobs.push(
         this.spawnFresh("Linux", "linux", ["--vm", this.linuxVm], {
-          OPENCLAW_PARALLELS_LINUX_DISABLE_BONJOUR: "1",
+          ALIEN_PARALLELS_LINUX_DISABLE_BONJOUR: "1",
         }),
       );
     }
@@ -331,7 +331,7 @@ class NpmUpdateSmoke {
           "linux",
           ["--vm", this.linuxVm],
           {
-            OPENCLAW_PARALLELS_LINUX_DISABLE_BONJOUR: "1",
+            ALIEN_PARALLELS_LINUX_DISABLE_BONJOUR: "1",
           },
           this.freshTargetSpec,
           "fresh-target",
@@ -402,7 +402,7 @@ class NpmUpdateSmoke {
 
   private async prepareUpdateTarget(): Promise<void> {
     if (!this.options.updateTarget || this.options.updateTarget === "local-main") {
-      this.artifact = await packOpenClaw({
+      this.artifact = await packAlien({
         destination: this.tgzDir,
         requireControlUi: true,
       });
@@ -424,7 +424,7 @@ class NpmUpdateSmoke {
     this.updateTargetEffective = this.options.updateTarget;
     this.updateExpectedNeedle = this.isExplicitPackageTarget(this.updateTargetEffective)
       ? ""
-      : resolveOpenClawRegistryVersion(this.updateTargetEffective) || this.updateTargetEffective;
+      : resolveAlienRegistryVersion(this.updateTargetEffective) || this.updateTargetEffective;
     const metadata = this.resolveRegistryPackageMetadata(this.updateTargetEffective);
     this.updateTargetPackageVersion = metadata.version;
     this.updateTargetBuildCommit =
@@ -463,7 +463,7 @@ class NpmUpdateSmoke {
     if (this.isExplicitPackageTarget(target)) {
       return { gitHead: "", tarball: "", version: "" };
     }
-    const spec = target.startsWith("openclaw@") ? target : `openclaw@${target}`;
+    const spec = target.startsWith("alien@") ? target : `alien@${target}`;
     const output = run("npm", ["view", spec, "version", "dist.tarball", "gitHead", "--json"], {
       check: false,
       quiet: true,
@@ -661,7 +661,7 @@ class NpmUpdateSmoke {
     const scriptPath = this.writeGuestScript(
       macosVm,
       script,
-      "openclaw-parallels-npm-update-macos",
+      "alien-parallels-npm-update-macos",
     );
     const macosExecArgs = this.resolveMacosUpdateExecArgs(ctx);
     const sudoUserArgIndex = macosExecArgs.indexOf("-u");
@@ -795,7 +795,7 @@ class NpmUpdateSmoke {
     const scriptPath = this.writeGuestScript(
       this.linuxVm,
       script,
-      "openclaw-parallels-npm-update-linux",
+      "alien-parallels-npm-update-linux",
     );
     try {
       const status = await this.runStreamingToJobLog(
@@ -901,11 +901,11 @@ class NpmUpdateSmoke {
     ) {
       return;
     }
-    const baseline = resolveOpenClawRegistryVersion(this.packageSpec);
-    const target = resolveOpenClawRegistryVersion(this.options.updateTarget);
+    const baseline = resolveAlienRegistryVersion(this.packageSpec);
+    const target = resolveAlienRegistryVersion(this.options.updateTarget);
     if (baseline && target && baseline === target) {
       die(
-        `--update-target ${this.options.updateTarget} resolves to openclaw@${target}, same as baseline ${this.packageSpec}; publish or choose a newer --update-target before running VM update coverage`,
+        `--update-target ${this.options.updateTarget} resolves to alien@${target}, same as baseline ${this.packageSpec}; publish or choose a newer --update-target before running VM update coverage`,
       );
     }
   }
@@ -919,7 +919,7 @@ class NpmUpdateSmoke {
 
   private async extractLastVersion(logPath: string): Promise<string> {
     const log = await readFile(logPath, "utf8").catch(() => "");
-    const matches = [...log.matchAll(/OpenClaw\s+([0-9][^\s]*)/gi)];
+    const matches = [...log.matchAll(/Alien\s+([0-9][^\s]*)/gi)];
     return matches.at(-1)?.[1] ?? "";
   }
 
@@ -943,27 +943,27 @@ class NpmUpdateSmoke {
 
   private configurePublishedTargets(): void {
     if (this.options.betaValidation) {
-      const version = resolveOpenClawRegistryVersion(this.options.betaValidation);
+      const version = resolveAlienRegistryVersion(this.options.betaValidation);
       if (!version) {
         die(`could not resolve beta validation target: ${this.options.betaValidation}`);
       }
       this.options.updateTarget = version;
-      this.options.freshTargetSpec = `openclaw@${version}`;
-      say(`Beta validation target: openclaw@${version}`);
+      this.options.freshTargetSpec = `alien@${version}`;
+      say(`Beta validation target: alien@${version}`);
     } else if (
       this.options.updateTarget &&
       this.options.updateTarget !== "local-main" &&
       !this.isExplicitPackageTarget(this.options.updateTarget)
     ) {
-      const version = resolveOpenClawRegistryVersion(this.options.updateTarget);
+      const version = resolveAlienRegistryVersion(this.options.updateTarget);
       if (version) {
         this.options.updateTarget = version;
       }
     }
 
     if (this.options.freshTargetSpec) {
-      const version = resolveOpenClawRegistryVersion(this.options.freshTargetSpec);
-      this.freshTargetSpec = version ? `openclaw@${version}` : this.options.freshTargetSpec;
+      const version = resolveAlienRegistryVersion(this.options.freshTargetSpec);
+      this.freshTargetSpec = version ? `alien@${version}` : this.options.freshTargetSpec;
     }
   }
 

@@ -1,10 +1,10 @@
-import { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import { dispatchChannelMessageReplyWithBase } from "alien/plugin-sdk/channel-message";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   buildAgentMediaPayload,
   saveMediaBuffer,
   saveMediaSource,
-} from "openclaw/plugin-sdk/media-runtime";
+} from "alien/plugin-sdk/media-runtime";
 import { buildQaTarget, sendQaBusMessage, type QaBusMessage } from "./bus-client.js";
 import { getQaChannelRuntime } from "./runtime.js";
 import type { CoreConfig, ResolvedQaChannelAccount } from "./types.js";
@@ -73,7 +73,7 @@ export async function handleQaInbound(params: {
     threadId: inbound.threadId,
   });
   const route = runtime.channel.routing.resolveAgentRoute({
-    cfg: params.config as OpenClawConfig,
+    cfg: params.config as AlienConfig,
     channel: params.channelId,
     accountId: params.account.accountId,
     peer: {
@@ -91,7 +91,7 @@ export async function handleQaInbound(params: {
     ? runtime.channel.mentions.matchesMentionPatterns(
         inbound.text,
         runtime.channel.mentions.buildMentionRegexes(
-          params.config as OpenClawConfig,
+          params.config as AlienConfig,
           route.agentId,
         ),
       )
@@ -108,7 +108,7 @@ export async function handleQaInbound(params: {
     from: inbound.senderName || inbound.senderId,
     timestamp: inbound.timestamp,
     previousTimestamp,
-    envelope: runtime.channel.reply.resolveEnvelopeFormatOptions(params.config as OpenClawConfig),
+    envelope: runtime.channel.reply.resolveEnvelopeFormatOptions(params.config as AlienConfig),
     body: inbound.text,
   });
   const mediaPayload = await resolveQaInboundMediaPayload(inbound.attachments);
@@ -152,7 +152,7 @@ export async function handleQaInbound(params: {
   });
 
   await dispatchChannelMessageReplyWithBase({
-    cfg: params.config as OpenClawConfig,
+    cfg: params.config as AlienConfig,
     channel: params.channelId,
     accountId: params.account.accountId,
     route,

@@ -11,9 +11,9 @@ describe("scripts/test-live-codex-harness-docker.sh", () => {
   it("mounts cache and npm tool dirs outside the bind-mounted Docker home", () => {
     const script = fs.readFileSync(SCRIPT_PATH, "utf8");
 
-    expect(script).toContain('DOCKER_CACHE_CONTAINER_DIR="/tmp/openclaw-cache"');
-    expect(script).toContain('DOCKER_CLI_TOOLS_CONTAINER_DIR="/tmp/openclaw-npm-global"');
-    expect(script).toContain("openclaw_live_codex_harness_is_ci()");
+    expect(script).toContain('DOCKER_CACHE_CONTAINER_DIR="/tmp/alien-cache"');
+    expect(script).toContain('DOCKER_CLI_TOOLS_CONTAINER_DIR="/tmp/alien-npm-global"');
+    expect(script).toContain("alien_live_codex_harness_is_ci()");
     expect(script).toContain('[[ -n "${CI:-}" && "${CI:-}" != "false" ]]');
     expect(script).toContain('-e XDG_CACHE_HOME="$DOCKER_CACHE_CONTAINER_DIR"');
     expect(script).toContain('-e NPM_CONFIG_PREFIX="$DOCKER_CLI_TOOLS_CONTAINER_DIR"');
@@ -28,13 +28,13 @@ describe("scripts/test-live-codex-harness-docker.sh", () => {
     const script = fs.readFileSync(SCRIPT_PATH, "utf8");
 
     expect(script).toContain(
-      "OPENCLAW_LIVE_CODEX_HARNESS_AUTH=codex-auth requires ~/.codex/auth.json before building the live Docker image",
+      "ALIEN_LIVE_CODEX_HARNESS_AUTH=codex-auth requires ~/.codex/auth.json before building the live Docker image",
     );
     expect(script).toContain(
-      "If this is a Testbox/API-key run, set OPENCLAW_LIVE_CODEX_HARNESS_AUTH=api-key and run through openclaw-testbox-env.",
+      "If this is a Testbox/API-key run, set ALIEN_LIVE_CODEX_HARNESS_AUTH=api-key and run through alien-testbox-env.",
     );
     expect(script.indexOf("requires ~/.codex/auth.json before building")).toBeLessThan(
-      script.indexOf('OPENCLAW_LIVE_DOCKER_REPO_ROOT="$ROOT_DIR"'),
+      script.indexOf('ALIEN_LIVE_DOCKER_REPO_ROOT="$ROOT_DIR"'),
     );
   });
 });

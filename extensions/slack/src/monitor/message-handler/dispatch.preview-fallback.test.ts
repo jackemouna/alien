@@ -186,11 +186,11 @@ function createPreparedSlackMessage(params?: {
   } as never;
 }
 
-vi.mock("openclaw/plugin-sdk/agent-runtime", () => ({
+vi.mock("alien/plugin-sdk/agent-runtime", () => ({
   resolveHumanDelayConfig: () => undefined,
 }));
 
-vi.mock("openclaw/plugin-sdk/channel-feedback", () => ({
+vi.mock("alien/plugin-sdk/channel-feedback", () => ({
   DEFAULT_TIMING: {
     doneHoldMs: 0,
     errorHoldMs: 0,
@@ -208,8 +208,8 @@ vi.mock("../conversation.runtime.js", () => ({
   recordInboundSession: vi.fn(async () => undefined),
 }));
 
-vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+vi.mock("alien/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("alien/plugin-sdk/channel-message")>();
   return {
     ...actual,
     createChannelMessageReplyPipeline: (params: {
@@ -254,7 +254,7 @@ vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/channel-streaming", () => ({
+vi.mock("alien/plugin-sdk/channel-streaming", () => ({
   buildChannelProgressDraftLine: (params: {
     progressText?: string;
     summary?: string;
@@ -398,15 +398,15 @@ vi.mock("openclaw/plugin-sdk/channel-streaming", () => ({
     Boolean(name && !["message", "react", "reaction"].includes(name.toLowerCase())),
 }));
 
-vi.mock("openclaw/plugin-sdk/outbound-runtime", () => ({
+vi.mock("alien/plugin-sdk/outbound-runtime", () => ({
   resolveAgentOutboundIdentity: () => undefined,
 }));
 
-vi.mock("openclaw/plugin-sdk/reply-history", () => ({
+vi.mock("alien/plugin-sdk/reply-history", () => ({
   clearHistoryEntriesIfEnabled: () => {},
 }));
 
-vi.mock("openclaw/plugin-sdk/reply-payload", () => ({
+vi.mock("alien/plugin-sdk/reply-payload", () => ({
   resolveSendableOutboundReplyParts: (
     payload: { text?: string; mediaUrl?: string; mediaUrls?: string[] },
     opts?: { text?: string },
@@ -424,17 +424,17 @@ vi.mock("openclaw/plugin-sdk/reply-payload", () => ({
   },
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", () => ({
+vi.mock("alien/plugin-sdk/runtime-env", () => ({
   danger: (message: string) => message,
   logVerbose: () => {},
   shouldLogVerbose: () => false,
 }));
 
-vi.mock("openclaw/plugin-sdk/security-runtime", () => ({
+vi.mock("alien/plugin-sdk/security-runtime", () => ({
   resolvePinnedMainDmOwnerFromAllowlist: () => undefined,
 }));
 
-vi.mock("openclaw/plugin-sdk/text-runtime", () => ({
+vi.mock("alien/plugin-sdk/text-runtime", () => ({
   normalizeOptionalLowercaseString: (value?: string) => value?.toLowerCase(),
 }));
 
@@ -504,7 +504,7 @@ vi.mock("../allow-list.js", () => ({
 }));
 
 vi.mock("../config.runtime.js", () => ({
-  resolveStorePath: () => "/tmp/openclaw-store.json",
+  resolveStorePath: () => "/tmp/alien-store.json",
   updateLastRoute: async () => {},
 }));
 

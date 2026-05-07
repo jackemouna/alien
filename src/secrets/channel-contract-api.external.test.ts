@@ -26,7 +26,7 @@ vi.mock("../plugins/public-surface-loader.js", () => ({
 import { loadChannelSecretContractApi } from "./channel-contract-api.js";
 
 function writeExternalChannelPlugin(params: { pluginId: string; channelId: string }) {
-  const rootDir = makeTrackedTempDir("openclaw-channel-secret-contract", tempDirs);
+  const rootDir = makeTrackedTempDir("alien-channel-secret-contract", tempDirs);
   fs.writeFileSync(
     path.join(rootDir, "secret-contract-api.cjs"),
     `
@@ -35,7 +35,7 @@ module.exports = {
     {
       id: "channels.${params.channelId}.token",
       targetType: "channels.${params.channelId}.token",
-      configFile: "openclaw.json",
+      configFile: "alien.json",
       pathPattern: "channels.${params.channelId}.token",
       secretShape: "secret_input",
       expectedResolvedValue: "string",
@@ -99,7 +99,7 @@ describe("external channel secret contract api", () => {
   });
 
   it("loads dist/ secret-contract-api sidecars for compiled npm-published external channel plugins", () => {
-    const rootDir = makeTrackedTempDir("openclaw-channel-secret-contract-dist", tempDirs);
+    const rootDir = makeTrackedTempDir("alien-channel-secret-contract-dist", tempDirs);
     fs.mkdirSync(path.join(rootDir, "dist"), { recursive: true });
     fs.writeFileSync(
       path.join(rootDir, "dist", "secret-contract-api.cjs"),
@@ -109,7 +109,7 @@ module.exports = {
     {
       id: "channels.discord.token",
       targetType: "channels.discord.token",
-      configFile: "openclaw.json",
+      configFile: "alien.json",
       pathPattern: "channels.discord.token",
       secretShape: "secret_input",
       expectedResolvedValue: "string",

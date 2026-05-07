@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { normalizeTalkSection } from "../../../config/talk.js";
-import type { OpenClawConfig } from "../../../config/types.js";
+import type { AlienConfig } from "../../../config/types.js";
 
 function buildLegacyTalkProviderCompat(
   talk: Record<string, unknown>,
@@ -16,7 +16,7 @@ function buildLegacyTalkProviderCompat(
 
 function buildLegacyRealtimeTalkCompat(
   talk: Record<string, unknown>,
-  normalizedTalk: NonNullable<OpenClawConfig["talk"]>,
+  normalizedTalk: NonNullable<AlienConfig["talk"]>,
 ): Record<string, unknown> | undefined {
   if (talk.realtime !== undefined) {
     return undefined;
@@ -36,20 +36,20 @@ function buildLegacyRealtimeTalkCompat(
   if (normalizedTalk.providers !== undefined) {
     compat.providers = normalizedTalk.providers;
   }
-  return normalizeTalkSection({ realtime: compat } as OpenClawConfig["talk"])?.realtime;
+  return normalizeTalkSection({ realtime: compat } as AlienConfig["talk"])?.realtime;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
-export function normalizeLegacyTalkConfig(cfg: OpenClawConfig, changes: string[]): OpenClawConfig {
+export function normalizeLegacyTalkConfig(cfg: AlienConfig, changes: string[]): AlienConfig {
   const rawTalk = cfg.talk;
   if (!isRecord(rawTalk)) {
     return cfg;
   }
 
-  const normalizedTalk = normalizeTalkSection(rawTalk as OpenClawConfig["talk"]) ?? {};
+  const normalizedTalk = normalizeTalkSection(rawTalk as AlienConfig["talk"]) ?? {};
   const legacyProviderCompat = buildLegacyTalkProviderCompat(rawTalk);
   if (legacyProviderCompat) {
     normalizedTalk.providers = {

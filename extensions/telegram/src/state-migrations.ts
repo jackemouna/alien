@@ -1,7 +1,7 @@
-import type { ChannelLegacyStateMigrationPlan } from "openclaw/plugin-sdk/channel-contract";
-import { resolveChannelAllowFromPath } from "openclaw/plugin-sdk/channel-pairing-paths";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { statRegularFileSync } from "openclaw/plugin-sdk/security-runtime";
+import type { ChannelLegacyStateMigrationPlan } from "alien/plugin-sdk/channel-contract";
+import { resolveChannelAllowFromPath } from "alien/plugin-sdk/channel-pairing-paths";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { statRegularFileSync } from "alien/plugin-sdk/security-runtime";
 import { resolveDefaultTelegramAccountId } from "./account-selection.js";
 
 function fileExists(pathValue: string): boolean {
@@ -13,7 +13,7 @@ function fileExists(pathValue: string): boolean {
 }
 
 export function detectTelegramLegacyStateMigrations(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   env: NodeJS.ProcessEnv;
 }): ChannelLegacyStateMigrationPlan[] {
   const legacyPath = resolveChannelAllowFromPath("telegram", params.env);

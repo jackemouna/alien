@@ -1,5 +1,5 @@
 ---
-summary: "Advanced setup and development workflows for OpenClaw"
+summary: "Advanced setup and development workflows for Alien"
 read_when:
   - Setting up a new machine
   - You want "latest + greatest" without breaking your personal setup
@@ -15,14 +15,14 @@ For onboarding details, see [Onboarding (CLI)](/start/wizard).
 
 Pick a setup workflow based on how often you want updates and whether you want to run the Gateway yourself:
 
-- **Tailoring lives outside the repo:** keep your config and workspace in `~/.openclaw/openclaw.json` and `~/.openclaw/workspace/` so repo updates don't touch them.
+- **Tailoring lives outside the repo:** keep your config and workspace in `~/.alien/alien.json` and `~/.alien/workspace/` so repo updates don't touch them.
 - **Stable workflow (recommended for most):** install the macOS app and let it run the bundled Gateway.
 - **Bleeding edge workflow (dev):** run the Gateway yourself via `pnpm gateway:watch`, then let the macOS app attach in Local mode.
 
 ## Prereqs (from source)
 
 - Node 24 recommended (Node 22 LTS, currently `22.14+`, still supported)
-- `pnpm` required for source checkouts. OpenClaw loads bundled plugins from the
+- `pnpm` required for source checkouts. Alien loads bundled plugins from the
   `extensions/*` pnpm workspace packages in dev mode, so root `npm install` does
   not prepare the full source tree.
 - Docker (optional; only for containerized setup/e2e - see [Docker](/install/docker))
@@ -31,51 +31,51 @@ Pick a setup workflow based on how often you want updates and whether you want t
 
 If you want "100% tailored to me" _and_ easy updates, keep your customization in:
 
-- **Config:** `~/.openclaw/openclaw.json` (JSON/JSON5-ish)
-- **Workspace:** `~/.openclaw/workspace` (skills, prompts, memories; make it a private git repo)
+- **Config:** `~/.alien/alien.json` (JSON/JSON5-ish)
+- **Workspace:** `~/.alien/workspace` (skills, prompts, memories; make it a private git repo)
 
 Bootstrap once:
 
 ```bash
-openclaw setup
+alien setup
 ```
 
 From inside this repo, use the local CLI entry:
 
 ```bash
-openclaw setup
+alien setup
 ```
 
-If you don't have a global install yet, run it via `pnpm openclaw setup`.
+If you don't have a global install yet, run it via `pnpm alien setup`.
 
 ## Run the Gateway from this repo
 
 After `pnpm build`, you can run the packaged CLI directly:
 
 ```bash
-node openclaw.mjs gateway --port 18789 --verbose
+node alien.mjs gateway --port 18789 --verbose
 ```
 
 ## Stable workflow (macOS app first)
 
-1. Install + launch **OpenClaw.app** (menu bar).
+1. Install + launch **Alien.app** (menu bar).
 2. Complete the onboarding/permissions checklist (TCC prompts).
 3. Ensure Gateway is **Local** and running (the app manages it).
 4. Link surfaces (example: WhatsApp):
 
 ```bash
-openclaw channels login
+alien channels login
 ```
 
 5. Sanity check:
 
 ```bash
-openclaw health
+alien health
 ```
 
 If onboarding is not available in your build:
 
-- Run `openclaw setup`, then `openclaw channels login`, then start the Gateway manually (`openclaw gateway`).
+- Run `alien setup`, then `alien channels login`, then start the Gateway manually (`alien gateway`).
 
 ## Bleeding edge workflow (Gateway in a terminal)
 
@@ -93,26 +93,26 @@ If you also want the macOS app on the bleeding edge:
 
 ```bash
 pnpm install
-# First run only (or after resetting local OpenClaw config/workspace)
-pnpm openclaw setup
+# First run only (or after resetting local Alien config/workspace)
+pnpm alien setup
 pnpm gateway:watch
 ```
 
 `gateway:watch` starts or restarts the Gateway watch process in a named tmux
 session and auto-attaches from interactive terminals. Non-interactive shells stay
-detached and print `tmux attach -t openclaw-gateway-watch-main`; use
-`OPENCLAW_GATEWAY_WATCH_ATTACH=0 pnpm gateway:watch` to keep an interactive run
+detached and print `tmux attach -t alien-gateway-watch-main`; use
+`ALIEN_GATEWAY_WATCH_ATTACH=0 pnpm gateway:watch` to keep an interactive run
 detached, or `pnpm gateway:watch:raw` for foreground watch mode. The watcher
 reloads on relevant source, config, and bundled-plugin metadata changes. If the
 watched Gateway exits during startup, `gateway:watch` runs
-`openclaw doctor --fix --non-interactive` once and retries; set
-`OPENCLAW_GATEWAY_WATCH_AUTO_DOCTOR=0` to disable that dev-only repair pass.
-`pnpm openclaw setup` is the one-time local config/workspace initialization step for a fresh checkout.
+`alien doctor --fix --non-interactive` once and retries; set
+`ALIEN_GATEWAY_WATCH_AUTO_DOCTOR=0` to disable that dev-only repair pass.
+`pnpm alien setup` is the one-time local config/workspace initialization step for a fresh checkout.
 `pnpm gateway:watch` does not rebuild `dist/control-ui`, so rerun `pnpm ui:build` after `ui/` changes or use `pnpm ui:dev` while developing the Control UI.
 
 ### 2) Point the macOS app at your running Gateway
 
-In **OpenClaw.app**:
+In **Alien.app**:
 
 - Connection Mode: **Local**
   The app will attach to the running gateway on the configured port.
@@ -123,37 +123,37 @@ In **OpenClaw.app**:
 - Or via CLI:
 
 ```bash
-openclaw health
+alien health
 ```
 
 ### Common footguns
 
 - **Wrong port:** Gateway WS defaults to `ws://127.0.0.1:18789`; keep app + CLI on the same port.
 - **Where state lives:**
-  - Channel/provider state: `~/.openclaw/credentials/`
-  - Model auth profiles: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-  - Sessions: `~/.openclaw/agents/<agentId>/sessions/`
-  - Logs: `/tmp/openclaw/`
+  - Channel/provider state: `~/.alien/credentials/`
+  - Model auth profiles: `~/.alien/agents/<agentId>/agent/auth-profiles.json`
+  - Sessions: `~/.alien/agents/<agentId>/sessions/`
+  - Logs: `/tmp/alien/`
 
 ## Credential storage map
 
 Use this when debugging auth or deciding what to back up:
 
-- **WhatsApp**: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
+- **WhatsApp**: `~/.alien/credentials/whatsapp/<accountId>/creds.json`
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile` (regular file only; symlinks rejected)
 - **Discord bot token**: config/env or SecretRef (env/file/exec providers)
 - **Slack tokens**: config/env (`channels.slack.*`)
 - **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
-- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-- **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
-- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
+  - `~/.alien/credentials/<channel>-allowFrom.json` (default account)
+  - `~/.alien/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
+- **Model auth profiles**: `~/.alien/agents/<agentId>/agent/auth-profiles.json`
+- **File-backed secrets payload (optional)**: `~/.alien/secrets.json`
+- **Legacy OAuth import**: `~/.alien/credentials/oauth.json`
   More detail: [Security](/gateway/security#credential-storage-map).
 
 ## Updating (without wrecking your setup)
 
-- Keep `~/.openclaw/workspace` and `~/.openclaw/` as "your stuff"; don't put personal prompts/config into the `openclaw` repo.
+- Keep `~/.alien/workspace` and `~/.alien/` as "your stuff"; don't put personal prompts/config into the `alien` repo.
 - Updating source: `git pull` + `pnpm install` + keep using `pnpm gateway:watch`.
 
 ## Linux (systemd user service)
@@ -174,5 +174,5 @@ user service (no lingering needed). See [Gateway runbook](/gateway) for the syst
 - [Gateway runbook](/gateway) (flags, supervision, ports)
 - [Gateway configuration](/gateway/configuration) (config schema + examples)
 - [Discord](/channels/discord) and [Telegram](/channels/telegram) (reply tags + replyToMode settings)
-- [OpenClaw assistant setup](/start/openclaw)
+- [Alien assistant setup](/start/alien)
 - [macOS app](/platforms/macos) (gateway lifecycle)

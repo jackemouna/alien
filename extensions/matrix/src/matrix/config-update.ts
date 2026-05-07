@@ -1,6 +1,6 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { coerceSecretRef } from "openclaw/plugin-sdk/secret-ref-runtime";
-import { normalizeSecretInputString } from "openclaw/plugin-sdk/setup";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/account-id";
+import { coerceSecretRef } from "alien/plugin-sdk/secret-ref-runtime";
+import { normalizeSecretInputString } from "alien/plugin-sdk/setup";
 import type { CoreConfig, MatrixConfig } from "../types.js";
 import { findMatrixAccountConfig } from "./account-config.js";
 import {

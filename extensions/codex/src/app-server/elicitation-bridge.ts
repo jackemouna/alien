@@ -1,7 +1,7 @@
 import {
   embeddedAgentLog,
   type EmbeddedRunAttemptParams,
-} from "openclaw/plugin-sdk/agent-harness-runtime";
+} from "alien/plugin-sdk/agent-harness-runtime";
 import { formatCodexDisplayText } from "../command-formatters.js";
 import {
   approvalRequestExplicitlyUnavailable,

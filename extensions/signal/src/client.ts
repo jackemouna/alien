@@ -1,8 +1,8 @@
 import { Buffer } from "node:buffer";
 import http, { type ClientRequest, type IncomingMessage } from "node:http";
 import https from "node:https";
-import { generateSecureUuid } from "openclaw/plugin-sdk/core";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { generateSecureUuid } from "alien/plugin-sdk/core";
+import { formatErrorMessage } from "alien/plugin-sdk/error-runtime";
 
 export type SignalRpcOptions = {
   baseUrl: string;

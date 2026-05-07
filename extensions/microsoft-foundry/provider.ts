@@ -1,8 +1,8 @@
-import type { ProviderNormalizeResolvedModelContext } from "openclaw/plugin-sdk/core";
+import type { ProviderNormalizeResolvedModelContext } from "alien/plugin-sdk/core";
 import type {
   ModelProviderConfig,
   ProviderPlugin,
-} from "openclaw/plugin-sdk/provider-model-shared";
+} from "alien/plugin-sdk/provider-model-shared";
 import { apiKeyAuthMethod, entraIdAuthMethod } from "./auth.js";
 import { prepareFoundryRuntimeAuth } from "./runtime.js";
 import {

@@ -1,4 +1,4 @@
-name: openclaw-codeql-mcp-process-tool-boundary-critical-security
+name: alien-codeql-mcp-process-tool-boundary-critical-security
 
 disable-default-queries: true
 
@@ -21,9 +21,9 @@ paths:
   - src/agents/bash-tools.process*.ts
   - src/agents/exec-*.ts
   - src/agents/execution-contract.ts
-  - src/agents/openclaw-plugin-tools.ts
-  - src/agents/openclaw-tools.runtime.ts
-  - src/agents/openclaw-tools.registration.ts
+  - src/agents/alien-plugin-tools.ts
+  - src/agents/alien-tools.runtime.ts
+  - src/agents/alien-tools.registration.ts
   - src/agents/pi-tool-definition-adapter.ts
   - src/agents/pi-tools.abort.ts
   - src/agents/pi-tools.before-tool-call*.ts

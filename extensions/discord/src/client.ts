@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
-import type { RetryConfig, RetryRunner } from "openclaw/plugin-sdk/retry-runtime";
-import { normalizeAccountId } from "openclaw/plugin-sdk/routing";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
+import type { RetryConfig, RetryRunner } from "alien/plugin-sdk/retry-runtime";
+import { normalizeAccountId } from "alien/plugin-sdk/routing";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   mergeDiscordAccountConfig,
   resolveDiscordAccount,
@@ -17,7 +17,7 @@ import type { DiscordRuntimeAccountContext } from "./send.types.js";
 import { normalizeDiscordToken } from "./token.js";
 
 export type DiscordClientOpts = {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   token?: string;
   accountId?: string;
   rest?: RequestClient;
@@ -26,7 +26,7 @@ export type DiscordClientOpts = {
 };
 
 export function createDiscordRuntimeAccountContext(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
 }): DiscordRuntimeAccountContext {
   return {
@@ -73,7 +73,7 @@ function resolveToken(params: {
 function resolveRest(
   token: string,
   account: ResolvedDiscordAccount,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   rest?: RequestClient,
   proxyFetch?: typeof fetch,
 ) {
@@ -88,7 +88,7 @@ function resolveRest(
 }
 
 function resolveAccountWithoutToken(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string;
 }): ResolvedDiscordAccount {
   const accountId = normalizeAccountId(params.accountId);

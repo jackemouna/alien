@@ -1,15 +1,15 @@
 ---
-summary: "CLI reference for `openclaw update` (safe-ish source update + gateway auto-restart)"
+summary: "CLI reference for `alien update` (safe-ish source update + gateway auto-restart)"
 read_when:
   - You want to update a source checkout safely
-  - You are debugging `openclaw update` output or options
+  - You are debugging `alien update` output or options
   - You need to understand `--update` shorthand behavior
 title: "Update"
 ---
 
-# `openclaw update`
+# `alien update`
 
-Safely update OpenClaw and switch between stable/beta/dev channels.
+Safely update Alien and switch between stable/beta/dev channels.
 
 If you installed via **npm/pnpm/bun** (global install, no git metadata),
 updates happen via the package-manager flow in [Updating](/install/updating).
@@ -17,25 +17,25 @@ updates happen via the package-manager flow in [Updating](/install/updating).
 ## Usage
 
 ```bash
-openclaw update
-openclaw update status
-openclaw update wizard
-openclaw update --channel beta
-openclaw update --channel dev
-openclaw update --tag beta
-openclaw update --tag main
-openclaw update --dry-run
-openclaw update --no-restart
-openclaw update --yes
-openclaw update --json
-openclaw --update
+alien update
+alien update status
+alien update wizard
+alien update --channel beta
+alien update --channel dev
+alien update --tag beta
+alien update --tag main
+alien update --dry-run
+alien update --no-restart
+alien update --yes
+alien update --json
+alien --update
 ```
 
 ## Options
 
 - `--no-restart`: skip restarting the Gateway service after a successful update. Package-manager updates that do restart the Gateway verify the restarted service reports the expected updated version before the command succeeds.
 - `--channel <stable|beta|dev>`: set the update channel (git + npm; persisted in config).
-- `--tag <dist-tag|version|spec>`: override the package target for this update only. For package installs, `main` maps to `github:openclaw/openclaw#main`.
+- `--tag <dist-tag|version|spec>`: override the package target for this update only. For package installs, `main` maps to `github:alien/alien#main`.
 - `--dry-run`: preview planned update actions (channel/tag/target/restart flow) without writing config, installing, syncing plugins, or restarting.
 - `--json`: print machine-readable `UpdateRunResult` JSON, including
   `postUpdate.plugins.warnings` when corrupt or unloadable managed plugins need
@@ -44,16 +44,16 @@ openclaw --update
 - `--timeout <seconds>`: per-step timeout (default is 1800s).
 - `--yes`: skip confirmation prompts (for example downgrade confirmation).
 
-`openclaw update` does not have a `--verbose` flag. Use `--dry-run` to preview
+`alien update` does not have a `--verbose` flag. Use `--dry-run` to preview
 the planned channel/tag/install/restart actions, `--json` for machine-readable
-results, and `openclaw update status --json` when you only need channel and
+results, and `alien update status --json` when you only need channel and
 availability details. If you are debugging Gateway logs around an update,
 console verbosity and file log level are separate: Gateway `--verbose` affects
 terminal/WebSocket output, while file logs require `logging.level: "debug"` or
 `"trace"` in config. See [Gateway logging](/gateway/logging).
 
 <Note>
-In Nix mode (`OPENCLAW_NIX_MODE=1`), mutating `openclaw update` runs are disabled. Update the Nix source or flake input for this install instead; for nix-openclaw, use the agent-first [Quick Start](https://github.com/openclaw/nix-openclaw#quick-start). `openclaw update status` and `openclaw update --dry-run` remain read-only.
+In Nix mode (`ALIEN_NIX_MODE=1`), mutating `alien update` runs are disabled. Update the Nix source or flake input for this install instead; for nix-alien, use the agent-first [Quick Start](https://github.com/alien/nix-alien#quick-start). `alien update status` and `alien update --dry-run` remain read-only.
 </Note>
 
 <Warning>
@@ -65,9 +65,9 @@ Downgrades require confirmation because older versions can break configuration.
 Show the active update channel + git tag/branch/SHA (for source checkouts), plus update availability.
 
 ```bash
-openclaw update status
-openclaw update status --json
-openclaw update status --timeout 10
+alien update status
+alien update status --json
+alien update status --timeout 10
 ```
 
 Options:
@@ -87,16 +87,16 @@ Options:
 
 ## What it does
 
-When you switch channels explicitly (`--channel ...`), OpenClaw also keeps the
+When you switch channels explicitly (`--channel ...`), Alien also keeps the
 install method aligned:
 
-- `dev` → ensures a git checkout (default: `~/openclaw`, override with `OPENCLAW_GIT_DIR`),
+- `dev` → ensures a git checkout (default: `~/alien`, override with `ALIEN_GIT_DIR`),
   updates it, and installs the global CLI from that checkout.
 - `stable` → installs from npm using `latest`.
 - `beta` → prefers npm dist-tag `beta`, but falls back to `latest` when beta is
   missing or older than the current stable release.
 
-OpenClaw does not yet have an LTS or monthly support channel. We are working
+Alien does not yet have an LTS or monthly support channel. We are working
 toward monthly support lines, but `--channel` currently accepts only
 `stable`, `beta`, and `dev`. Use `--tag <version-or-dist-tag>` for a one-off
 target when you need a specific package artifact.
@@ -107,17 +107,17 @@ updates force a non-deferred, no-cooldown update restart after the package swap,
 because the old Gateway process may still have in-memory chunks that point at
 files removed by the new package.
 
-For package-manager installs, `openclaw update` resolves the target package
+For package-manager installs, `alien update` resolves the target package
 version before invoking the package manager. npm global installs use a staged
-install: OpenClaw installs the new package into a temporary npm prefix, verifies
+install: Alien installs the new package into a temporary npm prefix, verifies
 the packaged `dist` inventory there, then swaps that clean package tree into the
 real global prefix. If verification fails, post-update doctor, plugin sync, and
 restart work do not run from the suspect tree. Even when the installed version
 already matches the target, the command refreshes the global package install,
 then runs plugin sync, a core-command completion refresh, and restart work. This
 keeps packaged sidecars and channel-owned plugin records aligned with the
-installed OpenClaw build while leaving full plugin-command completion rebuilds to
-explicit `openclaw completion --write-state` runs.
+installed Alien build while leaving full plugin-command completion rebuilds to
+explicit `alien completion --write-state` runs.
 
 When a local managed Gateway service is installed and restart is enabled,
 package-manager updates stop the running service before replacing the package
@@ -125,7 +125,7 @@ tree, then refresh the service metadata from the updated install, restart the
 service, and verify the restarted Gateway reports the expected version before
 reporting success. On macOS, the post-update check also verifies the LaunchAgent
 is loaded/running for the active profile and the configured loopback port is
-healthy. If the plist is installed but launchd is not supervising it, OpenClaw
+healthy. If the plist is installed but launchd is not supervising it, Alien
 re-bootstraps the LaunchAgent automatically, then reruns the
 health/version/channel readiness checks. A fresh bootstrap loads the RunAtLoad
 job directly, so update recovery does not immediately `kickstart -k` the newly
@@ -157,7 +157,7 @@ manually.
     Dev only.
   </Step>
   <Step title="Preflight build (dev only)">
-    Runs the TypeScript build in a temp worktree. If the tip fails, walks back up to 10 commits to find the newest buildable commit. Set `OPENCLAW_UPDATE_PREFLIGHT_LINT=1` to also run lint during this preflight; lint runs in constrained serial mode because user update hosts are often smaller than CI runners.
+    Runs the TypeScript build in a temp worktree. If the tip fails, walks back up to 10 commits to find the newest buildable commit. Set `ALIEN_UPDATE_PREFLIGHT_LINT=1` to also run lint during this preflight; lint runs in constrained serial mode because user update hosts are often smaller than CI runners.
   </Step>
   <Step title="Rebase">
     Rebases onto the selected commit (dev only).
@@ -169,7 +169,7 @@ manually.
     Builds the gateway and the Control UI.
   </Step>
   <Step title="Run doctor">
-    `openclaw doctor` runs as the final safe-update check.
+    `alien doctor` runs as the final safe-update check.
   </Step>
   <Step title="Sync plugins">
     Syncs plugins to the active channel. Dev uses bundled plugins; stable and beta use npm. Updates tracked plugin installs.
@@ -178,16 +178,16 @@ manually.
 
 On the beta update channel, tracked npm and ClawHub plugin installs that follow
 the default/latest line try a plugin `@beta` release first. If the plugin has no
-beta release, OpenClaw falls back to the recorded default/latest spec. For npm
-plugins, OpenClaw also falls back when the beta package exists but fails install
+beta release, Alien falls back to the recorded default/latest spec. For npm
+plugins, Alien also falls back when the beta package exists but fails install
 validation. Exact versions and explicit tags are not rewritten.
 
 <Warning>
-If an exact pinned npm plugin update resolves to an artifact whose integrity differs from the stored install record, `openclaw update` aborts that plugin artifact update instead of installing it. Reinstall or update the plugin explicitly only after verifying that you trust the new artifact.
+If an exact pinned npm plugin update resolves to an artifact whose integrity differs from the stored install record, `alien update` aborts that plugin artifact update instead of installing it. Reinstall or update the plugin explicitly only after verifying that you trust the new artifact.
 </Warning>
 
 <Note>
-Post-update plugin sync failures that are scoped to a managed plugin are reported as warnings after the core update succeeds. The JSON result keeps the top-level update `status: "ok"` and reports `postUpdate.plugins.status: "warning"` with `openclaw doctor --fix` and `openclaw plugins inspect <id> --runtime --json` guidance. Unexpected updater or sync exceptions still fail the update result. Fix the plugin install or update error, then rerun `openclaw doctor --fix` or `openclaw update`.
+Post-update plugin sync failures that are scoped to a managed plugin are reported as warnings after the core update succeeds. The JSON result keeps the top-level update `status: "ok"` and reports `postUpdate.plugins.status: "warning"` with `alien doctor --fix` and `alien plugins inspect <id> --runtime --json` guidance. Unexpected updater or sync exceptions still fail the update result. Fix the plugin install or update error, then rerun `alien doctor --fix` or `alien update`.
 
 When the updated Gateway starts, plugin loading is verify-only: startup does not run package managers or mutate dependency trees. Package-manager `update.run` restarts bypass the normal idle deferral and restart cooldown after the package tree has been swapped, so the old process cannot keep lazy-loading removed chunks.
 
@@ -196,11 +196,11 @@ If pnpm bootstrap still fails, the updater stops early with a package-manager-sp
 
 ## `--update` shorthand
 
-`openclaw --update` rewrites to `openclaw update` (useful for shells and launcher scripts).
+`alien --update` rewrites to `alien update` (useful for shells and launcher scripts).
 
 ## Related
 
-- `openclaw doctor` (offers to run update first on git checkouts)
+- `alien doctor` (offers to run update first on git checkouts)
 - [Development channels](/install/development-channels)
 - [Updating](/install/updating)
 - [CLI reference](/cli)

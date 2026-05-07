@@ -1,5 +1,5 @@
 import { withTempWorkspace, type TempWorkspace } from "../infra/private-temp-workspace.js";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { resolvePreferredAlienTmpDir } from "../infra/tmp-alien-dir.js";
 import { runExec } from "../process/exec.js";
 import { createLazyPromiseLoader } from "../shared/lazy-promise.js";
 
@@ -49,8 +49,8 @@ function isBun(): boolean {
 
 function prefersSips(): boolean {
   return (
-    process.env.OPENCLAW_IMAGE_BACKEND === "sips" ||
-    (process.env.OPENCLAW_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin")
+    process.env.ALIEN_IMAGE_BACKEND === "sips" ||
+    (process.env.ALIEN_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin")
   );
 }
 
@@ -358,7 +358,7 @@ function readJpegExifOrientation(buffer: Buffer): number | null {
 
 async function withImageTemp<T>(fn: (workspace: TempWorkspace) => Promise<T>): Promise<T> {
   return await withTempWorkspace(
-    { rootDir: resolvePreferredOpenClawTmpDir(), prefix: "openclaw-img-" },
+    { rootDir: resolvePreferredAlienTmpDir(), prefix: "alien-img-" },
     fn,
   );
 }

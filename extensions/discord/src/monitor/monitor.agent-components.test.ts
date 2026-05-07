@@ -1,8 +1,8 @@
 import { ChannelType } from "discord-api-types/v10";
-import { expectPairingReplyText } from "openclaw/plugin-sdk/channel-test-helpers";
-import type { DiscordAccountConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { buildAgentSessionKey } from "openclaw/plugin-sdk/routing";
-import { peekSystemEvents, resetSystemEventsForTest } from "openclaw/plugin-sdk/test-fixtures";
+import { expectPairingReplyText } from "alien/plugin-sdk/channel-test-helpers";
+import type { DiscordAccountConfig, AlienConfig } from "alien/plugin-sdk/config-types";
+import { buildAgentSessionKey } from "alien/plugin-sdk/routing";
+import { peekSystemEvents, resetSystemEventsForTest } from "alien/plugin-sdk/test-fixtures";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   ButtonInteraction,
@@ -36,7 +36,7 @@ describe("agent components", () => {
     peer: { kind: "group", id: "group-dm-channel" },
   });
 
-  const createCfg = (): OpenClawConfig => ({}) as OpenClawConfig;
+  const createCfg = (): AlienConfig => ({}) as AlienConfig;
   const createBaseDmInteraction = (overrides: Record<string, unknown> = {}) => {
     const reply = vi.fn().mockResolvedValue(undefined);
     const defer = vi.fn().mockResolvedValue(undefined);
@@ -154,7 +154,7 @@ describe("agent components", () => {
       channel: "discord",
       idLine: "Your Discord user id: 123456789",
     });
-    expect(pairingText).toContain(`openclaw pairing approve discord ${code}`);
+    expect(pairingText).toContain(`alien pairing approve discord ${code}`);
     expect(peekSystemEvents(defaultDmSessionKey)).toEqual([]);
     expect(readAllowFromStoreMock).toHaveBeenCalledWith("discord", "default");
   });

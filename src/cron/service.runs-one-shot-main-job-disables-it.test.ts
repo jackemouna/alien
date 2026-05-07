@@ -16,7 +16,7 @@ import {
 const noopLogger = createNoopLogger();
 installCronTestHooks({ logger: noopLogger });
 const { makeStorePath } = createCronStoreHarness({
-  prefix: "openclaw-cron-runs-one-shot-",
+  prefix: "alien-cron-runs-one-shot-",
 });
 
 function createCronEventHarness() {

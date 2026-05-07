@@ -11,7 +11,7 @@ Adds web search provider support.
 
 ## Distribution
 
-- Package: `@openclaw/brave-plugin`
+- Package: `@alien/brave-plugin`
 - Install route: npm; ClawHub
 
 ## Surface

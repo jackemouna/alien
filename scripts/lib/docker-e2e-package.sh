@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Shared package helpers for Docker E2E scripts.
-# Builds or resolves one OpenClaw npm tarball and exposes mount/build-context
+# Builds or resolves one Alien npm tarball and exposes mount/build-context
 # helpers so Docker lanes test the package artifact instead of repo sources.
 
 DOCKER_E2E_PACKAGE_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,11 +18,11 @@ docker_e2e_abs_path() {
 
 docker_e2e_prepare_package_tgz() {
   local label="$1"
-  local package_tgz="${2:-${OPENCLAW_CURRENT_PACKAGE_TGZ:-}}"
+  local package_tgz="${2:-${ALIEN_CURRENT_PACKAGE_TGZ:-}}"
 
   if [ -n "$package_tgz" ]; then
     if [ ! -f "$package_tgz" ]; then
-      echo "OpenClaw package tarball does not exist: $package_tgz" >&2
+      echo "Alien package tarball does not exist: $package_tgz" >&2
       return 1
     fi
     docker_e2e_abs_path "$package_tgz"
@@ -30,14 +30,14 @@ docker_e2e_prepare_package_tgz() {
   fi
 
   local pack_dir
-  pack_dir="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-docker-e2e-pack.XXXXXX")"
+  pack_dir="$(mktemp -d "${TMPDIR:-/tmp}/alien-docker-e2e-pack.XXXXXX")"
   package_tgz="$(
-    node "$ROOT_DIR/scripts/package-openclaw-for-docker.mjs" \
+    node "$ROOT_DIR/scripts/package-alien-for-docker.mjs" \
       --output-dir "$pack_dir" \
-      --output-name openclaw-current.tgz
+      --output-name alien-current.tgz
   )"
   if [ -z "$package_tgz" ]; then
-    echo "missing packed OpenClaw tarball" >&2
+    echo "missing packed Alien tarball" >&2
     return 1
   fi
   docker_e2e_abs_path "$package_tgz"
@@ -46,17 +46,17 @@ docker_e2e_prepare_package_tgz() {
 docker_e2e_prepare_package_context() {
   local package_tgz="$1"
   local context_dir
-  context_dir="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-docker-e2e-package-context.XXXXXX")"
+  context_dir="$(mktemp -d "${TMPDIR:-/tmp}/alien-docker-e2e-package-context.XXXXXX")"
   # BuildKit named contexts must be directories, so expose the tarball as a
   # stable filename inside a tiny temporary context.
-  cp "$package_tgz" "$context_dir/openclaw-current.tgz"
+  cp "$package_tgz" "$context_dir/alien-current.tgz"
   printf '%s\n' "$context_dir"
 }
 
 docker_e2e_package_mount_args() {
   local package_tgz="$1"
-  local target="${2:-/tmp/openclaw-current.tgz}"
-  DOCKER_E2E_PACKAGE_ARGS=(-v "$package_tgz:$target:ro" -e "OPENCLAW_CURRENT_PACKAGE_TGZ=$target")
+  local target="${2:-/tmp/alien-current.tgz}"
+  DOCKER_E2E_PACKAGE_ARGS=(-v "$package_tgz:$target:ro" -e "ALIEN_CURRENT_PACKAGE_TGZ=$target")
 }
 
 docker_e2e_harness_mount_args() {

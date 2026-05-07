@@ -19,7 +19,7 @@ export type {
   SshSandboxSession,
   SshSandboxSettings,
 } from "../agents/sandbox.js";
-export type { OpenClawConfig } from "../config/config.js";
+export type { AlienConfig } from "../config/config.js";
 
 export {
   buildExecRemoteCommand,
@@ -47,7 +47,7 @@ export {
   type PluginCommandRunOptions,
   type PluginCommandRunResult,
 } from "./run-command.js";
-export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+export { resolvePreferredAlienTmpDir } from "../infra/tmp-alien-dir.js";
 export {
   tempWorkspace,
   tempWorkspaceSync,

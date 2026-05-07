@@ -1,8 +1,8 @@
-export type OpenClawPiCodingAgentSkillSourceAugmentation = never;
+export type AlienPiCodingAgentSkillSourceAugmentation = never;
 
 declare module "@mariozechner/pi-coding-agent" {
   interface Skill {
-    // OpenClaw relies on the source identifier returned by pi skill loaders.
+    // Alien relies on the source identifier returned by pi skill loaders.
     source: string;
   }
 }

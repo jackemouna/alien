@@ -21,7 +21,7 @@ import { maybeRepairOpenPolicyAllowFrom } from "./shared/open-policy-allowfrom.j
 import { cleanupLegacyPluginDependencyState } from "./shared/plugin-dependency-cleanup.js";
 import { maybeRepairStalePluginConfig } from "./shared/stale-plugin-config.js";
 
-const UPDATE_IN_PROGRESS_ENV = "OPENCLAW_UPDATE_IN_PROGRESS";
+const UPDATE_IN_PROGRESS_ENV = "ALIEN_UPDATE_IN_PROGRESS";
 
 function isUpdatePackageDoctorPass(env: NodeJS.ProcessEnv): boolean {
   return env[UPDATE_IN_PROGRESS_ENV] === "1";

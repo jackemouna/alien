@@ -1,4 +1,4 @@
-import type { ChannelConfigUiHint } from "openclaw/plugin-sdk/channel-core";
+import type { ChannelConfigUiHint } from "alien/plugin-sdk/channel-core";
 
 export const matrixChannelConfigUiHints = {
   "streaming.progress.label": {
@@ -7,7 +7,7 @@ export const matrixChannelConfigUiHints = {
   },
   "streaming.progress.labels": {
     label: "Matrix Progress Label Pool",
-    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use OpenClaw built-in progress labels.',
+    help: 'Candidate labels for streaming.progress.label="auto". Leave unset to use Alien built-in progress labels.',
   },
   "streaming.progress.maxLines": {
     label: "Matrix Progress Max Lines",

@@ -361,7 +361,7 @@ describe("anthropic transport stream", () => {
     );
 
     expect(result.stopReason).toBe("error");
-    expect(result.errorMessage).toBe("OpenClaw transport error: malformed_streaming_fragment");
+    expect(result.errorMessage).toBe("Alien transport error: malformed_streaming_fragment");
   });
 
   it("preserves Anthropic OAuth identity and tool-name remapping with transport overrides", async () => {

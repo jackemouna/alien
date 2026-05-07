@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   __testing as conversationBindingTesting,
   registerSessionBindingAdapter,
   type SessionBindingAdapter,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
+} from "alien/plugin-sdk/conversation-runtime";
+import { resolveThreadSessionKeys } from "alien/plugin-sdk/routing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   resolveTelegramConversationBaseSessionKey,
@@ -12,7 +12,7 @@ import {
 } from "./conversation-route.js";
 
 describe("resolveTelegramConversationBaseSessionKey", () => {
-  const cfg: OpenClawConfig = {};
+  const cfg: AlienConfig = {};
 
   beforeEach(() => {
     conversationBindingTesting.resetSessionBindingAdaptersForTests();

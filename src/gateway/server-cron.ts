@@ -9,7 +9,7 @@ import {
   resolveAgentMainSessionKey,
 } from "../config/sessions.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { runCronIsolatedAgentTurn } from "../cron/isolated-agent.js";
 import {
   appendCronRunLog,
@@ -86,15 +86,15 @@ function toPluginCronJob(job: CronJob): PluginHookGatewayCronJob {
 }
 
 export function buildGatewayCronService(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   deps: CliDeps;
   broadcast: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void;
 }): GatewayCronState {
   const cronLogger = getChildLogger({ module: "cron" });
   const storePath = resolveCronStorePath(params.cfg.cron?.store);
-  const cronEnabled = process.env.OPENCLAW_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
+  const cronEnabled = process.env.ALIEN_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
 
-  const findAgentEntry = (cfg: OpenClawConfig, agentId: string) =>
+  const findAgentEntry = (cfg: AlienConfig, agentId: string) =>
     Array.isArray(cfg.agents?.list)
       ? cfg.agents.list.find(
           (entry) =>
@@ -102,10 +102,10 @@ export function buildGatewayCronService(params: {
         )
       : undefined;
 
-  const hasConfiguredAgent = (cfg: OpenClawConfig, agentId: string) =>
+  const hasConfiguredAgent = (cfg: AlienConfig, agentId: string) =>
     Boolean(findAgentEntry(cfg, agentId));
 
-  const mergeRuntimeAgentConfig = (runtimeConfig: OpenClawConfig, requestedAgentId: string) => {
+  const mergeRuntimeAgentConfig = (runtimeConfig: AlienConfig, requestedAgentId: string) => {
     if (hasConfiguredAgent(runtimeConfig, requestedAgentId)) {
       return runtimeConfig;
     }
@@ -143,7 +143,7 @@ export function buildGatewayCronService(params: {
   };
 
   const resolveCronSessionKey = (params: {
-    runtimeConfig: OpenClawConfig;
+    runtimeConfig: AlienConfig;
     agentId: string;
     requestedSessionKey?: string | null;
   }) => {

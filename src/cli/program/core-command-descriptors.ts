@@ -32,7 +32,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "backup",
-    description: "Create and verify local backup archives for OpenClaw state",
+    description: "Create and verify local backup archives for Alien state",
     hasSubcommands: true,
   },
   {
@@ -67,7 +67,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "mcp",
-    description: "Manage OpenClaw MCP config and channel bridge",
+    description: "Manage Alien MCP config and channel bridge",
     hasSubcommands: true,
   },
   {

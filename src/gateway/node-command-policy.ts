@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   NODE_BROWSER_PROXY_COMMAND,
   NODE_SYSTEM_NOTIFY_COMMAND,
@@ -218,7 +218,7 @@ function hasTalkSurface(node?: NodeCommandPolicyNode): boolean {
 }
 
 export function resolveNodeCommandAllowlist(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   node?: NodeCommandPolicyNode,
 ): Set<string> {
   const platformId = normalizePlatformId(node?.platform, node?.deviceFamily);

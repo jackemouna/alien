@@ -4,8 +4,8 @@ import {
   stripChannelTargetPrefix,
   stripTargetKindPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "openclaw/plugin-sdk/core";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/core";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 
 export function resolveMattermostOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {
   let trimmed = stripChannelTargetPrefix(params.target, "mattermost");

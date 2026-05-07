@@ -67,7 +67,7 @@ export function resolveCliBackendLiveModelSelection(params: {
   const parsed = parseModelRef(params.rawModel, params.defaultProvider);
   if (!parsed) {
     throw new Error(
-      `OPENCLAW_LIVE_CLI_BACKEND_MODEL must resolve to a CLI backend model. Got: ${params.rawModel}`,
+      `ALIEN_LIVE_CLI_BACKEND_MODEL must resolve to a CLI backend model. Got: ${params.rawModel}`,
     );
   }
 
@@ -114,11 +114,11 @@ export function parseImageMode(raw?: string): "list" | "repeat" | undefined {
   if (trimmed === "list" || trimmed === "repeat") {
     return trimmed;
   }
-  throw new Error("OPENCLAW_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
+  throw new Error("ALIEN_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
 }
 
 export function shouldRunCliImageProbe(providerId: string): boolean {
-  const raw = process.env.OPENCLAW_LIVE_CLI_BACKEND_IMAGE_PROBE?.trim();
+  const raw = process.env.ALIEN_LIVE_CLI_BACKEND_IMAGE_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -126,7 +126,7 @@ export function shouldRunCliImageProbe(providerId: string): boolean {
 }
 
 export function shouldRunCliMcpProbe(providerId: string): boolean {
-  const raw = process.env.OPENCLAW_LIVE_CLI_BACKEND_MCP_PROBE?.trim();
+  const raw = process.env.ALIEN_LIVE_CLI_BACKEND_MCP_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -140,18 +140,18 @@ export function resolveCliBackendLiveArgs(params: {
 }): { args: string[]; resumeArgs?: string[] } {
   const args =
     parseJsonStringArray(
-      "OPENCLAW_LIVE_CLI_BACKEND_ARGS",
-      process.env.OPENCLAW_LIVE_CLI_BACKEND_ARGS,
+      "ALIEN_LIVE_CLI_BACKEND_ARGS",
+      process.env.ALIEN_LIVE_CLI_BACKEND_ARGS,
     ) ?? params.defaultArgs;
   if (!args || args.length === 0) {
     throw new Error(
-      `OPENCLAW_LIVE_CLI_BACKEND_ARGS is required for provider "${params.providerId}".`,
+      `ALIEN_LIVE_CLI_BACKEND_ARGS is required for provider "${params.providerId}".`,
     );
   }
   const resumeArgs =
     parseJsonStringArray(
-      "OPENCLAW_LIVE_CLI_BACKEND_RESUME_ARGS",
-      process.env.OPENCLAW_LIVE_CLI_BACKEND_RESUME_ARGS,
+      "ALIEN_LIVE_CLI_BACKEND_RESUME_ARGS",
+      process.env.ALIEN_LIVE_CLI_BACKEND_RESUME_ARGS,
     ) ?? params.defaultResumeArgs;
   return { args, resumeArgs };
 }
@@ -172,7 +172,7 @@ export function resolveCliModelSwitchProbeTarget(
 }
 
 export function shouldRunCliModelSwitchProbe(providerId: string, modelRef: string): boolean {
-  const raw = process.env.OPENCLAW_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE?.trim();
+  const raw = process.env.ALIEN_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -411,30 +411,30 @@ function isRetryableGatewayConnectError(error: Error): boolean {
 
 export function snapshotCliBackendLiveEnv(): CliBackendLiveEnvSnapshot {
   return {
-    configPath: process.env.OPENCLAW_CONFIG_PATH,
-    stateDir: process.env.OPENCLAW_STATE_DIR,
-    token: process.env.OPENCLAW_GATEWAY_TOKEN,
-    skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
-    skipProviders: process.env.OPENCLAW_SKIP_PROVIDERS,
-    skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
-    skipCron: process.env.OPENCLAW_SKIP_CRON,
-    skipCanvas: process.env.OPENCLAW_SKIP_CANVAS_HOST,
-    skipBrowserControl: process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER,
-    bundledPluginsDir: process.env.OPENCLAW_BUNDLED_PLUGINS_DIR,
-    minimalGateway: process.env.OPENCLAW_TEST_MINIMAL_GATEWAY,
+    configPath: process.env.ALIEN_CONFIG_PATH,
+    stateDir: process.env.ALIEN_STATE_DIR,
+    token: process.env.ALIEN_GATEWAY_TOKEN,
+    skipChannels: process.env.ALIEN_SKIP_CHANNELS,
+    skipProviders: process.env.ALIEN_SKIP_PROVIDERS,
+    skipGmail: process.env.ALIEN_SKIP_GMAIL_WATCHER,
+    skipCron: process.env.ALIEN_SKIP_CRON,
+    skipCanvas: process.env.ALIEN_SKIP_CANVAS_HOST,
+    skipBrowserControl: process.env.ALIEN_SKIP_BROWSER_CONTROL_SERVER,
+    bundledPluginsDir: process.env.ALIEN_BUNDLED_PLUGINS_DIR,
+    minimalGateway: process.env.ALIEN_TEST_MINIMAL_GATEWAY,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     anthropicApiKeyOld: process.env.ANTHROPIC_API_KEY_OLD,
   };
 }
 
 export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void {
-  process.env.OPENCLAW_SKIP_CHANNELS = "1";
-  process.env.OPENCLAW_SKIP_PROVIDERS = "1";
-  process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-  process.env.OPENCLAW_SKIP_CRON = "1";
-  process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-  process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
-  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = "1";
+  process.env.ALIEN_SKIP_CHANNELS = "1";
+  process.env.ALIEN_SKIP_PROVIDERS = "1";
+  process.env.ALIEN_SKIP_GMAIL_WATCHER = "1";
+  process.env.ALIEN_SKIP_CRON = "1";
+  process.env.ALIEN_SKIP_CANVAS_HOST = "1";
+  process.env.ALIEN_SKIP_BROWSER_CONTROL_SERVER = "1";
+  process.env.ALIEN_TEST_MINIMAL_GATEWAY = "1";
   if (!preservedEnv.has("ANTHROPIC_API_KEY")) {
     delete process.env.ANTHROPIC_API_KEY;
   }
@@ -444,17 +444,17 @@ export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void 
 }
 
 export function restoreCliBackendLiveEnv(snapshot: CliBackendLiveEnvSnapshot): void {
-  restoreEnvVar("OPENCLAW_CONFIG_PATH", snapshot.configPath);
-  restoreEnvVar("OPENCLAW_STATE_DIR", snapshot.stateDir);
-  restoreEnvVar("OPENCLAW_GATEWAY_TOKEN", snapshot.token);
-  restoreEnvVar("OPENCLAW_SKIP_CHANNELS", snapshot.skipChannels);
-  restoreEnvVar("OPENCLAW_SKIP_PROVIDERS", snapshot.skipProviders);
-  restoreEnvVar("OPENCLAW_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
-  restoreEnvVar("OPENCLAW_SKIP_CRON", snapshot.skipCron);
-  restoreEnvVar("OPENCLAW_SKIP_CANVAS_HOST", snapshot.skipCanvas);
-  restoreEnvVar("OPENCLAW_SKIP_BROWSER_CONTROL_SERVER", snapshot.skipBrowserControl);
-  restoreEnvVar("OPENCLAW_BUNDLED_PLUGINS_DIR", snapshot.bundledPluginsDir);
-  restoreEnvVar("OPENCLAW_TEST_MINIMAL_GATEWAY", snapshot.minimalGateway);
+  restoreEnvVar("ALIEN_CONFIG_PATH", snapshot.configPath);
+  restoreEnvVar("ALIEN_STATE_DIR", snapshot.stateDir);
+  restoreEnvVar("ALIEN_GATEWAY_TOKEN", snapshot.token);
+  restoreEnvVar("ALIEN_SKIP_CHANNELS", snapshot.skipChannels);
+  restoreEnvVar("ALIEN_SKIP_PROVIDERS", snapshot.skipProviders);
+  restoreEnvVar("ALIEN_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
+  restoreEnvVar("ALIEN_SKIP_CRON", snapshot.skipCron);
+  restoreEnvVar("ALIEN_SKIP_CANVAS_HOST", snapshot.skipCanvas);
+  restoreEnvVar("ALIEN_SKIP_BROWSER_CONTROL_SERVER", snapshot.skipBrowserControl);
+  restoreEnvVar("ALIEN_BUNDLED_PLUGINS_DIR", snapshot.bundledPluginsDir);
+  restoreEnvVar("ALIEN_TEST_MINIMAL_GATEWAY", snapshot.minimalGateway);
   restoreEnvVar("ANTHROPIC_API_KEY", snapshot.anthropicApiKey);
   restoreEnvVar("ANTHROPIC_API_KEY_OLD", snapshot.anthropicApiKeyOld);
 }

@@ -100,9 +100,9 @@ async function runBrowserToggle(
   if (printJsonResult(parent, status)) {
     return;
   }
-  const name = status.profile ?? "openclaw";
+  const name = status.profile ?? "alien";
   const headlessLabel = params.path === "/start" && status.headless ? " (headless)" : "";
-  defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}${headlessLabel}`));
+  defaultRuntime.log(info(`👾 browser [${name}] running: ${status.running}${headlessLabel}`));
 }
 
 function runBrowserCommand(action: () => Promise<void>) {
@@ -163,14 +163,14 @@ async function runBrowserDoctor(parent: BrowserParentOpts, profile?: string, dee
   checks.push({
     name: "profile",
     ok: true,
-    detail: `${status.profile ?? "openclaw"} (${usesChromeMcpTransport(status) ? "chrome-mcp" : (status.transport ?? "cdp")})`,
+    detail: `${status.profile ?? "alien"} (${usesChromeMcpTransport(status) ? "chrome-mcp" : (status.transport ?? "cdp")})`,
   });
   checks.push({
     name: "browser",
     ok: status.running,
     detail: status.running
       ? `running${status.cdpReady === false ? ", CDP not ready" : ""}`
-      : "not running; run `openclaw browser start`",
+      : "not running; run `alien browser start`",
   });
 
   try {
@@ -259,14 +259,14 @@ async function runBrowserDoctor(parent: BrowserParentOpts, profile?: string, dee
 
 function usesChromeMcpTransport(params: {
   transport?: BrowserTransport;
-  driver?: "openclaw" | "existing-session";
+  driver?: "alien" | "existing-session";
 }): boolean {
   return params.transport === "chrome-mcp" || params.driver === "existing-session";
 }
 
 function formatBrowserConnectionSummary(params: {
   transport?: BrowserTransport;
-  driver?: "openclaw" | "existing-session";
+  driver?: "alien" | "existing-session";
   isRemote?: boolean;
   cdpPort?: number | null;
   cdpUrl?: string | null;
@@ -302,7 +302,7 @@ export function registerBrowserManageCommands(
         const detectedDisplay = detectedPath ? shortenHomePath(detectedPath) : "auto";
         defaultRuntime.log(
           [
-            `profile: ${status.profile ?? "openclaw"}`,
+            `profile: ${status.profile ?? "alien"}`,
             `enabled: ${status.enabled}`,
             `running: ${status.running}`,
             `transport: ${
@@ -395,11 +395,11 @@ export function registerBrowserManageCommands(
           return;
         }
         if (!result.moved) {
-          defaultRuntime.log(info(`🦞 browser profile already missing.`));
+          defaultRuntime.log(info(`👾 browser profile already missing.`));
           return;
         }
         const dest = result.to ?? result.from;
-        defaultRuntime.log(info(`🦞 browser profile moved to Trash (${dest})`));
+        defaultRuntime.log(info(`👾 browser profile moved to Trash (${dest})`));
       });
     });
 
@@ -655,7 +655,7 @@ export function registerBrowserManageCommands(
               const def = p.isDefault ? " [default]" : "";
               const loc = formatBrowserConnectionSummary(p);
               const remote = p.isRemote ? " [remote]" : "";
-              const driver = p.driver !== "openclaw" ? ` [${p.driver}]` : "";
+              const driver = p.driver !== "alien" ? ` [${p.driver}]` : "";
               return `${p.name}: ${status}${tabs}${def}${remote}${driver}\n  ${loc}, color: ${p.color}`;
             })
             .join("\n"),
@@ -670,7 +670,7 @@ export function registerBrowserManageCommands(
     .option("--color <hex>", "Profile color (hex format, e.g. #0066CC)")
     .option("--cdp-url <url>", "CDP URL for remote Chrome (http/https)")
     .option("--user-data-dir <path>", "User data dir for existing-session Chromium attach")
-    .option("--driver <driver>", "Profile driver (openclaw|existing-session). Default: openclaw")
+    .option("--driver <driver>", "Profile driver (alien|existing-session). Default: alien")
     .action(
       async (
         opts: {
@@ -705,7 +705,7 @@ export function registerBrowserManageCommands(
           const loc = `  ${formatBrowserConnectionSummary(result)}`;
           defaultRuntime.log(
             info(
-              `🦞 Created profile "${result.profile}"\n${loc}\n  color: ${result.color}${
+              `👾 Created profile "${result.profile}"\n${loc}\n  color: ${result.color}${
                 result.userDataDir ? `\n  userDataDir: ${shortenHomePath(result.userDataDir)}` : ""
               }${opts.driver === "existing-session" ? "\n  driver: existing-session" : ""}`,
             ),
@@ -733,8 +733,8 @@ export function registerBrowserManageCommands(
           return;
         }
         const msg = result.deleted
-          ? `🦞 Deleted profile "${result.profile}" (user data removed)`
-          : `🦞 Deleted profile "${result.profile}" (no user data found)`;
+          ? `👾 Deleted profile "${result.profile}" (user data removed)`
+          : `👾 Deleted profile "${result.profile}" (no user data found)`;
         defaultRuntime.log(info(msg));
       });
     });

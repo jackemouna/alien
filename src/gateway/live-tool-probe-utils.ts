@@ -22,9 +22,9 @@ const NONCE_REFUSAL_MARKERS = [
   "can't comply",
   "can’t comply",
   "cannot comply",
-  "isn't a real openclaw probe",
-  "is not a real openclaw probe",
-  "not a real openclaw probe",
+  "isn't a real alien probe",
+  "is not a real alien probe",
+  "not a real alien probe",
   "no part of the system asks me",
 ];
 

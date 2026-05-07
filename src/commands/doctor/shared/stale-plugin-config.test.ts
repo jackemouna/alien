@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../../config/config.js";
+import type { AlienConfig } from "../../../config/config.js";
 import type { PluginInstallRecord } from "../../../config/types.plugins.js";
 import type { PluginManifestRecord } from "../../../plugins/manifest-registry.js";
 import * as manifestRegistry from "../../../plugins/manifest-registry.js";
@@ -32,7 +32,7 @@ function manifest(id: string): PluginManifestRecord {
     origin: "bundled",
     rootDir: `/plugins/${id}`,
     source: `/plugins/${id}`,
-    manifestPath: `/plugins/${id}/openclaw.plugin.json`,
+    manifestPath: `/plugins/${id}/alien.plugin.json`,
   };
 }
 
@@ -59,7 +59,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(hits).toEqual([
       {
@@ -84,7 +84,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(result.changes).toEqual([
       "- plugins.allow: removed 1 stale plugin id (acpx)",
@@ -104,7 +104,7 @@ describe("doctor stale plugin config helpers", () => {
           contextEngine: "missing-engine",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const hits = scanStalePluginConfig(cfg);
     expect(hits).toEqual([
@@ -142,7 +142,7 @@ describe("doctor stale plugin config helpers", () => {
             contextEngine: "legacy",
           },
         },
-      } as OpenClawConfig),
+      } as AlienConfig),
     ).toEqual([]);
   });
 
@@ -155,12 +155,12 @@ describe("doctor stale plugin config helpers", () => {
           surface: "allow",
         },
       ],
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
     });
 
     expect(warnings).toEqual([
       expect.stringContaining('plugins.allow: stale plugin reference "acpx"'),
-      expect.stringContaining('Run "openclaw doctor --fix"'),
+      expect.stringContaining('Run "alien doctor --fix"'),
     ]);
   });
 
@@ -180,7 +180,7 @@ describe("doctor stale plugin config helpers", () => {
           allowFrom: ["+15555550123"],
         },
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(result.changes).toEqual([
       "- plugins.allow: removed 1 stale plugin id (acpx)",
@@ -243,7 +243,7 @@ describe("doctor stale plugin config helpers", () => {
           },
         ],
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(result.changes).toEqual([
       "- plugins.allow: removed 1 stale plugin id (missing-chat-plugin)",
@@ -275,7 +275,7 @@ describe("doctor stale plugin config helpers", () => {
           botToken: "typo",
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(scanStalePluginConfig(cfg)).toEqual([]);
     expect(maybeRepairStalePluginConfig(cfg)).toEqual({ config: cfg, changes: [] });
@@ -291,11 +291,11 @@ describe("doctor stale plugin config helpers", () => {
         },
       },
       channels: {
-        "openclaw-weixin": {
+        "alien-weixin": {
           enabled: true,
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(scanStalePluginConfig(cfg)).toEqual([]);
     expect(maybeRepairStalePluginConfig(cfg)).toEqual({ config: cfg, changes: [] });
@@ -317,7 +317,7 @@ describe("doctor stale plugin config helpers", () => {
           enabled: true,
         },
       },
-    } as OpenClawConfig);
+    } as AlienConfig);
 
     expect(result.changes).toEqual([
       "- channels: removed 1 stale channel config (missing-chat-plugin)",
@@ -340,7 +340,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const hits = scanStalePluginConfig(cfg);
     expect(hits).toEqual([
@@ -362,7 +362,7 @@ describe("doctor stale plugin config helpers", () => {
 
     const warnings = collectStalePluginConfigWarnings({
       hits,
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "alien doctor --fix",
       autoRepairBlocked: true,
     });
     expect(warnings[2]).toContain("Auto-removal is paused");
@@ -377,7 +377,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(scanStalePluginConfig(cfg)).toEqual([
       {

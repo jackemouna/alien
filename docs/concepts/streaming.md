@@ -7,7 +7,7 @@ read_when:
 title: "Streaming and chunking"
 ---
 
-OpenClaw has two separate streaming layers:
+Alien has two separate streaming layers:
 
 - **Block streaming (channels):** emit completed **blocks** as the assistant writes. These are normal channel messages (not token deltas).
 - **Preview streaming (Telegram/Discord/Slack):** update a temporary **preview message** while generating.
@@ -55,12 +55,12 @@ Legend:
 ### Media delivery with block streaming
 
 `MEDIA:` directives are normal delivery metadata. When block streaming sends a
-media block early, OpenClaw remembers that delivery for the turn. If the final
+media block early, Alien remembers that delivery for the turn. If the final
 assistant payload repeats the same media URL, the final delivery strips the
 duplicate media instead of sending the attachment again.
 
 Exact duplicate final payloads are suppressed. If the final payload adds
-distinct text around media that was already streamed, OpenClaw still sends the
+distinct text around media that was already streamed, Alien still sends the
 new text while keeping the media single-delivery. This prevents duplicate voice
 notes or files on channels such as Telegram when an agent emits `MEDIA:` during
 streaming and the provider also includes it in the completed reply.
@@ -78,7 +78,7 @@ Block chunking is implemented by `EmbeddedBlockChunker`:
 
 ## Coalescing (merge streamed blocks)
 
-When block streaming is enabled, OpenClaw can **merge consecutive block chunks**
+When block streaming is enabled, Alien can **merge consecutive block chunks**
 before sending them out. This reduces "single-line spam" while still providing
 progressive output.
 
@@ -152,8 +152,8 @@ Slack-only:
 Legacy key migration:
 
 - Telegram: legacy `streamMode` and scalar/boolean `streaming` values are detected and migrated by doctor/config compatibility paths to `streaming.mode`.
-- Discord: `streamMode` + boolean `streaming` remain runtime aliases for the `streaming` enum; run `openclaw doctor --fix` to rewrite persisted config.
-- Slack: `streamMode` remains a runtime alias for `streaming.mode`; boolean `streaming` remains a runtime alias for `streaming.mode` plus `streaming.nativeTransport`; legacy `nativeStreaming` remains a runtime alias for `streaming.nativeTransport`. Run `openclaw doctor --fix` to rewrite persisted config.
+- Discord: `streamMode` + boolean `streaming` remain runtime aliases for the `streaming` enum; run `alien doctor --fix` to rewrite persisted config.
+- Slack: `streamMode` remains a runtime alias for `streaming.mode`; boolean `streaming` remains a runtime alias for `streaming.mode` plus `streaming.nativeTransport`; legacy `nativeStreaming` remains a runtime alias for `streaming.nativeTransport`. Run `alien doctor --fix` to rewrite persisted config.
 
 ### Runtime behavior
 
@@ -162,7 +162,7 @@ Telegram:
 - Uses `sendMessage` + `editMessageText` preview updates across DMs and group/topics.
 - Final text edits the active preview in place; long finals reuse that message for the first chunk and send only the remaining chunks.
 - `progress` mode keeps tool progress in an editable status draft, clears that draft at completion, and sends the final answer through normal delivery.
-- If the final edit fails before the completed text is confirmed, OpenClaw uses normal final delivery and cleans up the stale preview.
+- If the final edit fails before the completed text is confirmed, Alien uses normal final delivery and cleans up the stale preview.
 - Preview streaming is skipped when Telegram block streaming is explicitly enabled (to avoid double-streaming).
 - `/reasoning stream` can write reasoning to a transient preview that is deleted after final delivery.
 
@@ -203,8 +203,8 @@ Supported surfaces:
 - Telegram has shipped with tool-progress preview updates enabled since `v2026.4.22`; keeping them enabled preserves that released behavior.
 - **Mattermost** already folds tool activity into its single draft preview post (see above).
 - Tool-progress edits follow the active preview streaming mode; they are skipped when preview streaming is `off` or when block streaming has taken over the message. On Telegram, `streaming.mode: "off"` is final-only: generic progress chatter is also suppressed instead of being delivered as standalone status messages, while approval prompts, media payloads, and errors still route normally.
-- To keep preview streaming but hide tool-progress lines, set `streaming.preview.toolProgress` to `false` for that channel. To keep tool-progress lines visible while hiding command/exec text, set `streaming.preview.commandText` to `"status"` or `streaming.progress.commandText` to `"status"`; the default is `"raw"` to preserve released behavior. This policy is shared by draft/progress channels that use OpenClaw's compact progress renderer, including Discord, Matrix, Microsoft Teams, Mattermost, Slack draft previews, and Telegram. To disable preview edits entirely, set `streaming.mode` to `off`.
-- Telegram selected quote replies are an exception: when `replyToMode` is not `"off"` and selected quote text is present, OpenClaw skips the answer preview stream for that turn so tool-progress preview lines cannot render. Current-message replies without selected quote text still keep preview streaming. See [Telegram channel docs](/channels/telegram) for details.
+- To keep preview streaming but hide tool-progress lines, set `streaming.preview.toolProgress` to `false` for that channel. To keep tool-progress lines visible while hiding command/exec text, set `streaming.preview.commandText` to `"status"` or `streaming.progress.commandText` to `"status"`; the default is `"raw"` to preserve released behavior. This policy is shared by draft/progress channels that use Alien's compact progress renderer, including Discord, Matrix, Microsoft Teams, Mattermost, Slack draft previews, and Telegram. To disable preview edits entirely, set `streaming.mode` to `off`.
+- Telegram selected quote replies are an exception: when `replyToMode` is not `"off"` and selected quote text is present, Alien skips the answer preview stream for that turn so tool-progress preview lines cannot render. Current-message replies without selected quote text still keep preview streaming. See [Telegram channel docs](/channels/telegram) for details.
 
 Keep progress lines visible but hide raw command/exec text:
 

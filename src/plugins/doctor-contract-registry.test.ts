@@ -17,7 +17,7 @@ let listPluginDoctorLegacyConfigRules: typeof import("./doctor-contract-registry
 let listPluginDoctorSessionRouteStateOwners: typeof import("./doctor-contract-registry.js").listPluginDoctorSessionRouteStateOwners;
 
 function makeTempDir(): string {
-  return makeTrackedTempDir("openclaw-doctor-contract-registry", tempDirs);
+  return makeTrackedTempDir("alien-doctor-contract-registry", tempDirs);
 }
 
 afterEach(() => {

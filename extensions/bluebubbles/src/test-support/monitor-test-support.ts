@@ -1,6 +1,6 @@
-import { createPluginRuntimeMock } from "openclaw/plugin-sdk/channel-test-helpers";
-import type { PluginRuntime } from "openclaw/plugin-sdk/core";
-import type { HistoryEntry } from "openclaw/plugin-sdk/reply-history";
+import { createPluginRuntimeMock } from "alien/plugin-sdk/channel-test-helpers";
+import type { PluginRuntime } from "alien/plugin-sdk/core";
+import type { HistoryEntry } from "alien/plugin-sdk/reply-history";
 import { vi } from "vitest";
 import { _resetBlueBubblesInboundDedupForTest } from "../inbound-dedupe.js";
 import {

@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/openshell-sandbox",
+  "name": "@alien/openshell-sandbox",
   "version": "2026.5.6",
   "private": true,
-  "description": "OpenClaw OpenShell sandbox backend",
+  "description": "Alien OpenShell sandbox backend",
   "type": "module",
   "dependencies": {
     "openshell": "0.1.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ]

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MODEL_CONTEXT_TOKEN_CACHE } from "../../agents/context-cache.js";
 import { loadModelCatalog } from "../../agents/model-catalog.runtime.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { AlienConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { createModelSelectionState, resolveContextTokens } from "./model-selection.js";
 
@@ -57,7 +57,7 @@ describe("createModelSelectionState catalog loading", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const state = await createModelSelectionState({
       cfg,
@@ -93,7 +93,7 @@ describe("createModelSelectionState catalog loading", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const state = await createModelSelectionState({
       cfg,
@@ -130,7 +130,7 @@ describe("createModelSelectionState catalog loading", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const state = await createModelSelectionState({
       cfg,
@@ -165,7 +165,7 @@ describe("createModelSelectionState catalog loading", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     const state = await createModelSelectionState({
       cfg,
@@ -191,7 +191,7 @@ describe("createModelSelectionState catalog loading", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     await createModelSelectionState({
       cfg,
@@ -213,7 +213,7 @@ describe("resolveContextTokens", () => {
     MODEL_CONTEXT_TOKEN_CACHE.set("anthropic/claude-opus-4-6", 1_000_000);
 
     const result = resolveContextTokens({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       agentCfg: undefined,
       provider: "anthropic",
       model: "claude-opus-4-6",
@@ -226,7 +226,7 @@ describe("resolveContextTokens", () => {
     MODEL_CONTEXT_TOKEN_CACHE.set("openai/gpt-5.5", 272_000);
 
     const result = resolveContextTokens({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       agentCfg: { contextTokens: 1_000_000 },
       provider: "openai",
       model: "gpt-5.5",
@@ -239,7 +239,7 @@ describe("resolveContextTokens", () => {
     MODEL_CONTEXT_TOKEN_CACHE.set("qwen/qwen3.6-plus", 1_000_000);
 
     const result = resolveContextTokens({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       agentCfg: { contextTokens: 180_000 },
       provider: "qwen",
       model: "qwen3.6-plus",
@@ -260,7 +260,7 @@ describe("createModelSelectionState parent inheritance", () => {
   const defaultModel = "gpt-4o-mini";
 
   async function resolveState(params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     sessionEntry: ReturnType<typeof makeEntry>;
     sessionStore: Record<string, ReturnType<typeof makeEntry>>;
     sessionKey: string;
@@ -282,7 +282,7 @@ describe("createModelSelectionState parent inheritance", () => {
   }
 
   async function resolveHeartbeatStoredOverrideState(hasResolvedHeartbeatModelOverride: boolean) {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const sessionKey = "agent:main:discord:channel:c1";
     const sessionEntry = makeEntry({
       providerOverride: "openai",
@@ -306,7 +306,7 @@ describe("createModelSelectionState parent inheritance", () => {
   }
 
   async function resolveStateWithParent(params: {
-    cfg: OpenClawConfig;
+    cfg: AlienConfig;
     parentKey: string;
     sessionKey: string;
     parentEntry: ReturnType<typeof makeEntry>;
@@ -328,7 +328,7 @@ describe("createModelSelectionState parent inheritance", () => {
   }
 
   it("inherits parent override from explicit parentSessionKey", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const parentKey = "agent:main:discord:channel:c1";
     const sessionKey = "agent:main:discord:channel:c1:thread:123";
     const parentEntry = makeEntry({
@@ -348,7 +348,7 @@ describe("createModelSelectionState parent inheritance", () => {
   });
 
   it("derives parent key from topic session suffix", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const parentKey = "agent:main:telegram:group:123";
     const sessionKey = "agent:main:telegram:group:123:topic:99";
     const parentEntry = makeEntry({
@@ -367,7 +367,7 @@ describe("createModelSelectionState parent inheritance", () => {
   });
 
   it("prefers child override over parent", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const parentKey = "agent:main:telegram:group:123";
     const sessionKey = "agent:main:telegram:group:123:topic:99";
     const parentEntry = makeEntry({
@@ -399,7 +399,7 @@ describe("createModelSelectionState parent inheritance", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const parentKey = "agent:main:slack:channel:c1";
     const sessionKey = "agent:main:slack:channel:c1:thread:123";
     const parentEntry = makeEntry({
@@ -437,7 +437,7 @@ describe("createModelSelectionState respects session model override", () => {
   const defaultModel = "deepseek-v3-4bit-mlx";
 
   async function resolveState(sessionEntry: ReturnType<typeof makeEntry>) {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const sessionKey = "agent:main:main";
     const sessionStore = { [sessionKey]: sessionEntry };
 
@@ -525,7 +525,7 @@ describe("createModelSelectionState respects session model override", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const sessionKey = "agent:main:telegram:group:123:topic:99";
     const sessionEntry = makeEntry({
       providerOverride: "xai",
@@ -561,7 +561,7 @@ describe("createModelSelectionState respects session model override", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const sessionKey = "agent:main:telegram:direct:1";
     const sessionEntry = makeEntry({
       providerOverride: "openai",
@@ -599,7 +599,7 @@ describe("createModelSelectionState respects session model override", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const sessionKey = "agent:main:telegram:direct:2";
     const sessionEntry = makeEntry({
       modelOverride: "ollama-beelink2/qwen2.5-coder:7b",
@@ -637,7 +637,7 @@ describe("createModelSelectionState auto-failover overrides", () => {
     modelOverride: string;
     modelOverrideSource: "auto" | "user" | undefined;
   }) {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const sessionEntry = makeEntry({
       providerOverride: params.providerOverride,
       modelOverride: params.modelOverride,
@@ -684,7 +684,7 @@ describe("createModelSelectionState auto-failover overrides", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
     const sessionEntry = makeEntry({
       providerOverride: "openrouter",
       modelOverride: "minimax/minimax-m2.7",
@@ -712,7 +712,7 @@ describe("createModelSelectionState auto-failover overrides", () => {
   });
 
   it("keeps pre-loaded fallback provider/model for an auto-failover override", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const sessionEntry = makeEntry({
       providerOverride: "openrouter",
       modelOverride: "minimax/minimax-m2.7",
@@ -771,7 +771,7 @@ describe("createModelSelectionState auto-failover overrides", () => {
   it("does not touch an auto-failover override inherited from a parent session", async () => {
     // Auto clearing only applies to a direct session override, not one inherited
     // from a parent. The parent's own session state is managed separately.
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as AlienConfig;
     const parentKey = "agent:main:telegram:direct:1";
     const childKey = "agent:main:telegram:direct:1:thread:99";
     const parentEntry = makeEntry({
@@ -812,7 +812,7 @@ describe("createModelSelectionState resolveDefaultReasoningLevel", () => {
       { provider: "openrouter", id: "x-ai/grok-4.1-fast", name: "Grok", reasoning: true },
     ]);
     const state = await createModelSelectionState({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       agentCfg: undefined,
       defaultProvider: "openrouter",
       defaultModel: "x-ai/grok-4.1-fast",
@@ -825,7 +825,7 @@ describe("createModelSelectionState resolveDefaultReasoningLevel", () => {
 
   it("returns off when catalog model has no reasoning", async () => {
     const state = await createModelSelectionState({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as AlienConfig,
       agentCfg: undefined,
       defaultProvider: "openai",
       defaultModel: "gpt-4o-mini",

@@ -1,5 +1,5 @@
 import type { Block, KnownBlock } from "@slack/web-api";
-import type { ChannelProgressDraftLine } from "openclaw/plugin-sdk/channel-streaming";
+import type { ChannelProgressDraftLine } from "alien/plugin-sdk/channel-streaming";
 import { SLACK_MAX_BLOCKS } from "./blocks-input.js";
 import { escapeSlackMrkdwn } from "./monitor/mrkdwn.js";
 import { truncateSlackText } from "./truncate.js";

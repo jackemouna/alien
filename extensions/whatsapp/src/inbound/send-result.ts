@@ -5,7 +5,7 @@ import {
   type MessageReceipt,
   type MessageReceiptPartKind,
   type MessageReceiptSourceResult,
-} from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-message";
 
 export type WhatsAppSendKind = "media" | "poll" | "reaction" | "text";
 

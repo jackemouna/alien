@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const transcodeAudioBufferToOpusMock = vi.hoisted(() => vi.fn());
 
-vi.mock("openclaw/plugin-sdk/media-runtime", () => ({
+vi.mock("alien/plugin-sdk/media-runtime", () => ({
   transcodeAudioBufferToOpus: transcodeAudioBufferToOpusMock,
 }));
 
@@ -142,7 +142,7 @@ describe("buildXiaomiSpeechProvider", () => {
       );
 
       const result = await provider.synthesize({
-        text: "Hello from OpenClaw.",
+        text: "Hello from Alien.",
         cfg: {} as never,
         providerConfig: {
           apiKey: "sk-test",
@@ -167,7 +167,7 @@ describe("buildXiaomiSpeechProvider", () => {
       expect(body.model).toBe("mimo-v2-tts");
       expect(body.messages).toEqual([
         { role: "user", content: "Bright." },
-        { role: "assistant", content: "Hello from OpenClaw." },
+        { role: "assistant", content: "Hello from Alien." },
       ]);
       expect(body.audio).toEqual({ format: "mp3", voice: "default_en" });
       expect(transcodeAudioBufferToOpusMock).not.toHaveBeenCalled();
@@ -184,7 +184,7 @@ describe("buildXiaomiSpeechProvider", () => {
       transcodeAudioBufferToOpusMock.mockResolvedValueOnce(Buffer.from("fake-opus-audio"));
 
       const result = await provider.synthesize({
-        text: "Hello from OpenClaw.",
+        text: "Hello from Alien.",
         cfg: {} as never,
         providerConfig: { apiKey: "sk-test" },
         target: "voice-note",

@@ -1,8 +1,8 @@
 /**
  * Engine import boundary test.
  *
- * Ensures that engine/ sources only import from `openclaw/plugin-sdk/*`
- * and never reach into other openclaw internals directly.
+ * Ensures that engine/ sources only import from `alien/plugin-sdk/*`
+ * and never reach into other alien internals directly.
  */
 
 import fs from "node:fs";
@@ -34,31 +34,31 @@ function walkSourceFiles(dir: string, files: string[] = []): string[] {
 }
 
 /**
- * Extract all `openclaw/...` import specifiers from source text.
- * Matches: import ... from "openclaw/...", import("openclaw/...")
+ * Extract all `alien/...` import specifiers from source text.
+ * Matches: import ... from "alien/...", import("alien/...")
  */
-function findOpenclawImports(source: string): string[] {
+function findAlienImports(source: string): string[] {
   return [
-    ...source.matchAll(/from\s+["'](openclaw\/[^"']+)["']/g),
-    ...source.matchAll(/import\(\s*["'](openclaw\/[^"']+)["']\s*\)/g),
+    ...source.matchAll(/from\s+["'](alien\/[^"']+)["']/g),
+    ...source.matchAll(/import\(\s*["'](alien\/[^"']+)["']\s*\)/g),
   ].map((match) => match[1]);
 }
 
-/** Check if an import specifier is an allowed openclaw/plugin-sdk subpath. */
-const ALLOWED_PREFIX = ["openclaw", "plugin-sdk"].join("/");
+/** Check if an import specifier is an allowed alien/plugin-sdk subpath. */
+const ALLOWED_PREFIX = ["alien", "plugin-sdk"].join("/");
 function isAllowedImport(specifier: string): boolean {
   return specifier.startsWith(ALLOWED_PREFIX);
 }
 
 describe("engine import boundary", () => {
-  it("only imports from openclaw/plugin-sdk, never from other openclaw internals", () => {
+  it("only imports from alien/plugin-sdk, never from other alien internals", () => {
     const sourceFiles = walkSourceFiles(ENGINE_DIR);
     const offenders: Array<{ file: string; imports: string[] }> = [];
 
     for (const file of sourceFiles) {
       const source = fs.readFileSync(file, "utf8");
-      const openclawImports = findOpenclawImports(source);
-      const forbidden = openclawImports.filter((specifier) => !isAllowedImport(specifier));
+      const alienImports = findAlienImports(source);
+      const forbidden = alienImports.filter((specifier) => !isAllowedImport(specifier));
 
       if (forbidden.length > 0) {
         offenders.push({

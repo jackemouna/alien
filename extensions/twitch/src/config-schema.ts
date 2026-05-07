@@ -1,5 +1,5 @@
-import { MarkdownConfigSchema } from "openclaw/plugin-sdk/channel-config-primitives";
-import { z } from "openclaw/plugin-sdk/zod";
+import { MarkdownConfigSchema } from "alien/plugin-sdk/channel-config-primitives";
+import { z } from "alien/plugin-sdk/zod";
 
 /**
  * Twitch user roles that can be allowed to interact with the bot

@@ -1,5 +1,5 @@
 import { vi, type Mock } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { GatewayRequestHandlerOptions } from "./types.js";
 
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
@@ -25,10 +25,10 @@ function createGatewayLog(): GatewayLogMocks {
   };
 }
 
-export function createConfigWriteSnapshot(config: OpenClawConfig) {
+export function createConfigWriteSnapshot(config: AlienConfig) {
   return {
     snapshot: {
-      path: "/tmp/openclaw.json",
+      path: "/tmp/alien.json",
       exists: true,
       raw: JSON.stringify(config, null, 2),
       parsed: config,

@@ -1,6 +1,6 @@
-import { readChannelAllowFromStore } from "openclaw/plugin-sdk/conversation-runtime";
-import { resolveNativeSkillsEnabled } from "openclaw/plugin-sdk/native-command-config-runtime";
-import type { OpenClawConfig } from "../runtime-api.js";
+import { readChannelAllowFromStore } from "alien/plugin-sdk/conversation-runtime";
+import { resolveNativeSkillsEnabled } from "alien/plugin-sdk/native-command-config-runtime";
+import type { AlienConfig } from "../runtime-api.js";
 import type { ResolvedTelegramAccount } from "./accounts.js";
 import { isNumericTelegramSenderUserId, normalizeTelegramAllowFromEntry } from "./allow-from.js";
 
@@ -55,7 +55,7 @@ function appendInvalidTelegramAllowFromFinding(
 }
 
 export async function collectTelegramSecurityAuditFindings(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId?: string | null;
   account: ResolvedTelegramAccount;
 }) {

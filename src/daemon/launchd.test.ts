@@ -58,7 +58,7 @@ const defaultProgramArguments = ["node", "-e", "process.exit(0)"];
 function createDefaultLaunchdEnv(): Record<string, string | undefined> {
   return {
     HOME: "/Users/test",
-    OPENCLAW_PROFILE: "default",
+    ALIEN_PROFILE: "default",
   };
 }
 
@@ -81,7 +81,7 @@ async function runStopLaunchAgentWithFakeTimers(args: Parameters<typeof stopLaun
 
 function expectLaunchctlEnableBootstrapOrder(env: Record<string, string | undefined>) {
   const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-  const label = "ai.openclaw.gateway";
+  const label = "ai.alien.gateway";
   const plistPath = resolveLaunchAgentPlistPath(env);
   const serviceId = `${domain}/${label}`;
   const enableIndex = state.launchctlCalls.findIndex(
@@ -377,9 +377,9 @@ describe("launchd runtime state", () => {
 
 describe("launchctl list detection", () => {
   it("detects the resolved label in launchctl list", async () => {
-    state.listOutput = "123 0 ai.openclaw.gateway\n";
+    state.listOutput = "123 0 ai.alien.gateway\n";
     const listed = await isLaunchAgentListed({
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "default" },
+      env: { HOME: "/Users/test", ALIEN_PROFILE: "default" },
     });
     expect(listed).toBe(true);
   });
@@ -387,7 +387,7 @@ describe("launchctl list detection", () => {
   it("returns false when the label is missing", async () => {
     state.listOutput = "123 0 com.other.service\n";
     const listed = await isLaunchAgentListed({
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "default" },
+      env: { HOME: "/Users/test", ALIEN_PROFILE: "default" },
     });
     expect(listed).toBe(false);
   });
@@ -480,7 +480,7 @@ describe("launchd install", () => {
 
   it("writes LaunchAgent environment to an owner-only env file when provided", async () => {
     const env = createDefaultLaunchdEnv();
-    const tmpDir = "/Users/test/.openclaw/tmp";
+    const tmpDir = "/Users/test/.alien/tmp";
     const apiKey = "secret-api-key";
     await installLaunchAgent({
       env,
@@ -490,8 +490,8 @@ describe("launchd install", () => {
     });
 
     const plistPath = resolveLaunchAgentPlistPath(env);
-    const envFilePath = "/Users/test/.openclaw/service-env/ai.openclaw.gateway.env";
-    const wrapperPath = "/Users/test/.openclaw/service-env/ai.openclaw.gateway-env-wrapper.sh";
+    const envFilePath = "/Users/test/.alien/service-env/ai.alien.gateway.env";
+    const wrapperPath = "/Users/test/.alien/service-env/ai.alien.gateway-env-wrapper.sh";
     const plist = state.files.get(plistPath) ?? "";
     expect(plist).not.toContain("<key>EnvironmentVariables</key>");
     expect(plist).not.toContain(apiKey);
@@ -502,7 +502,7 @@ describe("launchd install", () => {
     expect(envFile).toContain(`export OPENAI_API_KEY='${apiKey}'`);
     expect(state.fileModes.get(envFilePath)).toBe(0o600);
     expect(state.fileModes.get(wrapperPath)).toBe(0o700);
-    expect(state.dirModes.get("/Users/test/.openclaw/service-env")).toBe(0o700);
+    expect(state.dirModes.get("/Users/test/.alien/service-env")).toBe(0o700);
 
     const command = await readLaunchAgentProgramArguments(env);
     expect(command?.programArguments).toEqual(defaultProgramArguments);
@@ -518,7 +518,7 @@ describe("launchd install", () => {
 
   it("creates the LaunchAgent TMPDIR before bootstrap", async () => {
     const env = createDefaultLaunchdEnv();
-    const tmpDir = "/Users/test/.openclaw/tmp";
+    const tmpDir = "/Users/test/.alien/tmp";
     await installLaunchAgent({
       env,
       stdout: new PassThrough(),
@@ -562,7 +562,7 @@ describe("launchd install", () => {
         '<plist version="1.0">',
         "  <dict>",
         "    <key>Label</key>",
-        "    <string>ai.openclaw.gateway</string>",
+        "    <string>ai.alien.gateway</string>",
         "    <key>ProgramArguments</key>",
         "    <array>",
         "      <string>node</string>",
@@ -621,9 +621,9 @@ describe("launchd install", () => {
     await stopLaunchAgent({ env, stdout });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const serviceId = `${domain}/ai.openclaw.gateway`;
+    const serviceId = `${domain}/ai.alien.gateway`;
     expect(state.launchctlCalls).toContainEqual(["disable", serviceId]);
-    expect(state.launchctlCalls).toContainEqual(["stop", "ai.openclaw.gateway"]);
+    expect(state.launchctlCalls).toContainEqual(["stop", "ai.alien.gateway"]);
     expect(state.launchctlCalls.some((call) => call[0] === "bootout")).toBe(false);
     expect(output).toContain("Stopped LaunchAgent");
   });
@@ -644,7 +644,7 @@ describe("launchd install", () => {
 
     expect(state.launchctlCalls).toContainEqual([
       "disable",
-      `${typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501"}/ai.openclaw.gateway`,
+      `${typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501"}/ai.alien.gateway`,
     ]);
     expect(state.launchctlCalls.some((call) => call[0] === "bootout")).toBe(false);
     expect(output).toContain("Stopped LaunchAgent");
@@ -767,7 +767,7 @@ describe("launchd install", () => {
   it("restarts LaunchAgent with kickstart and no bootout", async () => {
     const env = {
       ...createDefaultLaunchdEnv(),
-      OPENCLAW_GATEWAY_PORT: "18789",
+      ALIEN_GATEWAY_PORT: "18789",
     };
     const result = await restartLaunchAgent({
       env,
@@ -775,7 +775,7 @@ describe("launchd install", () => {
     });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const label = "ai.openclaw.gateway";
+    const label = "ai.alien.gateway";
     const serviceId = `${domain}/${label}`;
     expect(result).toEqual({ outcome: "completed" });
     expect(cleanStaleGatewayProcessesSync).toHaveBeenCalledWith(18789);
@@ -788,7 +788,7 @@ describe("launchd install", () => {
   it("uses the configured gateway port for stale cleanup", async () => {
     const env = {
       ...createDefaultLaunchdEnv(),
-      OPENCLAW_GATEWAY_PORT: "19001",
+      ALIEN_GATEWAY_PORT: "19001",
     };
 
     await restartLaunchAgent({
@@ -822,7 +822,7 @@ describe("launchd install", () => {
     });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const serviceId = `${domain}/ai.openclaw.gateway`;
+    const serviceId = `${domain}/ai.alien.gateway`;
     const kickstartCalls = state.launchctlCalls.filter(
       (c) => c[0] === "kickstart" && c[1] === "-k" && c[2] === serviceId,
     );
@@ -917,7 +917,7 @@ describe("launchd install", () => {
     }
     expect(message).toContain("logged-in macOS GUI session");
     expect(message).toContain("wrong user (including sudo)");
-    expect(message).toContain("https://docs.openclaw.ai/gateway");
+    expect(message).toContain("https://docs.alien.ai/gateway");
   });
 
   it("surfaces generic bootstrap failures without GUI-specific guidance", async () => {
@@ -937,40 +937,40 @@ describe("launchd install", () => {
 describe("resolveLaunchAgentPlistPath", () => {
   it.each([
     {
-      name: "uses default label when OPENCLAW_PROFILE is unset",
+      name: "uses default label when ALIEN_PROFILE is unset",
       env: { HOME: "/Users/test" },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.gateway.plist",
+      expected: "/Users/test/Library/LaunchAgents/ai.alien.gateway.plist",
     },
     {
-      name: "uses profile-specific label when OPENCLAW_PROFILE is set to a custom value",
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "jbphoenix" },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.jbphoenix.plist",
+      name: "uses profile-specific label when ALIEN_PROFILE is set to a custom value",
+      env: { HOME: "/Users/test", ALIEN_PROFILE: "jbphoenix" },
+      expected: "/Users/test/Library/LaunchAgents/ai.alien.jbphoenix.plist",
     },
     {
-      name: "prefers OPENCLAW_LAUNCHD_LABEL over OPENCLAW_PROFILE",
+      name: "prefers ALIEN_LAUNCHD_LABEL over ALIEN_PROFILE",
       env: {
         HOME: "/Users/test",
-        OPENCLAW_PROFILE: "jbphoenix",
-        OPENCLAW_LAUNCHD_LABEL: "com.custom.label",
+        ALIEN_PROFILE: "jbphoenix",
+        ALIEN_LAUNCHD_LABEL: "com.custom.label",
       },
       expected: "/Users/test/Library/LaunchAgents/com.custom.label.plist",
     },
     {
-      name: "trims whitespace from OPENCLAW_LAUNCHD_LABEL",
+      name: "trims whitespace from ALIEN_LAUNCHD_LABEL",
       env: {
         HOME: "/Users/test",
-        OPENCLAW_LAUNCHD_LABEL: "  com.custom.label  ",
+        ALIEN_LAUNCHD_LABEL: "  com.custom.label  ",
       },
       expected: "/Users/test/Library/LaunchAgents/com.custom.label.plist",
     },
     {
-      name: "ignores empty OPENCLAW_LAUNCHD_LABEL and falls back to profile",
+      name: "ignores empty ALIEN_LAUNCHD_LABEL and falls back to profile",
       env: {
         HOME: "/Users/test",
-        OPENCLAW_PROFILE: "myprofile",
-        OPENCLAW_LAUNCHD_LABEL: "   ",
+        ALIEN_PROFILE: "myprofile",
+        ALIEN_LAUNCHD_LABEL: "   ",
       },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.myprofile.plist",
+      expected: "/Users/test/Library/LaunchAgents/ai.alien.myprofile.plist",
     },
   ])("$name", ({ env, expected }) => {
     expect(resolveLaunchAgentPlistPath(env)).toBe(expected);
@@ -980,7 +980,7 @@ describe("resolveLaunchAgentPlistPath", () => {
     expect(() =>
       resolveLaunchAgentPlistPath({
         HOME: "/Users/test",
-        OPENCLAW_LAUNCHD_LABEL: "../evil/label",
+        ALIEN_LAUNCHD_LABEL: "../evil/label",
       }),
     ).toThrow("Invalid launchd label");
   });

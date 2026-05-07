@@ -3,23 +3,23 @@ import {
   resolveEnvelopeFormatOptions,
   toLocationContext,
   type NormalizedLocation,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { normalizeCommandBody } from "openclaw/plugin-sdk/command-surface";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-inbound";
+import { normalizeCommandBody } from "alien/plugin-sdk/command-surface";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "openclaw/plugin-sdk/config-types";
-import { resolveChannelContextVisibilityMode } from "openclaw/plugin-sdk/context-visibility-runtime";
+} from "alien/plugin-sdk/config-types";
+import { resolveChannelContextVisibilityMode } from "alien/plugin-sdk/context-visibility-runtime";
 import {
   buildPendingHistoryContextFromMap,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { evaluateSupplementalContextVisibility } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/reply-history";
+import type { ResolvedAgentRoute } from "alien/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "alien/plugin-sdk/runtime-env";
+import { evaluateSupplementalContextVisibility } from "alien/plugin-sdk/security-runtime";
+import { normalizeOptionalLowercaseString } from "alien/plugin-sdk/text-runtime";
 import type { NormalizedAllowFrom } from "./bot-access.js";
 import { isSenderAllowed, normalizeAllowFrom } from "./bot-access.js";
 import type {
@@ -77,7 +77,7 @@ async function loadTelegramMessageContextSessionRuntime(
 }
 
 export async function resolveTelegramMessageContextStorePath(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   sessionRuntime?: TelegramMessageContextSessionRuntimeOverrides;
 }): Promise<string> {
@@ -88,7 +88,7 @@ export async function resolveTelegramMessageContextStorePath(params: {
 }
 
 export async function buildTelegramInboundContextPayload(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   primaryCtx: TelegramContext;
   msg: TelegramContext["message"];
   allMedia: TelegramMediaRef[];

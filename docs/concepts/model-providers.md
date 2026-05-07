@@ -15,15 +15,15 @@ Reference for **LLM/model providers** (not chat channels like WhatsApp/Telegram)
   <Accordion title="Model refs and CLI helpers">
     - Model refs use `provider/model` (example: `opencode/claude-opus-4-6`).
     - `agents.defaults.models` acts as an allowlist when set.
-    - CLI helpers: `openclaw onboard`, `openclaw models list`, `openclaw models set <provider/model>`.
+    - CLI helpers: `alien onboard`, `alien models list`, `alien models set <provider/model>`.
     - `models.providers.*.contextWindow` / `contextTokens` / `maxTokens` set provider-level defaults; `models.providers.*.models[].contextWindow` / `contextTokens` / `maxTokens` override them per model.
     - Fallback rules, cooldown probes, and session-override persistence: [Model failover](/concepts/model-failover).
 
   </Accordion>
   <Accordion title="Adding provider auth does not change your primary model">
-    `openclaw configure` preserves an existing `agents.defaults.model.primary` when you add or reauth a provider. Provider plugins may still return a recommended default model in their auth config patch, but configure treats that as "make this model available" when a primary model already exists, not "replace the current primary model."
+    `alien configure` preserves an existing `agents.defaults.model.primary` when you add or reauth a provider. Provider plugins may still return a recommended default model in their auth config patch, but configure treats that as "make this model available" when a primary model already exists, not "replace the current primary model."
 
-    To intentionally switch the default model, use `openclaw models set <provider/model>` or `openclaw models auth login --provider <id> --set-default`.
+    To intentionally switch the default model, use `alien models set <provider/model>` or `alien models auth login --provider <id> --set-default`.
 
   </Accordion>
   <Accordion title="OpenAI provider/runtime split">
@@ -50,7 +50,7 @@ Reference for **LLM/model providers** (not chat channels like WhatsApp/Telegram)
 
 ## Plugin-owned provider behavior
 
-Most provider-specific logic lives in provider plugins (`registerProvider(...)`) while OpenClaw keeps the generic inference loop. Plugins own onboarding, model catalogs, auth env-var mapping, transport/config normalization, tool-schema cleanup, failover classification, OAuth refresh, usage reporting, thinking/reasoning profiles, and more.
+Most provider-specific logic lives in provider plugins (`registerProvider(...)`) while Alien keeps the generic inference loop. Plugins own onboarding, model catalogs, auth env-var mapping, transport/config normalization, tool-schema cleanup, failover classification, OAuth refresh, usage reporting, thinking/reasoning profiles, and more.
 
 The full list of provider-SDK hooks and bundled-plugin examples lives in [Provider plugins](/plugins/sdk-provider-plugins). A provider that needs a totally custom request executor is a separate, deeper extension surface.
 
@@ -64,7 +64,7 @@ Provider-owned runner behavior lives on explicit provider hooks such as replay p
   <Accordion title="Key sources and priority">
     Configure multiple keys via:
 
-    - `OPENCLAW_LIVE_<PROVIDER>_KEY` (single live override, highest priority)
+    - `ALIEN_LIVE_<PROVIDER>_KEY` (single live override, highest priority)
     - `<PROVIDER>_API_KEYS` (comma or semicolon list)
     - `<PROVIDER>_API_KEY` (primary key)
     - `<PROVIDER>_API_KEY_*` (numbered list, e.g. `<PROVIDER>_API_KEY_1`)
@@ -82,25 +82,25 @@ Provider-owned runner behavior lives on explicit provider hooks such as replay p
 
 ## Built-in providers (pi-ai catalog)
 
-OpenClaw ships with the pi-ai catalog. These providers require **no** `models.providers` config; just set auth + pick a model.
+Alien ships with the pi-ai catalog. These providers require **no** `models.providers` config; just set auth + pick a model.
 
 ### OpenAI
 
 - Provider: `openai`
 - Auth: `OPENAI_API_KEY`
-- Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `OPENCLAW_LIVE_OPENAI_KEY` (single override)
+- Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `ALIEN_LIVE_OPENAI_KEY` (single override)
 - Example models: `openai/gpt-5.5`, `openai/gpt-5.4-mini`
-- Verify account/model availability with `openclaw models list --provider openai` if a specific install or API key behaves differently.
-- CLI: `openclaw onboard --auth-choice openai-api-key`
+- Verify account/model availability with `alien models list --provider openai` if a specific install or API key behaves differently.
+- CLI: `alien onboard --auth-choice openai-api-key`
 - Default transport is `auto` (WebSocket-first, SSE fallback)
 - Override per model via `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
 - OpenAI Responses WebSocket warm-up defaults to enabled via `params.openaiWsWarmup` (`true`/`false`)
 - OpenAI priority processing can be enabled via `agents.defaults.models["openai/<model>"].params.serviceTier`
 - `/fast` and `params.fastMode` map direct `openai/*` Responses requests to `service_tier=priority` on `api.openai.com`
 - Use `params.serviceTier` when you want an explicit tier instead of the shared `/fast` toggle
-- Hidden OpenClaw attribution headers (`originator`, `version`, `User-Agent`) apply only on native OpenAI traffic to `api.openai.com`, not generic OpenAI-compatible proxies
+- Hidden Alien attribution headers (`originator`, `version`, `User-Agent`) apply only on native OpenAI traffic to `api.openai.com`, not generic OpenAI-compatible proxies
 - Native OpenAI routes also keep Responses `store`, prompt-cache hints, and OpenAI reasoning-compat payload shaping; proxy routes do not
-- `openai/gpt-5.3-codex-spark` is intentionally suppressed in OpenClaw because live OpenAI API requests reject it and the current Codex catalog does not expose it
+- `openai/gpt-5.3-codex-spark` is intentionally suppressed in Alien because live OpenAI API requests reject it and the current Codex catalog does not expose it
 
 ```json5
 {
@@ -112,17 +112,17 @@ OpenClaw ships with the pi-ai catalog. These providers require **no** `models.pr
 
 - Provider: `anthropic`
 - Auth: `ANTHROPIC_API_KEY`
-- Optional rotation: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, plus `OPENCLAW_LIVE_ANTHROPIC_KEY` (single override)
+- Optional rotation: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, plus `ALIEN_LIVE_ANTHROPIC_KEY` (single override)
 - Example model: `anthropic/claude-opus-4-6`
-- CLI: `openclaw onboard --auth-choice apiKey`
-- Direct public Anthropic requests support the shared `/fast` toggle and `params.fastMode`, including API-key and OAuth-authenticated traffic sent to `api.anthropic.com`; OpenClaw maps that to Anthropic `service_tier` (`auto` vs `standard_only`)
+- CLI: `alien onboard --auth-choice apiKey`
+- Direct public Anthropic requests support the shared `/fast` toggle and `params.fastMode`, including API-key and OAuth-authenticated traffic sent to `api.anthropic.com`; Alien maps that to Anthropic `service_tier` (`auto` vs `standard_only`)
 - Preferred Claude CLI config keeps the model ref canonical and selects the CLI
   backend separately: `anthropic/claude-opus-4-7` with
   `agents.defaults.agentRuntime.id: "claude-cli"`. Legacy
   `claude-cli/claude-opus-4-7` refs still work for compatibility.
 
 <Note>
-Anthropic staff told us OpenClaw-style Claude CLI usage is allowed again, so OpenClaw treats Claude CLI reuse and `claude -p` usage as sanctioned for this integration unless Anthropic publishes a new policy. Anthropic setup-token remains available as a supported OpenClaw token path, but OpenClaw now prefers Claude CLI reuse and `claude -p` when available.
+Anthropic staff told us Alien-style Claude CLI usage is allowed again, so Alien treats Claude CLI reuse and `claude -p` usage as sanctioned for this integration unless Anthropic publishes a new policy. Anthropic setup-token remains available as a supported Alien token path, but Alien now prefers Claude CLI reuse and `claude -p` when available.
 </Note>
 
 ```json5
@@ -140,14 +140,14 @@ Anthropic staff told us OpenClaw-style Claude CLI usage is allowed again, so Ope
 - Native Codex app-server harness docs: [Codex harness](/plugins/codex-harness)
 - Legacy model refs: `codex/gpt-*`
 - Plugin boundary: `openai-codex/*` loads the OpenAI plugin; the native Codex app-server plugin is selected only by the Codex harness runtime or legacy `codex/*` refs.
-- CLI: `openclaw onboard --auth-choice openai-codex` or `openclaw models auth login --provider openai-codex`
+- CLI: `alien onboard --auth-choice openai-codex` or `alien models auth login --provider openai-codex`
 - Default transport is `auto` (WebSocket-first, SSE fallback)
 - Override per PI model via `agents.defaults.models["openai-codex/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
 - `params.serviceTier` is also forwarded on native Codex Responses requests (`chatgpt.com/backend-api`)
-- Hidden OpenClaw attribution headers (`originator`, `version`, `User-Agent`) are only attached on native Codex traffic to `chatgpt.com/backend-api`, not generic OpenAI-compatible proxies
-- Shares the same `/fast` toggle and `params.fastMode` config as direct `openai/*`; OpenClaw maps that to `service_tier=priority`
+- Hidden Alien attribution headers (`originator`, `version`, `User-Agent`) are only attached on native Codex traffic to `chatgpt.com/backend-api`, not generic OpenAI-compatible proxies
+- Shares the same `/fast` toggle and `params.fastMode` config as direct `openai/*`; Alien maps that to `service_tier=priority`
 - `openai-codex/gpt-5.5` uses the Codex catalog native `contextWindow = 400000` and default runtime `contextTokens = 272000`; override the runtime cap with `models.providers.openai-codex.models[].contextTokens`
-- Policy note: OpenAI Codex OAuth is explicitly supported for external tools/workflows like OpenClaw.
+- Policy note: OpenAI Codex OAuth is explicitly supported for external tools/workflows like Alien.
 - For the common subscription plus native Codex runtime route, sign in with `openai-codex` auth but configure `openai/gpt-5.5` plus `agents.defaults.agentRuntime.id: "codex"`.
 - Use `openai-codex/gpt-5.5` only when you want the Codex OAuth/subscription route through PI; use `openai/gpt-5.5` without the Codex runtime override when your API-key setup and local catalog expose the public API route.
 - Older `openai-codex/gpt-5.1*`, `openai-codex/gpt-5.2*`, and `openai-codex/gpt-5.3*` refs are suppressed because ChatGPT/Codex OAuth accounts reject them; use `openai-codex/gpt-5.5` or the native Codex runtime route instead.
@@ -196,7 +196,7 @@ Anthropic staff told us OpenClaw-style Claude CLI usage is allowed again, so Ope
 - Zen runtime provider: `opencode`
 - Go runtime provider: `opencode-go`
 - Example models: `opencode/claude-opus-4-6`, `opencode-go/kimi-k2.6`
-- CLI: `openclaw onboard --auth-choice opencode-zen` or `openclaw onboard --auth-choice opencode-go`
+- CLI: `alien onboard --auth-choice opencode-zen` or `alien onboard --auth-choice opencode-go`
 
 ```json5
 {
@@ -208,13 +208,13 @@ Anthropic staff told us OpenClaw-style Claude CLI usage is allowed again, so Ope
 
 - Provider: `google`
 - Auth: `GEMINI_API_KEY`
-- Optional rotation: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` fallback, and `OPENCLAW_LIVE_GEMINI_KEY` (single override)
+- Optional rotation: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` fallback, and `ALIEN_LIVE_GEMINI_KEY` (single override)
 - Example models: `google/gemini-3.1-pro-preview`, `google/gemini-3-flash-preview`
-- Compatibility: legacy OpenClaw config using `google/gemini-3.1-flash-preview` is normalized to `google/gemini-3-flash-preview`
+- Compatibility: legacy Alien config using `google/gemini-3.1-flash-preview` is normalized to `google/gemini-3-flash-preview`
 - Alias: `google/gemini-3.1-pro` is accepted and normalized to Google's live Gemini API id, `google/gemini-3.1-pro-preview`
-- CLI: `openclaw onboard --auth-choice gemini-api-key`
+- CLI: `alien onboard --auth-choice gemini-api-key`
 - Thinking: `/think adaptive` uses Google dynamic thinking. Gemini 3/3.1 omit a fixed `thinkingLevel`; Gemini 2.5 sends `thinkingBudget: -1`.
-- Direct Gemini runs also accept `agents.defaults.models["google/<model>"].params.cachedContent` (or legacy `cached_content`) to forward a provider-native `cachedContents/...` handle; Gemini cache hits surface as OpenClaw `cacheRead`
+- Direct Gemini runs also accept `agents.defaults.models["google/<model>"].params.cachedContent` (or legacy `cached_content`) to forward a provider-native `cachedContents/...` handle; Gemini cache hits surface as Alien `cacheRead`
 
 ### Google Vertex and Gemini CLI
 
@@ -222,7 +222,7 @@ Anthropic staff told us OpenClaw-style Claude CLI usage is allowed again, so Ope
 - Auth: Vertex uses gcloud ADC; Gemini CLI uses its OAuth flow
 
 <Warning>
-Gemini CLI OAuth in OpenClaw is an unofficial integration. Some users have reported Google account restrictions after using third-party clients. Review Google terms and use a non-critical account if you choose to proceed.
+Gemini CLI OAuth in Alien is an unofficial integration. Some users have reported Google account restrictions after using third-party clients. Review Google terms and use a non-critical account if you choose to proceed.
 </Warning>
 
 Gemini CLI OAuth is shipped as part of the bundled `google` plugin.
@@ -244,15 +244,15 @@ Gemini CLI OAuth is shipped as part of the bundled `google` plugin.
   </Step>
   <Step title="Enable plugin">
     ```bash
-    openclaw plugins enable google
+    alien plugins enable google
     ```
   </Step>
   <Step title="Login">
     ```bash
-    openclaw models auth login --provider google-gemini-cli --set-default
+    alien models auth login --provider google-gemini-cli --set-default
     ```
 
-    Default model: `google-gemini-cli/gemini-3-flash-preview`. You do **not** paste a client id or secret into `openclaw.json`. The CLI login flow stores tokens in auth profiles on the gateway host.
+    Default model: `google-gemini-cli/gemini-3-flash-preview`. You do **not** paste a client id or secret into `alien.json`. The CLI login flow stores tokens in auth profiles on the gateway host.
 
   </Step>
   <Step title="Set project (if needed)">
@@ -260,14 +260,14 @@ Gemini CLI OAuth is shipped as part of the bundled `google` plugin.
   </Step>
 </Steps>
 
-Gemini CLI JSON replies are parsed from `response`; usage falls back to `stats`, with `stats.cached` normalized into OpenClaw `cacheRead`.
+Gemini CLI JSON replies are parsed from `response`; usage falls back to `stats`, with `stats.cached` normalized into Alien `cacheRead`.
 
 ### Z.AI (GLM)
 
 - Provider: `zai`
 - Auth: `ZAI_API_KEY`
 - Example model: `zai/glm-5.1`
-- CLI: `openclaw onboard --auth-choice zai-api-key`
+- CLI: `alien onboard --auth-choice zai-api-key`
   - Aliases: `z.ai/*` and `z-ai/*` normalize to `zai/*`
   - `zai-api-key` auto-detects the matching Z.AI endpoint; `zai-coding-global`, `zai-coding-cn`, `zai-global`, and `zai-cn` force a specific surface
 
@@ -276,17 +276,17 @@ Gemini CLI JSON replies are parsed from `response`; usage falls back to `stats`,
 - Provider: `vercel-ai-gateway`
 - Auth: `AI_GATEWAY_API_KEY`
 - Example models: `vercel-ai-gateway/anthropic/claude-opus-4.6`, `vercel-ai-gateway/moonshotai/kimi-k2.6`
-- CLI: `openclaw onboard --auth-choice ai-gateway-api-key`
+- CLI: `alien onboard --auth-choice ai-gateway-api-key`
 
 ### Kilo Gateway
 
 - Provider: `kilocode`
 - Auth: `KILOCODE_API_KEY`
 - Example model: `kilocode/kilo/auto`
-- CLI: `openclaw onboard --auth-choice kilocode-api-key`
+- CLI: `alien onboard --auth-choice kilocode-api-key`
 - Base URL: `https://api.kilo.ai/api/gateway/`
 - Static fallback catalog ships `kilocode/kilo/auto`; live `https://api.kilo.ai/api/gateway/models` discovery can expand the runtime catalog further.
-- Exact upstream routing behind `kilocode/kilo/auto` is owned by Kilo Gateway, not hard-coded in OpenClaw.
+- Exact upstream routing behind `kilocode/kilo/auto` is owned by Kilo Gateway, not hard-coded in Alien.
 
 See [/providers/kilocode](/providers/kilocode) for setup details.
 
@@ -357,7 +357,7 @@ Moonshot ships as a bundled provider plugin. Use the built-in provider by defaul
 - Provider: `moonshot`
 - Auth: `MOONSHOT_API_KEY`
 - Example model: `moonshot/kimi-k2.6`
-- CLI: `openclaw onboard --auth-choice moonshot-api-key` or `openclaw onboard --auth-choice moonshot-api-key-cn`
+- CLI: `alien onboard --auth-choice moonshot-api-key` or `alien onboard --auth-choice moonshot-api-key-cn`
 
 Kimi K2 model IDs:
 
@@ -416,7 +416,7 @@ Volcano Engine (火山引擎) provides access to Doubao and other models in Chin
 - Provider: `volcengine` (coding: `volcengine-plan`)
 - Auth: `VOLCANO_ENGINE_API_KEY`
 - Example model: `volcengine-plan/ark-code-latest`
-- CLI: `openclaw onboard --auth-choice volcengine-api-key`
+- CLI: `alien onboard --auth-choice volcengine-api-key`
 
 ```json5
 {
@@ -428,7 +428,7 @@ Volcano Engine (火山引擎) provides access to Doubao and other models in Chin
 
 Onboarding defaults to the coding surface, but the general `volcengine/*` catalog is registered at the same time.
 
-In onboarding/configure model pickers, the Volcengine auth choice prefers both `volcengine/*` and `volcengine-plan/*` rows. If those models are not loaded yet, OpenClaw falls back to the unfiltered catalog instead of showing an empty provider-scoped picker.
+In onboarding/configure model pickers, the Volcengine auth choice prefers both `volcengine/*` and `volcengine-plan/*` rows. If those models are not loaded yet, Alien falls back to the unfiltered catalog instead of showing an empty provider-scoped picker.
 
 <Tabs>
   <Tab title="Standard models">
@@ -456,7 +456,7 @@ BytePlus ARK provides access to the same models as Volcano Engine for internatio
 - Provider: `byteplus` (coding: `byteplus-plan`)
 - Auth: `BYTEPLUS_API_KEY`
 - Example model: `byteplus-plan/ark-code-latest`
-- CLI: `openclaw onboard --auth-choice byteplus-api-key`
+- CLI: `alien onboard --auth-choice byteplus-api-key`
 
 ```json5
 {
@@ -468,7 +468,7 @@ BytePlus ARK provides access to the same models as Volcano Engine for internatio
 
 Onboarding defaults to the coding surface, but the general `byteplus/*` catalog is registered at the same time.
 
-In onboarding/configure model pickers, the BytePlus auth choice prefers both `byteplus/*` and `byteplus-plan/*` rows. If those models are not loaded yet, OpenClaw falls back to the unfiltered catalog instead of showing an empty provider-scoped picker.
+In onboarding/configure model pickers, the BytePlus auth choice prefers both `byteplus/*` and `byteplus-plan/*` rows. If those models are not loaded yet, Alien falls back to the unfiltered catalog instead of showing an empty provider-scoped picker.
 
 <Tabs>
   <Tab title="Standard models">
@@ -494,7 +494,7 @@ Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
 - Provider: `synthetic`
 - Auth: `SYNTHETIC_API_KEY`
 - Example model: `synthetic/hf:MiniMaxAI/MiniMax-M2.5`
-- CLI: `openclaw onboard --auth-choice synthetic-api-key`
+- CLI: `alien onboard --auth-choice synthetic-api-key`
 
 ```json5
 {
@@ -528,7 +528,7 @@ MiniMax is configured via `models.providers` because it uses custom endpoints:
 See [/providers/minimax](/providers/minimax) for setup details, model options, and config snippets.
 
 <Note>
-On MiniMax's Anthropic-compatible streaming path, OpenClaw disables thinking by default unless you explicitly set it, and `/fast on` rewrites `MiniMax-M2.7` to `MiniMax-M2.7-highspeed`.
+On MiniMax's Anthropic-compatible streaming path, Alien disables thinking by default unless you explicitly set it, and `/fast on` rewrites `MiniMax-M2.7` to `MiniMax-M2.7-highspeed`.
 </Note>
 
 Plugin-owned capability split:
@@ -556,7 +556,7 @@ Then set a model (replace with one of the IDs returned by `http://localhost:1234
 }
 ```
 
-OpenClaw uses LM Studio's native `/api/v1/models` and `/api/v1/models/load` for discovery + auto-load, with `/v1/chat/completions` for inference by default. If you want LM Studio JIT loading, TTL, and auto-evict to own model lifecycle, set `models.providers.lmstudio.params.preload: false`. See [/providers/lmstudio](/providers/lmstudio) for setup and troubleshooting.
+Alien uses LM Studio's native `/api/v1/models` and `/api/v1/models/load` for discovery + auto-load, with `/v1/chat/completions` for inference by default. If you want LM Studio JIT loading, TTL, and auto-evict to own model lifecycle, set `models.providers.lmstudio.params.preload: false`. See [/providers/lmstudio](/providers/lmstudio) for setup and troubleshooting.
 
 ### Ollama
 
@@ -580,7 +580,7 @@ ollama pull llama3.3
 }
 ```
 
-Ollama is detected locally at `http://127.0.0.1:11434` when you opt in with `OLLAMA_API_KEY`, and the bundled provider plugin adds Ollama directly to `openclaw onboard` and the model picker. See [/providers/ollama](/providers/ollama) for onboarding, cloud/local mode, and custom configuration.
+Ollama is detected locally at `http://127.0.0.1:11434` when you opt in with `OLLAMA_API_KEY`, and the bundled provider plugin adds Ollama directly to `alien onboard` and the model picker. See [/providers/ollama](/providers/ollama) for onboarding, cloud/local mode, and custom configuration.
 
 ### vLLM
 
@@ -672,7 +672,7 @@ Example (OpenAI-compatible):
 
 <AccordionGroup>
   <Accordion title="Default optional fields">
-    For custom providers, `reasoning`, `input`, `cost`, `contextWindow`, and `maxTokens` are optional. When omitted, OpenClaw defaults to:
+    For custom providers, `reasoning`, `input`, `cost`, `contextWindow`, and `maxTokens` are optional. When omitted, Alien defaults to:
 
     - `reasoning: false`
     - `input: ["text"]`
@@ -684,15 +684,15 @@ Example (OpenAI-compatible):
 
   </Accordion>
   <Accordion title="Proxy-route shaping rules">
-    - For `api: "openai-completions"` on non-native endpoints (any non-empty `baseUrl` whose host is not `api.openai.com`), OpenClaw forces `compat.supportsDeveloperRole: false` to avoid provider 400 errors for unsupported `developer` roles.
-    - Proxy-style OpenAI-compatible routes also skip native OpenAI-only request shaping: no `service_tier`, no Responses `store`, no Completions `store`, no prompt-cache hints, no OpenAI reasoning-compat payload shaping, and no hidden OpenClaw attribution headers.
+    - For `api: "openai-completions"` on non-native endpoints (any non-empty `baseUrl` whose host is not `api.openai.com`), Alien forces `compat.supportsDeveloperRole: false` to avoid provider 400 errors for unsupported `developer` roles.
+    - Proxy-style OpenAI-compatible routes also skip native OpenAI-only request shaping: no `service_tier`, no Responses `store`, no Completions `store`, no prompt-cache hints, no OpenAI reasoning-compat payload shaping, and no hidden Alien attribution headers.
     - For OpenAI-compatible Completions proxies that need vendor-specific fields, set `agents.defaults.models["provider/model"].params.extra_body` (or `extraBody`) to merge extra JSON into the outbound request body.
     - For vLLM chat-template controls, set `agents.defaults.models["provider/model"].params.chat_template_kwargs`. The bundled vLLM plugin automatically sends `enable_thinking: false` and `force_nonempty_content: true` for `vllm/nemotron-3-*` when the session thinking level is off.
     - For slow local models or remote LAN/tailnet hosts, set `models.providers.<id>.timeoutSeconds`. This extends provider model HTTP request handling, including connect, headers, body streaming, and the total guarded-fetch abort, without increasing the whole agent runtime timeout.
     - Model provider HTTP calls allow Surge, Clash, and sing-box fake-IP DNS answers in `198.18.0.0/15` and `fc00::/7` only for the configured provider `baseUrl` hostname. Other private, loopback, link-local, and metadata destinations still require an explicit `models.providers.<id>.request.allowPrivateNetwork: true` opt-in.
-    - If `baseUrl` is empty/omitted, OpenClaw keeps the default OpenAI behavior (which resolves to `api.openai.com`).
+    - If `baseUrl` is empty/omitted, Alien keeps the default OpenAI behavior (which resolves to `api.openai.com`).
     - For safety, an explicit `compat.supportsDeveloperRole: true` is still overridden on non-native `openai-completions` endpoints.
-    - For `api: "anthropic-messages"` on non-direct endpoints (any provider other than canonical `anthropic`, or a custom `models.providers.anthropic.baseUrl` whose host is not a public `api.anthropic.com` endpoint), OpenClaw suppresses implicit Anthropic beta headers such as `claude-code-20250219`, `interleaved-thinking-2025-05-14`, and OAuth markers, so custom Anthropic-compatible proxies do not reject unsupported beta flags. Set `models.providers.<id>.headers["anthropic-beta"]` explicitly if your proxy needs specific beta features.
+    - For `api: "anthropic-messages"` on non-direct endpoints (any provider other than canonical `anthropic`, or a custom `models.providers.anthropic.baseUrl` whose host is not a public `api.anthropic.com` endpoint), Alien suppresses implicit Anthropic beta headers such as `claude-code-20250219`, `interleaved-thinking-2025-05-14`, and OAuth markers, so custom Anthropic-compatible proxies do not reject unsupported beta flags. Set `models.providers.<id>.headers["anthropic-beta"]` explicitly if your proxy needs specific beta features.
 
   </Accordion>
 </AccordionGroup>
@@ -700,9 +700,9 @@ Example (OpenAI-compatible):
 ## CLI examples
 
 ```bash
-openclaw onboard --auth-choice opencode-zen
-openclaw models set opencode/claude-opus-4-6
-openclaw models list
+alien onboard --auth-choice opencode-zen
+alien models set opencode/claude-opus-4-6
+alien models list
 ```
 
 See also: [Configuration](/gateway/configuration) for full configuration examples.

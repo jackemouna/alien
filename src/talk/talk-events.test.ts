@@ -53,7 +53,7 @@ describe("talk event envelope", () => {
         parentId: "parent-1",
         final: false,
         timestamp: "2026-05-05T12:00:01.000Z",
-        payload: { name: "openclaw_agent_consult" },
+        payload: { name: "alien_agent_consult" },
       }),
     ).toMatchObject({
       id: "session-voice:1",
@@ -68,7 +68,7 @@ describe("talk event envelope", () => {
       itemId: "item-1",
       parentId: "parent-1",
       final: false,
-      payload: { name: "openclaw_agent_consult" },
+      payload: { name: "alien_agent_consult" },
     });
   });
 

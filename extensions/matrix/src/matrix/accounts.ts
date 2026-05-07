@@ -1,6 +1,6 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "alien/plugin-sdk/account-id";
+import { hasConfiguredSecretInput } from "alien/plugin-sdk/secret-input-runtime";
+import { normalizeOptionalString } from "alien/plugin-sdk/string-coerce-runtime";
 import {
   resolveConfiguredMatrixAccountIds,
   resolveMatrixDefaultOrOnlyAccountId,

@@ -56,7 +56,7 @@ import {
   resolveAuthProfileOrder,
   shouldPreferExplicitConfigApiKeyAuth,
 } from "../model-auth.js";
-import { ensureOpenClawModelsJson } from "../models-config.js";
+import { ensureAlienModelsJson } from "../models-config.js";
 import {
   retireSessionMcpRuntime,
   retireSessionMcpRuntimeForSessionKey,
@@ -283,7 +283,7 @@ function buildTraceToolSummary(params: {
  * The return value is normalized: whitespace-only inputs collapse to undefined, and
  * successful resolution returns a trimmed session key. This is a read-only lookup
  * with no side effects.
- * See: https://github.com/openclaw/openclaw/issues/60552
+ * See: https://github.com/alien/alien/issues/60552
  */
 function backfillSessionKey(params: {
   config: RunEmbeddedPiAgentParams["config"];
@@ -520,7 +520,7 @@ export async function runEmbeddedPiAgent(
         dynamicModelResolution.model || pluginHarnessOwnsTransport
           ? dynamicModelResolution
           : await (async () => {
-              await ensureOpenClawModelsJson(params.config, agentDir, {
+              await ensureAlienModelsJson(params.config, agentDir, {
                 workspaceDir: resolvedWorkspace,
               });
               return await resolveModelAsync(provider, modelId, agentDir, params.config);

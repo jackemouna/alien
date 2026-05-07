@@ -9,7 +9,7 @@ import {
   resetTaskRegistryDeliveryRuntimeForTests,
   resetTaskRegistryForTests,
 } from "../tasks/task-registry.js";
-import { withOpenClawTestState } from "../test-utils/openclaw-test-state.js";
+import { withAlienTestState } from "../test-utils/alien-test-state.js";
 import { tasksAuditCommand, tasksMaintenanceCommand } from "./tasks.js";
 
 function createRuntime(): RuntimeEnv {
@@ -21,8 +21,8 @@ function createRuntime(): RuntimeEnv {
 }
 
 async function withTaskCommandStateDir(run: () => Promise<void>): Promise<void> {
-  await withOpenClawTestState(
-    { layout: "state-only", prefix: "openclaw-tasks-command-" },
+  await withAlienTestState(
+    { layout: "state-only", prefix: "alien-tasks-command-" },
     async () => {
       resetTaskRegistryDeliveryRuntimeForTests();
       resetTaskRegistryForTests({ persist: false });

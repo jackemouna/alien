@@ -119,7 +119,7 @@ function resolveMainSessionResumeBlockReason(messages: unknown[]): string | null
 function buildResumeMessage(pendingFinalDeliveryText?: string | null): string {
   const base =
     "[System] Your previous turn was interrupted by a gateway restart while " +
-    "OpenClaw was waiting on tool/model work. Continue from the existing " +
+    "Alien was waiting on tool/model work. Continue from the existing " +
     "transcript and finish the interrupted response.";
   if (pendingFinalDeliveryText) {
     return `${base}\n\nNote: The interrupted final reply was captured: "${pendingFinalDeliveryText}"`;

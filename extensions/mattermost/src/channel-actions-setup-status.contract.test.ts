@@ -2,8 +2,8 @@ import {
   installChannelActionsContractSuite,
   installChannelSetupContractSuite,
   installChannelStatusContractSuite,
-} from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-test-helpers";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect } from "vitest";
 import { mattermostPlugin, mattermostSetupPlugin } from "../channel-plugin-api.js";
 
@@ -22,7 +22,7 @@ describe("mattermost actions contract", () => {
               baseUrl: "https://chat.example.com",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         expectedActions: ["send", "react"],
         expectedCapabilities: ["presentation"],
       },
@@ -37,7 +37,7 @@ describe("mattermost actions contract", () => {
               actions: { reactions: false },
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         expectedActions: ["send"],
         expectedCapabilities: ["presentation"],
       },
@@ -49,7 +49,7 @@ describe("mattermost actions contract", () => {
               enabled: true,
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         expectedActions: [],
         expectedCapabilities: [],
       },
@@ -63,7 +63,7 @@ describe("mattermost setup contract", () => {
     cases: [
       {
         name: "default account stores token and normalized base URL",
-        cfg: {} as OpenClawConfig,
+        cfg: {} as AlienConfig,
         input: {
           botToken: "test-token",
           httpUrl: "https://chat.example.com/",
@@ -77,7 +77,7 @@ describe("mattermost setup contract", () => {
       },
       {
         name: "missing credentials are rejected",
-        cfg: {} as OpenClawConfig,
+        cfg: {} as AlienConfig,
         input: {
           httpUrl: "",
         },
@@ -102,7 +102,7 @@ describe("mattermost status contract", () => {
               baseUrl: "https://chat.example.com",
             },
           },
-        } as OpenClawConfig,
+        } as AlienConfig,
         runtime: {
           accountId: "default",
           connected: true,

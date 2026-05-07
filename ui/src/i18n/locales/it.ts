@@ -411,7 +411,7 @@ export const it: TranslationMap = {
     skills: "Skills e chiavi API.",
     nodes: "Dispositivi associati e comandi.",
     chat: "Chat Gateway per interventi rapidi.",
-    config: "Modifica openclaw.json.",
+    config: "Modifica alien.json.",
     communications: "Canali, messaggi e impostazioni audio.",
     appearance: "Tema, UI e impostazioni della procedura guidata di configurazione.",
     automation: "Comandi, hook, cron e plugin.",
@@ -486,7 +486,7 @@ export const it: TranslationMap = {
       metadataUpgradeSummary:
         "Questo dispositivo è già abbinato, ma la modifica dei metadati è in attesa di approvazione.",
       mobileHint:
-        "Su mobile? Copia l'URL completo (incluso #token=...) da openclaw dashboard --no-open sul desktop.",
+        "Su mobile? Copia l'URL completo (incluso #token=...) da alien dashboard --no-open sul desktop.",
       docsTitle: "Documentazione sull'abbinamento dei dispositivi (si apre in una nuova scheda)",
       docsLink: "Docs: abbinamento dispositivi",
     },
@@ -524,7 +524,7 @@ export const it: TranslationMap = {
       modelAuthExpiresIn: "scade {when}",
       modelAuthAttentionExpiredTitle: "Autenticazione modello scaduta",
       modelAuthAttentionExpiringTitle: "Autenticazione modello in scadenza a breve",
-      modelAuthAttentionExpiredDesc: "{providers} — riautenticati con openclaw models auth",
+      modelAuthAttentionExpiredDesc: "{providers} — riautenticati con alien models auth",
       modelAuthAttentionExpiringEntry: "{provider} ({when})",
     },
     attention: {

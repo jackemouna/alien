@@ -1,25 +1,25 @@
 {
-  "name": "@openclaw/migrate-hermes",
+  "name": "@alien/migrate-hermes",
   "version": "2026.5.6",
   "private": true,
-  "description": "Hermes to OpenClaw migration provider",
+  "description": "Hermes to Alien migration provider",
   "type": "module",
   "dependencies": {
     "yaml": "^2.8.4"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@alien/plugin-sdk": "workspace:*",
+    "alien": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.5.6"
+    "alien": ">=2026.5.6"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "alien": {
       "optional": true
     }
   },
-  "openclaw": {
+  "alien": {
     "extensions": [
       "./index.ts"
     ]

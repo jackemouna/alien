@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
 import { describe, expect, it } from "vitest";
-import { OpenClawSchema } from "../config/zod-schema.js";
+import { AlienSchema } from "../config/zod-schema.js";
 
 const CHANNEL_DOCS_DIR = path.join(process.cwd(), "docs", "channels");
 
@@ -39,7 +39,7 @@ describe("channel docs config examples", () => {
     expect(failures).toEqual([]);
   });
 
-  it("keeps OpenClaw channel config snippets parseable and schema-valid", () => {
+  it("keeps Alien channel config snippets parseable and schema-valid", () => {
     const failures: string[] = [];
     for (const fileName of fs
       .readdirSync(CHANNEL_DOCS_DIR)
@@ -60,7 +60,7 @@ describe("channel docs config examples", () => {
           failures.push(`${location} JSON5 parse failed: ${String(error)}`);
           continue;
         }
-        const result = OpenClawSchema.safeParse(parsed);
+        const result = AlienSchema.safeParse(parsed);
         if (!result.success) {
           const issues = result.error.issues
             .slice(0, 3)

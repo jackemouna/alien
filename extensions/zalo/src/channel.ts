@@ -1,43 +1,43 @@
-import { describeWebhookAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
+import { describeWebhookAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID } from "alien/plugin-sdk/account-id";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
   mapAllowFromEntries,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import type { ChannelAccountSnapshot } from "openclaw/plugin-sdk/channel-contract";
+} from "alien/plugin-sdk/channel-config-helpers";
+import type { ChannelAccountSnapshot } from "alien/plugin-sdk/channel-contract";
 import {
   buildChannelConfigSchema,
   createChatChannelPlugin,
   type ChannelPlugin,
-} from "openclaw/plugin-sdk/channel-core";
-import { defineChannelMessageAdapter } from "openclaw/plugin-sdk/channel-message";
+} from "alien/plugin-sdk/channel-core";
+import { defineChannelMessageAdapter } from "alien/plugin-sdk/channel-message";
 import {
   buildOpenGroupPolicyRestrictSendersWarning,
   buildOpenGroupPolicyWarning,
   createOpenProviderGroupPolicyWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "alien/plugin-sdk/channel-policy";
 import {
   createEmptyChannelResult,
   createRawChannelSendResultAdapter,
-} from "openclaw/plugin-sdk/channel-send-result";
-import { buildTokenChannelStatusSummary } from "openclaw/plugin-sdk/channel-status";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { createStaticReplyToModeResolver } from "openclaw/plugin-sdk/conversation-runtime";
-import { createChannelDirectoryAdapter } from "openclaw/plugin-sdk/directory-runtime";
-import { listResolvedDirectoryUserEntriesFromAllowFrom } from "openclaw/plugin-sdk/directory-runtime";
-import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
+} from "alien/plugin-sdk/channel-send-result";
+import { buildTokenChannelStatusSummary } from "alien/plugin-sdk/channel-status";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import { createStaticReplyToModeResolver } from "alien/plugin-sdk/conversation-runtime";
+import { createChannelDirectoryAdapter } from "alien/plugin-sdk/directory-runtime";
+import { listResolvedDirectoryUserEntriesFromAllowFrom } from "alien/plugin-sdk/directory-runtime";
+import { createLazyRuntimeModule } from "alien/plugin-sdk/lazy-runtime";
 import {
   isNumericTargetId,
   sendPayloadWithChunkedTextAndMedia,
-} from "openclaw/plugin-sdk/reply-payload";
+} from "alien/plugin-sdk/reply-payload";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
-import { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
+} from "alien/plugin-sdk/status-helpers";
+import { chunkTextForOutbound } from "alien/plugin-sdk/text-chunking";
 import {
   listZaloAccountIds,
   resolveDefaultZaloAccountId,
@@ -154,7 +154,7 @@ const resolveZaloDmPolicy = createScopedDmSecurityResolver<ResolvedZaloAccount>(
 });
 
 const collectZaloSecurityWarnings = createOpenProviderGroupPolicyWarningCollector<{
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   account: ResolvedZaloAccount;
 }>({
   providerConfigPresent: (cfg) => cfg.channels?.zalo !== undefined,

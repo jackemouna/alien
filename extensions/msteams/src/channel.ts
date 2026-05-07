@@ -1,33 +1,33 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
-import { createTopLevelChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
+import { describeAccountSnapshot } from "alien/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "alien/plugin-sdk/allow-from";
+import { createTopLevelChannelConfigAdapter } from "alien/plugin-sdk/channel-config-helpers";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "openclaw/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
-import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
+} from "alien/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "alien/plugin-sdk/channel-core";
+import { createChannelMessageAdapterFromOutbound } from "alien/plugin-sdk/channel-message";
+import { createPairingPrefixStripper } from "alien/plugin-sdk/channel-pairing";
 import {
   createAllowlistProviderGroupPolicyWarningCollector,
   projectConfigWarningCollector,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "alien/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
   listDirectoryEntriesFromSources,
-} from "openclaw/plugin-sdk/directory-runtime";
-import { normalizeMessagePresentation } from "openclaw/plugin-sdk/interactive-runtime";
-import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "openclaw/plugin-sdk/outbound-runtime";
-import { createComputedAccountStatusAdapter } from "openclaw/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/directory-runtime";
+import { normalizeMessagePresentation } from "alien/plugin-sdk/interactive-runtime";
+import { createLazyRuntimeNamedExport } from "alien/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "alien/plugin-sdk/outbound-runtime";
+import { createComputedAccountStatusAdapter } from "alien/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import { Type } from "typebox";
 import type {
   ChannelMessageActionName,
   ChannelOutboundAdapter,
   ChannelPlugin,
-  OpenClawConfig,
+  AlienConfig,
 } from "../runtime-api.js";
 import {
   buildProbeChannelStatusSummary,
@@ -84,7 +84,7 @@ const TEAMS_GRAPH_PERMISSION_HINTS: Record<string, string> = {
 };
 
 const collectMSTeamsSecurityWarnings = createAllowlistProviderGroupPolicyWarningCollector<{
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 }>({
   providerConfigPresent: (cfg) => cfg.channels?.msteams !== undefined,
   resolveGroupPolicy: ({ cfg }) => cfg.channels?.msteams?.groupPolicy,
@@ -101,7 +101,7 @@ const loadMSTeamsChannelRuntime = createLazyRuntimeNamedExport(
   "msTeamsChannelRuntime",
 );
 
-const resolveMSTeamsChannelConfig = (cfg: OpenClawConfig) => ({
+const resolveMSTeamsChannelConfig = (cfg: AlienConfig) => ({
   allowFrom: cfg.channels?.msteams?.allowFrom,
   defaultTo: cfg.channels?.msteams?.defaultTo,
 });
@@ -1137,7 +1137,7 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount, ProbeMSTeamsRe
       },
     },
     security: {
-      collectWarnings: projectConfigWarningCollector<{ cfg: OpenClawConfig }>(
+      collectWarnings: projectConfigWarningCollector<{ cfg: AlienConfig }>(
         collectMSTeamsSecurityWarnings,
       ),
     },

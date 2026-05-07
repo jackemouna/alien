@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { AlienConfig } from "../config/config.js";
 import { collectEnabledInsecureOrDangerousFlagsFromContracts } from "./dangerous-config-flags-core.js";
 
-function asConfig(value: unknown): OpenClawConfig {
-  return value as OpenClawConfig;
+function asConfig(value: unknown): AlienConfig {
+  return value as AlienConfig;
 }
 
 describe("collectEnabledInsecureOrDangerousFlags", () => {

@@ -1,4 +1,4 @@
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime";
 import { asRecord, extractMessageText, formatErrorMessage } from "./utils.js";
 
 /**

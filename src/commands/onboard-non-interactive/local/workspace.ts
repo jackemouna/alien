@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AlienConfig } from "../../../config/types.alien.js";
 import { resolveUserPath } from "../../../utils.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 
 export function resolveNonInteractiveWorkspaceDir(params: {
   opts: OnboardOptions;
-  baseConfig: OpenClawConfig;
+  baseConfig: AlienConfig;
   defaultWorkspaceDir: string;
 }) {
   const raw = (

@@ -1,8 +1,8 @@
 import {
   definePluginEntry,
   type AnyAgentTool,
-  type OpenClawPluginNodeHostCommand,
-} from "openclaw/plugin-sdk/plugin-entry";
+  type AlienPluginNodeHostCommand,
+} from "alien/plugin-sdk/plugin-entry";
 import { createFileTransferNodeInvokePolicy } from "./src/shared/node-invoke-policy.js";
 import {
   DIR_FETCH_TOOL_DESCRIPTOR,
@@ -38,7 +38,7 @@ function createLazyTool(
   };
 }
 
-const fileTransferNodeHostCommands: OpenClawPluginNodeHostCommand[] = [
+const fileTransferNodeHostCommands: AlienPluginNodeHostCommand[] = [
   {
     command: "file.fetch",
     cap: "file",

@@ -16,7 +16,7 @@ import * as piAi from "@mariozechner/pi-ai";
  * Key behaviours:
  *  - Per-session `OpenAIWebSocketManager` (keyed by sessionId)
  *  - Tracks `previous_response_id` to send only incremental tool-result inputs
- *  - Falls back to the OpenClaw HTTP transport if the WebSocket connection fails
+ *  - Falls back to the Alien HTTP transport if the WebSocket connection fails
  *  - Cleanup helpers for releasing sessions after the run completes
  *
  * Complexity budget & risk mitigation:
@@ -63,7 +63,7 @@ import type { ResponseCreateEvent } from "./openai-ws-types.js";
 import { log } from "./pi-embedded-runner/logger.js";
 import { resolveProviderEndpoint } from "./provider-attribution.js";
 import { normalizeProviderId } from "./provider-id.js";
-import { createOpenClawTransportStreamFnForModel } from "./provider-transport-stream.js";
+import { createAlienTransportStreamFnForModel } from "./provider-transport-stream.js";
 import {
   buildAssistantMessageWithZeroUsage,
   buildStreamErrorAssistantMessage,
@@ -124,9 +124,9 @@ type AssistantMessageWithPhase = AssistantMessage & { phase?: OpenAIResponsesAss
 
 const defaultOpenAIWsStreamDeps: OpenAIWsStreamDeps = {
   createManager: (options) => new OpenAIWebSocketManager(options),
-  // WebSocket auto-mode HTTP fallback must keep the OpenClaw transport path so
+  // WebSocket auto-mode HTTP fallback must keep the Alien transport path so
   // degraded sessions do not leak cache-boundary markers or lose strict tools.
-  createHttpFallbackStreamFn: (model) => createOpenClawTransportStreamFnForModel(model),
+  createHttpFallbackStreamFn: (model) => createAlienTransportStreamFnForModel(model),
   streamSimple: (...args) => piAi.streamSimple(...args),
 };
 
@@ -226,8 +226,8 @@ function resolveWsSessionPoolConfig(env: NodeJS.ProcessEnv = process.env): {
   idleMs: number;
 } {
   const enabled =
-    env.OPENCLAW_OPENAI_WS_POOL === "1" || env.OPENCLAW_OPENAI_WS_SESSION_POOL === "1";
-  const rawIdleMs = Number(env.OPENCLAW_OPENAI_WS_SESSION_POOL_IDLE_MS);
+    env.ALIEN_OPENAI_WS_POOL === "1" || env.ALIEN_OPENAI_WS_SESSION_POOL === "1";
+  const rawIdleMs = Number(env.ALIEN_OPENAI_WS_SESSION_POOL_IDLE_MS);
   const idleMs = Number.isFinite(rawIdleMs)
     ? Math.min(300_000, Math.max(1_000, Math.trunc(rawIdleMs)))
     : 30_000;
@@ -481,7 +481,7 @@ function resolveNativeOpenAISessionHeaders(params: {
   }
   return {
     "x-client-request-id": sessionId,
-    "x-openclaw-session-id": sessionId,
+    "x-alien-session-id": sessionId,
   };
 }
 
@@ -506,14 +506,14 @@ function resolveNativeOpenAITransportTurnState(params: {
   return {
     headers: {
       ...sessionHeaders,
-      "x-openclaw-turn-id": turnId,
-      "x-openclaw-turn-attempt": attempt,
+      "x-alien-turn-id": turnId,
+      "x-alien-turn-attempt": attempt,
     },
     metadata: {
-      openclaw_session_id: sessionHeaders["x-openclaw-session-id"] ?? "",
-      openclaw_turn_id: turnId,
-      openclaw_turn_attempt: attempt,
-      openclaw_transport: params.transport,
+      alien_session_id: sessionHeaders["x-alien-session-id"] ?? "",
+      alien_turn_id: turnId,
+      alien_turn_attempt: attempt,
+      alien_transport: params.transport,
     },
   };
 }
@@ -700,7 +700,7 @@ async function runWarmUp(params: {
  * inputs with `previous_response_id`.
  *
  * If the WebSocket connection is unavailable, the function falls back to an
- * OpenClaw HTTP transport when available, or the standard `streamSimple` path.
+ * Alien HTTP transport when available, or the standard `streamSimple` path.
  *
  * @param apiKey     OpenAI API key
  * @param sessionId  Agent session ID (used as the registry key)

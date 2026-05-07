@@ -266,15 +266,15 @@ jobs:
           install-bun: "false"
 
       - name: Configure Node test resources
-        run: echo "OPENCLAW_VITEST_MAX_WORKERS=2" >> "$GITHUB_ENV"
+        run: echo "ALIEN_VITEST_MAX_WORKERS=2" >> "$GITHUB_ENV"
 
       - name: Run release-only plugin Node shard
         env:
           NODE_OPTIONS: --max-old-space-size=6144
-          OPENCLAW_NODE_TEST_CONFIGS_JSON: ${{ toJson(matrix.configs) }}
-          OPENCLAW_NODE_TEST_INCLUDE_PATTERNS_JSON: ${{ toJson(matrix.includePatterns) }}
-          OPENCLAW_VITEST_SHARD_NAME: ${{ matrix.shard_name }}
-          OPENCLAW_TEST_PROJECTS_PARALLEL: "2"
+          ALIEN_NODE_TEST_CONFIGS_JSON: ${{ toJson(matrix.configs) }}
+          ALIEN_NODE_TEST_INCLUDE_PATTERNS_JSON: ${{ toJson(matrix.includePatterns) }}
+          ALIEN_VITEST_SHARD_NAME: ${{ matrix.shard_name }}
+          ALIEN_TEST_PROJECTS_PARALLEL: "2"
         shell: bash
         run: |
           set -euo pipefail
@@ -283,13 +283,13 @@ jobs:
           import { writeFileSync } from "node:fs";
           import { join } from "node:path";
 
-          const configs = JSON.parse(process.env.OPENCLAW_NODE_TEST_CONFIGS_JSON ?? "[]");
+          const configs = JSON.parse(process.env.ALIEN_NODE_TEST_CONFIGS_JSON ?? "[]");
           if (!Array.isArray(configs) || configs.length === 0) {
             console.error("Missing node test shard configs");
             process.exit(1);
           }
           const includePatterns = JSON.parse(
-            process.env.OPENCLAW_NODE_TEST_INCLUDE_PATTERNS_JSON ?? "null",
+            process.env.ALIEN_NODE_TEST_INCLUDE_PATTERNS_JSON ?? "null",
           );
           const childEnv = { ...process.env };
           if (Array.isArray(includePatterns) && includePatterns.length > 0) {
@@ -298,7 +298,7 @@ jobs:
               `node-test-include-${process.env.GITHUB_JOB ?? "local"}-${Date.now()}.json`,
             );
             writeFileSync(includeFile, JSON.stringify(includePatterns), "utf8");
-            childEnv.OPENCLAW_VITEST_INCLUDE_FILE = includeFile;
+            childEnv.ALIEN_VITEST_INCLUDE_FILE = includeFile;
           }
 
           const result = spawnSync(
@@ -341,10 +341,10 @@ jobs:
       - name: Run extension shard
         env:
           NODE_OPTIONS: --max-old-space-size=6144
-          OPENCLAW_EXTENSION_BATCH_PARALLEL: 2
-          OPENCLAW_VITEST_MAX_WORKERS: 1
-          OPENCLAW_EXTENSION_BATCH: ${{ matrix.extensions_csv }}
-        run: pnpm test:extensions:batch -- "$OPENCLAW_EXTENSION_BATCH"
+          ALIEN_EXTENSION_BATCH_PARALLEL: 2
+          ALIEN_VITEST_MAX_WORKERS: 1
+          ALIEN_EXTENSION_BATCH: ${{ matrix.extensions_csv }}
+        run: pnpm test:extensions:batch -- "$ALIEN_EXTENSION_BATCH"
 
   plugin-prerelease-docker-suite:
     name: plugin-prerelease-docker-suite
@@ -355,7 +355,7 @@ jobs:
       contents: read
       packages: write
       pull-requests: read
-    uses: ./.github/workflows/openclaw-live-and-e2e-checks-reusable.yml
+    uses: ./.github/workflows/alien-live-and-e2e-checks-reusable.yml
     with:
       ref: ${{ needs.preflight.outputs.checkout_revision }}
       include_repo_e2e: false

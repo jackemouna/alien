@@ -12,7 +12,7 @@ import {
   getOrCreateSessionMcpRuntime,
 } from "../../dist/agents/pi-bundle-mcp-runtime.js";
 import { applyFinalEffectiveToolPolicy } from "../../dist/agents/pi-embedded-runner/effective-tool-policy.js";
-import type { OpenClawConfig } from "../../dist/config/types.openclaw.js";
+import type { AlienConfig } from "../../dist/config/types.alien.js";
 import { getPluginToolMeta } from "../../dist/plugins/tools.js";
 
 const require = createRequire(import.meta.url);
@@ -45,7 +45,7 @@ await server.connect(new StdioServerTransport());
 
 function applyPolicy(params: {
   tools: Awaited<ReturnType<typeof materializeBundleMcpToolsForRun>>["tools"];
-  config: OpenClawConfig;
+  config: AlienConfig;
 }) {
   const warnings: string[] = [];
   return {
@@ -65,14 +65,14 @@ function applyPolicy(params: {
 
 async function main() {
   const stateDir =
-    process.env.OPENCLAW_STATE_DIR?.trim() ||
-    path.join(os.tmpdir(), `openclaw-pi-bundle-mcp-${process.pid}`);
+    process.env.ALIEN_STATE_DIR?.trim() ||
+    path.join(os.tmpdir(), `alien-pi-bundle-mcp-${process.pid}`);
   const probeDir = path.join(stateDir, "pi-bundle-mcp-tools");
   const serverPath = path.join(probeDir, "probe-server.mjs");
   await fs.mkdir(probeDir, { recursive: true });
   await writeProbeServer(serverPath);
 
-  const cfg: OpenClawConfig = {
+  const cfg: AlienConfig = {
     tools: {
       profile: "coding",
     },

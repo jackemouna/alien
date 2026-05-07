@@ -1,6 +1,6 @@
 import { type Context, complete } from "@mariozechner/pi-ai";
 import { Type } from "typebox";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import {
   classifyMediaReferenceSource,
   normalizeMediaReferenceSource,
@@ -39,7 +39,7 @@ import {
   createSandboxBridgeReadFile,
   discoverAuthStorage,
   discoverModels,
-  ensureOpenClawModelsJson,
+  ensureAlienModelsJson,
   resolveSandboxedBridgeMediaPath,
   runWithImageModelFallback,
   type AnyAgentTool,
@@ -79,7 +79,7 @@ export const PdfToolSchema = Type.Object({
 
 export { resolvePdfModelConfigForTool } from "./pdf-tool.model-config.js";
 
-function hasExplicitPdfToolModelConfig(config?: OpenClawConfig): boolean {
+function hasExplicitPdfToolModelConfig(config?: AlienConfig): boolean {
   return (
     hasToolModelConfig(coercePdfModelConfig(config)) ||
     hasToolModelConfig(coerceImageModelConfig(config))
@@ -135,7 +135,7 @@ type PdfSandboxConfig = {
 };
 
 async function runPdfPrompt(params: {
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
   agentDir: string;
   workspaceDir?: string;
   pdfModelConfig: ImageModelConfig;
@@ -154,7 +154,7 @@ async function runPdfPrompt(params: {
   const effectiveCfg = applyImageModelConfigDefaults(params.cfg, params.pdfModelConfig);
 
   const modelsOptions = params.workspaceDir ? { workspaceDir: params.workspaceDir } : undefined;
-  await ensureOpenClawModelsJson(effectiveCfg, params.agentDir, modelsOptions);
+  await ensureAlienModelsJson(effectiveCfg, params.agentDir, modelsOptions);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
 
@@ -264,7 +264,7 @@ async function runPdfPrompt(params: {
 // ---------------------------------------------------------------------------
 
 export function createPdfTool(options?: {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   agentDir?: string;
   authProfileStore?: AuthProfileStore;
   workspaceDir?: string;

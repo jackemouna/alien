@@ -1,7 +1,7 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import { stripInboundMetadata } from "../../auto-reply/reply/strip-inbound-meta.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import {
   sanitizeProviderReplayHistoryWithPlugin,
@@ -60,7 +60,7 @@ type ModelSnapshotEntry = {
 };
 
 type ProviderReplayHookParams = {
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   provider: string;
@@ -226,14 +226,14 @@ function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]
   return touched ? out : messages;
 }
 
-// `provider:"openclaw"` assistant entries written by the channel-delivery
+// `provider:"alien"` assistant entries written by the channel-delivery
 // transcript mirror (`model:"delivery-mirror"`, see config/sessions/transcript.ts)
 // and by the Gateway transcript-inject helper (`model:"gateway-injected"`, see
 // gateway/server-methods/chat-transcript-inject.ts) are user-visible transcript
 // records, not model output. Replaying them to the actual provider duplicates
 // content and, on Bedrock or strict OpenAI-compatible providers, can also
 // trigger turn-ordering rejections.
-const TRANSCRIPT_ONLY_OPENCLAW_MODELS = new Set<string>(["delivery-mirror", "gateway-injected"]);
+const TRANSCRIPT_ONLY_ALIEN_MODELS = new Set<string>(["delivery-mirror", "gateway-injected"]);
 
 function sanitizeUserReplayContent(message: AgentMessage): AgentMessage | null {
   if (!message || message.role !== "user") {
@@ -268,16 +268,16 @@ function sanitizeUserReplayContent(message: AgentMessage): AgentMessage | null {
   return touched ? ({ ...message, content: sanitizedContent } as AgentMessage) : message;
 }
 
-function isTranscriptOnlyOpenclawAssistant(message: AgentMessage): boolean {
+function isTranscriptOnlyAlienAssistant(message: AgentMessage): boolean {
   if (!message || message.role !== "assistant") {
     return false;
   }
   const provider = (message as { provider?: unknown }).provider;
   const model = (message as { model?: unknown }).model;
   return (
-    provider === "openclaw" &&
+    provider === "alien" &&
     typeof model === "string" &&
-    TRANSCRIPT_ONLY_OPENCLAW_MODELS.has(model)
+    TRANSCRIPT_ONLY_ALIEN_MODELS.has(model)
   );
 }
 
@@ -342,7 +342,7 @@ export function normalizeAssistantReplayContent(messages: AgentMessage[]): Agent
       out.push(message);
       continue;
     }
-    if (isTranscriptOnlyOpenclawAssistant(message)) {
+    if (isTranscriptOnlyAlienAssistant(message)) {
       // Drop from the in-memory replay copy; the persisted JSONL keeps the
       // entry so user-facing transcript surfaces are unchanged.
       touched = true;
@@ -653,7 +653,7 @@ export async function sanitizeSessionHistory(params: {
   modelId?: string;
   provider?: string;
   allowedToolNames?: Iterable<string>;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   model?: ProviderRuntimeModel;
@@ -810,7 +810,7 @@ export async function validateReplayTurns(params: {
   modelApi?: string | null;
   modelId?: string;
   provider?: string;
-  config?: OpenClawConfig;
+  config?: AlienConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   model?: ProviderRuntimeModel;

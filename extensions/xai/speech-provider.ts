@@ -1,4 +1,4 @@
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
+import { normalizeResolvedSecretInputString } from "alien/plugin-sdk/secret-input";
 import {
   asFiniteNumber,
   trimToUndefined,
@@ -7,8 +7,8 @@ import {
   type SpeechProviderOverrides,
   type SpeechProviderPlugin,
   type SpeechSynthesisTarget,
-} from "openclaw/plugin-sdk/speech";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/speech";
+import { normalizeLowercaseStringOrEmpty } from "alien/plugin-sdk/text-runtime";
 import {
   isValidXaiTtsVoice,
   normalizeXaiLanguageCode,

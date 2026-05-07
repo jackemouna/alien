@@ -4,4 +4,4 @@ export {
   modelSupportsVision,
   resolveAgentDir,
   resolveDefaultModelForAgent,
-} from "openclaw/plugin-sdk/agent-runtime";
+} from "alien/plugin-sdk/agent-runtime";

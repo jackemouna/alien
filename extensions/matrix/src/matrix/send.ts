@@ -1,9 +1,9 @@
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceiptPartKind,
-} from "openclaw/plugin-sdk/channel-message";
-import type { MarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
-import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
+} from "alien/plugin-sdk/channel-message";
+import type { MarkdownTableMode } from "alien/plugin-sdk/markdown-table-runtime";
+import { requireRuntimeConfig } from "alien/plugin-sdk/plugin-config-runtime";
 import type { PollInput } from "../runtime-api.js";
 import { getMatrixRuntime } from "../runtime.js";
 import type { CoreConfig } from "../types.js";

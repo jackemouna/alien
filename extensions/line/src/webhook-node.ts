@@ -3,13 +3,13 @@ import type { webhook } from "@line/bot-sdk";
 import {
   createMessageReceiveContext,
   type MessageReceiveContext,
-} from "openclaw/plugin-sdk/channel-message";
-import { danger, logVerbose, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/channel-message";
+import { danger, logVerbose, type RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import {
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
   requestBodyErrorToText,
-} from "openclaw/plugin-sdk/webhook-request-guards";
+} from "alien/plugin-sdk/webhook-request-guards";
 import { parseLineWebhookBody, validateLineSignature } from "./webhook-utils.js";
 
 const LINE_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;

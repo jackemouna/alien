@@ -3,42 +3,42 @@ set -euo pipefail
 
 cd /repo
 
-export OPENCLAW_STATE_DIR="/tmp/openclaw-test"
-export OPENCLAW_CONFIG_PATH="${OPENCLAW_STATE_DIR}/openclaw.json"
+export ALIEN_STATE_DIR="/tmp/alien-test"
+export ALIEN_CONFIG_PATH="${ALIEN_STATE_DIR}/alien.json"
 
 echo "==> Build"
-if ! pnpm build >/tmp/openclaw-cleanup-build.log 2>&1; then
-  cat /tmp/openclaw-cleanup-build.log
+if ! pnpm build >/tmp/alien-cleanup-build.log 2>&1; then
+  cat /tmp/alien-cleanup-build.log
   exit 1
 fi
 
 echo "==> Seed state"
-mkdir -p "${OPENCLAW_STATE_DIR}/credentials"
-mkdir -p "${OPENCLAW_STATE_DIR}/agents/main/sessions"
-echo '{}' >"${OPENCLAW_CONFIG_PATH}"
-echo 'creds' >"${OPENCLAW_STATE_DIR}/credentials/marker.txt"
-echo 'session' >"${OPENCLAW_STATE_DIR}/agents/main/sessions/sessions.json"
+mkdir -p "${ALIEN_STATE_DIR}/credentials"
+mkdir -p "${ALIEN_STATE_DIR}/agents/main/sessions"
+echo '{}' >"${ALIEN_CONFIG_PATH}"
+echo 'creds' >"${ALIEN_STATE_DIR}/credentials/marker.txt"
+echo 'session' >"${ALIEN_STATE_DIR}/agents/main/sessions/sessions.json"
 
 echo "==> Reset (config+creds+sessions)"
-if ! pnpm openclaw reset --scope config+creds+sessions --yes --non-interactive >/tmp/openclaw-cleanup-reset.log 2>&1; then
-  cat /tmp/openclaw-cleanup-reset.log
+if ! pnpm alien reset --scope config+creds+sessions --yes --non-interactive >/tmp/alien-cleanup-reset.log 2>&1; then
+  cat /tmp/alien-cleanup-reset.log
   exit 1
 fi
 
-test ! -f "${OPENCLAW_CONFIG_PATH}"
-test ! -d "${OPENCLAW_STATE_DIR}/credentials"
-test ! -d "${OPENCLAW_STATE_DIR}/agents/main/sessions"
+test ! -f "${ALIEN_CONFIG_PATH}"
+test ! -d "${ALIEN_STATE_DIR}/credentials"
+test ! -d "${ALIEN_STATE_DIR}/agents/main/sessions"
 
 echo "==> Recreate minimal config"
-mkdir -p "${OPENCLAW_STATE_DIR}/credentials"
-echo '{}' >"${OPENCLAW_CONFIG_PATH}"
+mkdir -p "${ALIEN_STATE_DIR}/credentials"
+echo '{}' >"${ALIEN_CONFIG_PATH}"
 
 echo "==> Uninstall (state only)"
-if ! pnpm openclaw uninstall --state --yes --non-interactive >/tmp/openclaw-cleanup-uninstall.log 2>&1; then
-  cat /tmp/openclaw-cleanup-uninstall.log
+if ! pnpm alien uninstall --state --yes --non-interactive >/tmp/alien-cleanup-uninstall.log 2>&1; then
+  cat /tmp/alien-cleanup-uninstall.log
   exit 1
 fi
 
-test ! -d "${OPENCLAW_STATE_DIR}"
+test ! -d "${ALIEN_STATE_DIR}"
 
 echo "OK"

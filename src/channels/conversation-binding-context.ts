@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import {
   resolveCommandConversationResolution,
   type ResolveCommandConversationResolutionInput,
@@ -16,7 +16,7 @@ type ResolveConversationBindingContextInput = Omit<
   ResolveCommandConversationResolutionInput,
   "includePlacementHint"
 > & {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
 };
 
 export function resolveConversationBindingContext(

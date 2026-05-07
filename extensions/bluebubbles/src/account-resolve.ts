@@ -3,14 +3,14 @@ import {
   resolveBlueBubblesEffectiveAllowPrivateNetwork,
   resolveBlueBubblesPrivateNetworkConfigValue,
 } from "./accounts.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { AlienConfig } from "./runtime-api.js";
 import { normalizeResolvedSecretInputString } from "./secret-input.js";
 
 type BlueBubblesAccountResolveOpts = {
   serverUrl?: string;
   password?: string;
   accountId?: string;
-  cfg?: OpenClawConfig;
+  cfg?: AlienConfig;
 };
 
 export function resolveBlueBubblesServerAccount(params: BlueBubblesAccountResolveOpts): {

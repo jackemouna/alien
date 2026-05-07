@@ -1,11 +1,11 @@
 ---
 name: clawsweeper
-description: "Use for all ClawSweeper work: OpenClaw issue/PR sweep reports, commit-review reports, repair jobs, cloud fix PRs, @clawsweeper maintainer mention commands, trusted ClawSweeper-reviewed autofix/automerge, GitHub Actions monitoring, permissions, gates, and manual backfills."
+description: "Use for all ClawSweeper work: Alien issue/PR sweep reports, commit-review reports, repair jobs, cloud fix PRs, @clawsweeper maintainer mention commands, trusted ClawSweeper-reviewed autofix/automerge, GitHub Actions monitoring, permissions, gates, and manual backfills."
 ---
 
 # ClawSweeper
 
-ClawSweeper lives at `~/Projects/clawsweeper`. It is the one OpenClaw
+ClawSweeper lives at `~/Projects/clawsweeper`. It is the one Alien
 maintenance bot for sweeping, commit review, repair jobs, and guarded fix PRs.
 Use this skill whenever Peter asks about reports, findings, dispatch health,
 repair/cloud PR creation, comment commands, automerge, permissions, or gates.
@@ -35,7 +35,7 @@ Required app setup:
   `actions/create-github-app-token` steps.
 - Target app permissions: read target scan context; write issues and pull
   requests; contents write for report commits, repair branches, and workflow
-  inputs; Actions write on `openclaw/clawsweeper` for comment-router
+  inputs; Actions write on `alien/clawsweeper` for comment-router
   re-review dispatch, workflow dispatch, run cancellation, and self-heal;
   optional Checks write for commit Check Runs.
 
@@ -61,7 +61,7 @@ Use the lister:
 pnpm commit-reports -- --since 6h
 pnpm commit-reports -- --since "24 hours ago" --findings
 pnpm commit-reports -- --since 7d --non-clean
-pnpm commit-reports -- --repo openclaw/openclaw --author steipete --since 7d
+pnpm commit-reports -- --repo alien/alien --author steipete --since 7d
 pnpm commit-reports -- --since 24h --json
 ```
 
@@ -71,8 +71,8 @@ Results: `nothing_found`, `findings`, `inconclusive`, `failed`,
 Manual rerun/backfill:
 
 ```bash
-gh workflow run commit-review.yml --repo openclaw/clawsweeper \
-  -f target_repo=openclaw/openclaw \
+gh workflow run commit-review.yml --repo alien/clawsweeper \
+  -f target_repo=alien/alien \
   -f commit_sha=<end-sha> \
   -f before_sha=<start-or-parent-sha> \
   -f create_checks=false \
@@ -116,7 +116,7 @@ Create a job from issue/PR refs and a maintainer prompt:
 
 ```bash
 pnpm run repair:create-job -- \
-  --repo openclaw/openclaw \
+  --repo alien/alien \
   --refs 123,456 \
   --prompt-file /tmp/clawsweeper-prompt.md
 ```
@@ -125,7 +125,7 @@ Create from an existing ClawSweeper report:
 
 ```bash
 pnpm run repair:create-job -- \
-  --from-report ../clawsweeper/records/openclaw-openclaw/items/123.md
+  --from-report ../clawsweeper/records/alien-alien/items/123.md
 ```
 
 The job creator checks for an existing open PR, body match, or remote
@@ -135,8 +135,8 @@ to inspect. Use `--force` only after deciding the duplicate guard is stale.
 Validate, commit, then dispatch:
 
 ```bash
-pnpm run repair:validate-job -- jobs/openclaw/inbox/clawsweeper-openclaw-openclaw-123.md
-pnpm run repair:dispatch -- jobs/openclaw/inbox/clawsweeper-openclaw-openclaw-123.md \
+pnpm run repair:validate-job -- jobs/alien/inbox/clawsweeper-alien-alien-123.md
+pnpm run repair:dispatch -- jobs/alien/inbox/clawsweeper-alien-alien-123.md \
   --mode autonomous \
   --runner blacksmith-4vcpu-ubuntu-2404 \
   --execution-runner blacksmith-16vcpu-ubuntu-2404 \
@@ -169,10 +169,10 @@ trailers, and closes superseded source PRs only after replacement exists.
 Open execution windows intentionally and close them after the run:
 
 ```bash
-gh variable set CLAWSWEEPER_ALLOW_EXECUTE --repo openclaw/clawsweeper --body 1
-gh variable set CLAWSWEEPER_ALLOW_FIX_PR --repo openclaw/clawsweeper --body 1
-gh variable set CLAWSWEEPER_ALLOW_MERGE --repo openclaw/clawsweeper --body 1
-gh variable set CLAWSWEEPER_ALLOW_AUTOMERGE --repo openclaw/clawsweeper --body 1
+gh variable set CLAWSWEEPER_ALLOW_EXECUTE --repo alien/clawsweeper --body 1
+gh variable set CLAWSWEEPER_ALLOW_FIX_PR --repo alien/clawsweeper --body 1
+gh variable set CLAWSWEEPER_ALLOW_MERGE --repo alien/clawsweeper --body 1
+gh variable set CLAWSWEEPER_ALLOW_AUTOMERGE --repo alien/clawsweeper --body 1
 ```
 
 Reset gates only when Peter asks; the active maintainer window may intentionally
@@ -207,8 +207,8 @@ should use mentions.
 @clawsweeper stop
 @clawsweeper <question or safe action request>
 @clawsweeper[bot] re-review
-@openclaw-clawsweeper fix ci
-@openclaw-clawsweeper[bot] fix ci
+@alien-clawsweeper fix ci
+@alien-clawsweeper[bot] fix ci
 ```
 
 Accepted aliases: `review`, `re-review`, `rereview`, `review again`,
@@ -234,8 +234,8 @@ comments are ignored without a reply.
 Run router manually:
 
 ```bash
-pnpm run repair:comment-router -- --repo openclaw/openclaw --lookback-minutes 180
-pnpm run repair:comment-router -- --repo openclaw/openclaw --execute --wait-for-capacity
+pnpm run repair:comment-router -- --repo alien/alien --lookback-minutes 180
+pnpm run repair:comment-router -- --repo alien/alien --execute --wait-for-capacity
 ```
 
 Scheduled routing stays dry unless
@@ -255,7 +255,7 @@ loop. The router:
 - never merges autofix PRs or draft PRs;
 - merges automerge PRs only when ClawSweeper passed the exact current head,
   checks are green, GitHub says mergeable, no human-review label is present,
-  the PR is not draft, required user-facing OpenClaw changelog entries are
+  the PR is not draft, required user-facing Alien changelog entries are
   present, and both merge gates are open.
 
 If ClawSweeper passes while merge gates are closed, it labels
@@ -263,7 +263,7 @@ If ClawSweeper passes while merge gates are closed, it labels
 adds `clawsweeper:human-review`.
 
 When Peter asks Codex to create a PR and enable ClawSweeper automerge, do not
-leave his local OpenClaw checkout on the PR branch. After the PR is created,
+leave his local Alien checkout on the PR branch. After the PR is created,
 pushed, and the `@clawsweeper automerge` request is posted or otherwise
 confirmed, return the local checkout to `main` and fast-forward it when the
 working tree is clean:
@@ -288,7 +288,7 @@ CLAWSWEEPER_MAX_REPAIRS_PER_HEAD=1
 Do not stage unapproved security-sensitive work for ClawSweeper Repair. Route
 vulnerability reports, CVE/GHSA/advisory work, leaked secrets/tokens/keys,
 plaintext secret storage, SSRF, XSS, CSRF, RCE, auth bypass, privilege
-escalation, and sensitive data exposure to central OpenClaw security handling.
+escalation, and sensitive data exposure to central Alien security handling.
 
 For PRs explicitly opted into `clawsweeper:autofix` or
 `clawsweeper:automerge`, security-sensitive review findings may dispatch
@@ -302,25 +302,25 @@ prose.
 Receiver workflows:
 
 ```bash
-gh run list --repo openclaw/clawsweeper --workflow "ClawSweeper Commit Review" \
+gh run list --repo alien/clawsweeper --workflow "ClawSweeper Commit Review" \
   --limit 12 --json databaseId,displayTitle,event,status,conclusion,createdAt,updatedAt,url
-gh run list --repo openclaw/clawsweeper --workflow "repair cluster worker" \
+gh run list --repo alien/clawsweeper --workflow "repair cluster worker" \
   --limit 12 --json databaseId,displayTitle,event,status,conclusion,createdAt,updatedAt,url
-gh run list --repo openclaw/clawsweeper --workflow "repair comment router" \
+gh run list --repo alien/clawsweeper --workflow "repair comment router" \
   --limit 12 --json databaseId,displayTitle,event,status,conclusion,createdAt,updatedAt,url
 ```
 
 Target dispatcher:
 
 ```bash
-gh run list --repo openclaw/openclaw --workflow "ClawSweeper Dispatch" \
+gh run list --repo alien/alien --workflow "ClawSweeper Dispatch" \
   --event push --limit 8 --json databaseId,displayTitle,event,status,conclusion,headSha,url
 ```
 
 Target commit check:
 
 ```bash
-gh api "repos/openclaw/openclaw/commits/<sha>/check-runs?per_page=100" \
+gh api "repos/alien/alien/commits/<sha>/check-runs?per_page=100" \
   --jq '.check_runs[] | select(.name=="ClawSweeper Commit Review") | [.status,.conclusion,.details_url] | @tsv'
 ```
 

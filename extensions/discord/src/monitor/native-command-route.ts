@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import * as conversationRuntime from "openclaw/plugin-sdk/conversation-binding-runtime";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import * as conversationRuntime from "alien/plugin-sdk/conversation-binding-runtime";
+import type { ResolvedAgentRoute } from "alien/plugin-sdk/routing";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import {
   resolveDiscordBoundConversationRoute,
   resolveDiscordEffectiveRoute,
@@ -27,7 +27,7 @@ type DiscordNativeInteractionRouteState = {
 };
 
 export async function resolveDiscordNativeInteractionRouteState(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   accountId: string;
   guildId?: string;
   memberRoleIds?: string[];

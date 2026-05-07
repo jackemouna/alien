@@ -4,8 +4,8 @@ import {
   jsonResult,
   readReactionParams,
   readStringParam,
-} from "openclaw/plugin-sdk/channel-actions";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-actions";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { resolveAuthorizedWhatsAppOutboundTarget } from "./action-runtime-target-auth.js";
 import { resolveWhatsAppReactionLevel } from "./reaction-level.js";
 import { sendReactionWhatsApp } from "./send.js";
@@ -17,7 +17,7 @@ export const whatsAppActionRuntime = {
 
 export async function handleWhatsAppAction(
   params: Record<string, unknown>,
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const whatsAppConfig = cfg.channels?.whatsapp;

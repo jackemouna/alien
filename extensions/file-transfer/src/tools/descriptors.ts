@@ -1,4 +1,4 @@
-import type { AnyAgentTool } from "openclaw/plugin-sdk/plugin-entry";
+import type { AnyAgentTool } from "alien/plugin-sdk/plugin-entry";
 import { Type } from "typebox";
 
 type FileTransferToolDescriptor = Pick<

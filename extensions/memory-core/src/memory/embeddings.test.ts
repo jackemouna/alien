@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { MemoryEmbeddingProviderAdapter } from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
+import type { MemoryEmbeddingProviderAdapter } from "alien/plugin-sdk/memory-core-host-engine-embeddings";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createEmbeddingProvider } from "./embeddings.js";
 
@@ -7,7 +7,7 @@ const mockEmbeddingRegistry = vi.hoisted(() => ({
   adapters: [] as MemoryEmbeddingProviderAdapter[],
 }));
 
-vi.mock("openclaw/plugin-sdk/memory-core-host-engine-embeddings", () => ({
+vi.mock("alien/plugin-sdk/memory-core-host-engine-embeddings", () => ({
   DEFAULT_LOCAL_MODEL: "nomic-embed-text",
   createLocalEmbeddingProvider: async () => {
     throw new Error("local embedding provider is not used by these tests");
@@ -40,8 +40,8 @@ function createOptions(provider: string) {
           "voyage",
         ],
       },
-    } as OpenClawConfig,
-    agentDir: "/tmp/openclaw-agent",
+    } as AlienConfig,
+    agentDir: "/tmp/alien-agent",
     provider,
     fallback: "none",
     model: "",

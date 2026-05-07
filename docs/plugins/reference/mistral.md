@@ -1,5 +1,5 @@
 ---
-summary: "Adds Mistral model provider support to OpenClaw."
+summary: "Adds Mistral model provider support to Alien."
 read_when:
   - You are installing, configuring, or auditing the mistral plugin
 title: "Mistral plugin"
@@ -7,12 +7,12 @@ title: "Mistral plugin"
 
 # Mistral plugin
 
-Adds Mistral model provider support to OpenClaw.
+Adds Mistral model provider support to Alien.
 
 ## Distribution
 
-- Package: `@openclaw/mistral-provider`
-- Install route: included in OpenClaw
+- Package: `@alien/mistral-provider`
+- Install route: included in Alien
 
 ## Surface
 

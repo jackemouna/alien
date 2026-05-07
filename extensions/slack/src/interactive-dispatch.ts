@@ -5,7 +5,7 @@ import {
   type PluginConversationBindingRequestParams,
   type PluginConversationBindingRequestResult,
   type PluginInteractiveRegistration,
-} from "openclaw/plugin-sdk/plugin-runtime";
+} from "alien/plugin-sdk/plugin-runtime";
 
 export type SlackInteractiveHandlerContext = {
   channel: "slack";

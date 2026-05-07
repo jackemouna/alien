@@ -1,4 +1,4 @@
-import { EmbeddedBlockChunker } from "openclaw/plugin-sdk/agent-runtime";
+import { EmbeddedBlockChunker } from "alien/plugin-sdk/agent-runtime";
 import {
   createChannelProgressDraftGate,
   formatChannelProgressDraftText,
@@ -7,13 +7,13 @@ import {
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingPreviewToolProgress,
   resolveChannelStreamingSuppressDefaultToolProgressMessages,
-} from "openclaw/plugin-sdk/channel-streaming";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+} from "alien/plugin-sdk/channel-streaming";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   convertMarkdownTables,
   stripInlineDirectiveTagsForDelivery,
   stripReasoningTagsFromText,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { resolveDiscordDraftStreamingChunking } from "../draft-chunking.js";
 import { createDiscordDraftStream } from "../draft-stream.js";
@@ -24,10 +24,10 @@ type DraftReplyReference = {
   peek: () => string | undefined;
 };
 
-type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<AlienConfig["channels"]>["discord"];
 
 export function createDiscordDraftPreviewController(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   discordConfig: DiscordConfig;
   accountId: string;
   sourceRepliesAreToolOnly: boolean;

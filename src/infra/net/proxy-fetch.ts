@@ -4,7 +4,7 @@ import { normalizeHeadersInitForFetch } from "../fetch-headers.js";
 import { resolveEnvHttpProxyAgentOptions } from "./proxy-env.js";
 import { loadUndiciRuntimeDeps, type UndiciRuntimeDeps } from "./undici-runtime.js";
 
-export const PROXY_FETCH_PROXY_URL = Symbol.for("openclaw.proxyFetch.proxyUrl");
+export const PROXY_FETCH_PROXY_URL = Symbol.for("alien.proxyFetch.proxyUrl");
 type ProxyFetchWithMetadata = typeof fetch & {
   [PROXY_FETCH_PROXY_URL]?: string;
 };

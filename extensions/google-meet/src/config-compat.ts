@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 
 type LegacyConfigRule = {
   path: Array<string | number>;
@@ -32,13 +32,13 @@ export const legacyConfigRules: LegacyConfigRule[] = [
   {
     path: ["plugins", "entries", "google-meet", "config", "realtime"],
     message:
-      'plugins.entries.google-meet.config.realtime.provider="google" is legacy for Gemini Live bidi mode; use realtime.voiceProvider="google" and realtime.transcriptionProvider="openai". Run "openclaw doctor --fix".',
+      'plugins.entries.google-meet.config.realtime.provider="google" is legacy for Gemini Live bidi mode; use realtime.voiceProvider="google" and realtime.transcriptionProvider="openai". Run "alien doctor --fix".',
     match: hasLegacyGoogleRealtimeProvider,
   },
 ];
 
-export function migrateGoogleMeetLegacyRealtimeProvider(config: OpenClawConfig): {
-  config: OpenClawConfig;
+export function migrateGoogleMeetLegacyRealtimeProvider(config: AlienConfig): {
+  config: AlienConfig;
   changes: string[];
 } | null {
   const rawEntry = asRecord(config.plugins?.entries?.["google-meet"]);
@@ -76,8 +76,8 @@ export function migrateGoogleMeetLegacyRealtimeProvider(config: OpenClawConfig):
   };
 }
 
-export function normalizeCompatibilityConfig({ cfg }: { cfg: OpenClawConfig }): {
-  config: OpenClawConfig;
+export function normalizeCompatibilityConfig({ cfg }: { cfg: AlienConfig }): {
+  config: AlienConfig;
   changes: string[];
 } {
   return migrateGoogleMeetLegacyRealtimeProvider(cfg) ?? { config: cfg, changes: [] };

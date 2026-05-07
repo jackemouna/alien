@@ -1,4 +1,4 @@
-import { resolveOpenProviderRuntimeGroupPolicy } from "openclaw/plugin-sdk/runtime-group-policy";
+import { resolveOpenProviderRuntimeGroupPolicy } from "alien/plugin-sdk/runtime-group-policy";
 
 export function resolveWhatsAppRuntimeGroupPolicy(params: {
   providerConfigPresent: boolean;

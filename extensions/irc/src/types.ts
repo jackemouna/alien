@@ -6,7 +6,7 @@ import type {
   GroupToolPolicyBySenderConfig,
   GroupToolPolicyConfig,
   MarkdownConfig,
-  OpenClawConfig,
+  AlienConfig,
   BaseProbeResult,
 } from "./runtime-api.js";
 
@@ -71,8 +71,8 @@ type IrcConfig = IrcAccountConfig & {
   defaultAccount?: string;
 };
 
-export type CoreConfig = OpenClawConfig & {
-  channels?: OpenClawConfig["channels"] & {
+export type CoreConfig = AlienConfig & {
+  channels?: AlienConfig["channels"] & {
     irc?: IrcConfig;
   };
 };

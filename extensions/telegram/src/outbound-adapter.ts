@@ -1,22 +1,22 @@
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-send-result";
+import type { ChannelOutboundAdapter } from "alien/plugin-sdk/channel-send-result";
 import {
   attachChannelToResult,
   createAttachedChannelResultAdapter,
-} from "openclaw/plugin-sdk/channel-send-result";
+} from "alien/plugin-sdk/channel-send-result";
 import {
   presentationToInteractiveReply,
   renderMessagePresentationFallbackText,
-} from "openclaw/plugin-sdk/interactive-runtime";
-import { sanitizeForPlainText } from "openclaw/plugin-sdk/outbound-runtime";
+} from "alien/plugin-sdk/interactive-runtime";
+import { sanitizeForPlainText } from "alien/plugin-sdk/outbound-runtime";
 import {
   resolveOutboundSendDep,
   type OutboundSendDeps,
-} from "openclaw/plugin-sdk/outbound-send-deps";
+} from "alien/plugin-sdk/outbound-send-deps";
 import {
   resolvePayloadMediaUrls,
   sendPayloadMediaSequenceOrFallback,
-} from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
+} from "alien/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-runtime";
 import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveTelegramInlineButtons } from "./button-types.js";
 import { markdownToTelegramHtmlChunks } from "./format.js";

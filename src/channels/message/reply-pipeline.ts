@@ -4,7 +4,7 @@ import {
   resolveSourceReplyDeliveryMode,
   type SourceReplyDeliveryModeContext,
 } from "../../auto-reply/reply/source-reply-delivery-mode.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { getChannelPlugin, normalizeChannelId } from "../plugins/index.js";
 import {
   createReplyPrefixContext,
@@ -25,7 +25,7 @@ export { createReplyPrefixContext, createReplyPrefixOptions, createTypingCallbac
 export type { SourceReplyDeliveryMode };
 
 export function resolveChannelSourceReplyDeliveryMode(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ctx: SourceReplyDeliveryModeContext;
   requested?: SourceReplyDeliveryMode;
   messageToolAvailable?: boolean;

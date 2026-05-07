@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import {
   parseLiveCsvFilter,
   parseProviderModelMap,
@@ -47,7 +47,7 @@ export function parseCsvFilter(raw?: string): Set<string> | null {
   return parseLiveCsvFilter(raw);
 }
 
-export function resolveConfiguredLiveVideoModels(cfg: OpenClawConfig): Map<string, string> {
+export function resolveConfiguredLiveVideoModels(cfg: AlienConfig): Map<string, string> {
   return resolveConfiguredLiveProviderModels(cfg.agents?.defaults?.videoGenerationModel);
 }
 

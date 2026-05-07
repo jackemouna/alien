@@ -1,6 +1,6 @@
 import type { ReactionTypeEmoji } from "@grammyjs/types";
-import { DEFAULT_EMOJIS, type StatusReactionEmojis } from "openclaw/plugin-sdk/channel-feedback";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { DEFAULT_EMOJIS, type StatusReactionEmojis } from "alien/plugin-sdk/channel-feedback";
+import { normalizeOptionalString } from "alien/plugin-sdk/text-runtime";
 import type { TelegramChatDetails, TelegramGetChat } from "./bot/types.js";
 
 type StatusReactionEmojiKey = keyof Required<StatusReactionEmojis>;

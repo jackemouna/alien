@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { describe, expect, it } from "vitest";
 import { listSlackMessageActions } from "./message-actions.js";
 import { describeSlackMessageTool } from "./message-tool-api.js";
@@ -54,7 +54,7 @@ describe("Slack message tools", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(listSlackMessageActions(cfg)).toEqual(
       expect.arrayContaining(["read", "edit", "delete", "download-file", "upload-file"]),
@@ -97,7 +97,7 @@ describe("Slack message tools", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as AlienConfig;
 
     expect(listSlackMessageActions(cfg, "default")).toEqual(["send"]);
     expect(listSlackMessageActions(cfg, "work")).toEqual([

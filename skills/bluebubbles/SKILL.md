@@ -1,14 +1,14 @@
 ---
 name: bluebubbles
 description: Send and manage iMessages via BlueBubbles, including attachments, tapbacks, edits, replies, and groups.
-metadata: { "openclaw": { "emoji": "🫧", "requires": { "config": ["channels.bluebubbles"] } } }
+metadata: { "alien": { "emoji": "🫧", "requires": { "config": ["channels.bluebubbles"] } } }
 ---
 
 # BlueBubbles Actions
 
 ## Overview
 
-BlueBubbles is OpenClaw's legacy iMessage bridge. Use the `message` tool with `channel: "bluebubbles"` for existing BlueBubbles-backed conversations that need attachments, tapbacks, edit/unsend, replies, or group management.
+BlueBubbles is Alien's legacy iMessage bridge. Use the `message` tool with `channel: "bluebubbles"` for existing BlueBubbles-backed conversations that need attachments, tapbacks, edit/unsend, replies, or group management.
 
 ## Inputs to collect
 
@@ -28,7 +28,7 @@ If the user is vague ("text my mom"), ask for the recipient handle or chat guid 
   "action": "send",
   "channel": "bluebubbles",
   "target": "+15551234567",
-  "message": "hello from OpenClaw"
+  "message": "hello from Alien"
 }
 ```
 

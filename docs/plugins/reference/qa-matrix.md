@@ -11,7 +11,7 @@ Matrix QA transport runner and substrate.
 
 ## Distribution
 
-- Package: `@openclaw/qa-matrix`
+- Package: `@alien/qa-matrix`
 - Install route: source checkout only
 
 ## Surface

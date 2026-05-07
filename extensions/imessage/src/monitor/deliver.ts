@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+} from "alien/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "alien/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "alien/plugin-sdk/runtime-env";
 import type { IMessageRpcClient } from "../client.js";
 import { sendMessageIMessage } from "../send.js";
 import {
@@ -17,7 +17,7 @@ import type { SentMessageCache } from "./echo-cache.js";
 import { sanitizeOutboundText } from "./sanitize-outbound.js";
 
 export async function deliverReplies(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   replies: ReplyPayload[];
   target: string;
   client: IMessageRpcClient;

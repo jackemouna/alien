@@ -36,7 +36,7 @@ export type EmbeddedRunWaiter = {
   timer: NodeJS.Timeout;
 };
 
-const EMBEDDED_RUN_STATE_KEY = Symbol.for("openclaw.embeddedRunState");
+const EMBEDDED_RUN_STATE_KEY = Symbol.for("alien.embeddedRunState");
 
 const embeddedRunState = resolveGlobalSingleton(EMBEDDED_RUN_STATE_KEY, () => ({
   activeRuns: new Map<string, EmbeddedPiQueueHandle>(),

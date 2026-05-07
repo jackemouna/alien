@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.js";
+import type { AlienConfig } from "../config/types.js";
 import type { TtsAutoMode, TtsConfig, TtsMode } from "../config/types.tts.js";
 import { normalizeAccountId, normalizeAgentId } from "../routing/session-key.js";
 import {
@@ -40,7 +40,7 @@ function deepMergeDefined(base: unknown, override: unknown): unknown {
 }
 
 function resolveAgentTtsOverride(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   agentId: string | undefined,
 ): TtsConfig | undefined {
   if (!agentId || !Array.isArray(cfg.agents?.list)) {
@@ -85,7 +85,7 @@ function asObjectRecord(value: unknown): Record<string, unknown> | undefined {
 }
 
 function resolveChannelConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   channelId: string | undefined,
 ): Record<string, unknown> | undefined {
   if (!isPlainObject(cfg.channels)) {
@@ -105,14 +105,14 @@ function resolveChannelConfig(
 }
 
 function resolveChannelTtsOverride(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   context: TtsConfigResolutionContext,
 ): TtsConfig | undefined {
   return asTtsConfig(resolveChannelConfig(cfg, context.channelId)?.tts);
 }
 
 function resolveAccountTtsOverride(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   context: TtsConfigResolutionContext,
 ): TtsConfig | undefined {
   const channelConfig = resolveChannelConfig(cfg, context.channelId);
@@ -122,7 +122,7 @@ function resolveAccountTtsOverride(
 }
 
 export function resolveEffectiveTtsConfig(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   contextOrAgentId?: string | TtsConfigResolutionContext,
 ): TtsConfig {
   const context = resolveTtsConfigContext(contextOrAgentId);
@@ -138,7 +138,7 @@ export function resolveEffectiveTtsConfig(
 }
 
 export function resolveConfiguredTtsMode(
-  cfg: OpenClawConfig,
+  cfg: AlienConfig,
   contextOrAgentId?: string | TtsConfigResolutionContext,
 ): TtsMode {
   return resolveEffectiveTtsConfig(cfg, contextOrAgentId).mode ?? "final";
@@ -148,7 +148,7 @@ function resolveTtsPrefsPathValue(prefsPath: string | undefined): string {
   if (prefsPath?.trim()) {
     return resolveUserPath(prefsPath.trim());
   }
-  const envPath = process.env.OPENCLAW_TTS_PREFS?.trim();
+  const envPath = process.env.ALIEN_TTS_PREFS?.trim();
   if (envPath) {
     return resolveUserPath(envPath);
   }
@@ -177,7 +177,7 @@ function readTtsPrefsAutoMode(prefsPath: string): TtsAutoMode | undefined {
 }
 
 export function shouldAttemptTtsPayload(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ttsAuto?: string;
   agentId?: string;
   channelId?: string;
@@ -202,7 +202,7 @@ export function shouldAttemptTtsPayload(params: {
 }
 
 export function shouldCleanTtsDirectiveText(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   ttsAuto?: string;
   agentId?: string;
   channelId?: string;

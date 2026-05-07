@@ -106,11 +106,11 @@ export function pickProbeHostForBind(
 }
 
 const SAFE_DAEMON_ENV_KEYS = [
-  "OPENCLAW_PROFILE",
-  "OPENCLAW_STATE_DIR",
-  "OPENCLAW_CONFIG_PATH",
-  "OPENCLAW_GATEWAY_PORT",
-  "OPENCLAW_NIX_MODE",
+  "ALIEN_PROFILE",
+  "ALIEN_STATE_DIR",
+  "ALIEN_CONFIG_PATH",
+  "ALIEN_GATEWAY_PORT",
+  "ALIEN_NIX_MODE",
 ];
 
 export function filterDaemonEnv(env: Record<string, string> | undefined): Record<string, string> {
@@ -154,7 +154,7 @@ export function renderRuntimeHints(
   const hints: string[] = [];
   const fileLog = logFile ?? null;
   if (runtime.missingUnit) {
-    hints.push(`Service not installed. Run: ${formatCliCommand("openclaw gateway install", env)}`);
+    hints.push(`Service not installed. Run: ${formatCliCommand("alien gateway install", env)}`);
     if (fileLog) {
       hints.push(`File logs: ${fileLog}`);
     }
@@ -162,7 +162,7 @@ export function renderRuntimeHints(
   }
   if (runtime.missingSupervision) {
     hints.push(
-      `LaunchAgent installed but not loaded. Run: ${formatCliCommand("openclaw gateway restart", env)}`,
+      `LaunchAgent installed but not loaded. Run: ${formatCliCommand("alien gateway restart", env)}`,
     );
     if (fileLog) {
       hints.push(`File logs: ${fileLog}`);
@@ -176,8 +176,8 @@ export function renderRuntimeHints(
     hints.push(
       ...buildPlatformRuntimeLogHints({
         env,
-        systemdServiceName: resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE),
-        windowsTaskName: resolveGatewayWindowsTaskName(env.OPENCLAW_PROFILE),
+        systemdServiceName: resolveGatewaySystemdServiceName(env.ALIEN_PROFILE),
+        windowsTaskName: resolveGatewayWindowsTaskName(env.ALIEN_PROFILE),
       }),
     );
   }
@@ -185,11 +185,11 @@ export function renderRuntimeHints(
 }
 
 export function renderGatewayServiceStartHints(env: NodeJS.ProcessEnv = process.env): string[] {
-  const profile = env.OPENCLAW_PROFILE;
+  const profile = env.ALIEN_PROFILE;
   const container = resolveDaemonContainerContext(env);
   const hints = buildPlatformServiceStartHints({
-    installCommand: formatCliCommand("openclaw gateway install", env),
-    startCommand: formatCliCommand("openclaw gateway", env),
+    installCommand: formatCliCommand("alien gateway install", env),
+    startCommand: formatCliCommand("alien gateway", env),
     launchAgentPlistPath: `~/Library/LaunchAgents/${resolveGatewayLaunchAgentLabel(profile)}.plist`,
     systemdServiceName: resolveGatewaySystemdServiceName(profile),
     windowsTaskName: resolveGatewayWindowsTaskName(profile),

@@ -1,5 +1,5 @@
 import type { WebClient } from "@slack/web-api";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const resolveSlackMedia = vi.fn();
@@ -239,7 +239,7 @@ describe("downloadSlackFile", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as AlienConfig;
 
     const result = await downloadSlackFile("F123", {
       cfg,

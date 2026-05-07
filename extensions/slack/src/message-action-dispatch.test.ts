@@ -89,12 +89,12 @@ describe("handleSlackMessageAction", () => {
 
     expect(action.blocks).toEqual([
       expect.objectContaining({
-        block_id: "openclaw_reply_buttons_1",
-        elements: [expect.objectContaining({ action_id: "openclaw:reply_button:1:1" })],
+        block_id: "alien_reply_buttons_1",
+        elements: [expect.objectContaining({ action_id: "alien:reply_button:1:1" })],
       }),
       expect.objectContaining({
-        block_id: "openclaw_reply_buttons_2",
-        elements: [expect.objectContaining({ action_id: "openclaw:reply_button:2:1" })],
+        block_id: "alien_reply_buttons_2",
+        elements: [expect.objectContaining({ action_id: "alien:reply_button:2:1" })],
       }),
     ]);
   });

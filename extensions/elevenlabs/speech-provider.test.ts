@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildElevenLabsSpeechProvider, isValidVoiceId } from "./speech-provider.js";
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("alien/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: async ({
     url,
     init,

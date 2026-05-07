@@ -100,9 +100,9 @@ describe("gateway auth compatibility baseline", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+      prevToken = process.env.ALIEN_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "token", token: "secret" };
-      process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+      process.env.ALIEN_GATEWAY_TOKEN = "secret";
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
@@ -190,7 +190,7 @@ describe("gateway auth compatibility baseline", () => {
     test("keeps local backend device-token reconnects out of pairing", async () => {
       const identityPath = path.join(
         os.tmpdir(),
-        `openclaw-backend-device-${process.pid}-${port}.json`,
+        `alien-backend-device-${process.pid}-${port}.json`,
       );
       const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem } =
         await import("../infra/device-identity.js");
@@ -257,9 +257,9 @@ describe("gateway auth compatibility baseline", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+      prevToken = process.env.ALIEN_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "password", password: "secret" };
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.ALIEN_GATEWAY_TOKEN;
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
@@ -310,9 +310,9 @@ describe("gateway auth compatibility baseline", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+      prevToken = process.env.ALIEN_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "none" };
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.ALIEN_GATEWAY_TOKEN;
       port = await getFreePort();
       server = await startGatewayServer(port, { controlUiEnabled: true });
     });
@@ -337,7 +337,7 @@ describe("gateway auth compatibility baseline", () => {
       try {
         const deviceIdentityPath = path.join(
           os.tmpdir(),
-          `openclaw-auth-none-control-ui-first-${process.pid}-${port}.json`,
+          `alien-auth-none-control-ui-first-${process.pid}-${port}.json`,
         );
         const res = await connectReq(ws, {
           skipDefaultAuth: true,
@@ -369,11 +369,11 @@ describe("gateway auth compatibility baseline", () => {
         const nonce = await readConnectChallengeNonce(ws);
         const identityPath = path.join(
           os.tmpdir(),
-          `openclaw-auth-none-control-ui-${process.pid}-${port}.json`,
+          `alien-auth-none-control-ui-${process.pid}-${port}.json`,
         );
         const staleIdentityPath = path.join(
           os.tmpdir(),
-          `openclaw-auth-none-control-ui-stale-${process.pid}-${port}.json`,
+          `alien-auth-none-control-ui-stale-${process.pid}-${port}.json`,
         );
         const { identity, device } = await createSignedDevice({
           token: null,

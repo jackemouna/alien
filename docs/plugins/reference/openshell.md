@@ -11,8 +11,8 @@ Sandbox backend powered by OpenShell with mirrored local workspaces and SSH-base
 
 ## Distribution
 
-- Package: `@openclaw/openshell-sandbox`
-- Install route: included in OpenClaw
+- Package: `@alien/openshell-sandbox`
+- Install route: included in Alien
 
 ## Surface
 

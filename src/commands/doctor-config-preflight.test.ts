@@ -1,13 +1,13 @@
 import fs from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { promoteConfigSnapshotToLastKnownGood, readConfigFileSnapshot } from "../config/config.js";
-import { withTempHome, writeOpenClawConfig } from "../config/test-helpers.js";
+import { withTempHome, writeAlienConfig } from "../config/test-helpers.js";
 import { runDoctorConfigPreflight } from "./doctor-config-preflight.js";
 
 describe("runDoctorConfigPreflight", () => {
   it("collects legacy config issues outside the normal config read path", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeAlienConfig(home, {
         memorySearch: {
           provider: "local",
           fallback: "none",
@@ -33,7 +33,7 @@ describe("runDoctorConfigPreflight", () => {
 
   it("restores invalid config from last-known-good only during repair preflight", async () => {
     await withTempHome(async (home) => {
-      const configPath = await writeOpenClawConfig(home, {
+      const configPath = await writeAlienConfig(home, {
         gateway: { mode: "local", port: 19091 },
       });
       await promoteConfigSnapshotToLastKnownGood(await readConfigFileSnapshot());

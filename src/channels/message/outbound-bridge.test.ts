@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { createChannelMessageAdapterFromOutbound } from "./outbound-bridge.js";
 import type { MessageReceipt } from "./types.js";
 
-const cfg = {} as OpenClawConfig;
+const cfg = {} as AlienConfig;
 
 describe("createChannelMessageAdapterFromOutbound", () => {
   it("wraps outbound text sends with a message receipt", async () => {

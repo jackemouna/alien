@@ -1,5 +1,5 @@
 import { decodeRecoveryKey } from "matrix-js-sdk/lib/crypto-api/recovery-key.js";
-import { loadJsonFile, saveJsonFile } from "openclaw/plugin-sdk/json-store";
+import { loadJsonFile, saveJsonFile } from "alien/plugin-sdk/json-store";
 import { formatMatrixErrorMessage, formatMatrixErrorReason } from "../errors.js";
 import { LogService } from "./logger.js";
 import type {

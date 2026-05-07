@@ -1,1 +1,1 @@
-export { buildSecretInputSchema, hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input";
+export { buildSecretInputSchema, hasConfiguredSecretInput } from "alien/plugin-sdk/secret-input";

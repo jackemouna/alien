@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import type {
   DocumentExtractionRequest,
   DocumentExtractionResult,
@@ -7,13 +7,13 @@ import { resolvePluginDocumentExtractors } from "../plugins/document-extractors.
 import { createConfigScopedPromiseLoader } from "../plugins/plugin-cache-primitives.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-const documentExtractorLoader = createConfigScopedPromiseLoader((config?: OpenClawConfig) =>
+const documentExtractorLoader = createConfigScopedPromiseLoader((config?: AlienConfig) =>
   resolvePluginDocumentExtractors(config ? { config } : undefined),
 );
 
 export async function extractDocumentContent(
   params: DocumentExtractionRequest & {
-    config?: OpenClawConfig;
+    config?: AlienConfig;
   },
 ): Promise<(DocumentExtractionResult & { extractor: string }) | null> {
   const mimeType = normalizeLowercaseStringOrEmpty(params.mimeType);

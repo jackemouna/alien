@@ -1,7 +1,7 @@
 import { formatCliCommand } from "../../cli/command-format.js";
 import { replaceConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AlienConfig } from "../../config/types.alien.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../../runtime.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { applySkipBootstrapConfig } from "../onboard-config.js";
@@ -11,7 +11,7 @@ import type { OnboardOptions } from "../onboard-types.js";
 export async function runNonInteractiveRemoteSetup(params: {
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: OpenClawConfig;
+  baseConfig: AlienConfig;
   baseHash?: string;
 }) {
   const { opts, runtime, baseConfig, baseHash } = params;
@@ -24,7 +24,7 @@ export async function runNonInteractiveRemoteSetup(params: {
     return;
   }
 
-  let nextConfig: OpenClawConfig = {
+  let nextConfig: AlienConfig = {
     ...baseConfig,
     gateway: {
       ...baseConfig.gateway,
@@ -57,7 +57,7 @@ export async function runNonInteractiveRemoteSetup(params: {
     runtime.log(`Remote gateway: ${remoteUrl}`);
     runtime.log(`Auth: ${payload.auth}`);
     runtime.log(
-      `Tip: run \`${formatCliCommand("openclaw configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.openclaw.ai/tools/web`,
+      `Tip: run \`${formatCliCommand("alien configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.alien.ai/tools/web`,
     );
   }
 }

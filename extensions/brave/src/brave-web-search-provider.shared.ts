@@ -1,7 +1,7 @@
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "alien/plugin-sdk/text-runtime";
 
 type BraveConfig = {
   baseUrl?: unknown;

@@ -1,11 +1,11 @@
 ---
 name: crabbox
-description: Use Crabbox for OpenClaw remote Linux validation. Default to Blacksmith Testbox; includes direct Blacksmith and owned AWS/Hetzner fallback notes when Crabbox fails.
+description: Use Crabbox for Alien remote Linux validation. Default to Blacksmith Testbox; includes direct Blacksmith and owned AWS/Hetzner fallback notes when Crabbox fails.
 ---
 
 # Crabbox
 
-Use Crabbox when OpenClaw needs remote Linux proof for broad tests, CI-parity
+Use Crabbox when Alien needs remote Linux proof for broad tests, CI-parity
 checks, secrets, hosted services, Docker/E2E/package lanes, warmed reusable
 boxes, sync timing, logs/results, cache inspection, or lease cleanup.
 
@@ -26,7 +26,7 @@ pnpm crabbox:run -- --help | sed -n '1,120p'
 ../crabbox/bin/crabbox webvnc --help
 ```
 
-- OpenClaw scripts prefer `../crabbox/bin/crabbox` when present. The user PATH
+- Alien scripts prefer `../crabbox/bin/crabbox` when present. The user PATH
   shim can be stale.
 - Check `.crabbox.yaml` for repo defaults, but override provider explicitly.
   Even if config still says AWS, maintainer validation should normally pass
@@ -35,7 +35,7 @@ pnpm crabbox:run -- --help | sed -n '1,120p'
 
 ## macOS And Windows Targets
 
-Use these only when the task needs an existing non-Linux host. OpenClaw broad
+Use these only when the task needs an existing non-Linux host. Alien broad
 validation still defaults to `blacksmith-testbox`.
 
 Crabbox supports static SSH targets:
@@ -66,7 +66,7 @@ Changed gate:
 
 ```sh
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -74,14 +74,14 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
 ```
 
 Full suite:
 
 ```sh
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -89,14 +89,14 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
 ```
 
 Focused rerun:
 
 ```sh
 pnpm crabbox:run -- --provider blacksmith-testbox \
-  --blacksmith-org openclaw \
+  --blacksmith-org alien \
   --blacksmith-workflow .github/workflows/ci-check-testbox.yml \
   --blacksmith-job check \
   --blacksmith-ref main \
@@ -104,7 +104,7 @@ pnpm crabbox:run -- --provider blacksmith-testbox \
   --ttl 240m \
   --timing-json \
   --shell -- \
-  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test <path-or-filter>"
+  "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test <path-or-filter>"
 ```
 
 Read the JSON summary. Useful fields:
@@ -204,20 +204,20 @@ use direct Blacksmith from the repo root:
 
 ```sh
 blacksmith testbox warmup ci-check-testbox.yml --ref main --idle-timeout 90
-blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
+blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
 blacksmith testbox stop --id <tbx_id>
 ```
 
 Direct full suite:
 
 ```sh
-blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
+blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test"
 ```
 
 Auth fallback, only when `blacksmith` says auth is missing:
 
 ```sh
-blacksmith auth login --non-interactive --organization openclaw
+blacksmith auth login --non-interactive --organization alien
 ```
 
 Raw Blacksmith footguns:
@@ -252,7 +252,7 @@ Owned Cloud Fallback section below.
 
 Crabbox Blacksmith backend delegates setup to:
 
-- org: `openclaw`
+- org: `alien`
 - workflow: `.github/workflows/ci-check-testbox.yml`
 - job: `check`
 - ref: `main` unless testing a branch/tag intentionally
@@ -265,7 +265,7 @@ Minimal direct Blacksmith fallback, from repo root:
 
 ```sh
 blacksmith testbox warmup ci-check-testbox.yml --ref main --idle-timeout 90
-blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test:changed"
+blacksmith testbox run --id <tbx_id> "env CI=1 NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 pnpm test:changed"
 blacksmith testbox stop --id <tbx_id>
 ```
 
@@ -283,7 +283,7 @@ Important Blacksmith footguns:
 - If auth is missing and browser auth is acceptable:
 
 ```sh
-blacksmith auth login --non-interactive --organization openclaw
+blacksmith auth login --non-interactive --organization alien
 ```
 
 ## Owned Cloud Fallback
@@ -293,11 +293,11 @@ environment, or owned capacity is explicitly the goal.
 
 When AWS capacity is under pressure, do not start with `class=beast`.
 `beast` begins at 48xlarge instances and can burn 192 vCPU quota per request.
-OpenClaw's owned-cloud default is `standard`; escalate to `fast`, then `large`,
+Alien's owned-cloud default is `standard`; escalate to `fast`, then `large`,
 and only use `beast` when the work is explicitly CPU-bound and the smaller class
 already failed the goal.
 Keep capacity hints enabled so brokered AWS leases print selected region/market,
-quota pressure, Spot fallback, and high-pressure class warnings. The OpenClaw
+quota pressure, Spot fallback, and high-pressure class warnings. The Alien
 repo config sets `capacity.hints: true`; use `CRABBOX_CAPACITY_HINTS=0` only
 when debugging hint rendering itself.
 
@@ -319,7 +319,7 @@ Preferred AWS pressure-relief flow:
 CRABBOX_CAPACITY_REGIONS=eu-west-1,eu-west-2,eu-central-1,us-east-1,us-west-2 \
   pnpm crabbox:warmup -- --provider aws --class standard --market on-demand --idle-timeout 90m
 pnpm crabbox:hydrate -- --id <cbx_id-or-slug>
-pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
+pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm check:changed"
 pnpm crabbox:stop -- <cbx_id-or-slug>
 ```
 
@@ -331,15 +331,15 @@ because it removes Spot market churn from the failure.
 CRABBOX_CAPACITY_REGIONS=eu-west-1,eu-west-2,eu-central-1,us-east-1,us-west-2 \
   pnpm crabbox:warmup -- --provider aws --class fast --market on-demand --idle-timeout 90m
 pnpm crabbox:hydrate -- --id <cbx_id-or-slug>
-pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 OPENCLAW_TEST_PROJECTS_PARALLEL=6 OPENCLAW_VITEST_MAX_WORKERS=1 OPENCLAW_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
+pnpm crabbox:run -- --id <cbx_id-or-slug> --timing-json --shell -- "env NODE_OPTIONS=--max-old-space-size=4096 ALIEN_TEST_PROJECTS_PARALLEL=6 ALIEN_VITEST_MAX_WORKERS=1 ALIEN_VITEST_NO_OUTPUT_TIMEOUT_MS=900000 pnpm test:changed"
 pnpm crabbox:stop -- <cbx_id-or-slug>
 ```
 
 Install/auth for owned Crabbox if needed:
 
 ```sh
-brew install openclaw/tap/crabbox
-printf '%s' "$CRABBOX_COORDINATOR_TOKEN" | crabbox login --url https://crabbox.openclaw.ai --provider aws --token-stdin
+brew install alien/tap/crabbox
+printf '%s' "$CRABBOX_COORDINATOR_TOKEN" | crabbox login --url https://crabbox.alien.ai --provider aws --token-stdin
 ```
 
 macOS config lives at:
@@ -349,7 +349,7 @@ macOS config lives at:
 ```
 
 It should include `broker.url`, `broker.token`, and usually `provider: aws`
-for owned-cloud lanes. Do not let that config override the OpenClaw default
+for owned-cloud lanes. Do not let that config override the Alien default
 when Blacksmith proof is requested; pass `--provider blacksmith-testbox`.
 
 ### Interactive Desktop / WebVNC
@@ -399,6 +399,6 @@ Use `--market spot|on-demand` only on AWS warmup/one-shot runs.
 
 ## Boundary
 
-Do not add OpenClaw-specific setup to Crabbox itself. Put repo setup in the
+Do not add Alien-specific setup to Crabbox itself. Put repo setup in the
 hydration workflow and keep Crabbox generic around lease, sync, command
 execution, logs/results, timing, and cleanup.

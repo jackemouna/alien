@@ -17,7 +17,7 @@ export type ExtraGatewayService = {
   label: string;
   detail: string;
   scope: "user" | "system";
-  marker?: "openclaw" | "clawdbot";
+  marker?: "alien" | "clawdbot";
   legacy?: boolean;
 };
 
@@ -25,7 +25,7 @@ export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
-const EXTRA_MARKERS = ["openclaw", "clawdbot"] as const;
+const EXTRA_MARKERS = ["alien", "clawdbot"] as const;
 const SYSTEMD_REFERENCE_ONLY_KEYS = new Set([
   "after",
   "before",
@@ -43,7 +43,7 @@ const SYSTEMD_REFERENCE_ONLY_KEYS = new Set([
 export function renderGatewayServiceCleanupHints(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
 ): string[] {
-  const profile = env.OPENCLAW_PROFILE;
+  const profile = env.ALIEN_PROFILE;
   switch (process.platform) {
     case "darwin": {
       const label = resolveGatewayLaunchAgentLabel(profile);
@@ -122,8 +122,8 @@ export function detectMarkerLineWithGateway(contents: string): Marker | null {
 
 function hasGatewayServiceMarker(content: string): boolean {
   const lower = normalizeLowercaseStringOrEmpty(content);
-  const markerKeys = ["openclaw_service_marker"];
-  const kindKeys = ["openclaw_service_kind"];
+  const markerKeys = ["alien_service_marker"];
+  const kindKeys = ["alien_service_kind"];
   const markerValues = [normalizeLowercaseStringOrEmpty(GATEWAY_SERVICE_MARKER)];
   const hasMarkerKey = markerKeys.some((key) => lower.includes(key));
   const hasKindKey = kindKeys.some((key) => lower.includes(key));
@@ -184,33 +184,33 @@ function detectLaunchdGatewayExecutionMarker(contents: string): Marker | null {
   return null;
 }
 
-function isOpenClawGatewayLaunchdService(label: string, contents: string): boolean {
+function isAlienGatewayLaunchdService(label: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
-  if (detectLaunchdGatewayExecutionMarker(contents) !== "openclaw") {
+  if (detectLaunchdGatewayExecutionMarker(contents) !== "alien") {
     return false;
   }
-  return label.startsWith("ai.openclaw.");
+  return label.startsWith("ai.alien.");
 }
 
-function isOpenClawGatewaySystemdService(name: string, contents: string): boolean {
+function isAlienGatewaySystemdService(name: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
-  if (!name.startsWith("openclaw-gateway")) {
+  if (!name.startsWith("alien-gateway")) {
     return false;
   }
   return normalizeLowercaseStringOrEmpty(contents).includes("gateway");
 }
 
-function isOpenClawGatewayTaskName(name: string): boolean {
+function isAlienGatewayTaskName(name: string): boolean {
   const normalized = normalizeLowercaseStringOrEmpty(name);
   if (!normalized) {
     return false;
   }
   const defaultName = normalizeLowercaseStringOrEmpty(resolveGatewayWindowsTaskName());
-  return normalized === defaultName || normalized.startsWith("openclaw gateway");
+  return normalized === defaultName || normalized.startsWith("alien gateway");
 }
 
 function tryExtractPlistLabel(contents: string): string | null {
@@ -298,8 +298,8 @@ async function scanLaunchdDir(params: {
     const legacyLabel = isLegacyLabel(labelFromName) || isLegacyLabel(label);
     const executionMarker = detectLaunchdGatewayExecutionMarker(contents);
     const marker =
-      hasGatewayServiceMarker(contents) || executionMarker === "openclaw"
-        ? "openclaw"
+      hasGatewayServiceMarker(contents) || executionMarker === "alien"
+        ? "alien"
         : executionMarker === "clawdbot" || legacyLabel || detectMarker(contents) === "clawdbot"
           ? "clawdbot"
           : null;
@@ -309,7 +309,7 @@ async function scanLaunchdDir(params: {
     if (isIgnoredLaunchdLabel(label)) {
       continue;
     }
-    if (marker === "openclaw" && isOpenClawGatewayLaunchdService(label, contents)) {
+    if (marker === "alien" && isAlienGatewayLaunchdService(label, contents)) {
       continue;
     }
     results.push({
@@ -318,7 +318,7 @@ async function scanLaunchdDir(params: {
       detail: `plist: ${fullPath}`,
       scope: params.scope,
       marker,
-      legacy: marker !== "openclaw" || isLegacyLabel(label),
+      legacy: marker !== "alien" || isLegacyLabel(label),
     });
   }
 
@@ -328,26 +328,26 @@ async function scanLaunchdDir(params: {
 async function scanSystemdDir(params: {
   dir: string;
   scope: "user" | "system";
-  includeManagedOpenClaw?: boolean;
+  includeManagedAlien?: boolean;
 }): Promise<ExtraGatewayService[]> {
   const results: ExtraGatewayService[] = [];
   const candidates = await collectServiceFiles({
     dir: params.dir,
     extension: ".service",
-    isIgnoredName: params.includeManagedOpenClaw ? () => false : isIgnoredSystemdName,
+    isIgnoredName: params.includeManagedAlien ? () => false : isIgnoredSystemdName,
   });
 
   for (const { entry, name, fullPath, contents } of candidates) {
     const marker = hasGatewayServiceMarker(contents)
-      ? "openclaw"
+      ? "alien"
       : detectMarkerLineWithGateway(contents);
     if (!marker) {
       continue;
     }
     if (
-      !params.includeManagedOpenClaw &&
-      marker === "openclaw" &&
-      isOpenClawGatewaySystemdService(name, contents)
+      !params.includeManagedAlien &&
+      marker === "alien" &&
+      isAlienGatewaySystemdService(name, contents)
     ) {
       continue;
     }
@@ -357,7 +357,7 @@ async function scanSystemdDir(params: {
       detail: `unit: ${fullPath}`,
       scope: params.scope,
       marker,
-      legacy: marker !== "openclaw",
+      legacy: marker !== "alien",
     });
   }
 
@@ -376,7 +376,7 @@ export async function findSystemGatewayServices(): Promise<ExtraGatewayService[]
         ...(await scanSystemdDir({
           dir,
           scope: "system",
-          includeManagedOpenClaw: true,
+          includeManagedAlien: true,
         })),
       );
     }
@@ -524,7 +524,7 @@ export async function findExtraGatewayServices(
       if (!name) {
         continue;
       }
-      if (isOpenClawGatewayTaskName(name)) {
+      if (isAlienGatewayTaskName(name)) {
         continue;
       }
       const lowerName = normalizeLowercaseStringOrEmpty(name);
@@ -545,7 +545,7 @@ export async function findExtraGatewayServices(
         detail: task.taskToRun ? `task: ${name}, run: ${task.taskToRun}` : name,
         scope: "system",
         marker,
-        legacy: marker !== "openclaw",
+        legacy: marker !== "alien",
       });
     }
     return results;

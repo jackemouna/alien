@@ -1,16 +1,16 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { AlienConfig } from "alien/plugin-sdk/config-types";
 import {
   resolveRealtimeVoiceFastContextConsult,
   type RealtimeVoiceFastContextConsultResult,
   type RealtimeVoiceFastContextConfig,
-} from "openclaw/plugin-sdk/realtime-voice";
+} from "alien/plugin-sdk/realtime-voice";
 
 type Logger = {
   debug?: (message: string) => void;
 };
 
 export async function resolveRealtimeFastContextConsult(params: {
-  cfg: OpenClawConfig;
+  cfg: AlienConfig;
   agentId: string;
   sessionKey: string;
   config: RealtimeVoiceFastContextConfig;
@@ -21,7 +21,7 @@ export async function resolveRealtimeFastContextConsult(params: {
     ...params,
     labels: {
       audienceLabel: "caller",
-      contextName: "OpenClaw memory or session context",
+      contextName: "Alien memory or session context",
     },
   });
 }

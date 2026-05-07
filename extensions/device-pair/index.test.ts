@@ -2,12 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type {
-  OpenClawPluginCommandDefinition,
+  AlienPluginCommandDefinition,
   PluginCommandContext,
-} from "openclaw/plugin-sdk/core";
-import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+} from "alien/plugin-sdk/core";
+import { createTestPluginApi } from "alien/plugin-sdk/plugin-test-api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawPluginApi } from "./api.js";
+import type { AlienPluginApi } from "./api.js";
 
 const pluginApiMocks = vi.hoisted(() => ({
   clearDeviceBootstrapTokens: vi.fn(async () => ({ removed: 2 })),
@@ -18,7 +18,7 @@ const pluginApiMocks = vi.hoisted(() => ({
   revokeDeviceBootstrapToken: vi.fn(async () => ({ removed: true })),
   renderQrPngDataUrl: vi.fn(async () => "data:image/png;base64,ZmFrZXBuZw=="),
   resolveGatewayPort: vi.fn(() => 18789),
-  resolvePreferredOpenClawTmpDir: vi.fn(() => path.join(os.tmpdir(), "openclaw-device-pair-tests")),
+  resolvePreferredAlienTmpDir: vi.fn(() => path.join(os.tmpdir(), "alien-device-pair-tests")),
   writeQrPngTempFile: vi.fn(async (_data: string, opts: { tmpRoot: string }) => {
     const dirPath = await fs.mkdtemp(path.join(opts.tmpRoot, "device-pair-qr-"));
     const filePath = path.join(dirPath, "pair-qr.png");
@@ -40,7 +40,7 @@ vi.mock("./api.js", () => {
     listDevicePairing: vi.fn(async () => ({ pending: [] })),
     renderQrPngDataUrl: pluginApiMocks.renderQrPngDataUrl,
     revokeDeviceBootstrapToken: pluginApiMocks.revokeDeviceBootstrapToken,
-    resolvePreferredOpenClawTmpDir: pluginApiMocks.resolvePreferredOpenClawTmpDir,
+    resolvePreferredAlienTmpDir: pluginApiMocks.resolvePreferredAlienTmpDir,
     resolveGatewayBindUrl: vi.fn(),
     resolveGatewayPort: pluginApiMocks.resolveGatewayPort,
     resolveTailnetHostWithRunner: vi.fn(),
@@ -74,11 +74,11 @@ type ApprovedPairingDevice = ApprovedPairingResult["device"];
 const INTERNAL_PAIRING_SCOPES = ["operator.write", "operator.pairing"];
 
 function createApi(params?: {
-  config?: OpenClawPluginApi["config"];
-  runtime?: OpenClawPluginApi["runtime"];
+  config?: AlienPluginApi["config"];
+  runtime?: AlienPluginApi["runtime"];
   pluginConfig?: Record<string, unknown>;
-  registerCommand?: (command: OpenClawPluginCommandDefinition) => void;
-}): OpenClawPluginApi {
+  registerCommand?: (command: AlienPluginCommandDefinition) => void;
+}): AlienPluginApi {
   return createTestPluginApi({
     id: "device-pair",
     name: "device-pair",
@@ -95,17 +95,17 @@ function createApi(params?: {
       publicUrl: "wss://gateway.example.test",
       ...params?.pluginConfig,
     },
-    runtime: (params?.runtime ?? {}) as OpenClawPluginApi["runtime"],
+    runtime: (params?.runtime ?? {}) as AlienPluginApi["runtime"],
     registerCommand: params?.registerCommand,
   });
 }
 
 function registerPairCommand(params?: {
-  config?: OpenClawPluginApi["config"];
-  runtime?: OpenClawPluginApi["runtime"];
+  config?: AlienPluginApi["config"];
+  runtime?: AlienPluginApi["runtime"];
   pluginConfig?: Record<string, unknown>;
-}): OpenClawPluginCommandDefinition {
-  let command: OpenClawPluginCommandDefinition | undefined;
+}): AlienPluginCommandDefinition {
+  let command: AlienPluginCommandDefinition | undefined;
   registerDevicePair.register(
     createApi({
       ...params,
@@ -131,7 +131,7 @@ function createChannelRuntime(
   runtimeKey: string,
   sendKey: string,
   sendMessage: (...args: unknown[]) => Promise<unknown>,
-): OpenClawPluginApi["runtime"] {
+): AlienPluginApi["runtime"] {
   return {
     channel: {
       outbound: {
@@ -146,7 +146,7 @@ function createChannelRuntime(
             : undefined,
       },
     },
-  } as unknown as OpenClawPluginApi["runtime"];
+  } as unknown as AlienPluginApi["runtime"];
 }
 
 function createCommandContext(params?: Partial<PluginCommandContext>): PluginCommandContext {
@@ -249,11 +249,11 @@ describe("device-pair /pair qr", () => {
       token: "boot-token",
       expiresAtMs: Date.now() + 10 * 60_000,
     });
-    await fs.mkdir(pluginApiMocks.resolvePreferredOpenClawTmpDir(), { recursive: true });
+    await fs.mkdir(pluginApiMocks.resolvePreferredAlienTmpDir(), { recursive: true });
   });
 
   afterEach(async () => {
-    await fs.rm(pluginApiMocks.resolvePreferredOpenClawTmpDir(), { recursive: true, force: true });
+    await fs.rm(pluginApiMocks.resolvePreferredAlienTmpDir(), { recursive: true, force: true });
   });
 
   it("returns an inline QR image for webchat surfaces", async () => {
@@ -275,13 +275,13 @@ describe("device-pair /pair qr", () => {
         scopes: [],
       },
     });
-    expect(text).toContain("Scan this QR code with the OpenClaw iOS app:");
+    expect(text).toContain("Scan this QR code with the Alien iOS app:");
     expect(payload.mediaUrl).toBe("data:image/png;base64,ZmFrZXBuZw==");
     expect(payload.sensitiveMedia).toBe(true);
     expect(text).toContain("- Security: single-use bootstrap token");
     expect(text).toContain("**Important:** Run `/pair cleanup` after pairing finishes.");
     expect(text).toContain("If this QR code leaks, run `/pair cleanup` immediately.");
-    expect(text).not.toContain("![OpenClaw pairing QR]");
+    expect(text).not.toContain("![Alien pairing QR]");
   });
 
   it("rejects qr setup for internal gateway callers without operator.pairing", async () => {
@@ -470,7 +470,7 @@ describe("device-pair /pair qr", () => {
       } & Record<string, unknown>,
     ];
     expect(target).toBe(testCase.expectedTarget);
-    expect(caption).toContain("Scan this QR code with the OpenClaw iOS app:");
+    expect(caption).toContain("Scan this QR code with the Alien iOS app:");
     expect(caption).toContain("IMPORTANT: After pairing finishes, run /pair cleanup.");
     expect(caption).toContain("If this QR code leaks, run /pair cleanup immediately.");
     expect(opts.mediaUrl).toMatch(/pair-qr\.png$/);
@@ -764,7 +764,7 @@ describe("device-pair /pair default setup code", () => {
   it("allows mdns cleartext setup urls", async () => {
     const command = registerPairCommand({
       pluginConfig: {
-        publicUrl: "ws://openclaw.local:18789",
+        publicUrl: "ws://alien.local:18789",
       },
     });
     const result = await command.handler(
@@ -777,7 +777,7 @@ describe("device-pair /pair default setup code", () => {
     );
 
     expect(pluginApiMocks.issueDeviceBootstrapToken).toHaveBeenCalledTimes(1);
-    expect(requireText(result)).toContain("Gateway: ws://openclaw.local:18789");
+    expect(requireText(result)).toContain("Gateway: ws://alien.local:18789");
   });
 
   it("rejects public cleartext setup urls before issuing setup codes", async () => {

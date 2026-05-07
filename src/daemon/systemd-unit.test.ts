@@ -4,18 +4,18 @@ import { buildSystemdUnit } from "./systemd-unit.js";
 describe("buildSystemdUnit", () => {
   it("quotes arguments with whitespace", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/openclaw", "gateway", "--name", "My Bot"],
+      description: "Alien Gateway",
+      programArguments: ["/usr/bin/alien", "gateway", "--name", "My Bot"],
       environment: {},
     });
     const execStart = unit.split("\n").find((line) => line.startsWith("ExecStart="));
-    expect(execStart).toBe('ExecStart=/usr/bin/openclaw gateway --name "My Bot"');
+    expect(execStart).toBe('ExecStart=/usr/bin/alien gateway --name "My Bot"');
   });
 
   it("renders control-group kill mode for child-process cleanup", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/openclaw", "gateway", "run"],
+      description: "Alien Gateway",
+      programArguments: ["/usr/bin/alien", "gateway", "run"],
       environment: {},
     });
     expect(unit).toContain("KillMode=control-group");
@@ -30,8 +30,8 @@ describe("buildSystemdUnit", () => {
   it("rejects environment values with line breaks", () => {
     expect(() =>
       buildSystemdUnit({
-        description: "OpenClaw Gateway",
-        programArguments: ["/usr/bin/openclaw", "gateway", "start"],
+        description: "Alien Gateway",
+        programArguments: ["/usr/bin/alien", "gateway", "start"],
         environment: {
           INJECT: "ok\nExecStartPre=/bin/touch /tmp/oc15789_rce",
         },
@@ -41,17 +41,17 @@ describe("buildSystemdUnit", () => {
 
   it("renders EnvironmentFile entries before inline Environment values", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/openclaw", "gateway", "run"],
-      environmentFiles: ["/home/test/.openclaw/.env"],
+      description: "Alien Gateway",
+      programArguments: ["/usr/bin/alien", "gateway", "run"],
+      environmentFiles: ["/home/test/.alien/.env"],
       environment: {
-        OPENCLAW_GATEWAY_PORT: "18789",
+        ALIEN_GATEWAY_PORT: "18789",
       },
     });
-    expect(unit).toContain("EnvironmentFile=-/home/test/.openclaw/.env");
-    expect(unit).toContain("Environment=OPENCLAW_GATEWAY_PORT=18789");
-    expect(unit.indexOf("EnvironmentFile=-/home/test/.openclaw/.env")).toBeLessThan(
-      unit.indexOf("Environment=OPENCLAW_GATEWAY_PORT=18789"),
+    expect(unit).toContain("EnvironmentFile=-/home/test/.alien/.env");
+    expect(unit).toContain("Environment=ALIEN_GATEWAY_PORT=18789");
+    expect(unit.indexOf("EnvironmentFile=-/home/test/.alien/.env")).toBeLessThan(
+      unit.indexOf("Environment=ALIEN_GATEWAY_PORT=18789"),
     );
   });
 });
