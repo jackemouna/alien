@@ -218,10 +218,7 @@ export function resolveSandboxSshConfig(params: {
   };
 }
 
-export function resolveSandboxConfigForAgent(
-  cfg?: AlienConfig,
-  agentId?: string,
-): SandboxConfig {
+export function resolveSandboxConfigForAgent(cfg?: AlienConfig, agentId?: string): SandboxConfig {
   const agent = cfg?.agents?.defaults?.sandbox;
 
   // Agent-specific sandbox config overrides global
@@ -243,7 +240,14 @@ export function resolveSandboxConfigForAgent(
   const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, agentId);
 
   return {
-    mode: agentSandbox?.mode ?? agent?.mode ?? "off",
+    // Audit H1: when no explicit sandbox.mode is configured, default to
+    // "docker" if ALIEN_HARDENED_DEFAULTS=1 is set in the env. Operators who
+    // explicitly choose "off" in their config still get "off" — we only
+    // change the default for unset values.
+    mode:
+      agentSandbox?.mode ??
+      agent?.mode ??
+      (process.env.ALIEN_HARDENED_DEFAULTS === "1" ? "docker" : "off"),
     backend: agentSandbox?.backend?.trim() || agent?.backend?.trim() || "docker",
     scope,
     workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "none",

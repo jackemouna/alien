@@ -28,6 +28,7 @@ import { setConsoleSubsystemFilter, setConsoleTimestampPrefix } from "../../logg
 import { withDiagnosticPhase } from "../../logging/diagnostic-phase.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { defaultRuntime } from "../../runtime.js";
+import { resolveSandboxStartupWarning } from "../../security/sandbox-startup-warning.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -668,6 +669,17 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     warnInlinePasswordFlag();
   }
   const tokenRaw = toOptionString(opts.token);
+
+  // Audit H1: warn the operator when the main session has no sandbox.
+  const sandboxStartupWarning = resolveSandboxStartupWarning({
+    cfg: snapshot?.valid ? snapshot.config : cfg,
+    env: process.env,
+  });
+  if (sandboxStartupWarning) {
+    for (const line of sandboxStartupWarning.split("\n")) {
+      gatewayLog.warn(line);
+    }
+  }
 
   gatewayLog.info("resolving authentication…");
   const configExists = snapshot?.exists ?? fs.existsSync(CONFIG_PATH);
