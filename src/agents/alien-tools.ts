@@ -9,8 +9,8 @@ import {
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentWorkspaceDir, resolveSessionAgentIds } from "./agent-scope.js";
-import type { AuthProfileStore } from "./auth-profiles/types.js";
 import { resolveAlienPluginToolsForOptions } from "./alien-plugin-tools.js";
+import { applyCronWriteGuard } from "./alien-tools.cron-guard.js";
 import {
   isToolExplicitlyAllowedByFactoryPolicy,
   mergeFactoryPolicyList,
@@ -22,6 +22,7 @@ import {
   collectPresentAlienTools,
   isUpdatePlanToolEnabledForAlienTools,
 } from "./alien-tools.registration.js";
+import type { AuthProfileStore } from "./auth-profiles/types.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { SpawnedToolContext } from "./spawned-context.js";
 import type { ToolFsPolicy } from "./tool-fs-policy.js";
@@ -326,18 +327,20 @@ export function createAlienTools(
       : [
           createCanvasTool({ config: options?.config }),
           nodesTool,
-          createCronTool({
-            agentSessionKey: options?.agentSessionKey,
-            currentDeliveryContext: {
-              channel: options?.agentChannel,
-              to: options?.currentChannelId ?? options?.agentTo,
-              accountId: options?.agentAccountId,
-              threadId: options?.currentThreadTs ?? options?.agentThreadId,
-            },
-            ...(options?.cronSelfRemoveOnlyJobId
-              ? { selfRemoveOnlyJobId: options.cronSelfRemoveOnlyJobId }
-              : {}),
-          }),
+          applyCronWriteGuard(
+            createCronTool({
+              agentSessionKey: options?.agentSessionKey,
+              currentDeliveryContext: {
+                channel: options?.agentChannel,
+                to: options?.currentChannelId ?? options?.agentTo,
+                accountId: options?.agentAccountId,
+                threadId: options?.currentThreadTs ?? options?.agentThreadId,
+              },
+              ...(options?.cronSelfRemoveOnlyJobId
+                ? { selfRemoveOnlyJobId: options.cronSelfRemoveOnlyJobId }
+                : {}),
+            }),
+          ),
         ]),
     ...(!embedded && messageTool ? [messageTool] : []),
     ...collectPresentAlienTools([heartbeatTool]),
