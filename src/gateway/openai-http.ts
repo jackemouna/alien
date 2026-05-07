@@ -437,7 +437,12 @@ function buildAgentPrompt(
     });
   }
 
-  const message = buildAgentMessageFromConversationEntries(conversationEntries);
+  // Audit H4: HTTP-API callers send arbitrary content into the prompt; treat
+  // each entry body as untrusted so the model sees a structural fence around
+  // it (cannot be confused with operator instructions).
+  const message = buildAgentMessageFromConversationEntries(conversationEntries, {
+    untrusted: true,
+  });
 
   return {
     message,

@@ -61,7 +61,12 @@ export function buildAgentPrompt(input: string | ItemParam[]): {
     // Skip reasoning and item_reference for prompt building (Phase 1)
   }
 
-  const message = buildAgentMessageFromConversationEntries(conversationEntries);
+  // Audit H4: HTTP-API callers send arbitrary content into the prompt; treat
+  // each entry body as untrusted so the model sees a structural fence around
+  // it (cannot be confused with operator instructions).
+  const message = buildAgentMessageFromConversationEntries(conversationEntries, {
+    untrusted: true,
+  });
 
   return {
     message,

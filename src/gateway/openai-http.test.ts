@@ -119,13 +119,19 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       message: string,
       expected: { history: string[]; current: string[] },
     ) => {
-      expect(message).toContain(HISTORY_CONTEXT_MARKER);
+      // Audit H4: HTTP-API messages wrap each body in <msg_body id="…">…</msg_body>.
+      // Strip those fences before substring matching so the assertions stay
+      // about the message content, not the fence syntax.
+      const stripped = message
+        .replace(/<msg_body id="[0-9a-f]{8}">/g, "")
+        .replace(/<\/msg_body>/g, "");
+      expect(stripped).toContain(HISTORY_CONTEXT_MARKER);
       for (const line of expected.history) {
-        expect(message).toContain(line);
+        expect(stripped).toContain(line);
       }
-      expect(message).toContain(CURRENT_MESSAGE_MARKER);
+      expect(stripped).toContain(CURRENT_MESSAGE_MARKER);
       for (const line of expected.current) {
-        expect(message).toContain(line);
+        expect(stripped).toContain(line);
       }
     };
     const getFirstAgentCall = () =>
@@ -317,9 +323,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         expect(res.status).toBe(400);
         const json = (await res.json()) as { error?: { type?: string; message?: string } };
         expect(json.error?.type).toBe("invalid_request_error");
-        expect(json.error?.message).toBe(
-          "Invalid `model`. Use `alien` or `alien/<agentId>`.",
-        );
+        expect(json.error?.message).toBe("Invalid `model`. Use `alien` or `alien/<agentId>`.");
         expect(agentCommand).toHaveBeenCalledTimes(0);
       }
 
@@ -357,7 +361,10 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         expect(res.status).toBe(200);
 
         const opts = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-        expect((opts as { message?: string } | undefined)?.message).toBe("hello\nworld");
+        // Audit H4: HTTP-API messages are wrapped in <msg_body id="…"> fences.
+        expect((opts as { message?: string } | undefined)?.message).toMatch(
+          /^<msg_body id="[0-9a-f]{8}">hello\nworld<\/msg_body>$/,
+        );
         await res.text();
       }
 
@@ -382,7 +389,9 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         expect(res.status).toBe(200);
 
         const firstCall = getFirstAgentCall();
-        expect(firstCall?.message).toBe("describe this");
+        expect(firstCall?.message).toMatch(
+          /^<msg_body id="[0-9a-f]{8}">describe this<\/msg_body>$/,
+        );
         expect(firstCall?.images).toEqual([
           { type: "image", data: imageData, mimeType: "image/png" },
         ]);
@@ -579,7 +588,8 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const message = getFirstAgentMessage();
         expect(message).not.toContain(HISTORY_CONTEXT_MARKER);
         expect(message).not.toContain(CURRENT_MESSAGE_MARKER);
-        expect(message).toBe("Hello");
+        // Audit H4: HTTP-API single-message body is wrapped in a fence.
+        expect(message).toMatch(/^<msg_body id="[0-9a-f]{8}">Hello<\/msg_body>$/);
         await res.text();
       }
 
