@@ -1,4 +1,6 @@
+import path from "node:path";
 import { selectApplicableRuntimeConfig } from "../config/config.js";
+import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
 import { callGateway } from "../gateway/call.js";
 import { isEmbeddedMode } from "../infra/embedded-mode.js";
@@ -340,6 +342,12 @@ export function createAlienTools(
                 ? { selfRemoveOnlyJobId: options.cronSelfRemoveOnlyJobId }
                 : {}),
             }),
+            // Audit M4: write cron write-action events to a tamper-evident
+            // JSONL log at <state-dir>/audit.log unless the operator has
+            // explicitly disabled it.
+            process.env.ALIEN_DISABLE_AUDIT_LOG === "1"
+              ? {}
+              : { auditLogPath: path.join(resolveStateDir(process.env), "audit.log") },
           ),
         ]),
     ...(!embedded && messageTool ? [messageTool] : []),

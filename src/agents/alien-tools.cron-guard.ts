@@ -1,5 +1,6 @@
 import type { AgentToolResult, AgentToolUpdateCallback } from "@mariozechner/pi-agent-core";
 import { logWarn } from "../logger.js";
+import { appendAuditLog } from "../security/audit-log.js";
 import { getToolParamsRecord } from "./pi-tools.params.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -29,6 +30,12 @@ export function applyCronWriteGuard(
     envSource?: () => NodeJS.ProcessEnv;
     /** Override hook for the warn-logger (defaults to logger.logWarn). */
     log?: (message: string, meta?: Record<string, unknown>) => void;
+    /**
+     * Audit M4: when set, every write-class cron action is recorded in a
+     * tamper-evident JSONL log at this path in addition to the warn log.
+     * Unset = no audit-log write.
+     */
+    auditLogPath?: string;
   } = {},
 ): AnyAgentTool {
   const envSource = options.envSource ?? (() => process.env);
@@ -47,13 +54,26 @@ export function applyCronWriteGuard(
         return base.execute(toolCallId, params, signal, onUpdate);
       }
 
-      log("cron write action invoked", {
-        action,
-        toolCallId,
-        denied: envSource().ALIEN_DENY_CRON_WRITES === "1",
-      });
+      const denied = envSource().ALIEN_DENY_CRON_WRITES === "1";
+      log("cron write action invoked", { action, toolCallId, denied });
 
-      if (envSource().ALIEN_DENY_CRON_WRITES === "1") {
+      if (options.auditLogPath) {
+        try {
+          appendAuditLog(
+            {
+              kind: denied ? "cron.refused" : `cron.${action}`,
+              payload: { action, toolCallId, denied },
+            },
+            { logPath: options.auditLogPath },
+          );
+        } catch (err) {
+          // Audit log failure must not break the tool call. Surface via warn
+          // log so operators notice the integrity gap.
+          log("audit-log append failed", { error: String(err) });
+        }
+      }
+
+      if (denied) {
         return buildCronRefusalResult(action);
       }
       return base.execute(toolCallId, params, signal, onUpdate);
