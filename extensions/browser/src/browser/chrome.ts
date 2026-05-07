@@ -54,10 +54,7 @@ import {
   type ResolvedBrowserConfig,
   type ResolvedBrowserProfile,
 } from "./config.js";
-import {
-  DEFAULT_ALIEN_BROWSER_COLOR,
-  DEFAULT_ALIEN_BROWSER_PROFILE_NAME,
-} from "./constants.js";
+import { DEFAULT_ALIEN_BROWSER_COLOR, DEFAULT_ALIEN_BROWSER_PROFILE_NAME } from "./constants.js";
 import { BrowserProfileUnavailableError } from "./errors.js";
 import { DEFAULT_DOWNLOAD_DIR } from "./paths.js";
 
@@ -271,6 +268,15 @@ export function buildAlienChromeLaunchArgs(params: {
   }
   if (!hasChromeProxyControlArg(resolved.extraArgs)) {
     args.push("--no-proxy-server");
+  }
+  // Audit M7: opt-in JavaScript disable. When ALIEN_BROWSER_DISABLE_JS=1 is
+  // set, Chromium starts with JS execution turned off. Visited pages can
+  // still be scraped (DOM is parsed) but cannot run scripts that exfiltrate
+  // local resources or attempt local-network probes through fetch/WebSocket.
+  // Operators who need JS for specific tasks can unset the env var per-run.
+  const env = params.env ?? process.env;
+  if (env.ALIEN_BROWSER_DISABLE_JS === "1") {
+    args.push("--disable-javascript");
   }
   if (resolved.extraArgs.length > 0) {
     args.push(...resolved.extraArgs);
@@ -586,10 +592,7 @@ export async function launchAlienChrome(
   return await launchOnceAndWait(true);
 }
 
-export async function stopAlienChrome(
-  running: RunningChrome,
-  timeoutMs = CHROME_STOP_TIMEOUT_MS,
-) {
+export async function stopAlienChrome(running: RunningChrome, timeoutMs = CHROME_STOP_TIMEOUT_MS) {
   const proc = running.proc;
   if (proc.killed) {
     return;

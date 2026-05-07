@@ -28,10 +28,7 @@ import {
   resolveBrowserExecutableForPlatform,
   stopAlienChrome,
 } from "./chrome.js";
-import {
-  DEFAULT_ALIEN_BROWSER_COLOR,
-  DEFAULT_ALIEN_BROWSER_PROFILE_NAME,
-} from "./constants.js";
+import { DEFAULT_ALIEN_BROWSER_COLOR, DEFAULT_ALIEN_BROWSER_PROFILE_NAME } from "./constants.js";
 import { BrowserCdpEndpointBlockedError } from "./errors.js";
 import { DEFAULT_DOWNLOAD_DIR } from "./paths.js";
 
@@ -167,10 +164,7 @@ describe("browser chrome profile decoration", () => {
     expect(prefs.download).toBeUndefined();
     expect(prefs.savefile).toBeUndefined();
 
-    const marker = await fsp.readFile(
-      path.join(userDataDir, ".alien-profile-decorated"),
-      "utf-8",
-    );
+    const marker = await fsp.readFile(path.join(userDataDir, ".alien-profile-decorated"), "utf-8");
     expect(marker.trim()).toMatch(/^\d+$/);
   });
 
@@ -920,5 +914,71 @@ describe("browser chrome launch args", () => {
     expect(args).not.toContain("about:blank");
     expect(args).toContain("--remote-debugging-port=18800");
     expect(args).toContain("--user-data-dir=/tmp/alien-test-user-data");
+  });
+
+  describe("audit M7: --disable-javascript via ALIEN_BROWSER_DISABLE_JS", () => {
+    function baseArgs(env: NodeJS.ProcessEnv): string[] {
+      return buildAlienChromeLaunchArgs({
+        resolved: {
+          enabled: true,
+          controlPort: 18791,
+          cdpProtocol: "http",
+          cdpHost: "127.0.0.1",
+          cdpIsLoopback: true,
+          cdpPortRangeStart: 18800,
+          cdpPortRangeEnd: 18810,
+          evaluateEnabled: false,
+          remoteCdpTimeoutMs: 1500,
+          remoteCdpHandshakeTimeoutMs: 3000,
+          localLaunchTimeoutMs: 15_000,
+          localCdpReadyTimeoutMs: 8_000,
+          actionTimeoutMs: 60_000,
+          extraArgs: [],
+          color: "#FF4500",
+          headless: false,
+          noSandbox: false,
+          attachOnly: false,
+          ssrfPolicy: { allowPrivateNetwork: true },
+          tabCleanup: {
+            enabled: true,
+            idleMinutes: 120,
+            maxTabsPerSession: 8,
+            sweepMinutes: 5,
+          },
+          defaultProfile: "alien",
+          profiles: { alien: { cdpPort: 18800, color: "#FF4500" } },
+        },
+        profile: {
+          name: "alien",
+          cdpUrl: "http://127.0.0.1:18800",
+          cdpPort: 18800,
+          cdpHost: "127.0.0.1",
+          cdpIsLoopback: true,
+          color: "#FF4500",
+          driver: "alien",
+          headless: false,
+          attachOnly: false,
+        },
+        userDataDir: "/tmp/alien-test-user-data",
+        env,
+      });
+    }
+
+    it("does not pass --disable-javascript when env var is unset", () => {
+      const args = baseArgs({});
+      expect(args).not.toContain("--disable-javascript");
+    });
+
+    it("adds --disable-javascript when ALIEN_BROWSER_DISABLE_JS=1", () => {
+      const args = baseArgs({ ALIEN_BROWSER_DISABLE_JS: "1" });
+      expect(args).toContain("--disable-javascript");
+    });
+
+    it("does not add --disable-javascript for values other than '1'", () => {
+      for (const value of ["true", "yes", "0", ""]) {
+        const args = baseArgs({ ALIEN_BROWSER_DISABLE_JS: value });
+        expect(args).not.toContain("--disable-javascript");
+      }
+    });
   });
 });
