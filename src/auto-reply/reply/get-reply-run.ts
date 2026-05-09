@@ -25,6 +25,7 @@ import {
   isSubagentSessionKey,
   normalizeMainKey,
 } from "../../routing/session-key.js";
+import { enterChannelOrigin } from "../../security/origin-context.js";
 import { createLazyImportLoader } from "../../shared/lazy-promise.js";
 import type { SilentReplyConversationType } from "../../shared/silent-reply-policy.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -403,6 +404,15 @@ export async function runPreparedReply(
     workspaceDir,
     sessionStore,
   } = params;
+  // Audit M3: tag the entire reply-run async context with the originating
+  // channel so audit-log writes inside tool calls record where the request
+  // came from. enterWith() sets the AsyncLocalStorage value for the current
+  // async chain without forcing the existing function body to be wrapped in
+  // a callback.
+  enterChannelOrigin(provider || "unknown", {
+    ...(typeof sessionKey === "string" && sessionKey ? { sessionKey } : {}),
+    ...(typeof agentId === "string" && agentId ? { agentId } : {}),
+  });
   const runtimePolicySessionKey = resolveRuntimePolicySessionKey({
     cfg,
     ctx,

@@ -81,3 +81,26 @@ export function runAsChannel<T>(kind: string, details: Record<string, string>, f
 export function runAsHttp<T>(endpoint: string, details: Record<string, string>, fn: () => T): T {
   return runWithOrigin({ source: `http:${endpoint}`, untrusted: true, details }, fn);
 }
+
+/**
+ * Set the origin for the **current** async context without wrapping a callback.
+ *
+ * `runWithOrigin` is the preferred entry — it scopes the origin to the lambda
+ * and restores the prior value automatically. This helper is for the rare case
+ * where wrapping an existing function body in a callback is not practical
+ * (e.g. very long pre-existing handlers where adding a callback would force a
+ * giant indent change). The origin stays set for the rest of the current
+ * async chain; callers that need to restore the previous origin must do so
+ * manually.
+ */
+export function enterOrigin(origin: OriginContext): void {
+  storage.enterWith(origin);
+}
+
+/**
+ * Channel-flavored convenience for `enterOrigin`. Use at the top of a long
+ * inbound-channel handler to tag every awaited descendant.
+ */
+export function enterChannelOrigin(kind: string, details: Record<string, string>): void {
+  enterOrigin({ source: `channel:${kind}`, untrusted: true, details });
+}

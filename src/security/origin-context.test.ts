@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   currentOrigin,
+  enterChannelOrigin,
+  enterOrigin,
   runAsChannel,
   runAsHttp,
   runAsOperator,
@@ -93,6 +95,30 @@ describe("runAsHttp", () => {
       expect(o.source).toBe("http:openai-completions");
       expect(o.untrusted).toBe(true);
       expect(o.details?.remote).toBe("127.0.0.1");
+    });
+  });
+});
+
+describe("enterOrigin / enterChannelOrigin", () => {
+  it("sets the origin for the current async context (within a runWithOrigin scope)", async () => {
+    await runWithOrigin({ source: "scoped", untrusted: false }, async () => {
+      enterOrigin({ source: "entered", untrusted: true });
+      // Must be visible immediately after enterOrigin.
+      expect(currentOrigin().source).toBe("entered");
+      // And must propagate into awaited descendants.
+      await new Promise((r) => setTimeout(r, 1));
+      expect(currentOrigin().source).toBe("entered");
+    });
+    // Outside the runWithOrigin scope, the original sentinel is back.
+    expect(currentOrigin().source).toBe("unknown");
+  });
+
+  it("enterChannelOrigin sets a channel:<kind> origin", async () => {
+    await runWithOrigin({ source: "scoped", untrusted: false }, async () => {
+      enterChannelOrigin("telegram", { senderId: "12345" });
+      expect(currentOrigin().source).toBe("channel:telegram");
+      expect(currentOrigin().untrusted).toBe(true);
+      expect(currentOrigin().details?.senderId).toBe("12345");
     });
   });
 });
