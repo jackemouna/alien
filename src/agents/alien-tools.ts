@@ -24,6 +24,7 @@ import {
   collectPresentAlienTools,
   isUpdatePlanToolEnabledForAlienTools,
 } from "./alien-tools.registration.js";
+import { applySessionsSendAuditLog } from "./alien-tools.sessions-send-audit.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { SpawnedToolContext } from "./spawned-context.js";
@@ -387,13 +388,20 @@ export function createAlienTools(
     ...(embedded
       ? []
       : [
-          createSessionsSendTool({
-            agentSessionKey: options?.agentSessionKey,
-            agentChannel: options?.agentChannel,
-            sandboxed: options?.sandboxed,
-            config: resolvedConfig,
-            callGateway: openClawToolsDeps.callGateway,
-          }),
+          applySessionsSendAuditLog(
+            createSessionsSendTool({
+              agentSessionKey: options?.agentSessionKey,
+              agentChannel: options?.agentChannel,
+              sandboxed: options?.sandboxed,
+              config: resolvedConfig,
+              callGateway: openClawToolsDeps.callGateway,
+            }),
+            // Audit M4: log every sessions_send invocation to <state-dir>/audit.log
+            // unless the operator has explicitly disabled the audit log.
+            process.env.ALIEN_DISABLE_AUDIT_LOG === "1"
+              ? {}
+              : { auditLogPath: path.join(resolveStateDir(process.env), "audit.log") },
+          ),
           createSessionsSpawnTool({
             agentSessionKey: options?.agentSessionKey,
             agentChannel: options?.agentChannel,
