@@ -1,5 +1,7 @@
+import path from "node:path";
 import { createCodingTools, createReadTool } from "@mariozechner/pi-coding-agent";
 import { HEARTBEAT_RESPONSE_TOOL_NAME } from "../auto-reply/heartbeat-tool-response.js";
+import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
 import type { ModelCompatConfig } from "../config/types.models.js";
 import type { DiagnosticTraceContext } from "../infra/diagnostic-trace-context.js";
@@ -546,6 +548,10 @@ export function createAlienCodingTools(options?: {
           const guarded = applySelfEditGuard(base, {
             root: workspaceRoot,
             installRoot: resolveAlienInstallRoot(process.argv),
+            // Audit M4: tag self-edit attempts in audit.log unless disabled.
+            ...(process.env.ALIEN_DISABLE_AUDIT_LOG === "1"
+              ? {}
+              : { auditLogPath: path.join(resolveStateDir(process.env), "audit.log") }),
           });
           return [workspaceOnly ? wrapToolWorkspaceRootGuard(guarded, workspaceRoot) : guarded];
         }
@@ -557,6 +563,10 @@ export function createAlienCodingTools(options?: {
           const guarded = applySelfEditGuard(base, {
             root: workspaceRoot,
             installRoot: resolveAlienInstallRoot(process.argv),
+            // Audit M4: tag self-edit attempts in audit.log unless disabled.
+            ...(process.env.ALIEN_DISABLE_AUDIT_LOG === "1"
+              ? {}
+              : { auditLogPath: path.join(resolveStateDir(process.env), "audit.log") }),
           });
           return [workspaceOnly ? wrapToolWorkspaceRootGuard(guarded, workspaceRoot) : guarded];
         }
