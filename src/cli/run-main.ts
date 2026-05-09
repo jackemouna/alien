@@ -10,6 +10,7 @@ import type { ProxyHandle } from "../infra/net/proxy/proxy-lifecycle.js";
 import { ensureAlienCliOnPath } from "../infra/path-env.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
 import type { PluginManifestCommandAliasRegistry } from "../plugins/manifest-command-aliases.js";
+import { enterOperatorOrigin } from "../security/origin-context.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveCliArgvInvocation } from "./argv-invocation.js";
 import {
@@ -60,8 +61,7 @@ const CLI_PROXY_ENV_KEYS = [
 
 function createGatewayCliMainStartupTrace(argv: string[]) {
   const enabled =
-    isTruthyEnvValue(process.env.ALIEN_GATEWAY_STARTUP_TRACE) &&
-    argv.slice(2).includes("gateway");
+    isTruthyEnvValue(process.env.ALIEN_GATEWAY_STARTUP_TRACE) && argv.slice(2).includes("gateway");
   const started = performance.now();
   let last = started;
   const emit = (name: string, durationMs: number, totalMs: number) => {
@@ -346,6 +346,12 @@ async function bootstrapCliProxyCaptureAndDispatcher(
 
 export async function runCli(argv: string[] = process.argv) {
   const originalArgv = normalizeWindowsArgv(argv);
+  // Audit M3: tag the operator-CLI async context. HTTP request handlers and
+  // channel reply paths override this for their own scopes via runAsHttp /
+  // enterChannelOrigin, so this only sticks for foreground operator commands
+  // (TUI agent runs, alien doctor, etc.). Without this tag, audit-log writes
+  // from operator-driven tool calls would record `origin: "unknown"`.
+  enterOperatorOrigin({ command: originalArgv[2] ?? "" });
   const startupTrace = createGatewayCliMainStartupTrace(originalArgv);
   const parsedContainer = parseCliContainerArgs(originalArgv);
   if (!parsedContainer.ok) {

@@ -104,3 +104,14 @@ export function enterOrigin(origin: OriginContext): void {
 export function enterChannelOrigin(kind: string, details: Record<string, string>): void {
   enterOrigin({ source: `channel:${kind}`, untrusted: true, details });
 }
+
+/**
+ * Operator-flavored convenience for `enterOrigin`. Set at the top of the
+ * main CLI entry so direct operator actions (TUI commands, foreground
+ * `alien …` invocations) are tagged. HTTP and channel paths still override
+ * the origin for their own scopes via `runAsHttp` / `runAsChannel` /
+ * `enterChannelOrigin` because those run in their own async-context scopes.
+ */
+export function enterOperatorOrigin(details?: Record<string, string>): void {
+  enterOrigin({ source: "operator", untrusted: false, ...(details ? { details } : {}) });
+}

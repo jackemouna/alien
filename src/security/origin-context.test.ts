@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   currentOrigin,
   enterChannelOrigin,
+  enterOperatorOrigin,
   enterOrigin,
   runAsChannel,
   runAsHttp,
@@ -119,6 +120,23 @@ describe("enterOrigin / enterChannelOrigin", () => {
       expect(currentOrigin().source).toBe("channel:telegram");
       expect(currentOrigin().untrusted).toBe(true);
       expect(currentOrigin().details?.senderId).toBe("12345");
+    });
+  });
+
+  it("enterOperatorOrigin sets origin=operator with untrusted=false", async () => {
+    await runWithOrigin({ source: "scoped", untrusted: true }, async () => {
+      enterOperatorOrigin({ command: "gateway run" });
+      expect(currentOrigin().source).toBe("operator");
+      expect(currentOrigin().untrusted).toBe(false);
+      expect(currentOrigin().details?.command).toBe("gateway run");
+    });
+  });
+
+  it("enterOperatorOrigin allows omitting details", async () => {
+    await runWithOrigin({ source: "scoped", untrusted: true }, async () => {
+      enterOperatorOrigin();
+      expect(currentOrigin().source).toBe("operator");
+      expect(currentOrigin().details).toBeUndefined();
     });
   });
 });
