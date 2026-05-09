@@ -1,6 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Command } from "commander";
 import { getRuntimeConfig } from "../config/config.js";
+import { resolveStateDir } from "../config/paths.js";
 import { defaultRuntime } from "../runtime.js";
+import { verifyAuditLog } from "../security/audit-log.js";
 import { runSecurityAudit } from "../security/audit.js";
 import { fixSecurityFootguns } from "../security/fix.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -52,6 +56,14 @@ export function registerSecurityCli(program: Command) {
           ],
           ["alien security audit --fix", "Apply safe remediations and file-permission fixes."],
           ["alien security audit --json", "Output machine-readable JSON."],
+          [
+            "alien security audit-log",
+            "Verify the tamper-evident audit log chain and show recent entries.",
+          ],
+          [
+            "alien security audit-log --tail 50 --json",
+            "Print the last 50 entries plus chain status as JSON.",
+          ],
         ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/security", "docs.alien.ai/cli/security")}\n`,
     );
 
@@ -195,4 +207,157 @@ export function registerSecurityCli(program: Command) {
 
       defaultRuntime.log(lines.join("\n"));
     });
+
+  // Audit M4: operator-facing inspector for the tamper-evident audit log
+  // (the JSONL file written by cron-guard / self-edit-guard / sessions_send /
+  // exec / H6 refusal). `--json` prints the parsed report; otherwise a
+  // formatted summary is shown.
+  security
+    .command("audit-log")
+    .description("Verify the tamper-evident audit log chain and summarize recent entries")
+    .option("--tail <n>", "Show the last N entries (default 20)", "20")
+    .option("--json", "Print machine-readable JSON", false)
+    .option("--path <path>", "Path to the audit log (defaults to <state-dir>/audit.log)")
+    .action(async (opts: { tail?: string; json?: boolean; path?: string }) => {
+      const logPath =
+        normalizeOptionalString(opts.path) ?? path.join(resolveStateDir(process.env), "audit.log");
+      const tail = clampTailLimit(opts.tail);
+      const verification = verifyAuditLog(logPath);
+      const entries = readAuditLogEntries(logPath, tail);
+      const kindCounts = countByField(entries, "kind");
+      const originCounts = countByField(entries, "origin");
+
+      if (opts.json) {
+        defaultRuntime.writeJson({
+          logPath,
+          verification,
+          entryCount: entries.length,
+          tail,
+          kindCounts,
+          originCounts,
+          recent: entries.slice(-tail),
+        });
+        return;
+      }
+
+      const rich = isRich();
+      const heading = (text: string) => (rich ? theme.heading(text) : text);
+      const muted = (text: string) => (rich ? theme.muted(text) : text);
+      const error = (text: string) => (rich ? theme.error(text) : text);
+      const ok = (text: string) => (rich ? theme.success(text) : text);
+
+      const lines: string[] = [];
+      lines.push(heading("Alien audit log"));
+      lines.push(muted(`Path: ${shortenHomePath(logPath)}`));
+      if (verification.ok) {
+        lines.push(`${ok("✓ chain intact")} (${verification.count} entries)`);
+      } else {
+        lines.push(
+          error(`✗ chain broken at index ${verification.breakIndex}: ${verification.reason}`),
+        );
+      }
+      if (entries.length === 0) {
+        lines.push(muted("(no entries)"));
+        defaultRuntime.log(lines.join("\n"));
+        return;
+      }
+
+      const formatCounts = (counts: Record<string, number>) =>
+        Object.entries(counts)
+          .toSorted((a, b) => b[1] - a[1])
+          .map(([k, n]) => `${k}=${n}`)
+          .join("  ");
+
+      lines.push("");
+      lines.push(heading("By kind"));
+      lines.push(`  ${formatCounts(kindCounts)}`);
+      lines.push("");
+      lines.push(heading("By origin"));
+      lines.push(`  ${formatCounts(originCounts)}`);
+      lines.push("");
+      lines.push(heading(`Last ${Math.min(tail, entries.length)} entries`));
+      for (const entry of entries.slice(-tail)) {
+        lines.push(`  ${formatAuditEntryLine(entry)}`);
+      }
+
+      defaultRuntime.log(lines.join("\n"));
+    });
+}
+
+function clampTailLimit(raw: string | undefined): number {
+  const parsed = Number.parseInt(raw ?? "20", 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 20;
+  }
+  return Math.min(parsed, 1000);
+}
+
+type AuditEntryRecord = {
+  ts?: string;
+  kind?: string;
+  payload?: Record<string, unknown>;
+};
+
+function readAuditLogEntries(logPath: string, _tail: number): AuditEntryRecord[] {
+  if (!fs.existsSync(logPath)) {
+    return [];
+  }
+  const raw = fs.readFileSync(logPath, "utf8");
+  const lines = raw.split("\n").filter((line) => line.length > 0);
+  const out: AuditEntryRecord[] = [];
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line) as AuditEntryRecord;
+      out.push(parsed);
+    } catch {
+      // skip unparseable lines — verifyAuditLog will already have flagged them
+    }
+  }
+  return out;
+}
+
+function countByField(
+  entries: AuditEntryRecord[],
+  field: "kind" | "origin",
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const entry of entries) {
+    let key: string;
+    if (field === "kind") {
+      key = entry.kind ?? "(unknown)";
+    } else {
+      const payload = entry.payload;
+      const origin =
+        payload && typeof payload === "object" && typeof payload.origin === "string"
+          ? payload.origin
+          : "(unknown)";
+      key = origin;
+    }
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function formatAuditEntryLine(entry: AuditEntryRecord): string {
+  const ts = entry.ts ?? "?";
+  const kind = entry.kind ?? "?";
+  const payload = entry.payload ?? {};
+  const origin =
+    typeof (payload as { origin?: unknown }).origin === "string"
+      ? (payload as { origin: string }).origin
+      : "?";
+  const summary: string[] = [];
+  for (const key of ["target", "command", "sessionKey", "label", "action", "messageBytes"]) {
+    const value = (payload as Record<string, unknown>)[key];
+    if (typeof value === "string" && value) {
+      summary.push(`${key}=${truncateForLog(value, 60)}`);
+    } else if (typeof value === "number") {
+      summary.push(`${key}=${value}`);
+    }
+  }
+  return `${ts}  ${kind.padEnd(24)}  origin=${origin.padEnd(20)}  ${summary.join("  ")}`;
+}
+
+function truncateForLog(value: string, max: number): string {
+  return value.length > max ? `${value.slice(0, max)}…` : value;
 }
