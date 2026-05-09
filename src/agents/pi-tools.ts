@@ -17,6 +17,7 @@ import {
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentConfig } from "./agent-scope.js";
 import { resolveAlienPluginToolsForOptions } from "./alien-plugin-tools.js";
+import { applyExecAuditLog } from "./alien-tools.exec-audit.js";
 import { createAlienTools } from "./alien-tools.js";
 import { applySelfEditGuard } from "./alien-tools.self-edit-guard.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -718,7 +719,17 @@ export function createAlienCodingTools(options?: {
         : []
       : []),
     ...(includeShellTools && applyPatchTool ? [applyPatchTool as unknown as AnyAgentTool] : []),
-    ...(execTool ? [execTool as unknown as AnyAgentTool] : []),
+    // Audit M4: log every exec invocation to <state-dir>/audit.log unless
+    // ALIEN_DISABLE_AUDIT_LOG=1 (or ALIEN_AUDIT_LOG_EXEC=0 for exec-only opt-out).
+    ...(execTool
+      ? [
+          applyExecAuditLog(execTool as unknown as AnyAgentTool, {
+            ...(process.env.ALIEN_DISABLE_AUDIT_LOG === "1"
+              ? {}
+              : { auditLogPath: path.join(resolveStateDir(process.env), "audit.log") }),
+          }),
+        ]
+      : []),
     ...(processTool ? [processTool as unknown as AnyAgentTool] : []),
     // Channel docking: include channel-defined agent tools (login, etc.).
     ...(includeChannelTools ? listChannelAgentTools({ cfg: options?.config }) : []),
