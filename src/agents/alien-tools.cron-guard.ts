@@ -1,6 +1,7 @@
 import type { AgentToolResult, AgentToolUpdateCallback } from "@mariozechner/pi-agent-core";
 import { logWarn } from "../logger.js";
 import { appendAuditLog } from "../security/audit-log.js";
+import { currentOrigin } from "../security/origin-context.js";
 import { getToolParamsRecord } from "./pi-tools.params.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -59,10 +60,22 @@ export function applyCronWriteGuard(
 
       if (options.auditLogPath) {
         try {
+          // Audit M3: tag the audit-log entry with the current origin so a
+          // post-incident reviewer can see whether the cron write came from
+          // an operator session, an HTTP-API call, or an inbound channel
+          // message.
+          const origin = currentOrigin();
           appendAuditLog(
             {
               kind: denied ? "cron.refused" : `cron.${action}`,
-              payload: { action, toolCallId, denied },
+              payload: {
+                action,
+                toolCallId,
+                denied,
+                origin: origin.source,
+                originUntrusted: origin.untrusted,
+                ...(origin.details ? { originDetails: origin.details } : {}),
+              },
             },
             { logPath: options.auditLogPath },
           );

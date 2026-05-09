@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { verifyAuditLog } from "../security/audit-log.js";
+import { runAsChannel, runAsOperator } from "../security/origin-context.js";
 import { applyCronWriteGuard } from "./alien-tools.cron-guard.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -120,6 +121,66 @@ describe("applyCronWriteGuard", () => {
       const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
       expect(raw).toMatch(/"kind":"cron\.refused"/);
       expect(raw).toMatch(/"denied":true/);
+    } finally {
+      fsSync.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("records currentOrigin in the audit-log payload (channel)", async () => {
+    const tmp = fsSync.mkdtempSync(path.join(os.tmpdir(), "alien-cron-audit-"));
+    try {
+      const auditLogPath = path.join(tmp, "audit.log");
+      const base = makeFakeCron();
+      const guarded = applyCronWriteGuard(base, {
+        envSource: () => ({}),
+        log: vi.fn(),
+        auditLogPath,
+      });
+      await runAsChannel("slack", { senderId: "U7" }, () =>
+        guarded.execute("call", { action: "add", jobId: "j1" }),
+      );
+      const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
+      expect(raw).toMatch(/"origin":"channel:slack"/);
+      expect(raw).toMatch(/"originUntrusted":true/);
+      expect(raw).toMatch(/"originDetails":\{"senderId":"U7"\}/);
+    } finally {
+      fsSync.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("records 'operator' origin when wrapped in runAsOperator", async () => {
+    const tmp = fsSync.mkdtempSync(path.join(os.tmpdir(), "alien-cron-audit-"));
+    try {
+      const auditLogPath = path.join(tmp, "audit.log");
+      const base = makeFakeCron();
+      const guarded = applyCronWriteGuard(base, {
+        envSource: () => ({}),
+        log: vi.fn(),
+        auditLogPath,
+      });
+      await runAsOperator(() => guarded.execute("call", { action: "remove", jobId: "j1" }));
+      const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
+      expect(raw).toMatch(/"origin":"operator"/);
+      expect(raw).toMatch(/"originUntrusted":false/);
+    } finally {
+      fsSync.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("records 'unknown' origin when no caller has set one", async () => {
+    const tmp = fsSync.mkdtempSync(path.join(os.tmpdir(), "alien-cron-audit-"));
+    try {
+      const auditLogPath = path.join(tmp, "audit.log");
+      const base = makeFakeCron();
+      const guarded = applyCronWriteGuard(base, {
+        envSource: () => ({}),
+        log: vi.fn(),
+        auditLogPath,
+      });
+      await guarded.execute("call", { action: "add", jobId: "j1" });
+      const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
+      expect(raw).toMatch(/"origin":"unknown"/);
+      expect(raw).toMatch(/"originUntrusted":false/);
     } finally {
       fsSync.rmSync(tmp, { recursive: true, force: true });
     }
