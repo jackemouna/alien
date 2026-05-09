@@ -126,6 +126,9 @@ The two HTTP-API callers (`openai-http`, `openresponses-prompt`) pass `untrusted
 | M3.1  | `5cd21f4a95` | runAsHttp wired into HTTP-API        | n/a                                          |
 | M4.1  | `e6807b0e98` | audit-log self-edit attempts         | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
 | M3.2  | `8bbb6a3617` | runPreparedReply tags channel origin | n/a                                          |
+| M3.3  | `1fb2c4b4e1` | runCli tags operator origin          | n/a                                          |
+| M4.2  | `2f58657f1f` | audit-log sessions_send              | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
+| M4.3  | `9e1c805d1b` | audit-log H6 --token rejection       | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
 
 ---
 
@@ -293,11 +296,34 @@ A new helper pair `enterOrigin(origin)` / `enterChannelOrigin(kind, details)` us
 
 ---
 
+## Phases 20–22 (instrumentation pass II)
+
+Phases 17–19 turned the M3/M4 infrastructure into real audit-log signal for HTTP-API + channel + self-edit paths. This pass extends instrumentation to the remaining high-value events.
+
+### M3 (operator-CLI)
+
+**Commit:** `1fb2c4b4e1` — `feat(security): tag operator-CLI origin at runCli entry (audit M3 broader)`
+
+`runCli` (the main CLI entry) now calls `enterOperatorOrigin({ command: argv[2] })` near the top. Foreground operator commands (`alien doctor`, `alien channels`, TUI agent runs, …) record `origin: "operator"` instead of `unknown` in the audit log. HTTP/channel paths still override their own scopes.
+
+### M4 (sessions_send)
+
+**Commit:** `2f58657f1f` — `feat(security): audit-log sessions_send invocations (audit M4 broader)`
+
+The new `applySessionsSendAuditLog` wrapper records every invocation in the hash-chained audit log with the target identifier, message size in bytes (NOT content — could leak secrets), result status, and origin. `sessions_send` is the highest-blast tool that wasn't already covered: it crosses session boundaries and can fan out to subagents.
+
+### M4 (H6 forensic loop)
+
+**Commit:** `9e1c805d1b` — `feat(security): audit-log H6 --token rejection at gateway startup (audit M4)`
+
+When the H6 refusal fires (someone tries `alien gateway run --token=<secret>` without `ALIEN_ALLOW_INLINE_TOKEN=1`), the gateway now writes a `gateway.token_inline_refused` event to audit.log before exiting. Records `tokenBytes` (length only — the token itself is not stored) and `argv0` for correlation across multi-install machines.
+
+---
+
 ## Still deferred
 
 - **M1** — per-plugin trust isolation (large redesign: capability tokens, per-plugin fs/network namespacing).
-- **M4 broader** — `appendAuditLog` calls beyond cron + self-edit (e.g. into `sessions_send`, `gateway`, `exec` dangerous paths) are the natural next step.
-- **M3 broader** — operator-CLI paths still need `runAsOperator` wrappers (anything that's not HTTP/channel currently records `origin: "unknown"`).
+- **M4 (exec)** — wrap dangerous `exec` patterns with `appendAuditLog` like cron/self-edit/sessions_send. Same shape, more sites.
 - **M2 broader migration** — gateway-token slice landed; channel tokens, OAuth credentials, and provider keys can adopt the resolver per-source.
 
 The Lows are notes — already in good shape.
