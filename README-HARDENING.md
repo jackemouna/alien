@@ -104,22 +104,25 @@ The two HTTP-API callers (`openai-http`, `openresponses-prompt`) pass `untrusted
 
 ## Summary table
 
-| Audit | Commit       | Default                            | Opt-out / Opt-in                             |
-| ----- | ------------ | ---------------------------------- | -------------------------------------------- |
-| H7    | `794c371408` | hono ≥4.12.16 (CVE-fixed)          | n/a                                          |
-| H6    | `bb3a0ed95a` | `--token` refused at startup       | `ALIEN_ALLOW_INLINE_TOKEN=1`                 |
-| H2    | `c45ab04dd9` | writes into Alien's source refused | `ALIEN_ALLOW_SELF_EDIT=1`                    |
-| H5    | `7bd5563548` | wrong-code lockout after 3 misses  | n/a (auto-resets on success)                 |
-| H4    | `910796039f` | HTTP-API messages fenced           | n/a                                          |
-| H3    | `94a2d4b8c9` | cron writes logged                 | `ALIEN_DENY_CRON_WRITES=1` (opt-in lockdown) |
-| H1    | `673cbd935d` | startup warning when sandbox off   | `ALIEN_HARDENED_DEFAULTS=1` (opt-in)         |
-| M5    | `c3e94da647` | warn when `~/.alien` perms loose   | n/a                                          |
-| M6    | `f4bddb2092` | secrets scrubbed from child env    | `ALIEN_NO_SCRUB_CHILD_ENV=1`                 |
-| M4    | `27a996d60f` | cron events to audit.log (chained) | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
-| M2    | `f464ffc4f5` | OS keychain helper (no migration)  | n/a (building block)                         |
-| M8    | `f53c708f14` | redact AWS/Stripe/Google/Azure/JWT | n/a                                          |
-| M7    | `07911821d8` | browser `--disable-javascript`     | `ALIEN_BROWSER_DISABLE_JS=1` (opt-in)        |
-| M2.1  | `51d936f551` | gateway token from OS keychain     | `ALIEN_GATEWAY_TOKEN_KEYCHAIN=1` (opt-in)    |
+| Audit | Commit       | Default                             | Opt-out / Opt-in                             |
+| ----- | ------------ | ----------------------------------- | -------------------------------------------- |
+| H7    | `794c371408` | hono ≥4.12.16 (CVE-fixed)           | n/a                                          |
+| H6    | `bb3a0ed95a` | `--token` refused at startup        | `ALIEN_ALLOW_INLINE_TOKEN=1`                 |
+| H2    | `c45ab04dd9` | writes into Alien's source refused  | `ALIEN_ALLOW_SELF_EDIT=1`                    |
+| H5    | `7bd5563548` | wrong-code lockout after 3 misses   | n/a (auto-resets on success)                 |
+| H4    | `910796039f` | HTTP-API messages fenced            | n/a                                          |
+| H3    | `94a2d4b8c9` | cron writes logged                  | `ALIEN_DENY_CRON_WRITES=1` (opt-in lockdown) |
+| H1    | `673cbd935d` | startup warning when sandbox off    | `ALIEN_HARDENED_DEFAULTS=1` (opt-in)         |
+| M5    | `c3e94da647` | warn when `~/.alien` perms loose    | n/a                                          |
+| M6    | `f4bddb2092` | secrets scrubbed from child env     | `ALIEN_NO_SCRUB_CHILD_ENV=1`                 |
+| M4    | `27a996d60f` | cron events to audit.log (chained)  | `ALIEN_DISABLE_AUDIT_LOG=1`                  |
+| M2    | `f464ffc4f5` | OS keychain helper (no migration)   | n/a (building block)                         |
+| M8    | `f53c708f14` | redact AWS/Stripe/Google/Azure/JWT  | n/a                                          |
+| M7    | `07911821d8` | browser `--disable-javascript`      | `ALIEN_BROWSER_DISABLE_JS=1` (opt-in)        |
+| M2.1  | `51d936f551` | gateway token from OS keychain      | `ALIEN_GATEWAY_TOKEN_KEYCHAIN=1` (opt-in)    |
+| H4.2  | `c8c61af423` | channel-DM bodies fenced (envelope) | `ALIEN_FENCE_CHANNEL_DMS=1` (opt-in)         |
+| M3    | `287eb61c40` | tool-call origin in audit log       | n/a (uses AsyncLocalStorage)                 |
+| M2.2  | `c8ffa23e6d` | env-or-keychain secret resolver     | `ALIEN_SECRETS_FROM_KEYCHAIN=1` (opt-in)     |
 
 ---
 
@@ -221,17 +224,51 @@ secret-tool clear service alien-gateway account token        # Linux
 
 **Threat:** the gateway token is the highest-value secret in the install — any process with read access to `~/.alien/alien.json` (a backup tool, sync agent, misbehaving package) can hijack the gateway. Keychain gating on the user's login session removes that surface.
 
-**Scope:** gateway token only. Channel tokens, OAuth credentials, and provider keys remain in their existing JSON paths — migrating each is per-source follow-up work.
+**Scope:** gateway token only. Channel tokens, OAuth credentials, and provider keys remain in their existing JSON paths — migrating each is per-source follow-up work (the generic resolver below makes that incremental).
+
+---
+
+## Phases 14–16 (a fourth pass)
+
+### H4 (channel slice) — opt-in fencing for inbound channel DMs
+
+**Commit:** `c8c61af423` — `feat(envelope): opt-in fencing for inbound channel-message bodies (audit H4 channel slice)`
+
+**What changed:** the central inbound-channel formatter `formatInboundEnvelope` (used by every channel auto-reply path: Slack, Discord, Telegram, Feishu, Mattermost, MS Teams, Zalo, qqbot, …) now wraps the body in `<msg_body id="…">…</msg_body>` markers when `ALIEN_FENCE_CHANNEL_DMS=1` is set. Default off so existing operators with prompts that depend on the envelope format are unaffected. Literal markers in the body are sanitized to `[msg_body]` form.
+
+The HTTP-API path is fenced unconditionally (separate from this knob, see H4 above).
+
+**Threat:** without the fence, a Slack/Discord/Telegram DM containing `Ignore previous instructions and …` is indistinguishable from operator instructions in the prompt the model sees.
+
+### M3 — tool-call origin tracking via AsyncLocalStorage
+
+**Commit:** `287eb61c40` — `feat(security): tool-call origin tracking via AsyncLocalStorage (audit M3)`
+
+**What changed:** new module `src/security/origin-context.ts` holds a per-async-context `OriginContext` in `AsyncLocalStorage`. The cron-guard's audit-log payload now records `origin`, `originUntrusted`, and `originDetails`. Convenience runners `runAsOperator` / `runAsChannel(kind, …)` / `runAsHttp(endpoint, …)` let gateway entry points tag the origin once when a request lands.
+
+**Default:** code paths that have not yet been instrumented record `origin: "unknown"` — still a useful signal in the audit log.
+
+**Threat:** without origin tracking, post-incident logs can't answer "did the agent run this because I asked, or because a DM/webpage said to?". Combined with the M4 hash chain, the audit log now tells that story.
+
+**Scope:** infrastructure + cron-guard wire-in. Instrumenting HTTP-API handlers, channel auto-reply paths, and the operator CLI/TUI to call the convenience runners is incremental follow-up.
+
+### M2 (broader migration slice) — generic env-or-keychain resolver
+
+**Commit:** `c8ffa23e6d` — `feat(security): generic env-or-keychain secret resolver (audit M2 building block)`
+
+**What changed:** new helper `resolveSecretFromEnvOrKeychain` reads a secret from `process.env` first and, if absent, falls back to the OS keychain. Two gating modes: `"global-flag"` (only consults keychain when `ALIEN_SECRETS_FROM_KEYCHAIN=1`), or `"always"` for per-secret wrappers with their own opt-in.
+
+**Pattern adopted by `gateway-token-keychain.ts`** with its own `ALIEN_GATEWAY_TOKEN_KEYCHAIN=1` flag. Channel and provider auth paths can adopt the same pattern incrementally — pick a service/account identifier, switch the read site to use the resolver, ship.
+
+**Threat:** every secret still in plaintext JSON is readable by any same-uid process. The generic resolver shrinks the migration cost per secret to "rename the read call" rather than "redesign the auth path".
 
 ---
 
 ## Still deferred
 
-The remaining Mediums are not addressed in this fork:
-
-- **M1** — per-plugin trust isolation (large redesign — capability tokens, per-plugin fs/network namespacing).
-- **M3** — tool-call origin tracking (operator vs. DM vs. webpage) — plumbing across many call sites.
-- **M2 broader migration** — keychain wire-in for channel tokens, OAuth credentials, and provider keys (the gateway-token slice landed; the rest is per-source follow-up).
-- **H4 channel-path fencing** — DM auto-reply path uses `buildHistoryContextFromMap` with channel-owned formatters, each of which would need its own fence treatment.
+- **M1** — per-plugin trust isolation (large redesign: capability tokens, per-plugin fs/network namespacing).
+- **M3 broader instrumentation** — the origin-tracking infrastructure landed. Wiring `runAsHttp` / `runAsChannel` / `runAsOperator` at every gateway entry point is incremental follow-up; until then those paths record `origin: "unknown"` in the audit log.
+- **M4 broader instrumentation** — the audit log is wired into cron writes. Adding `appendAuditLog` calls at every `fs_write` / `sessions_send` / `gateway` call site is the natural next step.
+- **M2 broader migration** — gateway-token slice landed and the generic resolver is shipped. Per-source migration of channel tokens, OAuth credentials, and provider keys is incremental.
 
 The Lows are notes — already in good shape.
