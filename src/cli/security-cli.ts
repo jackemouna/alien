@@ -282,6 +282,130 @@ export function registerSecurityCli(program: Command) {
 
       defaultRuntime.log(lines.join("\n"));
     });
+
+  // Orchestrator MVP: run a daily-research workflow end-to-end. Builds the
+  // workflow plan, instantiates the workers with a real Anthropic LLM client,
+  // and runs the runner. Audit-log + run-state are both persisted under the
+  // resolved state dir.
+  security
+    .command("orchestrator-run")
+    .description("Run the daily-research orchestrator workflow end-to-end")
+    .option("--topics <topics>", "Comma-separated list of topics (e.g. 'WebAssembly,Rust,Bun')")
+    .option(
+      "--output <path>",
+      "Output markdown path (default <state-dir>/orchestrator/runs/<runId>.md)",
+    )
+    .option("--title <title>", "Newsletter title", "Daily Brief")
+    .option("--word-target <n>", "Words per summary (default 120)", "120")
+    .option("--run-id <id>", "Stable run id (default auto-generated)")
+    .option("--model <model>", "Anthropic model id", "claude-sonnet-4-6")
+    .option("--json", "Print machine-readable JSON result", false)
+    .action(
+      async (opts: {
+        topics?: string;
+        output?: string;
+        title?: string;
+        wordTarget?: string;
+        runId?: string;
+        model?: string;
+        json?: boolean;
+      }) => {
+        const topics = (opts.topics ?? "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+        if (topics.length === 0) {
+          defaultRuntime.error("--topics is required (comma-separated list)");
+          defaultRuntime.exit(1);
+          return;
+        }
+        const wordTarget = Number.parseInt(opts.wordTarget ?? "120", 10);
+        const runId = (opts.runId ?? `run-${Date.now()}`).replace(/[^A-Za-z0-9_.-]/g, "-");
+        const stateDir = resolveStateDir(process.env);
+        const orchestratorDir = path.join(stateDir, "orchestrator");
+        const outputPath =
+          normalizeOptionalString(opts.output) ?? path.join(orchestratorDir, "runs", `${runId}.md`);
+        const auditLogPath = path.join(stateDir, "audit.log");
+
+        const { planDailyResearchWorkflow } =
+          await import("../orchestrator/workflows/daily-research.js");
+        const { createRunFromWorkflow } = await import("../orchestrator/run-state.js");
+        const { runOrchestratorRun } = await import("../orchestrator/runner.js");
+        const { createDailyResearchWorkers } = await import("../orchestrator/workers.js");
+        const { createAnthropicLlmClient } = await import("../orchestrator/llm-client.js");
+
+        let llm: Awaited<ReturnType<typeof createAnthropicLlmClient>>;
+        try {
+          llm = await createAnthropicLlmClient({
+            ...(opts.model ? { model: opts.model } : {}),
+          });
+        } catch (err) {
+          defaultRuntime.error(String(err));
+          defaultRuntime.exit(1);
+          return;
+        }
+        const workers = createDailyResearchWorkers({ llm });
+
+        const workflow = planDailyResearchWorkflow({
+          runId,
+          topics,
+          outputPath,
+          title: opts.title ?? "Daily Brief",
+          wordTarget,
+        });
+        const run = createRunFromWorkflow({ runId, workflow });
+
+        defaultRuntime.log(`Running orchestrator workflow ${workflow.id} (run=${runId})`);
+        defaultRuntime.log(`  topics: ${topics.join(", ")}`);
+        defaultRuntime.log(`  output: ${shortenHomePath(outputPath)}`);
+
+        const result = await runOrchestratorRun(run, workers, {
+          orchestratorDir,
+          auditLogPath: process.env.ALIEN_DISABLE_AUDIT_LOG === "1" ? undefined : auditLogPath,
+        });
+
+        if (opts.json) {
+          defaultRuntime.writeJson({
+            runId,
+            workflowId: workflow.id,
+            status: result.run.status,
+            tasksAttempted: result.tasksAttempted,
+            outputPath,
+            tasks: result.run.tasks.map((t) => ({
+              id: t.id,
+              role: t.role,
+              status: t.status,
+              ...(t.error ? { error: t.error } : {}),
+            })),
+          });
+          return;
+        }
+
+        const rich = isRich();
+        const ok = (s: string) => (rich ? theme.success(s) : s);
+        const error = (s: string) => (rich ? theme.error(s) : s);
+        const muted = (s: string) => (rich ? theme.muted(s) : s);
+
+        for (const task of result.run.tasks) {
+          const status = task.status;
+          const label =
+            status === "succeeded" ? ok("✓") : status === "failed" ? error("✗") : muted("·");
+          defaultRuntime.log(
+            `  ${label} ${task.id.padEnd(14)}  ${task.summary}${task.error ? ` — ${task.error}` : ""}`,
+          );
+        }
+        const final =
+          result.run.status === "succeeded"
+            ? ok(`Run succeeded → ${shortenHomePath(outputPath)}`)
+            : error(
+                `Run ${result.run.status} (see audit.log + ${shortenHomePath(orchestratorDir)})`,
+              );
+        defaultRuntime.log(final);
+        if (result.run.status !== "succeeded") {
+          defaultRuntime.exit(1);
+        }
+      },
+    );
 }
 
 function clampTailLimit(raw: string | undefined): number {
