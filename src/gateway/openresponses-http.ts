@@ -32,6 +32,7 @@ import {
   type InputImageSource,
 } from "../media/input-files.js";
 import { defaultRuntime } from "../runtime.js";
+import { runAsHttp } from "../security/origin-context.js";
 import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
@@ -681,20 +682,33 @@ export async function handleOpenResponsesHttpRequest(
   if (!stream) {
     const stopWatchingDisconnect = watchClientDisconnect(req, res, abortController);
     try {
-      const result = await runResponsesAgentCommand({
-        message: prompt.message,
-        images,
-        clientTools: resolvedClientTools,
-        extraSystemPrompt,
-        modelOverride,
-        streamParams,
-        sessionKey,
-        runId: responseId,
-        messageChannel,
-        senderIsOwner,
-        deps,
-        abortSignal: abortController.signal,
-      });
+      // Audit M3: tag descendants of the agent invocation with origin =
+      // "http:openresponses" (non-streaming path) so audit-log writes
+      // inside tool calls record where the request came from.
+      const result = await runAsHttp(
+        "openresponses",
+        {
+          ...(typeof agentId === "string" && agentId ? { agentId } : {}),
+          ...(typeof sessionKey === "string" && sessionKey ? { sessionKey } : {}),
+          ...(typeof messageChannel === "string" && messageChannel ? { messageChannel } : {}),
+          path: "non-stream",
+        },
+        async () =>
+          runResponsesAgentCommand({
+            message: prompt.message,
+            images,
+            clientTools: resolvedClientTools,
+            extraSystemPrompt,
+            modelOverride,
+            streamParams,
+            sessionKey,
+            runId: responseId,
+            messageChannel,
+            senderIsOwner,
+            deps,
+            abortSignal: abortController.signal,
+          }),
+      );
 
       if (abortController.signal.aborted) {
         return true;
@@ -970,209 +984,220 @@ export async function handleOpenResponsesHttpRequest(
     unsubscribe();
   });
 
-  void (async () => {
-    try {
-      const result = await runResponsesAgentCommand({
-        message: prompt.message,
-        images,
-        clientTools: resolvedClientTools,
-        extraSystemPrompt,
-        modelOverride,
-        streamParams,
-        sessionKey,
-        runId: responseId,
-        messageChannel,
-        senderIsOwner,
-        deps,
-        abortSignal: abortController.signal,
-      });
-
-      finalUsage = extractUsageFromResult(result);
-
-      // Check for pending client tool calls BEFORE maybeFinalize() because the
-      // lifecycle:end event may already have requested finalization.
-      const resultAny = result as { payloads?: Array<{ text?: string }>; meta?: unknown };
-      const meta = resultAny.meta;
-      const { stopReason, pendingToolCalls } = resolveStopReasonAndPendingToolCalls(meta);
-
-      if (
-        !closed &&
-        stopReason === "tool_calls" &&
-        pendingToolCalls &&
-        pendingToolCalls.length > 0
-      ) {
-        const usage = finalUsage ?? createEmptyUsage();
-        const finalText =
-          accumulatedText ||
-          (Array.isArray(resultAny.payloads)
-            ? resultAny.payloads
-                .map((p) => (typeof p.text === "string" ? p.text : ""))
-                .filter(Boolean)
-                .join("\n\n")
-            : "");
-
-        writeSseEvent(res, {
-          type: "response.output_text.done",
-          item_id: outputItemId,
-          output_index: 0,
-          content_index: 0,
-          text: finalText,
-        });
-        writeSseEvent(res, {
-          type: "response.content_part.done",
-          item_id: outputItemId,
-          output_index: 0,
-          content_index: 0,
-          part: { type: "output_text", text: finalText },
+  // Audit M3: tag descendants of this agent invocation with origin =
+  // "http:openresponses" so audit-log writes inside tool calls record
+  // where the request came from.
+  void runAsHttp(
+    "openresponses",
+    {
+      ...(typeof agentId === "string" && agentId ? { agentId } : {}),
+      ...(typeof sessionKey === "string" && sessionKey ? { sessionKey } : {}),
+      ...(typeof messageChannel === "string" && messageChannel ? { messageChannel } : {}),
+    },
+    async () => {
+      try {
+        const result = await runResponsesAgentCommand({
+          message: prompt.message,
+          images,
+          clientTools: resolvedClientTools,
+          extraSystemPrompt,
+          modelOverride,
+          streamParams,
+          sessionKey,
+          runId: responseId,
+          messageChannel,
+          senderIsOwner,
+          deps,
+          abortSignal: abortController.signal,
         });
 
-        const completedItem = createAssistantOutputItem({
-          id: outputItemId,
-          text: finalText,
-          phase: "commentary",
-          status: "completed",
-        });
-        writeSseEvent(res, {
-          type: "response.output_item.done",
-          output_index: 0,
-          item: completedItem,
-        });
+        finalUsage = extractUsageFromResult(result);
 
-        // Emit one `function_call` output item per pending call, preserving
-        // arrival order. `output_index` continues past the assistant
-        // message at index 0 so the SSE stream keeps a single, monotonic
-        // index per response. Pre-#52288 the streaming path read only
-        // `pendingToolCalls[0]` and hard-coded `output_index: 1`, so a turn
-        // with multiple client tool calls dropped every call past the
-        // first.
-        const functionCallItems: OutputItem[] = [];
-        let nextStreamOutputIndex = 1;
-        for (const functionCall of pendingToolCalls) {
-          const functionCallItemId = `call_${randomUUID()}`;
-          const functionCallItem = createFunctionCallOutputItem({
-            id: functionCallItemId,
-            callId: functionCall.id,
-            name: functionCall.name,
-            arguments: functionCall.arguments,
+        // Check for pending client tool calls BEFORE maybeFinalize() because the
+        // lifecycle:end event may already have requested finalization.
+        const resultAny = result as { payloads?: Array<{ text?: string }>; meta?: unknown };
+        const meta = resultAny.meta;
+        const { stopReason, pendingToolCalls } = resolveStopReasonAndPendingToolCalls(meta);
+
+        if (
+          !closed &&
+          stopReason === "tool_calls" &&
+          pendingToolCalls &&
+          pendingToolCalls.length > 0
+        ) {
+          const usage = finalUsage ?? createEmptyUsage();
+          const finalText =
+            accumulatedText ||
+            (Array.isArray(resultAny.payloads)
+              ? resultAny.payloads
+                  .map((p) => (typeof p.text === "string" ? p.text : ""))
+                  .filter(Boolean)
+                  .join("\n\n")
+              : "");
+
+          writeSseEvent(res, {
+            type: "response.output_text.done",
+            item_id: outputItemId,
+            output_index: 0,
+            content_index: 0,
+            text: finalText,
           });
           writeSseEvent(res, {
-            type: "response.output_item.added",
-            output_index: nextStreamOutputIndex,
-            item: functionCallItem,
+            type: "response.content_part.done",
+            item_id: outputItemId,
+            output_index: 0,
+            content_index: 0,
+            part: { type: "output_text", text: finalText },
           });
-          const completedFunctionCallItem = createFunctionCallOutputItem({
-            id: functionCallItemId,
-            callId: functionCall.id,
-            name: functionCall.name,
-            arguments: functionCall.arguments,
+
+          const completedItem = createAssistantOutputItem({
+            id: outputItemId,
+            text: finalText,
+            phase: "commentary",
             status: "completed",
           });
           writeSseEvent(res, {
             type: "response.output_item.done",
-            output_index: nextStreamOutputIndex,
-            item: completedFunctionCallItem,
+            output_index: 0,
+            item: completedItem,
           });
-          functionCallItems.push(functionCallItem);
-          nextStreamOutputIndex += 1;
+
+          // Emit one `function_call` output item per pending call, preserving
+          // arrival order. `output_index` continues past the assistant
+          // message at index 0 so the SSE stream keeps a single, monotonic
+          // index per response. Pre-#52288 the streaming path read only
+          // `pendingToolCalls[0]` and hard-coded `output_index: 1`, so a turn
+          // with multiple client tool calls dropped every call past the
+          // first.
+          const functionCallItems: OutputItem[] = [];
+          let nextStreamOutputIndex = 1;
+          for (const functionCall of pendingToolCalls) {
+            const functionCallItemId = `call_${randomUUID()}`;
+            const functionCallItem = createFunctionCallOutputItem({
+              id: functionCallItemId,
+              callId: functionCall.id,
+              name: functionCall.name,
+              arguments: functionCall.arguments,
+            });
+            writeSseEvent(res, {
+              type: "response.output_item.added",
+              output_index: nextStreamOutputIndex,
+              item: functionCallItem,
+            });
+            const completedFunctionCallItem = createFunctionCallOutputItem({
+              id: functionCallItemId,
+              callId: functionCall.id,
+              name: functionCall.name,
+              arguments: functionCall.arguments,
+              status: "completed",
+            });
+            writeSseEvent(res, {
+              type: "response.output_item.done",
+              output_index: nextStreamOutputIndex,
+              item: completedFunctionCallItem,
+            });
+            functionCallItems.push(functionCallItem);
+            nextStreamOutputIndex += 1;
+          }
+
+          const incompleteResponse = createResponseResource({
+            id: responseId,
+            model,
+            status: "incomplete",
+            output: [completedItem, ...functionCallItems],
+            usage,
+          });
+          closed = true;
+          stopWatchingDisconnect();
+          unsubscribe();
+          rememberResponseSession();
+          writeSseEvent(res, { type: "response.completed", response: incompleteResponse });
+          writeDone(res);
+          res.end();
+          return;
         }
 
-        const incompleteResponse = createResponseResource({
-          id: responseId,
-          model,
-          status: "incomplete",
-          output: [completedItem, ...functionCallItems],
-          usage,
-        });
-        closed = true;
-        stopWatchingDisconnect();
-        unsubscribe();
-        rememberResponseSession();
-        writeSseEvent(res, { type: "response.completed", response: incompleteResponse });
-        writeDone(res);
-        res.end();
-        return;
-      }
+        maybeFinalize();
 
-      maybeFinalize();
+        if (closed) {
+          return;
+        }
 
-      if (closed) {
-        return;
-      }
+        // Fallback: if no streaming deltas were received, send the full response as text
+        if (!sawAssistantDelta) {
+          const payloads = resultAny.payloads;
+          const content =
+            Array.isArray(payloads) && payloads.length > 0
+              ? payloads
+                  .map((p) => (typeof p.text === "string" ? p.text : ""))
+                  .filter(Boolean)
+                  .join("\n\n")
+              : "No response from Alien.";
 
-      // Fallback: if no streaming deltas were received, send the full response as text
-      if (!sawAssistantDelta) {
-        const payloads = resultAny.payloads;
-        const content =
-          Array.isArray(payloads) && payloads.length > 0
-            ? payloads
-                .map((p) => (typeof p.text === "string" ? p.text : ""))
-                .filter(Boolean)
-                .join("\n\n")
-            : "No response from Alien.";
+          accumulatedText = content;
+          sawAssistantDelta = true;
 
-        accumulatedText = content;
-        sawAssistantDelta = true;
+          writeSseEvent(res, {
+            type: "response.output_text.delta",
+            item_id: outputItemId,
+            output_index: 0,
+            content_index: 0,
+            delta: content,
+          });
+        }
+      } catch (err) {
+        if (closed || abortController.signal.aborted) {
+          return;
+        }
+        logWarn(`openresponses: streaming response failed: ${String(err)}`);
 
-        writeSseEvent(res, {
-          type: "response.output_text.delta",
-          item_id: outputItemId,
-          output_index: 0,
-          content_index: 0,
-          delta: content,
-        });
-      }
-    } catch (err) {
-      if (closed || abortController.signal.aborted) {
-        return;
-      }
-      logWarn(`openresponses: streaming response failed: ${String(err)}`);
+        finalUsage = finalUsage ?? createEmptyUsage();
+        if (isClientToolNameConflictError(err)) {
+          const errorResponse = createResponseResource({
+            id: responseId,
+            model,
+            status: "failed",
+            output: [],
+            error: { code: "invalid_request_error", message: "invalid tool configuration" },
+            usage: finalUsage,
+          });
 
-      finalUsage = finalUsage ?? createEmptyUsage();
-      if (isClientToolNameConflictError(err)) {
+          writeSseEvent(res, { type: "response.failed", response: errorResponse });
+          emitAgentEvent({
+            runId: responseId,
+            stream: "lifecycle",
+            data: { phase: "error" },
+          });
+          return;
+        }
         const errorResponse = createResponseResource({
           id: responseId,
           model,
           status: "failed",
           output: [],
-          error: { code: "invalid_request_error", message: "invalid tool configuration" },
+          error: { code: "api_error", message: "internal error" },
           usage: finalUsage,
         });
 
+        rememberResponseSession();
         writeSseEvent(res, { type: "response.failed", response: errorResponse });
         emitAgentEvent({
           runId: responseId,
           stream: "lifecycle",
           data: { phase: "error" },
         });
-        return;
+      } finally {
+        if (!closed) {
+          // Emit lifecycle end to trigger completion
+          emitAgentEvent({
+            runId: responseId,
+            stream: "lifecycle",
+            data: { phase: "end" },
+          });
+        }
       }
-      const errorResponse = createResponseResource({
-        id: responseId,
-        model,
-        status: "failed",
-        output: [],
-        error: { code: "api_error", message: "internal error" },
-        usage: finalUsage,
-      });
-
-      rememberResponseSession();
-      writeSseEvent(res, { type: "response.failed", response: errorResponse });
-      emitAgentEvent({
-        runId: responseId,
-        stream: "lifecycle",
-        data: { phase: "error" },
-      });
-    } finally {
-      if (!closed) {
-        // Emit lifecycle end to trigger completion
-        emitAgentEvent({
-          runId: responseId,
-          stream: "lifecycle",
-          data: { phase: "end" },
-        });
-      }
-    }
-  })();
+    },
+  );
 
   return true;
 }

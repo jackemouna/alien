@@ -369,7 +369,10 @@ describe("OpenResponses HTTP API (e2e)", () => {
       });
       expect(resArray.status).toBe(200);
       const optsArray = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-      expect((optsArray as { message?: string } | undefined)?.message).toBe("hello there");
+      // Audit H4: HTTP-API messages are wrapped in <msg_body id="…"> fences.
+      expect((optsArray as { message?: string } | undefined)?.message).toMatch(
+        /^<msg_body id="[0-9a-f]{8}">hello there<\/msg_body>$/,
+      );
       await ensureResponseConsumed(resArray);
 
       mockAgentOnce([{ text: "hello" }]);
@@ -416,11 +419,17 @@ describe("OpenResponses HTTP API (e2e)", () => {
       expect(resHistory.status).toBe(200);
       const optsHistory = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
       const historyMessage = (optsHistory as { message?: string } | undefined)?.message ?? "";
-      expect(historyMessage).toContain(HISTORY_CONTEXT_MARKER);
-      expect(historyMessage).toContain("User: Hello, who are you?");
-      expect(historyMessage).toContain("Assistant: I am Claude.");
-      expect(historyMessage).toContain(CURRENT_MESSAGE_MARKER);
-      expect(historyMessage).toContain("User: What did I just ask you?");
+      // Audit H4: HTTP-API messages wrap each body in <msg_body id="…">…</msg_body>.
+      // Strip the fences before substring matching so the assertions stay
+      // about the message content, not the fence syntax.
+      const strippedHistoryMessage = historyMessage
+        .replace(/<msg_body id="[0-9a-f]{8}">/g, "")
+        .replace(/<\/msg_body>/g, "");
+      expect(strippedHistoryMessage).toContain(HISTORY_CONTEXT_MARKER);
+      expect(strippedHistoryMessage).toContain("User: Hello, who are you?");
+      expect(strippedHistoryMessage).toContain("Assistant: I am Claude.");
+      expect(strippedHistoryMessage).toContain(CURRENT_MESSAGE_MARKER);
+      expect(strippedHistoryMessage).toContain("User: What did I just ask you?");
       await ensureResponseConsumed(resHistory);
 
       mockAgentOnce([{ text: "ok" }]);
@@ -465,7 +474,8 @@ describe("OpenResponses HTTP API (e2e)", () => {
       const inputFileMessage = (optsInputFile as { message?: string } | undefined)?.message ?? "";
       const inputFilePrompt =
         (optsInputFile as { extraSystemPrompt?: string } | undefined)?.extraSystemPrompt ?? "";
-      expect(inputFileMessage).toBe("read this");
+      // Audit H4: HTTP-API messages wrapped in <msg_body id="…"> fences.
+      expect(inputFileMessage).toMatch(/^<msg_body id="[0-9a-f]{8}">read this<\/msg_body>$/);
       expect(inputFilePrompt).toContain('<file name="hello.txt">');
       expect(inputFilePrompt).toContain('<<<EXTERNAL_UNTRUSTED_CONTENT id="');
       expect(inputFilePrompt).toContain("Source: External");

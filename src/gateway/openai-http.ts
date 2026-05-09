@@ -24,6 +24,7 @@ import {
   type InputImageSource,
 } from "../media/input-files.js";
 import { defaultRuntime } from "../runtime.js";
+import { runAsHttp } from "../security/origin-context.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -440,6 +441,9 @@ function buildAgentPrompt(
   // Audit H4: HTTP-API callers send arbitrary content into the prompt; treat
   // each entry body as untrusted so the model sees a structural fence around
   // it (cannot be confused with operator instructions).
+  // Audit M3: every audit-log write that happens inside the agent
+  // invocation IIFE below will pull origin = "http:openai-chat-completions"
+  // from AsyncLocalStorage (set just before the IIFE starts).
   const message = buildAgentMessageFromConversationEntries(conversationEntries, {
     untrusted: true,
   });
@@ -740,66 +744,79 @@ export async function handleOpenAiHttpRequest(
   wroteRole = true;
   writeAssistantRoleChunk(res, { runId, model });
 
-  void (async () => {
-    try {
-      const result = await agentCommandFromIngress(commandInput, defaultRuntime, deps);
+  // Audit M3: tag every async-context descendant of this agent invocation
+  // with origin = "http:openai-chat-completions" so audit-log writes inside
+  // tool calls record where the request came from. Details capture the
+  // resolved sessionKey/agent so post-incident lookup can correlate.
+  void runAsHttp(
+    "openai-chat-completions",
+    {
+      ...(typeof agentId === "string" && agentId ? { agentId } : {}),
+      ...(typeof sessionKey === "string" && sessionKey ? { sessionKey } : {}),
+      ...(typeof messageChannel === "string" && messageChannel ? { messageChannel } : {}),
+      ...(typeof model === "string" && model ? { model } : {}),
+    },
+    async () => {
+      try {
+        const result = await agentCommandFromIngress(commandInput, defaultRuntime, deps);
 
-      if (closed) {
-        return;
-      }
-
-      finalUsage = resolveChatCompletionUsage(result);
-
-      if (!sawAssistantDelta) {
-        if (!wroteRole) {
-          wroteRole = true;
-          writeAssistantRoleChunk(res, { runId, model });
+        if (closed) {
+          return;
         }
 
-        const content = resolveAgentResponseText(result);
+        finalUsage = resolveChatCompletionUsage(result);
 
-        sawAssistantDelta = true;
+        if (!sawAssistantDelta) {
+          if (!wroteRole) {
+            wroteRole = true;
+            writeAssistantRoleChunk(res, { runId, model });
+          }
+
+          const content = resolveAgentResponseText(result);
+
+          sawAssistantDelta = true;
+          writeAssistantContentChunk(res, {
+            runId,
+            model,
+            content,
+            finishReason: null,
+          });
+        }
+        requestFinalize();
+      } catch (err) {
+        if (closed || abortController.signal.aborted) {
+          return;
+        }
+        logWarn(`openai-compat: streaming chat completion failed: ${String(err)}`);
         writeAssistantContentChunk(res, {
           runId,
           model,
-          content,
-          finishReason: null,
+          content: "Error: internal error",
+          finishReason: "stop",
         });
-      }
-      requestFinalize();
-    } catch (err) {
-      if (closed || abortController.signal.aborted) {
-        return;
-      }
-      logWarn(`openai-compat: streaming chat completion failed: ${String(err)}`);
-      writeAssistantContentChunk(res, {
-        runId,
-        model,
-        content: "Error: internal error",
-        finishReason: "stop",
-      });
-      wroteStopChunk = true;
-      finalUsage = {
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0,
-      };
-      emitAgentEvent({
-        runId,
-        stream: "lifecycle",
-        data: { phase: "error" },
-      });
-      requestFinalize();
-    } finally {
-      if (!closed) {
+        wroteStopChunk = true;
+        finalUsage = {
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          total_tokens: 0,
+        };
         emitAgentEvent({
           runId,
           stream: "lifecycle",
-          data: { phase: "end" },
+          data: { phase: "error" },
         });
+        requestFinalize();
+      } finally {
+        if (!closed) {
+          emitAgentEvent({
+            runId,
+            stream: "lifecycle",
+            data: { phase: "end" },
+          });
+        }
       }
-    }
-  })();
+    },
+  );
 
   return true;
 }
