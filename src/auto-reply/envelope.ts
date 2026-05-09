@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { resolveUserTimezone } from "../agents/date-time.js";
 import { normalizeChatType } from "../channels/chat-type.js";
 import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-label.js";
@@ -194,6 +195,31 @@ export function formatAgentEnvelope(params: AgentEnvelopeParams): string {
   return `${header} ${params.body}`;
 }
 
+/**
+ * Audit H4 (channel-path slice): wrap inbound channel-message bodies in a
+ * randomized `<msg_body id="…">…</msg_body>` fence the model can use to
+ * structurally distinguish "message text" from operator instructions.
+ *
+ * Opt-in via `ALIEN_FENCE_CHANNEL_DMS=1`. Default off so existing operators
+ * with prompts that depend on the channel envelope format are unaffected.
+ * The HTTP-API path is fenced unconditionally (separate from this knob).
+ */
+const CHANNEL_FENCE_TAG = "msg_body";
+const CHANNEL_FENCE_OPEN_RE = /<\s*msg_body\b[^>]*>/gi;
+const CHANNEL_FENCE_CLOSE_RE = /<\s*\/\s*msg_body\s*>/gi;
+
+function shouldFenceChannelDms(env: NodeJS.ProcessEnv): boolean {
+  return env.ALIEN_FENCE_CHANNEL_DMS === "1";
+}
+
+function fenceChannelBody(body: string): string {
+  const id = randomBytes(4).toString("hex");
+  const sanitized = body
+    .replace(CHANNEL_FENCE_OPEN_RE, "[msg_body]")
+    .replace(CHANNEL_FENCE_CLOSE_RE, "[/msg_body]");
+  return `<${CHANNEL_FENCE_TAG} id="${id}">${sanitized}</${CHANNEL_FENCE_TAG}>`;
+}
+
 export function formatInboundEnvelope(params: {
   channel: string;
   from: string;
@@ -205,18 +231,23 @@ export function formatInboundEnvelope(params: {
   previousTimestamp?: number | Date;
   envelope?: EnvelopeFormatOptions;
   fromMe?: boolean;
+  /** Override hook for env-driven behavior (defaults to process.env). */
+  env?: NodeJS.ProcessEnv;
 }): string {
   const chatType = normalizeChatType(params.chatType);
   const isDirect = !chatType || chatType === "direct";
   const resolvedSenderRaw =
     normalizeOptionalString(params.senderLabel) || resolveSenderLabel(params.sender ?? {});
   const resolvedSender = resolvedSenderRaw ? sanitizeEnvelopeHeaderPart(resolvedSenderRaw) : "";
+  const renderedBody = shouldFenceChannelDms(params.env ?? process.env)
+    ? fenceChannelBody(params.body)
+    : params.body;
   const body =
     isDirect && params.fromMe
-      ? `(self): ${params.body}`
+      ? `(self): ${renderedBody}`
       : !isDirect && resolvedSender
-        ? `${resolvedSender}: ${params.body}`
-        : params.body;
+        ? `${resolvedSender}: ${renderedBody}`
+        : renderedBody;
   return formatAgentEnvelope({
     channel: params.channel,
     from: params.from,
