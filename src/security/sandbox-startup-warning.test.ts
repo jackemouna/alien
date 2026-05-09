@@ -20,16 +20,8 @@ describe("resolveSandboxStartupWarning", () => {
     expect(result).toMatch(/explicit/);
   });
 
-  it("returns null when mode is explicitly 'docker'", () => {
-    expect(resolveSandboxStartupWarning({ cfg: cfgWithMode("docker"), env: {} })).toBeNull();
-  });
-
-  it("returns null when mode is 'ssh'", () => {
-    expect(resolveSandboxStartupWarning({ cfg: cfgWithMode("ssh"), env: {} })).toBeNull();
-  });
-
-  it("returns null when mode is 'openshell'", () => {
-    expect(resolveSandboxStartupWarning({ cfg: cfgWithMode("openshell"), env: {} })).toBeNull();
+  it("returns null when mode is 'non-main'", () => {
+    expect(resolveSandboxStartupWarning({ cfg: cfgWithMode("non-main"), env: {} })).toBeNull();
   });
 
   it("returns null when mode is 'all'", () => {

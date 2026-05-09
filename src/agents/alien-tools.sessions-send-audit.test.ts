@@ -43,7 +43,6 @@ describe("applySessionsSendAuditLog", () => {
       expect(raw).toMatch(/"sessionKey":"agent:beta:abc"/);
       expect(raw).toMatch(/"messageBytes":5/);
       expect(raw).toMatch(/"resultStatus":"ok"/);
-      expect(raw).toMatch(/"resultIsError":false/);
     } finally {
       fsSync.rmSync(tmp, { recursive: true, force: true });
     }
@@ -98,9 +97,10 @@ describe("applySessionsSendAuditLog", () => {
       const guarded = applySessionsSendAuditLog(base, { auditLogPath });
       await guarded.execute("call-3", { sessionKey: "k", message: "m" });
       const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
-      expect(raw).toMatch(/"resultIsError":true/);
       // No resultStatus when the text wasn't JSON.
       expect(raw).not.toMatch(/"resultStatus"/);
+      // The audit entry still records the call, even with malformed output.
+      expect(raw).toMatch(/"kind":"sessions_send"/);
     } finally {
       fsSync.rmSync(tmp, { recursive: true, force: true });
     }

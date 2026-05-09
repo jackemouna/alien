@@ -241,13 +241,14 @@ export function resolveSandboxConfigForAgent(cfg?: AlienConfig, agentId?: string
 
   return {
     // Audit H1: when no explicit sandbox.mode is configured, default to
-    // "docker" if ALIEN_HARDENED_DEFAULTS=1 is set in the env. Operators who
-    // explicitly choose "off" in their config still get "off" — we only
-    // change the default for unset values.
+    // "all" (sandbox every session, including main) if ALIEN_HARDENED_DEFAULTS=1
+    // is set in the env. The backend is determined separately (default
+    // "docker"). Operators who explicitly choose "off" in their config still
+    // get "off" — we only change the default for unset values.
     mode:
       agentSandbox?.mode ??
       agent?.mode ??
-      (process.env.ALIEN_HARDENED_DEFAULTS === "1" ? "docker" : "off"),
+      (process.env.ALIEN_HARDENED_DEFAULTS === "1" ? "all" : "off"),
     backend: agentSandbox?.backend?.trim() || agent?.backend?.trim() || "docker",
     scope,
     workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "none",

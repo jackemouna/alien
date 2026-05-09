@@ -46,7 +46,6 @@ describe("applyExecAuditLog", () => {
       expect(raw).toMatch(/"host":"gateway"/);
       expect(raw).toMatch(/"exitCode":0/);
       expect(raw).toMatch(/"durationMs":42/);
-      expect(raw).toMatch(/"resultIsError":false/);
       expect(raw).toMatch(/"commandTruncated":false/);
     } finally {
       fsSync.rmSync(tmp, { recursive: true, force: true });
@@ -115,7 +114,6 @@ describe("applyExecAuditLog", () => {
       const guarded = applyExecAuditLog(base, { auditLogPath, envSource: () => ({}) });
       await guarded.execute("call-5", { command: "missing-binary" });
       const raw = fsSync.readFileSync(auditLogPath, "utf8").trim();
-      expect(raw).toMatch(/"resultIsError":true/);
       expect(raw).toMatch(/"exitCode":127/);
     } finally {
       fsSync.rmSync(tmp, { recursive: true, force: true });

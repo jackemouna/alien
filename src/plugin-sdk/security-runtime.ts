@@ -128,3 +128,39 @@ export { writeViaSiblingTempPath } from "../infra/fs-safe-advanced.js";
 export { resolvePreferredAlienTmpDir } from "../infra/tmp-alien-dir.js";
 export { redactSensitiveText } from "../logging/redact.js";
 export { safeEqualSecret } from "../security/secret-equal.js";
+// Audit M2: env-or-keychain secret resolver for plugins/channels migrating
+// secrets out of plaintext .env files into the OS keychain.
+export {
+  readSecretFromEnvOrKeychain,
+  resolveSecretFromEnvOrKeychain,
+  SECRETS_FROM_KEYCHAIN_ENV,
+  type ResolveSecretParams,
+  type SecretResolution,
+} from "../security/secret-source.js";
+export {
+  detectKeychainBackend,
+  deleteKeychainSecret,
+  getKeychainSecret,
+  setKeychainSecret,
+  type KeychainAvailability,
+  type KeychainBackend,
+  type KeychainSecretRef,
+  type OsKeychainOptions,
+} from "../security/os-keychain.js";
+// Audit M3: origin-context helpers for plugins to tag their async chains so
+// audit-log writes inside tool calls record where the work came from.
+export {
+  currentOrigin,
+  enterChannelOrigin,
+  enterOperatorOrigin,
+  enterOrigin,
+  runAsChannel,
+  runAsHttp,
+  runAsOperator,
+  runWithOrigin,
+  type OriginContext,
+} from "../security/origin-context.js";
+// Audit M4: plugins that want to emit their own audit-log entries
+// (custom tool wrappers, extension-specific events) can use the same
+// hash-chained format as the core helpers.
+export { appendAuditLog, verifyAuditLog, type AuditEntry } from "../security/audit-log.js";

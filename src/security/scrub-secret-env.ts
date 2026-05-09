@@ -75,14 +75,19 @@ const SECRET_PREFIXES: readonly string[] = [
 ];
 
 /**
- * Returns a copy of `env` with secret-bearing variables removed.
+ * Returns a copy of `env` with secret-bearing variables removed and undefined
+ * values filtered out, so the result is suitable for child-process spawning
+ * APIs that require `Record<string, string>`.
  *
  * Pure: no I/O, no mutation of the input.
  */
-export function scrubSecretEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const scrubbed: NodeJS.ProcessEnv = {};
+export function scrubSecretEnv(env: NodeJS.ProcessEnv): Record<string, string> {
+  const scrubbed: Record<string, string> = {};
   for (const [key, value] of Object.entries(env)) {
     if (isSecretEnvName(key)) {
+      continue;
+    }
+    if (typeof value !== "string") {
       continue;
     }
     scrubbed[key] = value;
@@ -95,14 +100,17 @@ export function scrubSecretEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
  * that were dropped, for diagnostic logging.
  */
 export function scrubSecretEnvWithDiagnostics(env: NodeJS.ProcessEnv): {
-  env: NodeJS.ProcessEnv;
+  env: Record<string, string>;
   dropped: string[];
 } {
-  const scrubbed: NodeJS.ProcessEnv = {};
+  const scrubbed: Record<string, string> = {};
   const dropped: string[] = [];
   for (const [key, value] of Object.entries(env)) {
     if (isSecretEnvName(key)) {
       dropped.push(key);
+      continue;
+    }
+    if (typeof value !== "string") {
       continue;
     }
     scrubbed[key] = value;

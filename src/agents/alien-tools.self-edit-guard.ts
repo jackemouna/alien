@@ -95,7 +95,7 @@ function maybeAppendSelfEditAudit(
       { logPath },
     );
   } catch (err) {
-    logWarn("audit-log append failed (self-edit-guard)", { error: String(err) });
+    logWarn(`audit-log append failed (self-edit-guard): ${String(err)}`);
   }
 }
 
@@ -132,5 +132,5 @@ function buildRefusalResult(reason: string): AgentToolResult<unknown> {
         text: reason,
       },
     ],
-  } as AgentToolResult<unknown>;
+  } as unknown as AgentToolResult<unknown>;
 }

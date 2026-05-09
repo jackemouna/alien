@@ -40,7 +40,12 @@ export function applyCronWriteGuard(
   } = {},
 ): AnyAgentTool {
   const envSource = options.envSource ?? (() => process.env);
-  const log = options.log ?? ((message, meta) => logWarn(message, meta));
+  const log =
+    options.log ??
+    ((message, meta) => {
+      const suffix = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : "";
+      logWarn(`${message}${suffix}`);
+    });
   return {
     ...base,
     execute: async (
@@ -103,5 +108,5 @@ function buildCronRefusalResult(action: string): AgentToolResult<unknown> {
         text: `Cron action "${action}" was refused by ALIEN_DENY_CRON_WRITES=1 (audit H3). Unset the env var or set it to 0 to allow the cron tool to make scheduling changes.`,
       },
     ],
-  } as AgentToolResult<unknown>;
+  } as unknown as AgentToolResult<unknown>;
 }

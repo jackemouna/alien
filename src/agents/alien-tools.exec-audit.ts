@@ -84,7 +84,6 @@ export function applyExecAuditLog(
                 background,
                 exitCode,
                 durationMs: durationMs ?? observedDurationMs,
-                resultIsError: Boolean(result.isError),
                 origin: origin.source,
                 originUntrusted: origin.untrusted,
                 ...(origin.details ? { originDetails: origin.details } : {}),
@@ -94,7 +93,7 @@ export function applyExecAuditLog(
           );
         } catch (err) {
           // Audit log failure must not break the tool call.
-          logWarn("audit-log append failed (exec)", { error: String(err) });
+          logWarn(`audit-log append failed (exec): ${String(err)}`);
         }
       }
       return result;

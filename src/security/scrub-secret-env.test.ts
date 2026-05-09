@@ -84,11 +84,13 @@ describe("scrubSecretEnv", () => {
     expect(env).toEqual(before);
   });
 
-  it("preserves undefined values (skipped naturally) and empty strings", () => {
+  it("filters out undefined values (Record<string,string> output) and preserves empty strings", () => {
     const env = { PATH: "", FOO: undefined as unknown as string };
     const out = scrubSecretEnv(env);
     expect(out.PATH).toBe("");
-    expect("FOO" in out).toBe(true);
+    // Undefined entries are dropped so the output is a clean Record<string,string>
+    // suitable for child-process spawn APIs.
+    expect("FOO" in out).toBe(false);
   });
 
   it("returns an empty object when all keys are secret", () => {

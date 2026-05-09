@@ -62,7 +62,6 @@ export function applySessionsSendAuditLog(
                 ...(label ? { label } : {}),
                 ...(agentId ? { agentId } : {}),
                 messageBytes,
-                resultIsError: Boolean(result.isError),
                 ...(status ? { resultStatus: status } : {}),
                 origin: origin.source,
                 originUntrusted: origin.untrusted,
@@ -73,7 +72,7 @@ export function applySessionsSendAuditLog(
           );
         } catch (err) {
           // Audit log failure must not break the tool call.
-          logWarn("audit-log append failed (sessions_send)", { error: String(err) });
+          logWarn(`audit-log append failed (sessions_send): ${String(err)}`);
         }
       }
       return result;

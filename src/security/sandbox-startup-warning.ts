@@ -23,15 +23,14 @@ export function resolveSandboxStartupWarning(params: {
   const explicitMode = params.cfg?.agents?.defaults?.sandbox?.mode;
 
   // Operator explicitly set a non-off mode → safe.
-  if (explicitMode === "docker" || explicitMode === "ssh" || explicitMode === "openshell") {
-    return null;
-  }
-  if (explicitMode === "all") {
+  // mode = "non-main" sandboxes everything except the main session;
+  // mode = "all" sandboxes every session including main.
+  if (explicitMode === "non-main" || explicitMode === "all") {
     return null;
   }
 
-  // ALIEN_HARDENED_DEFAULTS=1 flips the unset default to "docker", so the
-  // agent will be sandboxed even though the config doesn't say so. No warning.
+  // ALIEN_HARDENED_DEFAULTS=1 flips the unset default to "all", so every
+  // session is sandboxed even though the config doesn't say so. No warning.
   if (env.ALIEN_HARDENED_DEFAULTS === "1" && !explicitMode) {
     return null;
   }
@@ -45,8 +44,9 @@ export function resolveSandboxStartupWarning(params: {
       ". Tool calls (bash, fs_write, browser, network) run with your full host privileges.",
     "  Any successful prompt-injection inside the main session = arbitrary code execution as you.",
     "  To harden:",
-    '    - Run: ALIEN_HARDENED_DEFAULTS=1 alien gateway run    (per-run opt-in to "docker" sandbox)',
-    '    - Or set agents.defaults.sandbox.mode: "docker" in your alien.json (persistent).',
+    '    - Run: ALIEN_HARDENED_DEFAULTS=1 alien gateway run    (per-run opt-in to mode="all")',
+    '    - Or set agents.defaults.sandbox.mode: "all" in your alien.json (persistent;',
+    '      backend defaults to "docker" — requires Docker Desktop running).',
     "  Audit reference: AUDIT.md H1.",
   ].join("\n");
 }
