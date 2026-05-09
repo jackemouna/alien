@@ -28,6 +28,7 @@ import { setConsoleSubsystemFilter, setConsoleTimestampPrefix } from "../../logg
 import { withDiagnosticPhase } from "../../logging/diagnostic-phase.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { defaultRuntime } from "../../runtime.js";
+import { appendAuditLog } from "../../security/audit-log.js";
 import { resolveSandboxStartupWarning } from "../../security/sandbox-startup-warning.js";
 import { resolveStateDirPermsWarning } from "../../security/state-dir-perms.js";
 import {
@@ -623,6 +624,26 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   if (opts.token) {
     const token = toOptionString(opts.token);
     if (token && process.env.ALIEN_ALLOW_INLINE_TOKEN !== "1") {
+      // Audit M4: record the refusal in the tamper-evident audit log so a
+      // post-incident reviewer can see that someone (or something) tried to
+      // start the gateway with --token. Best-effort — failures here must
+      // not block the security exit below.
+      if (process.env.ALIEN_DISABLE_AUDIT_LOG !== "1") {
+        try {
+          appendAuditLog(
+            {
+              kind: "gateway.token_inline_refused",
+              payload: {
+                tokenBytes: Buffer.byteLength(token, "utf8"),
+                argv0: process.argv[1] ?? "",
+              },
+            },
+            { logPath: path.join(resolveStateDir(process.env), "audit.log") },
+          );
+        } catch {
+          // best-effort
+        }
+      }
       defaultRuntime.error(
         "Refusing to start: --token exposes the gateway token via process listings (ps, /proc/<pid>/cmdline) and shell history. Set ALIEN_GATEWAY_TOKEN in the environment instead, or pass ALIEN_ALLOW_INLINE_TOKEN=1 to opt out (not recommended).",
       );
