@@ -15,7 +15,11 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
 import { sendJson } from "./http-common.js";
 import { handleGatewayPostJsonEndpoint } from "./http-endpoint-helpers.js";
-import { resolveOpenAiCompatibleHttpOperatorScopes } from "./http-utils.js";
+import {
+  authorizeGatewayHttpRequestOrReply,
+  resolveOpenAiCompatibleHttpOperatorScopes,
+} from "./http-utils.js";
+import { authorizeOperatorScopesForMethod } from "./method-scopes.js";
 
 /**
  * HTTP API for the orchestrator MVP. Three routes:
@@ -73,26 +77,42 @@ export async function handleOrchestratorRequest(
   return false;
 }
 
-async function handleListRuns(
+async function authorizeGetForOrchestrator(
   req: IncomingMessage,
   res: ServerResponse,
   opts: OrchestratorHttpOptions,
 ): Promise<boolean> {
-  const handled = await handleGatewayPostJsonEndpoint(req, res, {
-    pathname: "/v1/orchestrator/runs",
-    method: "GET",
-    requiredOperatorMethod: "chat.send",
-    resolveOperatorScopes: resolveOpenAiCompatibleHttpOperatorScopes,
+  const requestAuth = await authorizeGatewayHttpRequestOrReply({
+    req,
+    res,
     auth: opts.auth,
     ...(opts.trustedProxies ? { trustedProxies: [...opts.trustedProxies] } : {}),
     ...(opts.allowRealIpFallback !== undefined
       ? { allowRealIpFallback: opts.allowRealIpFallback }
       : {}),
     ...(opts.rateLimiter ? { rateLimiter: opts.rateLimiter } : {}),
-    maxBodyBytes: 0,
   });
-  if (handled === false) return false;
-  if (!handled) return true;
+  if (!requestAuth) return false;
+
+  const requestedScopes = resolveOpenAiCompatibleHttpOperatorScopes(req, requestAuth);
+  const scopeAuth = authorizeOperatorScopesForMethod("chat.send", requestedScopes);
+  if (!scopeAuth.allowed) {
+    sendJson(res, 403, {
+      ok: false,
+      error: { type: "forbidden", message: `missing scope: ${scopeAuth.missingScope}` },
+    });
+    return false;
+  }
+  return true;
+}
+
+async function handleListRuns(
+  req: IncomingMessage,
+  res: ServerResponse,
+  opts: OrchestratorHttpOptions,
+): Promise<boolean> {
+  const ok = await authorizeGetForOrchestrator(req, res, opts);
+  if (!ok) return true;
 
   const orchestratorDir = resolveOrchestratorDir();
   const ids = listRunIds(orchestratorDir);
@@ -110,21 +130,8 @@ async function handleGetRun(
   opts: OrchestratorHttpOptions,
   runId: string,
 ): Promise<boolean> {
-  const handled = await handleGatewayPostJsonEndpoint(req, res, {
-    pathname: req.url ?? `/v1/orchestrator/runs/${runId}`,
-    method: "GET",
-    requiredOperatorMethod: "chat.send",
-    resolveOperatorScopes: resolveOpenAiCompatibleHttpOperatorScopes,
-    auth: opts.auth,
-    ...(opts.trustedProxies ? { trustedProxies: [...opts.trustedProxies] } : {}),
-    ...(opts.allowRealIpFallback !== undefined
-      ? { allowRealIpFallback: opts.allowRealIpFallback }
-      : {}),
-    ...(opts.rateLimiter ? { rateLimiter: opts.rateLimiter } : {}),
-    maxBodyBytes: 0,
-  });
-  if (handled === false) return false;
-  if (!handled) return true;
+  const ok = await authorizeGetForOrchestrator(req, res, opts);
+  if (!ok) return true;
 
   if (!isSafeRunId(runId)) {
     sendJson(res, 400, { error: { message: "invalid run id", type: "invalid_request_error" } });

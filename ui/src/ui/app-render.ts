@@ -182,8 +182,32 @@ const lazyDebug = createLazyView(() => import("./views/debug.ts"), notifyLazyVie
 const lazyInstances = createLazyView(() => import("./views/instances.ts"), notifyLazyViewChanged);
 const lazyLogs = createLazyView(() => import("./views/logs.ts"), notifyLazyViewChanged);
 const lazyNodes = createLazyView(() => import("./views/nodes.ts"), notifyLazyViewChanged);
+const lazyOrchestrator = createLazyView(
+  () => import("./views/orchestrator.ts"),
+  notifyLazyViewChanged,
+);
 const lazySessions = createLazyView(() => import("./views/sessions.ts"), notifyLazyViewChanged);
 const lazySkills = createLazyView(() => import("./views/skills.ts"), notifyLazyViewChanged);
+
+// The orchestrator view owns its own poll/fetch state; the host caches a
+// single store per gateway-UI session so tab switches don't reset the run
+// list or interrupt polling.
+type OrchestratorViewModule = typeof import("./views/orchestrator.ts");
+let _orchestratorStore: ReturnType<OrchestratorViewModule["createOrchestratorStore"]> | null = null;
+function resolveOrchestratorStore(
+  mod: OrchestratorViewModule,
+  state: import("./app-view-state.ts").AppViewState,
+) {
+  if (_orchestratorStore !== null) {
+    return _orchestratorStore;
+  }
+  _orchestratorStore = mod.createOrchestratorStore({
+    basePath: state.basePath ?? "",
+    auth: { hello: state.hello, settings: state.settings, password: state.password },
+    onChange: notifyLazyViewChanged,
+  });
+  return _orchestratorStore;
+}
 
 function formatDreamNextCycle(nextRunAtMs: number | undefined): string | null {
   if (typeof nextRunAtMs !== "number" || !Number.isFinite(nextRunAtMs)) {
@@ -1972,6 +1996,13 @@ export function renderApp(state: AppViewState) {
                 },
               }),
             )
+          : nothing}
+        ${state.tab === "orchestrator"
+          ? renderLazyView(lazyOrchestrator, (m) => {
+              const store = resolveOrchestratorStore(m, state);
+              store.mount();
+              return m.renderOrchestrator({ store });
+            })
           : nothing}
         ${state.tab === "agents"
           ? renderLazyView(lazyAgents, (m) =>
