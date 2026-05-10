@@ -23,6 +23,21 @@ enum DebugActions {
     }
 
     @MainActor
+    static func openOrchestratorRunsWindow() {
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 820, height: 520),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false)
+        window.title = "Orchestrator Runs"
+        window.isReleasedWhenClosed = false
+        window.contentView = NSHostingView(rootView: OrchestratorRunsWindow())
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @MainActor
     static func openLog() {
         let path = self.pinoLogPath()
         let url = URL(fileURLWithPath: path)

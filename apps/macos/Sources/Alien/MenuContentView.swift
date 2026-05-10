@@ -292,6 +292,11 @@ struct MenuContent: View {
                 }
                 Divider()
                 Button {
+                    DebugActions.openOrchestratorRunsWindow()
+                } label: {
+                    Label("Orchestrator Runs…", systemImage: "rectangle.stack.badge.play")
+                }
+                Button {
                     DebugActions.openAgentEventsWindow()
                 } label: {
                     Label("Open Agent Events…", systemImage: "bolt.horizontal.circle")
