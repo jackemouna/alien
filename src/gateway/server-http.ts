@@ -64,6 +64,7 @@ let managedImageAttachmentsModulePromise:
 let modelsHttpModulePromise: Promise<typeof import("./models-http.js")> | undefined;
 let openAiHttpModulePromise: Promise<typeof import("./openai-http.js")> | undefined;
 let openResponsesHttpModulePromise: Promise<typeof import("./openresponses-http.js")> | undefined;
+let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
   | undefined;
@@ -110,6 +111,11 @@ function getOpenResponsesHttpModule() {
   return openResponsesHttpModulePromise;
 }
 
+function getOrchestratorHttpModule() {
+  orchestratorHttpModulePromise ??= import("./orchestrator-http.js");
+  return orchestratorHttpModulePromise;
+}
+
 function getSessionHistoryHttpModule() {
   sessionHistoryHttpModulePromise ??= import("./sessions-history-http.js");
   return sessionHistoryHttpModulePromise;
@@ -146,10 +152,7 @@ const GATEWAY_PROBE_STATUS_BY_PATH = new Map<string, "live" | "ready">([
   ["/ready", "ready"],
   ["/readyz", "ready"],
 ]);
-const pluginGatewayAuthBypassPathsCache = new WeakMap<
-  AlienConfig,
-  Promise<ReadonlySet<string>>
->();
+const pluginGatewayAuthBypassPathsCache = new WeakMap<AlienConfig, Promise<ReadonlySet<string>>>();
 
 async function resolvePluginGatewayAuthBypassPaths(
   configSnapshot: AlienConfig,
@@ -660,6 +663,23 @@ export function createGatewayHttpServer(opts: {
             (await getOpenAiHttpModule()).handleOpenAiHttpRequest(req, res, {
               auth: resolvedAuth,
               config: openAiChatCompletionsConfig,
+              trustedProxies,
+              allowRealIpFallback,
+              rateLimiter,
+            }),
+        });
+      }
+      // Orchestrator HTTP API (see src/gateway/orchestrator-http.ts).
+      // Same shared-secret bearer auth as the OpenAI surface. Three routes:
+      //   GET  /v1/orchestrator/runs
+      //   GET  /v1/orchestrator/runs/<runId>
+      //   POST /v1/orchestrator/runs
+      if ((await getOrchestratorHttpModule()).isOrchestratorRunsPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "orchestrator",
+          run: async () =>
+            (await getOrchestratorHttpModule()).handleOrchestratorRequest(req, res, {
+              auth: resolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
