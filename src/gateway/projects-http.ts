@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import type { AlienConfig } from "../config/types.alien.js";
 import { logWarn } from "../logger.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
@@ -27,6 +28,7 @@ import {
   resolveOpenAiCompatibleHttpOperatorScopes,
 } from "./http-utils.js";
 import { authorizeOperatorScopesForMethod } from "./method-scopes.js";
+import { ensureProjectsRuntimeStarted } from "./projects-runtime-singleton.js";
 
 /**
  * HTTP API for Projects + Tasks. Backs the Kanban UI in
@@ -48,6 +50,13 @@ import { authorizeOperatorScopesForMethod } from "./method-scopes.js";
 
 export type ProjectsHttpOptions = {
   readonly auth: ResolvedGatewayAuth;
+  /**
+   * Loaded gateway config. Used to lazily boot the Projects runtime
+   * (auto-pickup loop + channel-inbox listener) on first HTTP touch so
+   * the workforce starts running even when the gateway boot path has not
+   * been updated to start it eagerly.
+   */
+  readonly cfg?: AlienConfig;
   readonly maxBodyBytes?: number;
   readonly trustedProxies?: readonly string[];
   readonly allowRealIpFallback?: boolean;
@@ -70,6 +79,13 @@ export async function handleProjectsRequest(
   const pathname = url.pathname;
   const route = parseProjectsRoute(method, pathname);
   if (!route) return false;
+
+  // First-touch boot: starts the auto-pickup loop and channel-inbox
+  // listener if the gateway boot path has not started them eagerly.
+  // Idempotent — subsequent requests see the cached singleton.
+  if (opts.cfg) {
+    void ensureProjectsRuntimeStarted({ cfg: opts.cfg });
+  }
 
   switch (route.kind) {
     case "list":

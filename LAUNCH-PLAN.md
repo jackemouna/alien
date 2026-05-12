@@ -1,11 +1,29 @@
 # Alien Launch Plan
 
-Personal fork of openclaw, rebranded as Alien 👾. Public-ready, easy-to-use,
-demonstrably better than openclaw. Final GitHub home: `jackemouna/alien`.
+Public, open-source AI workforce. Apache-2.0 licensed (derivative of MIT-licensed
+upstream openclaw with proper attribution). GitHub home: `jackemouna/alien`.
+Dedicated landing site at the alien.\* domain (TBD) hosts the docs + getting-started
+flow so non-developers can find their way in.
 
 ## Positioning
 
-**Tagline (working):** "Give one prompt. A team of agents runs your business."
+**Tagline (working):** "Anyone can hire their own AI team. Give one prompt, your
+Alien runs the business."
+
+The product is for **anyone** — not just developers. A user spins up their own
+Alien, connects their accounts (Slack, Gmail, …), and configures specialist
+agents to do real work. The Alien is _theirs_ — runs on their machine or their
+server, with their data and their keys. We are not a SaaS; we are the open
+platform that lets anyone build their own.
+
+### User-friendliness is a launch requirement
+
+Every visible string in the product must be readable by a non-technical user.
+No internal jargon ("planner / dispatcher / pickup loop / DAG / claim / queued").
+Speak in human terms: "your team", "what should we work on?", "needs your
+approval", "ready for your eyes". Empty states tell a story and offer a
+"try this" example. Error messages translate technical issues to the user's
+next action.
 
 **Four pillars** — v0.1 must ship a credible demo of each:
 
@@ -74,14 +92,29 @@ validation. 48 tests, all green.
 
 ### Phase G — Docs + repo + smoke (~2 sessions)
 
-- Single landing `README.md` (rewrite — public-facing)
+- Single landing `README.md` (rewrite — public-facing, plain English, the
+  product pitch must fit on one screen)
 - `docs/`: getting-started, install, security (threat model delta vs.
-  upstream), audit-log, orchestrator, plugins, configuration, troubleshooting
+  upstream), audit-log, projects + workforce model, channel setup
+  (Slack-first), plugins, configuration, troubleshooting
 - Top-level: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
-  `CHANGELOG.md`, `LICENSE` (MIT, preserved from upstream), `NOTICE`
-  (credits openclaw)
+  `CHANGELOG.md`, `LICENSE` (**Apache 2.0**), `NOTICE` (credits upstream
+  openclaw and preserves its MIT copyright notice as required by the MIT
+  license terms; a derivative may be re-licensed under Apache 2.0 as long
+  as the upstream notice is preserved)
 - `.github/`: issue + PR templates, minimal CI workflow
 - Smoke test on a clean macOS account using only `docs/getting-started.md`
+
+### Phase G.5 — Public landing site
+
+- Separate site repo (or `/site` subdir) hosting `alien.<domain>` landing
+  page: hero, three pillars, two-minute video / GIF demo, install
+  command, link to docs, GitHub link
+- Plain English. No technical jargon on the marketing surface — that
+  belongs in `docs/`
+- Footer credits openclaw upstream
+- Static hosting (Cloudflare Pages / GitHub Pages / Vercel — decide in
+  this phase)
 
 ### Phase H — Launch
 
@@ -116,4 +149,11 @@ validation. 48 tests, all green.
 - Channel for v0.1: Slack
 - Workforce loop runs in-process inside the gateway (not a separate daemon)
 - Planner uses Claude Sonnet 4.6 — Opus 4.7 upgrade is a v0.2 consideration
-- License stays MIT, NOTICE credits upstream openclaw
+- **License: Apache 2.0** (upstream is MIT — the derivative re-licenses,
+  with the upstream MIT copyright notice preserved in `NOTICE` per the MIT
+  license terms)
+- **Positioning: open platform for anyone**, not a personal-use tool.
+  README, marketing site, and onboarding all speak to "your own AI team."
+- **Plain-English UI is non-negotiable** for v0.1 launch. No internal
+  jargon visible to users.
+- **Dedicated public landing site** is a Phase G.5 deliverable.

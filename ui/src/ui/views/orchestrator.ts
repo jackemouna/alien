@@ -261,28 +261,33 @@ export function renderOrchestrator(props: OrchestratorProps) {
     <section class="card">
       <div class="row" style="justify-content: space-between;">
         <div>
-          <div class="card-title">Orchestrator</div>
+          <div class="card-title">Quick briefs</div>
           <div class="card-sub">
-            Multi-agent runs (research → write → edit → publish). Auto-refreshes every 2.5s.
+            One-shot research jobs — give a few topics, your team writes a short briefing. For
+            ongoing work, use Projects instead.
           </div>
         </div>
         <div class="row" style="gap: 8px;">
           <button class="btn" ?disabled=${state.loading} @click=${() => void props.store.refresh()}>
-            ${state.loading ? "Loading…" : "Refresh"}
+            ${state.loading ? "Refreshing…" : "Refresh"}
           </button>
-          <button class="btn primary" @click=${() => props.store.openNewRun()}>New run</button>
+          <button class="btn primary" @click=${() => props.store.openNewRun()}>+ New brief</button>
         </div>
       </div>
       ${state.error
-        ? html`<div class="callout danger" style="margin-top: 12px;">${state.error}</div>`
+        ? html`<div class="callout danger" style="margin-top: 12px;">
+            ${friendlyError(state.error)}
+          </div>`
         : nothing}
     </section>
 
     <section class="grid" style="margin-top: 16px;">
       <div class="card" style="min-width: 240px; max-width: 320px;">
-        <div class="card-title">Runs</div>
+        <div class="card-title">Recent briefs</div>
         ${state.runs.length === 0
-          ? html`<div class="muted" style="margin-top: 12px;">No runs yet.</div>`
+          ? html`<div class="muted" style="margin-top: 12px;">
+              No briefs yet. Click "New brief" to start one.
+            </div>`
           : html`
               <div class="list" style="margin-top: 12px;">
                 ${state.runs.map((run) => renderRunRow(run, state.selectedRunId, props.store))}
@@ -293,7 +298,7 @@ export function renderOrchestrator(props: OrchestratorProps) {
         ${selectedRun
           ? renderRunDetail(selectedRun)
           : html`<div class="muted" style="padding: 12px;">
-              Pick a run from the list to see task status and output path.
+              Pick a brief on the left to see how your team is doing.
             </div>`}
       </div>
     </section>
@@ -314,10 +319,12 @@ function renderRunRow(run: Run, selectedId: string | null, store: OrchestratorSt
     >
       <div class="list-main">
         <div class="list-title">
-          <span class="chip ${runStatusToneClass(run.status)}">${run.status}</span>
+          <span class="chip ${runStatusToneClass(run.status)}"
+            >${friendlyRunStatus(run.status)}</span
+          >
           ${run.id}
         </div>
-        <div class="list-sub muted">${run.workflowId} · ${succeeded}/${total} tasks</div>
+        <div class="list-sub muted">${succeeded} of ${total} steps done</div>
       </div>
     </button>
   `;
@@ -331,27 +338,29 @@ function renderRunDetail(run: Run) {
     <div class="row" style="justify-content: space-between;">
       <div>
         <div class="card-title">${run.id}</div>
-        <div class="card-sub">${run.workflowId} · ${succeeded}/${total} tasks · ${run.status}</div>
+        <div class="card-sub">
+          ${succeeded} of ${total} steps done · ${friendlyRunStatus(run.status)}
+        </div>
       </div>
       <div>
-        <span class="chip ${runStatusToneClass(run.status)}">${run.status}</span>
+        <span class="chip ${runStatusToneClass(run.status)}">${friendlyRunStatus(run.status)}</span>
       </div>
     </div>
     <div class="muted" style="margin-top: 6px; font-size: 12px;">
-      created ${formatTimestamp(run.createdAt)}
-      ${run.startedAt ? ` · started ${formatTimestamp(run.startedAt)}` : ""}
-      ${run.completedAt ? ` · completed ${formatTimestamp(run.completedAt)}` : ""}
+      Started ${formatTimestamp(run.createdAt)}
+      ${run.startedAt ? ` · running since ${formatTimestamp(run.startedAt)}` : ""}
+      ${run.completedAt ? ` · finished ${formatTimestamp(run.completedAt)}` : ""}
     </div>
 
     <div style="margin-top: 14px;">
-      <div class="muted" style="font-weight: 600; margin-bottom: 6px;">Tasks</div>
+      <div class="muted" style="font-weight: 600; margin-bottom: 6px;">Steps</div>
       <div class="list">${run.tasks.map((task) => renderTaskRow(task))}</div>
     </div>
 
     ${outputPath
       ? html`
           <div style="margin-top: 14px;">
-            <div class="muted" style="font-weight: 600; margin-bottom: 6px;">Output</div>
+            <div class="muted" style="font-weight: 600; margin-bottom: 6px;">Saved to</div>
             <div class="mono" style="word-break: break-all;">${outputPath}</div>
           </div>
         `
@@ -364,11 +373,13 @@ function renderTaskRow(task: TaskRecord) {
     <div class="list-item">
       <div class="list-main">
         <div class="list-title">
-          <span class="chip ${taskStatusToneClass(task.status)}">${task.status}</span>
+          <span class="chip ${taskStatusToneClass(task.status)}">
+            ${friendlyTaskStatus(task.status)}
+          </span>
           ${task.summary}
         </div>
         <div class="list-sub muted">
-          ${task.role} · ${task.id}${task.attempts > 1 ? ` · ${task.attempts} attempts` : ""}
+          ${friendlyRoleShort(task.role)}${task.attempts > 1 ? ` · tried ${task.attempts}×` : ""}
         </div>
         ${task.error
           ? html`<div class="callout danger" style="margin-top: 6px;">${task.error}</div>`
@@ -390,10 +401,10 @@ function renderNewRunPanel(state: OrchestratorState, store: OrchestratorStore) {
         style="min-width: 480px; max-width: 640px;"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        <div class="card-title">Start new orchestrator run</div>
+        <div class="card-title">New brief</div>
         <div class="card-sub">
-          Daily-research workflow. Each topic becomes a researcher → writer pair, then an editor
-          merges the result and the publisher writes to disk.
+          List the topics you want covered. Your team will research each one, write a short summary,
+          edit it, and save it for you.
         </div>
 
         <div
@@ -401,26 +412,27 @@ function renderNewRunPanel(state: OrchestratorState, store: OrchestratorStore) {
           style="margin-top: 16px; gap: 12px; display: flex; flex-direction: column;"
         >
           <label class="field">
-            <span>Topics (comma separated)</span>
+            <span>Topics <span class="muted">(separate with commas)</span></span>
             <input
               .value=${state.draft.topics}
               ?disabled=${state.newRunBusy}
-              placeholder="WebAssembly, Bun, Rust async runtimes"
+              placeholder="e.g. WebAssembly, Bun, Rust async runtimes"
               @input=${(e: Event) =>
                 store.setDraft({ topics: (e.target as HTMLInputElement).value })}
             />
           </label>
           <label class="field">
-            <span>Title</span>
+            <span>Title for the brief</span>
             <input
               .value=${state.draft.title}
               ?disabled=${state.newRunBusy}
+              placeholder="e.g. Tuesday Brief"
               @input=${(e: Event) =>
                 store.setDraft({ title: (e.target as HTMLInputElement).value })}
             />
           </label>
           <label class="field">
-            <span>Word target (per topic)</span>
+            <span>Roughly how long, per topic? <span class="muted">(40–600 words)</span></span>
             <input
               type="number"
               min="40"
@@ -436,11 +448,11 @@ function renderNewRunPanel(state: OrchestratorState, store: OrchestratorStore) {
             />
           </label>
           <label class="field">
-            <span>Output path (optional)</span>
+            <span>Where to save it? <span class="muted">(optional)</span></span>
             <input
               .value=${state.draft.outputPath}
               ?disabled=${state.newRunBusy}
-              placeholder="~/Desktop/brief.md (leave blank for default)"
+              placeholder="Leave blank to save somewhere sensible"
               @input=${(e: Event) =>
                 store.setDraft({ outputPath: (e.target as HTMLInputElement).value })}
             />
@@ -448,7 +460,9 @@ function renderNewRunPanel(state: OrchestratorState, store: OrchestratorStore) {
         </div>
 
         ${state.newRunError
-          ? html`<div class="callout danger" style="margin-top: 12px;">${state.newRunError}</div>`
+          ? html`<div class="callout danger" style="margin-top: 12px;">
+              ${friendlyError(state.newRunError)}
+            </div>`
           : nothing}
 
         <div class="row" style="justify-content: flex-end; gap: 8px; margin-top: 16px;">
@@ -460,12 +474,71 @@ function renderNewRunPanel(state: OrchestratorState, store: OrchestratorStore) {
             ?disabled=${state.newRunBusy || !state.draft.topics.trim()}
             @click=${() => void store.submitNewRun()}
           >
-            ${state.newRunBusy ? "Starting…" : "Start run"}
+            ${state.newRunBusy ? "Starting…" : "Start the brief"}
           </button>
         </div>
       </div>
     </div>
   `;
+}
+
+function friendlyRunStatus(status: Run["status"]): string {
+  switch (status) {
+    case "pending":
+      return "Waiting to start";
+    case "running":
+      return "Working on it";
+    case "succeeded":
+      return "Done";
+    case "failed":
+      return "Didn't finish";
+  }
+}
+
+function friendlyTaskStatus(status: TaskRecord["status"]): string {
+  switch (status) {
+    case "pending":
+      return "waiting";
+    case "running":
+      return "working";
+    case "succeeded":
+      return "done";
+    case "failed":
+      return "failed";
+    case "skipped":
+      return "skipped";
+  }
+}
+
+function friendlyRoleShort(role: TaskRecord["role"]): string {
+  switch (role) {
+    case "researcher":
+      return "researcher";
+    case "writer":
+      return "writer";
+    case "editor":
+      return "editor";
+    case "publisher":
+      return "publisher";
+  }
+}
+
+function friendlyError(raw: string): string {
+  if (!raw) return "Something went wrong.";
+  const lower = raw.toLowerCase();
+  if (lower.includes("401") || lower.includes("unauthorized")) {
+    return "We couldn't authenticate. Try refreshing the page or check your gateway token in Settings.";
+  }
+  if (lower.includes("anthropic_api_key") || lower.includes("anthropic api key")) {
+    return "We need an Anthropic API key to start a brief. Add it in Settings → AI & Agents.";
+  }
+  if (lower.includes("fetch") || lower.includes("network") || lower.includes("failed to fetch")) {
+    return "Can't reach the server. Check your connection and try again.";
+  }
+  if (lower.includes("topics is required")) {
+    return "Please add at least one topic.";
+  }
+  return raw;
 }
 
 function runStatusToneClass(status: Run["status"]): string {

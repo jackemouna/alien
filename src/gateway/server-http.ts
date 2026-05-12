@@ -694,12 +694,15 @@ export function createGatewayHttpServer(opts: {
       }
       // Projects HTTP API (see src/gateway/projects-http.ts). Backs the
       // Kanban UI; routes are /v1/projects + /v1/projects/<id>/tasks/...
+      // Passing cfg lets the handler lazily boot the auto-pickup loop and
+      // channel-inbox listener on first request (idempotent singleton).
       if ((await getProjectsHttpModule()).isProjectsPath(scopedRequestPath)) {
         requestStages.push({
           name: "projects",
           run: async () =>
             (await getProjectsHttpModule()).handleProjectsRequest(req, res, {
               auth: resolvedAuth,
+              cfg: configSnapshot,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,

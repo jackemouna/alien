@@ -32,14 +32,18 @@ type ProjectListResponse = { readonly projects?: Project[] };
 type ProjectDetailResponse = { readonly project?: Project; readonly tasks?: TaskRecord[] };
 
 const POLL_INTERVAL_MS = 3_000;
-const COLUMNS: ReadonlyArray<{ status: TaskRecord["status"]; label: string }> = [
-  { status: "backlog", label: "Backlog (awaiting approval)" },
-  { status: "queued", label: "Queued" },
-  { status: "in-progress", label: "In progress" },
-  { status: "review", label: "Review" },
-  { status: "done", label: "Done" },
-  { status: "blocked", label: "Blocked" },
-  { status: "failed", label: "Failed" },
+const COLUMNS: ReadonlyArray<{
+  status: TaskRecord["status"];
+  label: string;
+  hint: string;
+}> = [
+  { status: "backlog", label: "Needs your OK", hint: "Approve before the team starts" },
+  { status: "queued", label: "Up next", hint: "Ready for the team to pick up" },
+  { status: "in-progress", label: "Working on it", hint: "Someone is on this right now" },
+  { status: "review", label: "For your review", hint: "Done — but wants you to look" },
+  { status: "done", label: "Done", hint: "Finished" },
+  { status: "blocked", label: "Stuck", hint: "You paused this" },
+  { status: "failed", label: "Didn't work", hint: "Failed — click retry to try again" },
 ];
 
 const NEW_PROJECT_DEFAULT_DRAFT: ProjectDraft = { name: "", goal: "" };
@@ -358,7 +362,11 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
 
   async function archiveSelectedProject(): Promise<void> {
     if (!state.selectedProjectId) return;
-    if (!confirm("Archive this project? Tasks remain on disk but the pickup loop will skip it.")) {
+    if (
+      !confirm(
+        "Close this project? Your team will stop working on it. You can find the saved tasks later but they won't run anymore.",
+      )
+    ) {
       return;
     }
     const url = `/v1/projects/${encodeURIComponent(state.selectedProjectId)}`;
@@ -408,31 +416,35 @@ export function renderProjects(props: ProjectsProps) {
     <section class="card">
       <div class="row" style="justify-content: space-between;">
         <div>
-          <div class="card-title">Projects</div>
+          <div class="card-title">Your AI team 👾</div>
           <div class="card-sub">
-            Persistent workspaces. The planner deposits tasks here; workers auto-pick them up.
+            Start a project, tell your team what to do, and watch the work move from left to right.
           </div>
         </div>
         <div class="row" style="gap: 8px;">
           <button class="btn" ?disabled=${state.loading} @click=${() => void props.store.refresh()}>
-            ${state.loading ? "Loading…" : "Refresh"}
+            ${state.loading ? "Refreshing…" : "Refresh"}
           </button>
           <button class="btn primary" @click=${() => props.store.openNewProject()}>
-            New project
+            + Start a project
           </button>
         </div>
       </div>
       ${state.error
-        ? html`<div class="callout danger" style="margin-top: 12px;">${state.error}</div>`
+        ? html`<div class="callout danger" style="margin-top: 12px;">
+            ${friendlyError(state.error)}
+          </div>`
         : nothing}
     </section>
 
+    ${state.projects.length === 0 ? renderFirstRunEmptyState(props.store) : nothing}
+
     <section class="grid" style="margin-top: 16px;">
       <div class="card" style="min-width: 220px; max-width: 320px;">
-        <div class="card-title">All projects</div>
+        <div class="card-title">Your projects</div>
         ${state.projects.length === 0
           ? html`<div class="muted" style="margin-top: 12px;">
-              No projects yet. Click "New project" to get started.
+              Nothing yet — start a project above.
             </div>`
           : html`
               <div class="list" style="margin-top: 12px;">
@@ -444,12 +456,34 @@ export function renderProjects(props: ProjectsProps) {
         ${selectedProject
           ? renderProjectDetail(selectedProject, state, props.store)
           : html`<div class="muted" style="padding: 12px;">
-              Pick a project on the left, or create one to start dispatching prompts.
+              ${state.projects.length === 0
+                ? "Once you start a project, you'll see its workspace here."
+                : "Pick a project on the left to see what your team is doing."}
             </div>`}
       </div>
     </section>
 
     ${state.newProjectOpen ? renderNewProjectPanel(state, props.store) : nothing}
+  `;
+}
+
+function renderFirstRunEmptyState(store: ProjectsStore) {
+  return html`
+    <section class="card" style="margin-top: 16px; text-align: center;">
+      <div style="font-size: 32px; margin-bottom: 8px;">👾</div>
+      <div class="card-title">Welcome to your AI team</div>
+      <div class="card-sub" style="max-width: 560px; margin: 8px auto;">
+        Think of Alien as a small team of AI workers you can hire on demand. Tell them what you want
+        — write a brief, send emails, plan a campaign — and they break the job into steps and do it.
+        You stay in control: every step is visible on a board, and big actions wait for your
+        approval.
+      </div>
+      <div class="row" style="gap: 8px; justify-content: center; margin-top: 16px;">
+        <button class="btn primary" @click=${() => store.openNewProject()}>
+          Start your first project
+        </button>
+      </div>
+    </section>
   `;
 }
 
@@ -480,14 +514,16 @@ function renderProjectDetail(project: Project, state: ProjectsState, store: Proj
         <div class="card-title">${project.name}</div>
         <div class="card-sub">${project.goal}</div>
         <div class="muted" style="margin-top: 4px; font-size: 12px;">
-          ${project.id} · owner ${project.owner} · created ${formatTimestamp(project.createdAt)}
+          Started ${formatTimestamp(project.createdAt)} · by ${project.owner}
         </div>
       </div>
       <div class="row" style="gap: 8px;">
-        <span class="chip ${projectStatusTone(project.status)}">${project.status}</span>
+        <span class="chip ${projectStatusTone(project.status)}">
+          ${friendlyProjectStatus(project.status)}
+        </span>
         ${project.status !== "archived"
           ? html`<button class="btn" @click=${() => void store.archiveSelectedProject()}>
-              Archive
+              Close project
             </button>`
           : nothing}
       </div>
@@ -495,17 +531,33 @@ function renderProjectDetail(project: Project, state: ProjectsState, store: Proj
 
     ${renderPromptComposer(state, store)}
     ${state.detailError
-      ? html`<div class="callout danger" style="margin-top: 12px;">${state.detailError}</div>`
+      ? html`<div class="callout danger" style="margin-top: 12px;">
+          ${friendlyError(state.detailError)}
+        </div>`
       : nothing}
-
-    <div
-      class="kanban"
-      style="display: grid; gap: 10px; margin-top: 16px; grid-template-columns: repeat(${COLUMNS.length}, minmax(180px, 1fr)); overflow-x: auto;"
-    >
-      ${COLUMNS.map((col) =>
-        renderColumn(col.status, col.label, tasksByStatus.get(col.status) ?? [], store),
-      )}
-    </div>
+    ${state.selectedTasks.length === 0
+      ? html`<div
+          class="muted"
+          style="margin-top: 16px; padding: 16px; text-align: center; border: 1px dashed var(--border, rgba(255,255,255,0.1)); border-radius: 8px;"
+        >
+          No work yet. Type a request above and your team will get to it.
+        </div>`
+      : html`
+          <div
+            class="kanban"
+            style="display: grid; gap: 10px; margin-top: 16px; grid-template-columns: repeat(${COLUMNS.length}, minmax(180px, 1fr)); overflow-x: auto;"
+          >
+            ${COLUMNS.map((col) =>
+              renderColumn(
+                col.status,
+                col.label,
+                col.hint,
+                tasksByStatus.get(col.status) ?? [],
+                store,
+              ),
+            )}
+          </div>
+        `}
   `;
 }
 
@@ -513,23 +565,28 @@ function renderPromptComposer(state: ProjectsState, store: ProjectsStore) {
   return html`
     <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
       <label class="field">
-        <span>Dispatch a prompt (the planner breaks it into tasks)</span>
+        <span>What should your team work on?</span>
         <textarea
           rows="3"
           .value=${state.promptDraft}
           ?disabled=${state.promptBusy}
-          placeholder="e.g. Draft a Tuesday brief on WebAssembly and Bun, then publish to ~/Desktop/brief.md"
+          placeholder="e.g. Write a short Tuesday brief on WebAssembly and Bun, then save it to my Desktop"
           @input=${(e: Event) => store.setPromptDraft((e.target as HTMLTextAreaElement).value)}
         ></textarea>
       </label>
-      ${state.promptError ? html`<div class="callout danger">${state.promptError}</div>` : nothing}
-      <div class="row" style="justify-content: flex-end;">
+      ${state.promptError
+        ? html`<div class="callout danger">${friendlyError(state.promptError)}</div>`
+        : nothing}
+      <div class="row" style="justify-content: space-between; align-items: center;">
+        <div class="muted" style="font-size: 12px;">
+          Your team will break this into small steps and start working.
+        </div>
         <button
           class="btn primary"
           ?disabled=${state.promptBusy || !state.promptDraft.trim()}
           @click=${() => void store.submitPrompt()}
         >
-          ${state.promptBusy ? "Planning…" : "Dispatch"}
+          ${state.promptBusy ? "Planning…" : "Send to the team"}
         </button>
       </div>
     </div>
@@ -539,11 +596,12 @@ function renderPromptComposer(state: ProjectsState, store: ProjectsStore) {
 function renderColumn(
   status: TaskRecord["status"],
   label: string,
+  hint: string,
   tasks: TaskRecord[],
   store: ProjectsStore,
 ) {
   return html`
-    <div class="card kanban-column" style="padding: 10px; min-height: 200px;">
+    <div class="card kanban-column" style="padding: 10px; min-height: 200px;" title="${hint}">
       <div class="row" style="justify-content: space-between; align-items: center;">
         <div style="font-weight: 600; font-size: 13px;">${label}</div>
         <span class="chip ${taskStatusTone(status)}">${tasks.length}</span>
@@ -565,7 +623,9 @@ function renderTaskCard(task: TaskRecord, store: ProjectsStore) {
     >
       <div style="font-size: 13px; font-weight: 500;">${task.title}</div>
       <div class="muted" style="font-size: 11px;">
-        ${task.role} · ${task.priority}${task.attempts > 1 ? ` · ${task.attempts} attempts` : ""}
+        ${friendlyRole(task.role)}${task.priority !== "normal"
+          ? ` · ${friendlyPriority(task.priority)}`
+          : ""}${task.attempts > 1 ? ` · tried ${task.attempts}×` : ""}
       </div>
       ${task.error
         ? html`<div class="callout danger" style="margin-top: 4px; font-size: 11px;">
@@ -582,32 +642,35 @@ function renderTaskActions(task: TaskRecord, store: ProjectsStore) {
     return html`<button
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
+      title="Approve so the team can start this step"
       @click=${() => void store.approveTask(task.id)}
     >
-      Approve → queue
+      Looks good — go
     </button>`;
   }
   if (task.status === "failed" || task.status === "blocked") {
     return html`<button
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
+      title="Put this back in the queue and try again"
       @click=${() => void store.retryTask(task.id)}
     >
-      Retry
+      Try again
     </button>`;
   }
   if (task.status === "queued" || task.status === "in-progress" || task.status === "review") {
     return html`<button
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
+      title="Stop the team from working on this for now"
       @click=${() => {
-        const reason = prompt("Block reason?", "operator paused");
+        const reason = prompt("Why pause this?", "paused by me");
         if (reason !== null) {
-          void store.blockTask(task.id, reason || "blocked");
+          void store.blockTask(task.id, reason || "paused");
         }
       }}
     >
-      Block
+      Pause
     </button>`;
   }
   return nothing;
@@ -625,28 +688,29 @@ function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {
         style="min-width: 420px; max-width: 560px;"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        <div class="card-title">Create project</div>
+        <div class="card-title">Start a project</div>
         <div class="card-sub">
-          A project is a persistent workspace. Workers auto-pick up its tasks until you archive it.
+          A project is your workspace — give it a name and what you want done, and your AI team
+          picks up the work from there.
         </div>
         <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
           <label class="field">
-            <span>Name</span>
+            <span>What do you call this project?</span>
             <input
               .value=${state.newProjectDraft.name}
               ?disabled=${state.newProjectBusy}
-              placeholder="Daily research"
+              placeholder="e.g. Weekly newsletter, Inbox triage, Lead follow-ups"
               @input=${(e: Event) =>
                 store.setNewProjectDraft({ name: (e.target as HTMLInputElement).value })}
             />
           </label>
           <label class="field">
-            <span>Goal (optional)</span>
+            <span>What's the goal? <span class="muted">(optional)</span></span>
             <textarea
               rows="3"
               .value=${state.newProjectDraft.goal}
               ?disabled=${state.newProjectBusy}
-              placeholder="What outcome should this project drive toward?"
+              placeholder="e.g. Send a polished weekly newsletter every Monday morning"
               @input=${(e: Event) =>
                 store.setNewProjectDraft({ goal: (e.target as HTMLTextAreaElement).value })}
             ></textarea>
@@ -654,7 +718,7 @@ function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {
         </div>
         ${state.newProjectError
           ? html`<div class="callout danger" style="margin-top: 12px;">
-              ${state.newProjectError}
+              ${friendlyError(state.newProjectError)}
             </div>`
           : nothing}
         <div class="row" style="justify-content: flex-end; gap: 8px; margin-top: 16px;">
@@ -670,7 +734,7 @@ function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {
             ?disabled=${state.newProjectBusy || !state.newProjectDraft.name.trim()}
             @click=${() => void store.submitNewProject()}
           >
-            ${state.newProjectBusy ? "Creating…" : "Create"}
+            ${state.newProjectBusy ? "Starting…" : "Start project"}
           </button>
         </div>
       </div>
@@ -697,6 +761,79 @@ function projectStatusTone(status: Project["status"]): string {
     case "archived":
       return "";
   }
+}
+
+function friendlyProjectStatus(status: Project["status"]): string {
+  switch (status) {
+    case "active":
+      return "Running";
+    case "paused":
+      return "Paused";
+    case "archived":
+      return "Closed";
+  }
+}
+
+function friendlyRole(role: TaskRecord["role"]): string {
+  switch (role) {
+    case "researcher":
+      return "Researcher";
+    case "writer":
+      return "Writer";
+    case "editor":
+      return "Editor";
+    case "publisher":
+      return "Publisher";
+  }
+}
+
+function friendlyPriority(priority: TaskRecord["priority"]): string {
+  switch (priority) {
+    case "urgent":
+      return "urgent";
+    case "high":
+      return "important";
+    case "low":
+      return "low priority";
+    case "normal":
+      return "";
+  }
+}
+
+/**
+ * Translates raw error strings (often something like "gateway responded 401"
+ * or "fetch failed") into a one-line, action-oriented message the user can
+ * act on. Falls back to the original string if no pattern matches, so we
+ * never hide a real signal.
+ */
+function friendlyError(raw: string): string {
+  if (!raw) return "Something went wrong.";
+  const lower = raw.toLowerCase();
+  if (lower.includes("401") || lower.includes("unauthorized")) {
+    return "We couldn't authenticate. Try refreshing the page, or check your gateway token in Settings.";
+  }
+  if (lower.includes("403") || lower.includes("forbidden")) {
+    return "This account doesn't have permission for that action.";
+  }
+  if (lower.includes("404")) {
+    return "We couldn't find that. It may have been removed — refresh and try again.";
+  }
+  if (lower.includes("anthropic_api_key") || lower.includes("anthropic api key")) {
+    return "We need an Anthropic API key to plan your work. Add it in Settings → AI & Agents.";
+  }
+  if (lower.includes("fetch") || lower.includes("network") || lower.includes("failed to fetch")) {
+    return "Can't reach the server. Check your connection and try again.";
+  }
+  if (lower.includes("planner returned") || lower.includes("planner response")) {
+    return "Your team got confused by that request. Try rewording it — short and concrete works best.";
+  }
+  if (lower.includes("topics is required")) {
+    return "Please tell us what to research — add at least one topic.";
+  }
+  if (lower.includes("name is required")) {
+    return "Please give the project a name.";
+  }
+  return raw;
 }
 
 function taskStatusTone(status: TaskRecord["status"]): string {
