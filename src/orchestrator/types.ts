@@ -12,7 +12,17 @@
  * a list of Tasks and a worker registry for the role names referenced.
  */
 
-export type WorkerRole = "researcher" | "writer" | "editor" | "publisher";
+export type WorkerRole =
+  | "researcher"
+  | "writer"
+  | "editor"
+  | "publisher"
+  /**
+   * Email specialist: reads inbox, drafts replies, sends mail. Backed by
+   * src/integrations/gmail/worker.ts for the Gmail integration; v0.2+ may
+   * add Outlook/IMAP behind the same role.
+   */
+  | "email-handler";
 
 export type TaskStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
 

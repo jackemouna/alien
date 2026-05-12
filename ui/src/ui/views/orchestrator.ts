@@ -520,6 +520,8 @@ function friendlyRoleShort(role: TaskRecord["role"]): string {
       return "editor";
     case "publisher":
       return "publisher";
+    case "email-handler":
+      return "email";
   }
 }
 

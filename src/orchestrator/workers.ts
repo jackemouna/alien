@@ -60,7 +60,15 @@ export function createDailyResearchWorkers(deps: WorkerDeps): WorkerRegistry {
     writer: createWriter(deps.llm),
     editor: createEditor(deps.llm),
     publisher: createPublisher(deps.writeFile),
+    "email-handler": createUnsupportedRole("email-handler"),
   };
+}
+
+function createUnsupportedRole(role: string): Worker {
+  return async () => ({
+    ok: false,
+    error: `${role}: not supported by the daily-research workflow. This role is dispatched via the projects pickup loop instead.`,
+  });
 }
 
 function createResearcher(llm: LlmClient): Worker {

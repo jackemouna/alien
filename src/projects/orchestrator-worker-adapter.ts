@@ -58,6 +58,7 @@ export function adaptOrchestratorWorkerRegistry(
     writer: adaptOrchestratorWorker(registry.writer),
     editor: adaptOrchestratorWorker(registry.editor),
     publisher: adaptOrchestratorWorker(registry.publisher),
+    "email-handler": adaptOrchestratorWorker(registry["email-handler"]),
   };
 }
 

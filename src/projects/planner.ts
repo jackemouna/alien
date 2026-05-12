@@ -33,6 +33,12 @@ The available worker roles are exactly:
 - writer: produces a draft from research / inputs.
 - editor: revises drafts for quality and consistency.
 - publisher: writes the final artifact to disk or sends it to a channel.
+- email-handler: reads the user's Gmail inbox, drafts replies, and sends mail.
+  Task input shape for email-handler:
+    { "action": "list_inbox", "query": "is:unread newer_than:1d", "maxResults": 10 }
+    { "action": "send", "to": "...", "subject": "...", "bodyText": "..." }
+    { "action": "draft_reply", "inReplyToMessageId": "...",
+      "replyPrompt": "Politely decline; suggest next week." }
 
 Hard rules:
 1. Respond with strict JSON only, no prose, no markdown fence.
@@ -44,7 +50,7 @@ Hard rules:
          "id": "<short kebab id, unique in this plan>",
          "title": "<one-line>",
          "description": "<two-sentence what to do>",
-         "role": "researcher" | "writer" | "editor" | "publisher",
+         "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler",
          "dependsOn": ["<id of another task in this list>", ...],
          "input": { ...arbitrary JSON the worker needs... },
          "priority": "low" | "normal" | "high" | "urgent",
@@ -54,9 +60,17 @@ Hard rules:
    }
 3. Prefer fewer tasks (2–6) over many. Aim for the simplest plan that achieves the goal.
 4. dependsOn must reference ids from the *same* response. Do NOT reference existing tasks.
-5. Mark a task requiresApproval: true only when the action has irreversible external effects.`;
+5. Mark a task requiresApproval: true when the action has irreversible external
+   effects (sending mail, posting to a channel, deleting). Reading and drafting
+   are safe — leave them unapproved so the team can move fast.`;
 
-const KNOWN_ROLES: readonly WorkerRole[] = ["researcher", "writer", "editor", "publisher"] as const;
+const KNOWN_ROLES: readonly WorkerRole[] = [
+  "researcher",
+  "writer",
+  "editor",
+  "publisher",
+  "email-handler",
+] as const;
 
 const KNOWN_PRIORITIES: readonly Priority[] = ["low", "normal", "high", "urgent"] as const;
 

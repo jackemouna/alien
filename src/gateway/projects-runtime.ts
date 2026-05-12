@@ -1,7 +1,10 @@
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
+import { resolveGmailOAuthClientConfig } from "../integrations/gmail/config.js";
+import { createEmailHandlerWorker } from "../integrations/gmail/worker.js";
 import { logWarn } from "../logger.js";
+import type { LlmClient } from "../orchestrator/llm-client.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { createDailyResearchWorkers } from "../orchestrator/workers.js";
 import { bindChannelInboxToProjects } from "../projects/channel-inbox.js";
@@ -10,6 +13,7 @@ import { adaptOrchestratorWorkerRegistry } from "../projects/orchestrator-worker
 import {
   startPickupLoop,
   type PickupLoopHandle,
+  type ProjectWorker,
   type ProjectWorkerRegistry,
 } from "../projects/pickup-loop.js";
 
@@ -68,7 +72,10 @@ export async function startProjectsRuntime(
   }
 
   const workers: ProjectWorkerRegistry = llm
-    ? adaptOrchestratorWorkerRegistry(createDailyResearchWorkers({ llm }))
+    ? overrideEmailHandler(
+        adaptOrchestratorWorkerRegistry(createDailyResearchWorkers({ llm })),
+        buildEmailHandler(llm),
+      )
     : buildNoLlmWorkerRegistry();
 
   const sendChannelReply = buildChannelReplyAdapter(opts.cfg);
@@ -121,7 +128,7 @@ function buildChannelReplyAdapter(cfg: AlienConfig): ChannelReplySend {
 }
 
 function buildNoLlmWorkerRegistry(): ProjectWorkerRegistry {
-  const refuse: ProjectWorkerRegistry[keyof ProjectWorkerRegistry] = async () => ({
+  const refuse: ProjectWorker = async () => ({
     ok: false,
     error: "no LLM available — set ANTHROPIC_API_KEY (env or keychain) and restart the gateway",
   });
@@ -130,7 +137,43 @@ function buildNoLlmWorkerRegistry(): ProjectWorkerRegistry {
     writer: refuse,
     editor: refuse,
     publisher: refuse,
+    "email-handler": refuse,
   };
+}
+
+/**
+ * If the operator has configured Gmail OAuth credentials (env vars or
+ * keychain), wire the real email-handler worker. Otherwise fall back to
+ * a friendly stub that tells the planner why email tasks can't run yet.
+ *
+ * The default account for v0.1 is read from GMAIL_DEFAULT_ACCOUNT. Tasks
+ * may override per-call via `task.input.account = "alice@example.com"`.
+ */
+function buildEmailHandler(llm: LlmClient): ProjectWorker {
+  const oauthConfig = resolveGmailOAuthClientConfig();
+  if (!oauthConfig) {
+    return async () => ({
+      ok: false,
+      error:
+        "Gmail isn't connected yet. Set GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET, then run 'alien gmail connect <your-address@gmail.com>'.",
+    });
+  }
+  const defaultEmail = (process.env.GMAIL_DEFAULT_ACCOUNT ?? "").trim();
+  if (!defaultEmail) {
+    return async () => ({
+      ok: false,
+      error:
+        "Gmail credentials are set, but no default account is configured. Run 'alien gmail connect <your-address@gmail.com>' and set GMAIL_DEFAULT_ACCOUNT.",
+    });
+  }
+  return createEmailHandlerWorker({ oauthConfig, defaultEmail, llm });
+}
+
+function overrideEmailHandler(
+  registry: ProjectWorkerRegistry,
+  emailHandler: ProjectWorker,
+): ProjectWorkerRegistry {
+  return { ...registry, "email-handler": emailHandler };
 }
 
 function stringifyError(err: unknown): string {

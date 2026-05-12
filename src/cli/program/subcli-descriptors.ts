@@ -149,6 +149,11 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
     hasSubcommands: true,
   },
   {
+    name: "gmail",
+    description: "Connect Alien to your Gmail account",
+    hasSubcommands: true,
+  },
+  {
     name: "secrets",
     description: "Secrets runtime reload controls",
     hasSubcommands: true,

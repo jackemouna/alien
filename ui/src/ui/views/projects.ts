@@ -784,6 +784,8 @@ function friendlyRole(role: TaskRecord["role"]): string {
       return "Editor";
     case "publisher":
       return "Publisher";
+    case "email-handler":
+      return "Email";
   }
 }
 
