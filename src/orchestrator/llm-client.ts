@@ -28,8 +28,9 @@ export type LlmClient = {
 
 /**
  * Anthropic-backed implementation. Reads ANTHROPIC_API_KEY from the env
- * (falling back through the env-or-keychain resolver if the operator has
- * opted into keychain). Module-level so the SDK is loaded once per process.
+ * first; if absent and the operator has opted into keychain-backed secrets
+ * (`ALIEN_SECRETS_FROM_KEYCHAIN=1`), falls back to the macOS Keychain /
+ * Linux libsecret entry `service=alien.ai`, `account=anthropic-api-key`.
  */
 export type CreateAnthropicLlmClientOptions = {
   readonly apiKey?: string;
@@ -40,14 +41,26 @@ export type CreateAnthropicLlmClientOptions = {
 const DEFAULT_MODEL = "claude-sonnet-4-6";
 const DEFAULT_MAX_TOKENS = 1024;
 
+export const ANTHROPIC_API_KEY_KEYCHAIN_SERVICE = "alien.ai";
+export const ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT = "anthropic-api-key";
+
 export async function createAnthropicLlmClient(
   options: CreateAnthropicLlmClientOptions = {},
 ): Promise<LlmClient> {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY;
+  const { readSecretFromEnvOrKeychain } = await import("../security/secret-source.js");
+  const apiKey =
+    options.apiKey ??
+    readSecretFromEnvOrKeychain({
+      envVarName: "ANTHROPIC_API_KEY",
+      keychain: {
+        service: ANTHROPIC_API_KEY_KEYCHAIN_SERVICE,
+        account: ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT,
+      },
+    });
   if (!apiKey) {
     throw new Error(
-      "createAnthropicLlmClient: ANTHROPIC_API_KEY is required. Set it in the env or pass options.apiKey.",
+      "createAnthropicLlmClient: ANTHROPIC_API_KEY is required. Set it in the env, store it in the OS keychain (ALIEN_SECRETS_FROM_KEYCHAIN=1, service=alien.ai, account=anthropic-api-key), or pass options.apiKey.",
     );
   }
   const client = new Anthropic({ apiKey });
