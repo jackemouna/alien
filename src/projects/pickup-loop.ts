@@ -1,6 +1,7 @@
 import type { WorkerRole } from "../orchestrator/types.js";
 import { runAsChannel, runAsOperator } from "../security/origin-context.js";
 import { emitProjectsAuditEvent, summarizeTaskForAudit } from "./audit.js";
+import { maybeReplyToChannelOrigin, type ChannelReplySend } from "./channel-reply.js";
 import {
   listProjectIds,
   listTasks,
@@ -58,6 +59,13 @@ export type PickupLoopOptions = {
   readonly storeOptions?: ProjectStoreOptions;
   readonly signal?: AbortSignal;
   readonly now?: () => string;
+  /**
+   * Outbound channel reply for tasks whose origin is a channel DM. When
+   * undefined, channel-origin tasks still complete normally; their output
+   * is just not posted back. The gateway boot path wires this with an
+   * adapter around `sendDurableMessageBatch`.
+   */
+  readonly sendChannelReply?: ChannelReplySend;
   /**
    * Optional override for the per-tick work. Tests inject this to drive
    * ticks deterministically without setInterval.
@@ -160,6 +168,7 @@ async function runWorkerForTask(
       const failed = markTaskFailed(task, output.error ?? "worker reported ok=false", opts.now);
       saveTask(opts.projectsDir, failed, opts.storeOptions);
       emitAudit("projects.task.failed", failed, opts);
+      await maybeReplyForOutcome(failed, { status: "failed", error: failed.error }, opts);
       return;
     }
     const next = output.toReview
@@ -167,12 +176,27 @@ async function runWorkerForTask(
       : markTaskDone(task, output.result, opts.now);
     saveTask(opts.projectsDir, next, opts.storeOptions);
     emitAudit(output.toReview ? "projects.task.in_review" : "projects.task.completed", next, opts);
+    await maybeReplyForOutcome(
+      next,
+      { status: output.toReview ? "review" : "done", result: output.result },
+      opts,
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const failed = markTaskFailed(task, message, opts.now);
     saveTask(opts.projectsDir, failed, opts.storeOptions);
     emitAudit("projects.task.failed", failed, opts);
+    await maybeReplyForOutcome(failed, { status: "failed", error: message }, opts);
   }
+}
+
+async function maybeReplyForOutcome(
+  task: TaskRecord,
+  outcome: { status: "done" | "review" | "failed"; result?: unknown; error?: string },
+  opts: PickupLoopOptions,
+): Promise<void> {
+  if (!opts.sendChannelReply) return;
+  await maybeReplyToChannelOrigin(task, outcome, { send: opts.sendChannelReply });
 }
 
 function runUnderTaskOrigin<T>(

@@ -8,6 +8,7 @@ import {
   measureDiagnosticsTimelineSpan,
   measureDiagnosticsTimelineSpanSync,
 } from "../infra/diagnostics-timeline.js";
+import { emitChannelInbound } from "../plugin-sdk/channel-inbound-listener.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import type { SilentReplyConversationType } from "../shared/silent-reply-policy.js";
 import { withReplyDispatcher } from "./dispatch-dispatcher.js";
@@ -170,6 +171,10 @@ export async function dispatchInboundMessage(params: {
       attributes: buildDispatchTimelineAttributes(params.ctx),
     },
   );
+  // Observer hook so the project-inbox router (and any future subscribers)
+  // can react to inbound channel DMs without intercepting auto-reply.
+  // Listeners are non-blocking; errors are swallowed by notifyListeners.
+  void notifyChannelInboundFromCtx(finalized);
   const result = await withReplyDispatcher({
     dispatcher: params.dispatcher,
     run: () =>
@@ -246,5 +251,38 @@ export async function dispatchInboundMessageWithDispatcher(params: {
     dispatcher,
     replyResolver: params.replyResolver,
     replyOptions: params.replyOptions,
+  });
+}
+
+/**
+ * Project-inbox routing + custom hook subscribers observe inbound channel
+ * messages without intercepting the auto-reply dispatch. We emit once per
+ * dispatchInboundMessage call, after context finalization, with the
+ * channel-relevant fields lifted out of `MsgContext`.
+ */
+function notifyChannelInboundFromCtx(ctx: FinalizedMsgContext): void {
+  const channel = ctx.Provider;
+  if (!channel || typeof channel !== "string") return;
+  const text =
+    typeof ctx.Body === "string"
+      ? ctx.Body
+      : typeof ctx.RawBody === "string"
+        ? ctx.RawBody
+        : typeof ctx.CommandBody === "string"
+          ? ctx.CommandBody
+          : "";
+  if (!text) return;
+  emitChannelInbound({
+    channel,
+    ...(typeof ctx.AccountId === "string" && ctx.AccountId ? { accountId: ctx.AccountId } : {}),
+    ...(typeof ctx.From === "string" && ctx.From ? { from: ctx.From } : {}),
+    ...(typeof ctx.To === "string" && ctx.To ? { to: ctx.To } : {}),
+    ...(typeof ctx.RootMessageId === "string" && ctx.RootMessageId
+      ? { threadId: ctx.RootMessageId }
+      : typeof ctx.ReplyToId === "string" && ctx.ReplyToId
+        ? { threadId: ctx.ReplyToId }
+        : {}),
+    ...(typeof ctx.MessageSid === "string" && ctx.MessageSid ? { messageId: ctx.MessageSid } : {}),
+    text,
   });
 }
