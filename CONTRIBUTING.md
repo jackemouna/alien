@@ -1,233 +1,104 @@
 # Contributing to Alien
 
-Welcome to the lobster tank! 👾
+Welcome 👾 — thanks for considering a contribution.
 
-## Quick Links
+Alien is a small, opinionated project early in its public life. We're happy
+to take pull requests and feedback. Please read this page first so we can
+keep the bar high and avoid duplicate work.
 
-- **GitHub:** https://github.com/alien/alien
-- **Vision:** [`VISION.md`](VISION.md)
-- **Discord:** https://discord.gg/clawd
-- **X/Twitter:** [@steipete](https://x.com/steipete) / [@alien](https://x.com/alien)
+## Code of conduct
 
-## Maintainers
+By participating you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-- **Peter Steinberger** - Benevolent Dictator
-  - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
+## Before you start
 
-- **Frank Yang** - PR triage, Agents, Gateway, Channels
-  - GitHub: [@frankekn](https://github.com/frankekn) · X: [@frankekn](https://x.com/frankekn)
+If your contribution is **more than a small fix**, please open an issue first
+and describe what you want to do. We'd rather discuss the shape early than
+re-do the review on a finished PR.
 
-- **Shadow** - Discord subsystem, Discord admin, Clawhub, all community moderation
-  - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shadowed](https://x.com/4shadowed)
+Small bug fixes and documentation tweaks: just open a PR.
 
-- **Vignesh** - Memory (QMD), formal modeling, TUI, IRC, and Lobster
-  - GitHub: [@vignesh07](https://github.com/vignesh07) · X: [@\_vgnsh](https://x.com/_vgnsh)
+## Reporting a bug
 
-- **Jos** - Telegram, API, Nix mode
-  - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
+Open an issue with:
 
-- **Ayaan Zaidi** - Telegram subsystem, Android app
-  - GitHub: [@obviyus](https://github.com/obviyus) · X: [@obviyus](https://x.com/obviyus)
+- What you tried.
+- What you expected to happen.
+- What actually happened (logs help — redact secrets first).
+- Your environment: OS, Node version, Alien commit hash.
 
-- **Tyler Yust** - Agents/subagents, cron, BlueBubbles, macOS app
-  - GitHub: [@tyler6204](https://github.com/tyler6204) · X: [@tyleryust](https://x.com/tyleryust)
+If you can include a minimal reproduction, we'll get to it faster.
 
-- **Mariano Belinky** - iOS app, Security
-  - GitHub: [@mbelinky](https://github.com/mbelinky) · X: [@belimad](https://x.com/belimad)
+## Proposing a feature
 
-- **Nimrod Gutman** - iOS app, macOS app and crustacean features
-  - GitHub: [@ngutman](https://github.com/ngutman) · X: [@theguti](https://x.com/theguti)
+Open an issue tagged `proposal`. A good proposal includes:
 
-- **Vincent Koc** - Agents, Telemetry, Hooks, Security
-  - GitHub: [@vincentkoc](https://github.com/vincentkoc) · X: [@vincent_koc](https://x.com/vincent_koc)
+- The user problem you're solving (not the technical solution).
+- One or two example user flows.
+- What you considered and rejected.
+- Anything you're unsure about and want feedback on.
 
-- **Val Alexander** - UI/UX, Docs, and Agent DevX
-  - GitHub: [@BunsDev](https://github.com/BunsDev) · X: [@BunsDev](https://x.com/BunsDev)
+Don't worry about polish — rough sketches help us think along with you.
 
-- **Seb Slight** - Docs, Agent Reliability, Runtime Hardening
-  - GitHub: [@sebslight](https://github.com/sebslight) · X: [@sebslig](https://x.com/sebslig)
+## Submitting a pull request
 
-- **Christoph Nakazawa** - JS Infra
-  - GitHub: [@cpojer](https://github.com/cpojer) · X: [@cnakazawa](https://x.com/cnakazawa)
+1. Fork `jackemouna/alien` and create a branch off `main`.
+2. Make your change. Keep PRs focused — one logical change per PR.
+3. Add or update tests where it makes sense. The bar:
+   - New core module: unit tests for the public API.
+   - Bug fix: a regression test that fails without your fix.
+   - Doc/copy change: tests not required.
+4. Run the local checks:
+   ```bash
+   pnpm tsgo:core            # core typecheck
+   pnpm test src/<area>      # tests for what you touched
+   ```
+5. Write a clear PR description: what changed, why, what you tested.
+6. Open the PR against `main`.
 
-- **Gustavo Madeira Santana** - Multi-agents, CLI, Performance, Plugins, Matrix
-  - GitHub: [@gumadeiras](https://github.com/gumadeiras) · X: [@gumadeiras](https://x.com/gumadeiras)
+We aim to respond within a week. If you don't hear back, ping the PR — we may
+have missed the notification.
 
-- **Onur Solmaz** - Agents, dev workflows, ACP integrations, MS Teams
-  - GitHub: [@onutc](https://github.com/onutc), [@osolmaz](https://github.com/osolmaz) · X: [@onusoz](https://x.com/onusoz)
+## Coding standards
 
-- **Josh Avant** - Core, CLI, Gateway, Security, Agents
-  - GitHub: [@joshavant](https://github.com/joshavant) · X: [@joshavant](https://x.com/joshavant)
+- **TypeScript, strict mode, ESM.** Avoid `any`; prefer real types, `unknown`,
+  or narrow adapters.
+- **Plain English in user-facing strings.** No internal jargon ("planner",
+  "dispatcher", "pickup loop", "queued") in anything a user reads.
+- **No semantic sentinels** like `?? 0` or empty-string defaults.
+- **Tests are colocated** next to the file they test (`foo.ts` →
+  `foo.test.ts`).
+- **Commits** are conventional-ish: short, focused, with a clear summary line.
+- **Formatting** uses [`oxfmt`](https://github.com/oxc-project/oxc), not
+  Prettier. Run `pnpm format` before submitting.
+- See [AGENTS.md](AGENTS.md) for the longer style guide that ships with this
+  repo. It's verbose but it tells you exactly how the project thinks.
 
-- **Jonathan Taylor** - ACP subsystem, Gateway features/bugs, Gog/Mog/Sog CLI's, SEDMAT
-  - GitHub [@visionik](https://github.com/visionik) · X: [@visionik](https://x.com/visionik)
+## Reviewing license terms before contributing
 
-- **Josh Lehman** - Compaction, Context Engine
-  - GitHub [@jalehman](https://github.com/jalehman) · X: [@jlehman\_](https://x.com/jlehman_)
+By submitting a contribution you agree it is licensed under the Apache
+License 2.0 (see [LICENSE](LICENSE)). If your contribution touches files that
+originate in upstream openclaw, please preserve the [NOTICE](NOTICE) chain.
 
-- **Radek Sienkiewicz** - Docs, Control UI
-  - GitHub [@velvet-shark](https://github.com/velvet-shark) · X: [@velvet_shark](https://twitter.com/velvet_shark)
+## Security issues
 
-- **Muhammed Mukhthar** - Mattermost, CLI
-  - GitHub [@mukhtharcm](https://github.com/mukhtharcm) · X: [@mukhtharcm](https://x.com/mukhtharcm)
+**Do not** report security issues through public issues or PRs. Use the
+[private disclosure path](SECURITY.md) instead.
 
-- **Altay** - Agents, CLI, error handling
-  - GitHub [@altaywtf](https://github.com/altaywtf) · X: [@altaywtf](https://x.com/altaywtf)
+## Where to start
 
-- **Robin Waslander** - Security, PR triage, bug fixes
-  - GitHub: [@hydro13](https://github.com/hydro13) · X: [@Robin_waslander](https://x.com/Robin_waslander)
+Areas that always need help:
 
-- **Tengji (George) Zhang** - Chinese model APIs, cloud, pi
-  - GitHub: [@odysseus0](https://github.com/odysseus0) · X: [@odysseus0z](https://x.com/odysseus0z)
+- **Bug reports from real-world use** — especially around channel inbound
+  and worker output.
+- **Templates.** Add a JSON file under [templates/](templates/) for a
+  workflow you've actually run. The bar is "I would use this myself".
+- **Docs polish.** The [docs/](docs/) tree is light on examples and screen
+  recordings.
+- **Channel integrations beyond Slack.** Discord, Telegram, WhatsApp,
+  iMessage have channel plugins in place but project-inbox plumbing has
+  only been validated end-to-end on Slack.
+- **Per-plugin trust isolation (M1 hardening).** A multi-day, security-
+  critical hardening item — talk to maintainers before starting.
 
-- **Sliverp** - Chinese Channel: QQ, WeChat, Wecom, Yuanbao, Dingtalk, Feishu
-  - GitHub: [@sliverp](https://github.com/sliverp) · X: [@sliver01234](https://x.com/sliver01234)
-
-- **Mason Huang** - Stability, Security, Speed
-  - GitHub: [@hxy91819](https://github.com/hxy91819) · X: [@chenjingtalk](https://x.com/chenjingtalk)
-
-## How to Contribute
-
-1. **Bugs & small fixes** → Open a PR!
-2. **New features / architecture** → Start a [GitHub Issue](https://github.com/alien/alien/issues/new/choose) or ask in Discord first. Most features are not accepted and should be third party plugins instead using our plugin SDK.
-3. **Refactor-only PRs** → Don't open a PR. We are not accepting refactor-only changes unless a maintainer explicitly asks for them as part of a concrete fix.
-4. **Test/CI-only PRs for known `main` failures** → Don't open a PR. The Maintainer team is already tracking those failures, and PRs that only tweak tests or CI to chase them will be closed unless they are required to validate a new fix.
-5. **Questions** → Discord [#help](https://discord.com/channels/1456350064065904867/1459642797895319552) / [#users-helping-users](https://discord.com/channels/1456350064065904867/1459007081603403828)
-
-## PR Limits
-
-We cap at **20 open PRs per author**. If you exceed this, the `r: too-many-prs` label is added and your PR is auto-closed. This is a hard limit.
-
-For coordinated change sets that genuinely need more than 20 PRs, join the **#clawtributors** channel in Discord and talk to maintainers first.
-
-## Before You PR
-
-- Test locally with your Alien instance
-- External PRs must include a filled **Real behavior proof** section in the PR body. Show the real setup you tested, the exact command or steps you ran after the patch, after-fix evidence, the observed result, and anything you did not test. Screenshots, recordings, terminal screenshots, console output, copied live output, linked artifacts, and redacted runtime logs all count. Be mindful of private information like IP addresses, API keys, phone numbers, non-public endpoints, or other private details when providing evidence. Unit tests, mocks, snapshots, lint, typechecks, and CI are useful but do not satisfy this requirement by themselves. Maintainers may apply `proof: override` only when the proof gate should not apply.
-- Run tests: `pnpm build && pnpm check && pnpm test`
-- For iterative local commits, `scripts/committer --fast "message" <files...>` passes `FAST_COMMIT=1` through to the pre-commit hook so it skips the repo-wide `pnpm check`. Only use it when you've already run equivalent targeted validation for the touched surface.
-- For extension/plugin changes, run the fast local lane first:
-  - `pnpm test:extension <extension-name>`
-  - `pnpm test:extension --list` to see valid extension ids
-  - If you changed shared plugin or channel surfaces, run `pnpm test:contracts`
-  - For targeted shared-surface work, use `pnpm test:contracts:channels` or `pnpm test:contracts:plugins`
-  - These commands also cover the shared seam/smoke files that the default unit lane skips
-  - If you changed broader runtime behavior, still run the relevant wider lanes (`pnpm test:extensions`, `pnpm test:channels`, or `pnpm test`) before asking for review
-- If you touched bundled-plugin boundaries in shared code, run the matching inventories:
-  - `node scripts/check-src-extension-import-boundary.mjs --json` for `src/**`
-  - `node scripts/check-sdk-package-extension-import-boundary.mjs --json` for `src/plugin-sdk/**` and `packages/**`
-  - `node scripts/check-test-helper-extension-import-boundary.mjs --json` for `test/helpers/**`
-- Shared test helpers must use `src/test-utils/bundled-plugin-public-surface.ts` instead of repo-relative `extensions/**` imports. Keep plugin-local deep mocks inside the owning bundled plugin package.
-- If you have access to Codex, run `codex review --base origin/main` locally before opening or updating your PR. Treat this as the current highest standard of AI review, even if GitHub Codex review also runs.
-- Do not submit refactor-only PRs unless a maintainer explicitly requested that refactor for an active fix or deliverable.
-- Do not submit test or CI-config fixes for failures already red on `main` CI. If a failure is already visible in the [main branch CI runs](https://github.com/alien/alien/actions), it's a known issue the Maintainer team is tracking, and a PR that only addresses those failures will be closed automatically. If you spot a _new_ regression not yet shown in main CI, report it as an issue first.
-- Do not submit test-only PRs that just try to make known `main` CI failures pass. Test changes are acceptable when they are required to validate a new fix or cover new behavior in the same PR.
-- Ensure CI checks pass
-- Keep PRs focused (one thing per PR; do not mix unrelated concerns)
-- Describe what & why
-- Reply to or resolve bot review conversations you addressed before asking for review again
-- **Include screenshots** — one showing the problem/before, one showing the fix/after (for UI or visual changes)
-- Use American English spelling and grammar in code, comments, docs, and UI strings
-- Do not edit files covered by `CODEOWNERS` security ownership unless a listed owner explicitly asked for the change or is already reviewing it with you. Treat those paths as restricted review surfaces, not opportunistic cleanup targets.
-
-## Review Conversations Are Author-Owned
-
-If a review bot leaves review conversations on your PR, you are expected to handle the follow-through:
-
-- Resolve the conversation yourself once the code or explanation fully addresses the bot's concern
-- Reply and leave it open only when you need maintainer or reviewer judgment
-- Do not leave "fixed" bot review conversations for maintainers to clean up for you
-- If Codex leaves comments, address every relevant one or resolve it with a short explanation when it is not applicable to your change
-- If GitHub Codex review does not trigger for some reason, run `codex review --base origin/main` locally anyway and treat that output as required review work
-
-This applies to both human-authored and AI-assisted PRs.
-
-## Control UI Decorators
-
-The Control UI uses Lit with **legacy** decorators (current Rollup parsing does not support
-`accessor` fields required for standard decorators). When adding reactive fields, keep the
-legacy style:
-
-```ts
-@state() foo = "bar";
-@property({ type: Number }) count = 0;
-```
-
-The root `tsconfig.json` is configured for legacy decorators (`experimentalDecorators: true`)
-with `useDefineForClassFields: false`. Avoid flipping these unless you are also updating the UI
-build tooling to support standard decorators.
-
-## AI/Vibe-Coded PRs Welcome! 🤖
-
-Built with Codex, Claude, or other AI tools? **Awesome - just mark it!**
-
-Please include in your PR:
-
-- [ ] Mark as AI-assisted in the PR title or description
-- [ ] Include human-run real behavior proof from your own setup. Redact private information like IP addresses, API keys, phone numbers, or non-public endpoints before posting evidence. AI-generated tests, mocks, lint, typechecks, and CI output are supplemental only; they do not prove the fix works for users.
-- [ ] Include prompts or session logs if possible (super helpful!)
-- [ ] Confirm you understand what the code does
-- [ ] If you have access to Codex, run `codex review --base origin/main` locally and address the findings before asking for review
-- [ ] Resolve or reply to bot review conversations after you address them
-
-AI PRs are first-class citizens here. We just want transparency so reviewers know what to look for. If you are using an LLM coding agent, instruct it to resolve bot review conversations it has addressed instead of leaving them for maintainers.
-
-## Current Focus & Roadmap 🗺
-
-We are currently prioritizing:
-
-- **Stability**: Fixing edge cases in channel connections (WhatsApp/Telegram).
-- **UX**: Improving the onboarding wizard and error messages.
-- **Skills**: For skill contributions, head to [ClawHub](https://clawhub.ai/) — the community hub for Alien skills.
-- **Performance**: Optimizing token usage and compaction logic.
-
-Check the [GitHub Issues](https://github.com/alien/alien/issues) for
-["good first issue"](https://github.com/alien/alien/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-labels. If none are open, pick a small docs or bug issue and leave a quick comment saying
-you'd like to work on it.
-
-## Maintainers
-
-We're selectively expanding the maintainer team.
-If you're an experienced contributor who wants to help shape Alien's direction — whether through code, docs, or community — we'd like to hear from you.
-
-Being a maintainer is a responsibility, not an honorary title. We expect active, consistent involvement — triaging issues, reviewing PRs, and helping move the project forward.
-
-Still interested? Email contributing@alien.ai with:
-
-- Links to your PRs on Alien (if you don't have any, start there first)
-- Links to open source projects you maintain or actively contribute to
-- Your GitHub, Discord, and X/Twitter handles
-- A brief intro: background, experience, and areas of interest
-- Languages you speak and where you're based
-- How much time you can realistically commit
-
-We welcome people across all skill sets — engineering, documentation, community management, and more.
-We review every human-only-written application carefully and add maintainers slowly and deliberately.
-Please allow a few weeks for a response.
-
-## Report a Vulnerability
-
-We take security reports seriously. Report vulnerabilities directly to the repository where the issue lives:
-
-- **Core CLI and gateway** — [alien/alien](https://github.com/alien/alien)
-- **macOS desktop app** — [alien/alien](https://github.com/alien/alien) (apps/macos)
-- **iOS app** — [alien/alien](https://github.com/alien/alien) (apps/ios)
-- **Android app** — [alien/alien](https://github.com/alien/alien) (apps/android)
-- **ClawHub** — [alien/clawhub](https://github.com/alien/clawhub)
-- **Trust and threat model** — [alien/trust](https://github.com/alien/trust)
-
-For issues that don't fit a specific repo, or if you're unsure, email **security@alien.ai** and we'll route it.
-
-### Required in Reports
-
-1. **Title**
-2. **Severity Assessment**
-3. **Impact**
-4. **Affected Component**
-5. **Technical Reproduction**
-6. **Demonstrated Impact**
-7. **Environment**
-8. **Remediation Advice**
-
-Reports without reproduction steps, demonstrated impact, and remediation advice will be deprioritized. Given the volume of AI-generated scanner findings, we must ensure we're receiving vetted reports from researchers who understand the issues.
+Thanks for being here.
