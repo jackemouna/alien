@@ -186,6 +186,7 @@ const lazyOrchestrator = createLazyView(
   () => import("./views/orchestrator.ts"),
   notifyLazyViewChanged,
 );
+const lazyProjects = createLazyView(() => import("./views/projects.ts"), notifyLazyViewChanged);
 const lazySessions = createLazyView(() => import("./views/sessions.ts"), notifyLazyViewChanged);
 const lazySkills = createLazyView(() => import("./views/skills.ts"), notifyLazyViewChanged);
 
@@ -207,6 +208,24 @@ function resolveOrchestratorStore(
     onChange: notifyLazyViewChanged,
   });
   return _orchestratorStore;
+}
+
+// Same single-instance pattern for the Projects tab.
+type ProjectsViewModule = typeof import("./views/projects.ts");
+let _projectsStore: ReturnType<ProjectsViewModule["createProjectsStore"]> | null = null;
+function resolveProjectsStore(
+  mod: ProjectsViewModule,
+  state: import("./app-view-state.ts").AppViewState,
+) {
+  if (_projectsStore !== null) {
+    return _projectsStore;
+  }
+  _projectsStore = mod.createProjectsStore({
+    basePath: state.basePath ?? "",
+    auth: { hello: state.hello, settings: state.settings, password: state.password },
+    onChange: notifyLazyViewChanged,
+  });
+  return _projectsStore;
 }
 
 function formatDreamNextCycle(nextRunAtMs: number | undefined): string | null {
@@ -2002,6 +2021,13 @@ export function renderApp(state: AppViewState) {
               const store = resolveOrchestratorStore(m, state);
               store.mount();
               return m.renderOrchestrator({ store });
+            })
+          : nothing}
+        ${state.tab === "projects"
+          ? renderLazyView(lazyProjects, (m) => {
+              const store = resolveProjectsStore(m, state);
+              store.mount();
+              return m.renderProjects({ store });
             })
           : nothing}
         ${state.tab === "agents"

@@ -65,6 +65,7 @@ let modelsHttpModulePromise: Promise<typeof import("./models-http.js")> | undefi
 let openAiHttpModulePromise: Promise<typeof import("./openai-http.js")> | undefined;
 let openResponsesHttpModulePromise: Promise<typeof import("./openresponses-http.js")> | undefined;
 let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js")> | undefined;
+let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
   | undefined;
@@ -114,6 +115,11 @@ function getOpenResponsesHttpModule() {
 function getOrchestratorHttpModule() {
   orchestratorHttpModulePromise ??= import("./orchestrator-http.js");
   return orchestratorHttpModulePromise;
+}
+
+function getProjectsHttpModule() {
+  projectsHttpModulePromise ??= import("./projects-http.js");
+  return projectsHttpModulePromise;
 }
 
 function getSessionHistoryHttpModule() {
@@ -679,6 +685,20 @@ export function createGatewayHttpServer(opts: {
           name: "orchestrator",
           run: async () =>
             (await getOrchestratorHttpModule()).handleOrchestratorRequest(req, res, {
+              auth: resolvedAuth,
+              trustedProxies,
+              allowRealIpFallback,
+              rateLimiter,
+            }),
+        });
+      }
+      // Projects HTTP API (see src/gateway/projects-http.ts). Backs the
+      // Kanban UI; routes are /v1/projects + /v1/projects/<id>/tasks/...
+      if ((await getProjectsHttpModule()).isProjectsPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "projects",
+          run: async () =>
+            (await getProjectsHttpModule()).handleProjectsRequest(req, res, {
               auth: resolvedAuth,
               trustedProxies,
               allowRealIpFallback,
