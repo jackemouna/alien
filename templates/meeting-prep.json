@@ -1,0 +1,11 @@
+{
+  "id": "meeting-prep",
+  "name": "Meeting prep",
+  "tagline": "Walk into every meeting with a one-pager about the other side",
+  "icon": "🤝",
+  "description": "Drop in who you're meeting and what it's about. Your team researches their company, recent news, and likely questions — and hands you a one-pager 30 minutes before the call.",
+  "requires": [],
+  "starterPrompt": "I have a call tomorrow with Alex Chen, head of platform at Acme Corp, about a potential partnership. Research the company, find any recent news in the last 90 days, and write me a one-page brief with: what they do, who I'm meeting, likely questions they'll ask, and three smart questions I should ask.",
+  "defaultProjectName": "Meeting prep",
+  "defaultGoal": "Be the most-prepared person in every meeting."
+}

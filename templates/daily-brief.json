@@ -1,0 +1,11 @@
+{
+  "id": "daily-brief",
+  "name": "Morning research brief",
+  "tagline": "Wake up to a one-page summary of the topics you care about",
+  "icon": "📰",
+  "description": "Pick a handful of topics. Every morning your team researches each one, writes a short summary, and emails (or saves) a single combined briefing — so you start the day informed without scrolling.",
+  "requires": [],
+  "starterPrompt": "Research these topics and write a short, plain-English summary of each, then combine them into a single one-page brief and save it to my Desktop: WebAssembly, Bun, Rust async runtimes.",
+  "defaultProjectName": "Morning brief",
+  "defaultGoal": "Stay current on the topics that matter, without losing an hour to feeds."
+}

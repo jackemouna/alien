@@ -66,6 +66,7 @@ let openAiHttpModulePromise: Promise<typeof import("./openai-http.js")> | undefi
 let openResponsesHttpModulePromise: Promise<typeof import("./openresponses-http.js")> | undefined;
 let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js")> | undefined;
 let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | undefined;
+let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
   | undefined;
@@ -120,6 +121,11 @@ function getOrchestratorHttpModule() {
 function getProjectsHttpModule() {
   projectsHttpModulePromise ??= import("./projects-http.js");
   return projectsHttpModulePromise;
+}
+
+function getTemplatesHttpModule() {
+  templatesHttpModulePromise ??= import("./templates-http.js");
+  return templatesHttpModulePromise;
 }
 
 function getSessionHistoryHttpModule() {
@@ -685,6 +691,20 @@ export function createGatewayHttpServer(opts: {
           name: "orchestrator",
           run: async () =>
             (await getOrchestratorHttpModule()).handleOrchestratorRequest(req, res, {
+              auth: resolvedAuth,
+              trustedProxies,
+              allowRealIpFallback,
+              rateLimiter,
+            }),
+        });
+      }
+      // Templates HTTP API (read-only). Backs the first-run gallery in
+      // the Projects view.
+      if ((await getTemplatesHttpModule()).isTemplatesPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "templates",
+          run: async () =>
+            (await getTemplatesHttpModule()).handleTemplatesRequest(req, res, {
               auth: resolvedAuth,
               trustedProxies,
               allowRealIpFallback,

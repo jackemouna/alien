@@ -1,0 +1,11 @@
+{
+  "id": "social-content",
+  "name": "Social content drafts",
+  "tagline": "A week of post drafts, ready for you to skim and tweak",
+  "icon": "✨",
+  "description": "Tell us your beat and your voice. Each week your team drafts a handful of posts — one short for X, one longer for LinkedIn, one teaser for the next blog — and saves them in a single file you can edit and schedule.",
+  "requires": [],
+  "starterPrompt": "Draft five short social posts for me this week — three for X (tweet-length), two for LinkedIn (~120 words). Topic: the experience of running my own AI workforce on my laptop. Voice: candid, slightly nerdy, no hype. Save as 'Social drafts — <this week>.md'.",
+  "defaultProjectName": "Social drafts",
+  "defaultGoal": "Show up consistently on social without burning a morning on it every week."
+}

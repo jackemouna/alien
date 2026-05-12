@@ -1,0 +1,11 @@
+{
+  "id": "weekly-newsletter",
+  "name": "Weekly newsletter",
+  "tagline": "A short, polished newsletter goes out every Monday on autopilot",
+  "icon": "📝",
+  "description": "Tell us the topics and the tone. Your team researches each one, writes the issue, an editor polishes it, and a draft lands in your inbox every Sunday night for a quick proofread before Monday's send.",
+  "requires": [],
+  "starterPrompt": "Draft a short weekly newsletter for me about AI agents, open source, and what's new in self-hosted tools. Three short sections, ~120 words each, in a conversational tone. Save it as a markdown file titled 'Newsletter — <this week's date>'.",
+  "defaultProjectName": "Weekly newsletter",
+  "defaultGoal": "Ship a polished newsletter every Monday with zero last-minute scrambling."
+}

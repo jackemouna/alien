@@ -154,6 +154,11 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
     hasSubcommands: true,
   },
   {
+    name: "init",
+    description: "Check what's set up and tell you what to do next",
+    hasSubcommands: false,
+  },
+  {
     name: "secrets",
     description: "Secrets runtime reload controls",
     hasSubcommands: true,

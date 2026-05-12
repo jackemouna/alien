@@ -1,0 +1,11 @@
+{
+  "id": "inbox-triage",
+  "name": "Sort my inbox",
+  "tagline": "Triage today's email: flag urgent, draft replies for the rest",
+  "icon": "📥",
+  "description": "Your AI team scans your inbox, flags the messages that need your eyes, and drafts polite replies to the rest. Drafts wait in Gmail for your approval before they send.",
+  "requires": ["gmail"],
+  "starterPrompt": "Look at the emails in my inbox from the last 24 hours. For each one: tell me which ones are urgent and need my eyes, then draft a polite reply to each non-urgent one and leave the draft in Gmail for me to approve.",
+  "defaultProjectName": "Inbox triage",
+  "defaultGoal": "Stay on top of email without the dread."
+}

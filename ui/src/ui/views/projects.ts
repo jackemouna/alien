@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import type { Project, TaskRecord } from "../../../../src/projects/types.js";
+import type { StarterTemplate } from "../../../../src/templates/types.js";
 import { resolveControlUiAuthHeader } from "../control-ui-auth.ts";
 import { normalizeBasePath } from "../navigation.ts";
 
@@ -30,6 +31,7 @@ type ProjectDraft = {
 
 type ProjectListResponse = { readonly projects?: Project[] };
 type ProjectDetailResponse = { readonly project?: Project; readonly tasks?: TaskRecord[] };
+type TemplatesResponse = { readonly templates?: StarterTemplate[] };
 
 const POLL_INTERVAL_MS = 3_000;
 const COLUMNS: ReadonlyArray<{
@@ -64,6 +66,8 @@ export type ProjectsStore = {
   readonly retryTask: (taskId: string) => Promise<void>;
   readonly blockTask: (taskId: string, reason: string) => Promise<void>;
   readonly archiveSelectedProject: () => Promise<void>;
+  /** Apply a template: fills name + goal in the new-project draft and opens the modal. */
+  readonly useTemplate: (template: StarterTemplate) => void;
 };
 
 export type ProjectsState = {
@@ -81,6 +85,9 @@ export type ProjectsState = {
   promptDraft: string;
   promptBusy: boolean;
   promptError: string | null;
+  templates: StarterTemplate[];
+  /** Template id whose starterPrompt should be dispatched right after the project is created. */
+  pendingTemplatePrompt: string | null;
 };
 
 export type CreateProjectsStoreOptions = {
@@ -107,6 +114,8 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     promptDraft: "",
     promptBusy: false,
     promptError: null,
+    templates: [],
+    pendingTemplatePrompt: null,
   };
 
   let mountCount = 0;
@@ -185,6 +194,24 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     await refreshList();
   }
 
+  async function loadTemplates(): Promise<void> {
+    // Templates are static; load once per session.
+    if (state.templates.length > 0) return;
+    try {
+      const res = await fetchFn(buildUrl("/v1/templates"), {
+        method: "GET",
+        headers: buildHeaders(),
+        credentials: "same-origin",
+      });
+      if (!res.ok) return;
+      const body = (await res.json()) as TemplatesResponse;
+      state.templates = Array.isArray(body.templates) ? body.templates : [];
+      notify();
+    } catch {
+      // Soft-fail — gallery just won't appear; nothing else breaks.
+    }
+  }
+
   function startPolling() {
     if (pollHandle !== null) return;
     pollHandle = setInterval(() => {
@@ -202,6 +229,7 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     mountCount += 1;
     if (mountCount === 1) {
       void refresh();
+      void loadTemplates();
       startPolling();
     }
   }
@@ -239,6 +267,7 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     state.newProjectOpen = false;
     state.newProjectBusy = false;
     state.newProjectDraft = { ...NEW_PROJECT_DEFAULT_DRAFT };
+    state.pendingTemplatePrompt = null;
     notify();
   }
 
@@ -271,10 +300,20 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
       }
       state.newProjectOpen = false;
       state.newProjectDraft = { ...NEW_PROJECT_DEFAULT_DRAFT };
+      const pendingPrompt = state.pendingTemplatePrompt;
+      state.pendingTemplatePrompt = null;
       if (body?.project) {
         state.selectedProjectId = body.project.id;
       }
       await refresh();
+      // If this project came from a template, dispatch the template's
+      // starter prompt automatically so the user sees the team start
+      // working on something concrete instead of a blank board.
+      if (pendingPrompt && state.selectedProjectId) {
+        state.promptDraft = pendingPrompt;
+        notify();
+        await submitPrompt();
+      }
     } catch (err) {
       state.newProjectError = stringifyError(err);
     } finally {
@@ -360,6 +399,17 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     await postTaskAction(taskId, "block", { reason });
   }
 
+  function useTemplate(template: StarterTemplate): void {
+    state.newProjectDraft = {
+      name: template.defaultProjectName,
+      goal: template.defaultGoal,
+    };
+    state.pendingTemplatePrompt = template.starterPrompt;
+    state.newProjectOpen = true;
+    state.newProjectError = null;
+    notify();
+  }
+
   async function archiveSelectedProject(): Promise<void> {
     if (!state.selectedProjectId) return;
     if (
@@ -402,6 +452,7 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     retryTask,
     blockTask,
     archiveSelectedProject,
+    useTemplate,
   };
 }
 
@@ -437,7 +488,7 @@ export function renderProjects(props: ProjectsProps) {
         : nothing}
     </section>
 
-    ${state.projects.length === 0 ? renderFirstRunEmptyState(props.store) : nothing}
+    ${state.projects.length === 0 ? renderFirstRunEmptyState(state, props.store) : nothing}
 
     <section class="grid" style="margin-top: 16px;">
       <div class="card" style="min-width: 220px; max-width: 320px;">
@@ -467,7 +518,7 @@ export function renderProjects(props: ProjectsProps) {
   `;
 }
 
-function renderFirstRunEmptyState(store: ProjectsStore) {
+function renderFirstRunEmptyState(state: ProjectsState, store: ProjectsStore) {
   return html`
     <section class="card" style="margin-top: 16px; text-align: center;">
       <div style="font-size: 32px; margin-bottom: 8px;">👾</div>
@@ -480,10 +531,53 @@ function renderFirstRunEmptyState(store: ProjectsStore) {
       </div>
       <div class="row" style="gap: 8px; justify-content: center; margin-top: 16px;">
         <button class="btn primary" @click=${() => store.openNewProject()}>
-          Start your first project
+          Start a blank project
         </button>
       </div>
     </section>
+    ${state.templates.length > 0 ? renderTemplatesGallery(state.templates, store) : nothing}
+  `;
+}
+
+function renderTemplatesGallery(templates: StarterTemplate[], store: ProjectsStore) {
+  return html`
+    <section style="margin-top: 16px;">
+      <div
+        style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;"
+      >
+        <div style="font-weight: 600; font-size: 15px;">Or try one of these</div>
+        <div class="muted" style="font-size: 12px;">
+          Pick a template — your team starts working immediately.
+        </div>
+      </div>
+      <div
+        style="display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));"
+      >
+        ${templates.map((t) => renderTemplateCard(t, store))}
+      </div>
+    </section>
+  `;
+}
+
+function renderTemplateCard(template: StarterTemplate, store: ProjectsStore) {
+  return html`
+    <div
+      class="card template-card"
+      style="padding: 14px; display: flex; flex-direction: column; gap: 8px;"
+    >
+      <div style="font-size: 24px;">${template.icon ?? "✨"}</div>
+      <div style="font-weight: 600; font-size: 14px;">${template.name}</div>
+      <div class="muted" style="font-size: 12px;">${template.tagline}</div>
+      <div style="font-size: 12px; flex: 1;">${template.description}</div>
+      ${template.requires.length > 0
+        ? html`<div class="muted" style="font-size: 11px;">
+            Needs: ${template.requires.join(", ")}
+          </div>`
+        : nothing}
+      <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+        <button class="btn" @click=${() => store.useTemplate(template)}>Use this template</button>
+      </div>
+    </div>
   `;
 }
 
