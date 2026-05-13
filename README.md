@@ -136,6 +136,9 @@ This is an early public release. Tier 2 v0.1 — workforce model + Slack channel
 - [Getting started](docs/getting-started.md) — the 10-minute happy path
 - [Install](docs/install.md) — full install options
 - [Projects + workforce model](docs/projects.md) — how the team works
+- [Configuration reference](docs/configuration.md) — every env var + config key
+- [Audit log](docs/audit-log.md) — what's logged, how to verify
+- [Troubleshooting](docs/troubleshooting.md) — common errors and fixes
 - [Security policy](SECURITY.md) — how to report a vulnerability
 - [Contributing](CONTRIBUTING.md) — submit code, file issues, propose features
 
