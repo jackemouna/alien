@@ -1512,7 +1512,10 @@ export function renderApp(state: AppViewState) {
             <div class="sidebar-shell__body">
               <nav class="sidebar-nav">
                 ${TAB_GROUPS.map((group) => {
-                  const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
+                  // "advanced" defaults to collapsed for new users so the
+                  // workforce surfaces aren't lost in 20-tab clutter.
+                  const isGroupCollapsed =
+                    state.settings.navGroupsCollapsed[group.label] ?? group.label === "advanced";
                   const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
                   const showItems = navCollapsed || hasActiveTab || !isGroupCollapsed;
 

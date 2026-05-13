@@ -2,10 +2,16 @@ import { t } from "../i18n/index.ts";
 import type { IconName } from "./icons.js";
 import { normalizeLowercaseStringOrEmpty } from "./string-coerce.ts";
 
+/**
+ * Tab layout. v0.1 puts the workforce surfaces first; everything else
+ * lives under "Advanced" so new users aren't overwhelmed by ~20 tabs.
+ * Power users still reach every surface — the group is just collapsed
+ * by default in the sidebar.
+ */
 export const TAB_GROUPS = [
-  { label: "chat", tabs: ["chat"] },
+  { label: "workforce", tabs: ["projects", "orchestrator", "chat"] },
   {
-    label: "control",
+    label: "advanced",
     tabs: [
       "overview",
       "channels",
@@ -13,20 +19,16 @@ export const TAB_GROUPS = [
       "sessions",
       "usage",
       "cron",
-      "orchestrator",
-      "projects",
-    ],
-  },
-  { label: "agent", tabs: ["agents", "skills", "nodes", "dreams"] },
-  {
-    label: "settings",
-    tabs: [
-      "config",
+      "agents",
+      "skills",
+      "nodes",
+      "dreams",
       "communications",
       "appearance",
       "automation",
       "infrastructure",
       "aiAgents",
+      "config",
       "debug",
       "logs",
     ],
@@ -141,7 +143,7 @@ export function tabFromPath(pathname: string, basePath = ""): Tab | null {
     normalized = "/";
   }
   if (normalized === "/") {
-    return "chat";
+    return "projects";
   }
   return PATH_TO_TAB.get(normalized) ?? null;
 }

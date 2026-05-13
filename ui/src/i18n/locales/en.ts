@@ -371,6 +371,8 @@ export const en: TranslationMap = {
     control: "Control",
     agent: "Agent",
     settings: "Settings",
+    workforce: "Your AI team",
+    advanced: "Advanced",
     expand: "Expand sidebar",
     collapse: "Collapse sidebar",
     resize: "Resize sidebar",
@@ -916,7 +918,7 @@ export const en: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway Dashboard",
+    subtitle: "Sign in to your Alien",
     passwordPlaceholder: "optional",
     showToken: "Show token",
     hideToken: "Hide token",

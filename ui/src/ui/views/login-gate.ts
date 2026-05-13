@@ -110,16 +110,14 @@ export function renderLoginGate(state: AppViewState) {
         <div class="login-gate__help">
           <div class="login-gate__help-title">${t("overview.connection.title")}</div>
           <ol class="login-gate__steps">
-            <li>
-              ${t("overview.connection.step1")}${renderConnectCommand("alien gateway run")}
-            </li>
+            <li>${t("overview.connection.step1")}${renderConnectCommand("alien gateway run")}</li>
             <li>${t("overview.connection.step2")} ${renderConnectCommand("alien dashboard")}</li>
             <li>${t("overview.connection.step3")}</li>
           </ol>
           <div class="login-gate__docs">
             <a
               class="session-link"
-              href="https://docs.alien.ai/web/dashboard"
+              href="https://github.com/jackemouna/alien/blob/main/docs/getting-started.md"
               target="_blank"
               rel="noreferrer"
               >${t("overview.connection.docsLink")}</a

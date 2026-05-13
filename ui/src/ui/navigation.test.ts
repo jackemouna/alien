@@ -134,8 +134,8 @@ describe("tabFromPath", () => {
     expect(tabFromPath("/dreams")).toBe("dreams");
   });
 
-  it("returns chat for root path", () => {
-    expect(tabFromPath("/")).toBe("chat");
+  it("returns projects for root path", () => {
+    expect(tabFromPath("/")).toBe("projects");
   });
 
   it("handles base paths", () => {
@@ -177,12 +177,18 @@ describe("inferBasePathFromPathname", () => {
 });
 
 describe("TAB_GROUPS", () => {
-  it("contains all expected groups", () => {
+  it("contains the v0.1 workforce + advanced split", () => {
     const labels = TAB_GROUPS.map((g) => g.label);
-    expect(labels).toContain("chat");
-    expect(labels).toContain("control");
-    expect(labels).toContain("agent");
-    expect(labels).toContain("settings");
+    expect(labels).toContain("workforce");
+    expect(labels).toContain("advanced");
+  });
+
+  it("surfaces the workforce tabs (projects, orchestrator, chat) first", () => {
+    const workforce = TAB_GROUPS.find((g) => g.label === "workforce");
+    expect(workforce).toBeDefined();
+    expect(workforce!.tabs).toContain("projects");
+    expect(workforce!.tabs).toContain("orchestrator");
+    expect(workforce!.tabs).toContain("chat");
   });
 
   it("all tabs are unique", () => {
