@@ -139,7 +139,7 @@ Already landed:
 
 ## Phase 6 — README-HARDENING.md
 
-Final commit: a user-facing summary of every behavior change in this fork vs. upstream openclaw. One section per phase. Each section says: what changed, what env var/config flips it back, what threat it addresses, and the audit reference (H1–H7).
+Final commit: a user-facing summary of every behavior change introduced by the hardening work. One section per phase. Each section says: what changed, what env var/config flips it back, what threat it addresses, and the audit reference (H1–H7).
 
 **Commit:** `docs: README-HARDENING.md describes fork's security deltas vs upstream`
 
@@ -161,4 +161,4 @@ Final commit: a user-facing summary of every behavior change in this fork vs. up
 - Keychain integration for secrets (M2 — invasive, OS-specific)
 - Full tamper-evident audit log (M4 — needs operator UX)
 - Untrusted-input fencing on operator paths (only channel paths get fenced in Phase 3)
-- Renaming `@openclaw/fs-safe` (it's an upstream dep)
+- Renaming `@openclaw/fs-safe` (it's an external npm dependency)

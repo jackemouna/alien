@@ -7,10 +7,10 @@ import path from "node:path";
  *
  * The code that *creates* `~/.alien/` already passes `mode: 0o700`, but the
  * directory may pre-exist with looser perms — created by an earlier umask, a
- * `chmod` from the operator, or migrated from upstream openclaw. Once it
- * exists, nothing in the code re-tightens it. Loose perms make every secret
- * under `credentials/` and `agents/<id>/agent/auth-profiles.json` readable to
- * any same-uid (or world) reader.
+ * `chmod` from the operator, or migrated from a prior install. Once it exists,
+ * nothing in the code re-tightens it. Loose perms make every secret under
+ * `credentials/` and `agents/<id>/agent/auth-profiles.json` readable to any
+ * same-uid (or world) reader.
  *
  * Returns `null` when the directory doesn't exist (fresh install) or is at
  * the expected `0o700`. Returns a multi-line warning otherwise.

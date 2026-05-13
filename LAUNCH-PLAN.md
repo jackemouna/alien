@@ -1,9 +1,11 @@
 # Alien Launch Plan
 
-Public, open-source AI workforce. Apache-2.0 licensed (derivative of MIT-licensed
-upstream openclaw with proper attribution). GitHub home: `jackemouna/alien`.
-Dedicated landing site at the alien.\* domain (TBD) hosts the docs + getting-started
-flow so non-developers can find their way in.
+Public, open-source AI workforce. Apache-2.0 licensed. Incorporates
+third-party MIT-licensed code with the original copyright notice
+preserved in NOTICE per that license's terms. GitHub home:
+`jackemouna/alien`. Dedicated landing site at the alien.\* domain (TBD)
+hosts the docs + getting-started flow so non-developers can find their
+way in.
 
 ## Positioning
 
@@ -98,10 +100,9 @@ validation. 48 tests, all green.
   upstream), audit-log, projects + workforce model, channel setup
   (Slack-first), plugins, configuration, troubleshooting
 - Top-level: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
-  `CHANGELOG.md`, `LICENSE` (**Apache 2.0**), `NOTICE` (credits upstream
-  openclaw and preserves its MIT copyright notice as required by the MIT
-  license terms; a derivative may be re-licensed under Apache 2.0 as long
-  as the upstream notice is preserved)
+  `CHANGELOG.md`, `LICENSE` (**Apache 2.0**), `NOTICE` (preserves the
+  third-party MIT copyright notice as required by that license's terms;
+  the derivative is re-licensed under Apache 2.0)
 - `.github/`: issue + PR templates, minimal CI workflow
 - Smoke test on a clean macOS account using only `docs/getting-started.md`
 
@@ -112,7 +113,6 @@ validation. 48 tests, all green.
   command, link to docs, GitHub link
 - Plain English. No technical jargon on the marketing surface — that
   belongs in `docs/`
-- Footer credits openclaw upstream
 - Static hosting (Cloudflare Pages / GitHub Pages / Vercel — decide in
   this phase)
 

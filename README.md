@@ -41,8 +41,8 @@ agents (someone else's cloud, someone else's keys). Alien is different:
   it creates tasks on the right project; the worker replies in the same
   thread when it's done. (Discord, Telegram, WhatsApp, iMessage, and others
   inherit the same hook.)
-- **Open source under Apache 2.0.** A derivative of MIT-licensed
-  [openclaw](https://github.com/openclaw/openclaw) — see [NOTICE](NOTICE).
+- **Open source under Apache 2.0.** See [LICENSE](LICENSE) and
+  [NOTICE](NOTICE) for the third-party attribution this codebase preserves.
 
 ## How it works
 
@@ -144,8 +144,6 @@ This is an early public release. Tier 2 v0.1 — workforce model + Slack channel
 
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
-
-Alien is a derivative of [openclaw](https://github.com/openclaw/openclaw)
-(MIT). The upstream copyright notice is preserved in [NOTICE](NOTICE) as
-required by the MIT license terms.
+Apache 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) — the latter
+preserves the MIT copyright notice from the third-party code this
+project incorporates.

@@ -77,8 +77,9 @@ have missed the notification.
 ## Reviewing license terms before contributing
 
 By submitting a contribution you agree it is licensed under the Apache
-License 2.0 (see [LICENSE](LICENSE)). If your contribution touches files that
-originate in upstream openclaw, please preserve the [NOTICE](NOTICE) chain.
+License 2.0 (see [LICENSE](LICENSE)). If your contribution touches files
+that incorporate third-party code preserved under their original license,
+keep the [NOTICE](NOTICE) attribution intact.
 
 ## Security issues
 

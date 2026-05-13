@@ -132,11 +132,9 @@ The two HTTP-API callers (`openai-http`, `openresponses-prompt`) pass `untrusted
 
 ---
 
-## Threat model delta vs upstream's `SECURITY.md`
+## Threat model
 
-Upstream's [SECURITY.md](SECURITY.md) explicitly states the project is "local-first agent infrastructure for trusted operators" and that "prompt-injection-only chains" are out of scope. The hardening above takes a stricter view: **assume prompt injection is realistic, web content is malicious, and operator may forget security hygiene**. None of the changes here weaken upstream's posture; they add belt-and-braces against the failure modes that upstream considers the operator's problem.
-
-Reports for issues in upstream-shared code should still go to [openclaw/openclaw security advisories](https://github.com/openclaw/openclaw/security/advisories/new) — they will land in the codebase everyone is running, not just this fork.
+The hardening above assumes **prompt injection is realistic, web content is malicious, and operators may forget security hygiene**. The goal is belt-and-braces protection against failure modes the user couldn't reasonably catch themselves.
 
 ---
 
@@ -150,7 +148,7 @@ A second hardening pass closed four of the eight Mediums:
 
 **What changed:** at `alien gateway run` startup, if `~/.alien` has mode bits looser than `0o700` (group- or world-readable / world-writable), the gateway log emits a warning identifying the actual mode, the exposure class, and a `chmod 700` fix. Skipped on Windows (POSIX bits don't apply) and when the directory doesn't exist yet.
 
-**Threat:** code that creates `~/.alien` always passes `0o700`, but the directory may pre-exist with looser perms (umask, manual `chmod`, migration from upstream openclaw). Once it exists, nothing re-tightens it, and it holds plaintext channel tokens, OAuth credentials, and provider API keys.
+**Threat:** code that creates `~/.alien` always passes `0o700`, but the directory may pre-exist with looser perms (umask, manual `chmod`, migration from a prior install). Once it exists, nothing re-tightens it, and it holds plaintext channel tokens, OAuth credentials, and provider API keys.
 
 ### M6 — scrub secret env vars from exec-tool child shells
 

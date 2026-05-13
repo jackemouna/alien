@@ -4,9 +4,7 @@ All notable user-facing changes to Alien land here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Alien is a derivative of [openclaw](https://github.com/openclaw/openclaw)
-(MIT). Pre-fork history lives in the upstream repository; this changelog
-starts at the v0.1.0 line where Alien diverged.
+This changelog starts at v0.1.0, the first public release of Alien.
 
 ## Unreleased
 
@@ -56,7 +54,5 @@ starts at the v0.1.0 line where Alien diverged.
 
 ### Notes
 
-- This fork starts a clean changelog at v0.1.0. The upstream openclaw
-  changelog continues to apply for code paths inherited unchanged.
 - Pre-1.0 we may make breaking changes between minor releases. Once we
   cross 1.0 we'll follow strict SemVer.

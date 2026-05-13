@@ -119,4 +119,4 @@ H1 is the largest single defense, but it's also the largest change to the operat
 
 ---
 
-_This audit was produced after the rebrand commit; line numbers may shift as code changes. References use the rebranded `alien` name; the same paths existed under `openclaw` upstream._
+_Line numbers may shift as the codebase changes. References use the current `alien` path naming._

@@ -93,8 +93,9 @@ If you'd like attribution in the changelog or release notes, tell us how
 you'd like to be credited when you file the advisory. We default to no
 attribution unless you ask.
 
-## Upstream
+## Third-party code
 
-Alien is a derivative of [openclaw](https://github.com/openclaw/openclaw).
-Vulnerabilities specific to upstream code paths may be relayed there with
-your permission; report-routing decisions are made on a case-by-case basis.
+This project incorporates third-party code preserved under the licenses
+documented in [NOTICE](NOTICE). Vulnerabilities specific to those paths
+may be relayed to the relevant upstream maintainers with your permission;
+report-routing decisions are made on a case-by-case basis.

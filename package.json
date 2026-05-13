@@ -7,11 +7,11 @@
   "bugs": {
     "url": "https://github.com/alien/alien/issues"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marczellklein/openclaw.git"
+    "url": "git+https://github.com/jackemouna/alien.git"
   },
   "bin": {
     "alien": "alien.mjs"
