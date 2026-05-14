@@ -1,4 +1,5 @@
-import type { LlmClient } from "../../orchestrator/llm-client.js";
+import type { LlmClient, LlmUsage } from "../../orchestrator/llm-client.js";
+import { estimateCostUsd } from "../../projects/cost.js";
 import type { ProjectWorker, ProjectWorkerInput } from "../../projects/pickup-loop.js";
 import { createGmailClient, type GmailClient } from "./client.js";
 import { getGmailTokens, storeGmailTokens } from "./tokens.js";
@@ -102,8 +103,8 @@ export function createEmailHandlerWorker(params: CreateEmailHandlerWorkerParams)
         return { ok: true, result: { sent } };
       }
       // draft_reply
-      const bodyText = await resolveDraftBody(action, client, params.llm);
-      if (!bodyText) {
+      const resolved = await resolveDraftBody(action, client, params.llm);
+      if (!resolved.bodyText) {
         return {
           ok: false,
           error:
@@ -112,9 +113,15 @@ export function createEmailHandlerWorker(params: CreateEmailHandlerWorkerParams)
       }
       const draft = await client.createDraft({
         inReplyToMessageId: action.inReplyToMessageId,
-        bodyText,
+        bodyText: resolved.bodyText,
       });
-      return { ok: true, result: { draft, bodyText }, toReview: true };
+      const costUsd = estimateCostUsd(resolved.usage);
+      return {
+        ok: true,
+        result: { draft, bodyText: resolved.bodyText },
+        toReview: true,
+        ...(costUsd > 0 ? { costUsd } : {}),
+      };
     } catch (err) {
       return { ok: false, error: stringifyError(err) };
     }
@@ -125,15 +132,15 @@ async function resolveDraftBody(
   action: Extract<EmailHandlerInput, { action: "draft_reply" }>,
   client: GmailClient,
   llm: LlmClient | undefined,
-): Promise<string | null> {
+): Promise<{ bodyText: string | null; usage?: LlmUsage }> {
   if (action.bodyText && action.bodyText.trim()) {
-    return action.bodyText;
+    return { bodyText: action.bodyText };
   }
   if (!action.replyPrompt || !llm) {
-    return null;
+    return { bodyText: null };
   }
   const original = await client.getMessage(action.inReplyToMessageId);
-  const draft = await llm.complete({
+  const completion = await llm.complete({
     system:
       "You are an email assistant. Draft a polite, concise reply to the supplied email. " +
       "Match the original's tone. Do not include a signature unless asked. Plain text only.",
@@ -141,7 +148,10 @@ async function resolveDraftBody(
     purpose: "email-handler.draft_reply",
     maxTokens: 600,
   });
-  return draft.trim();
+  return {
+    bodyText: completion.text.trim(),
+    ...(completion.usage ? { usage: completion.usage } : {}),
+  };
 }
 
 function parseAction(input: Record<string, unknown>): EmailHandlerInput | null {

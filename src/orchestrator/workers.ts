@@ -1,3 +1,4 @@
+import { estimateCostUsd } from "../projects/cost.js";
 import type { LlmClient, LlmCompletionRequest } from "./llm-client.js";
 import type { Worker, WorkerInput, WorkerOutput, WorkerRegistry } from "./types.js";
 
@@ -79,7 +80,7 @@ function createResearcher(llm: LlmClient): Worker {
       return { ok: false, error: "researcher: missing required input.topic" };
     }
     try {
-      const notes = await llm.complete(
+      const completion = await llm.complete(
         completionRequest({
           system:
             "You are a research assistant. Produce 4–6 concise factual bullet points " +
@@ -90,8 +91,8 @@ function createResearcher(llm: LlmClient): Worker {
           signal: input.signal,
         }),
       );
-      const result: ResearcherOutput = { topic, notes };
-      return { ok: true, result };
+      const result: ResearcherOutput = { topic, notes: completion.text };
+      return withCost({ ok: true, result }, completion.usage);
     } catch (err) {
       return { ok: false, error: `researcher: ${stringifyError(err)}` };
     }
@@ -111,7 +112,7 @@ function createWriter(llm: LlmClient): Worker {
       return { ok: false, error: "writer: no upstream research notes available" };
     }
     try {
-      const summary = await llm.complete(
+      const completion = await llm.complete(
         completionRequest({
           system:
             `You are a tech-newsletter writer. Turn the supplied research notes into ` +
@@ -123,8 +124,8 @@ function createWriter(llm: LlmClient): Worker {
           maxTokens: Math.max(256, Math.round(wordTarget * 4)),
         }),
       );
-      const result: WriterOutput = { topic, summary };
-      return { ok: true, result };
+      const result: WriterOutput = { topic, summary: completion.text };
+      return withCost({ ok: true, result }, completion.usage);
     } catch (err) {
       return { ok: false, error: `writer: ${stringifyError(err)}` };
     }
@@ -143,7 +144,7 @@ function createEditor(llm: LlmClient): Worker {
     }
     const draft = summaries.map((s) => `## ${s.topic}\n\n${s.summary}`).join("\n\n");
     try {
-      const markdown = await llm.complete(
+      const completion = await llm.complete(
         completionRequest({
           system:
             `You are a newsletter editor. The user submits a draft of section ` +
@@ -157,8 +158,8 @@ function createEditor(llm: LlmClient): Worker {
           maxTokens: 2048,
         }),
       );
-      const result: EditorOutput = { markdown };
-      return { ok: true, result };
+      const result: EditorOutput = { markdown: completion.text };
+      return withCost({ ok: true, result }, completion.usage);
     } catch (err) {
       return { ok: false, error: `editor: ${stringifyError(err)}` };
     }
@@ -218,6 +219,15 @@ function collectAllDependencyOutputs<T>(input: WorkerInput): T[] {
 
 function completionRequest(req: LlmCompletionRequest): LlmCompletionRequest {
   return req;
+}
+
+function withCost(
+  output: WorkerOutput,
+  usage: Parameters<typeof estimateCostUsd>[0],
+): WorkerOutput {
+  const costUsd = estimateCostUsd(usage);
+  if (costUsd <= 0) return output;
+  return { ...output, costUsd };
 }
 
 function stringifyError(err: unknown): string {

@@ -1,4 +1,9 @@
 import { html, nothing } from "lit";
+import {
+  estimateRoleCostUsd,
+  formatCostUsd,
+  sumProjectCostUsd,
+} from "../../../../src/projects/cost.js";
 import type { Project, TaskRecord } from "../../../../src/projects/types.js";
 import type { StarterTemplate } from "../../../../src/templates/types.js";
 import { resolveControlUiAuthHeader } from "../control-ui-auth.ts";
@@ -768,13 +773,20 @@ function renderProjectRow(project: Project, state: ProjectsState, store: Project
 
 function renderProjectDetail(project: Project, state: ProjectsState, store: ProjectsStore) {
   const tasksByStatus = groupByStatus(state.selectedTasks);
+  const totalSpent = sumProjectCostUsd(state.selectedTasks);
   return html`
     <div class="row" style="justify-content: space-between; align-items: flex-start;">
       <div>
         <div class="card-title">${project.name}</div>
         <div class="card-sub">${project.goal}</div>
         <div class="muted" style="margin-top: 4px; font-size: 12px;">
-          Started ${formatTimestamp(project.createdAt)} · by ${project.owner}
+          Started ${formatTimestamp(project.createdAt)} · by
+          ${project.owner}${totalSpent > 0
+            ? html` ·
+                <span title="Total Anthropic API spend on this project"
+                  >spent ${formatCostUsd(totalSpent)}</span
+                >`
+            : nothing}
         </div>
       </div>
       <div class="row" style="gap: 8px;">
@@ -897,7 +909,10 @@ function renderTaskCard(task: TaskRecord, store: ProjectsStore | null) {
       <div class="muted" style="font-size: 11px;">
         ${friendlyRole(task.role)}${task.priority !== "normal"
           ? ` · ${friendlyPriority(task.priority)}`
-          : ""}${task.attempts > 1 ? ` · tried ${task.attempts}×` : ""}
+          : ""}${task.attempts > 1 ? ` · tried ${task.attempts}×` : ""}${typeof task.costUsd ===
+          "number" && task.costUsd > 0
+          ? ` · ${formatCostUsd(task.costUsd)}`
+          : ""}
       </div>
       ${task.error
         ? html`<div class="callout danger" style="margin-top: 4px; font-size: 11px;">
@@ -1045,6 +1060,7 @@ function renderPlanPreviewPanel(state: ProjectsState, store: ProjectsStore) {
             ${countWithApproval(plan.tasks) > 0
               ? html` ${countWithApproval(plan.tasks)} need your approval before running.`
               : ""}
+            Estimated cost ${formatCostUsd(estimatePlanCostUsd(plan.tasks))}.
           </div>
           <div class="row" style="gap: 8px;">
             <button
@@ -1112,6 +1128,18 @@ function countWithApproval(tasks: readonly PlannedTask[]): number {
     if (t.requiresApproval) n += 1;
   }
   return n;
+}
+
+function estimatePlanCostUsd(tasks: readonly PlannedTask[]): number {
+  // The planner adds one LLM call on top of the per-task work; bake
+  // that in so the estimate reads honestly. Token estimates per role
+  // come from src/projects/cost.ts.
+  const PLANNER_CALL_USD = 0.005;
+  let total = PLANNER_CALL_USD;
+  for (const task of tasks) {
+    total += estimateRoleCostUsd(task.role);
+  }
+  return total;
 }
 
 function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {

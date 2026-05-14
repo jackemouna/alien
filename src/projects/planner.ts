@@ -88,13 +88,13 @@ export function createPlanner(opts: PlannerOptions): (req: PlanRequest) => Promi
 export async function plan(req: PlanRequest, opts: PlannerOptions): Promise<PlanResult> {
   const maxTasks = opts.maxTasks ?? DEFAULT_MAX_TASKS;
   const userPrompt = buildUserPrompt(req);
-  const raw = await opts.llm.complete({
+  const completion = await opts.llm.complete({
     system: PLANNER_SYSTEM_PROMPT,
     user: userPrompt,
     purpose: "planner",
     maxTokens: 1024,
   });
-  return parsePlannerResponse(raw, maxTasks);
+  return parsePlannerResponse(completion.text, maxTasks);
 }
 
 /**

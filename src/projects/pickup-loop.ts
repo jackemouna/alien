@@ -44,6 +44,9 @@ export type ProjectWorkerOutput = {
   readonly error?: string;
   /** When true, the worker's output goes into "review" instead of "done". */
   readonly toReview?: boolean;
+  /** USD cost the worker incurred while running. The pickup loop writes
+   *  this onto the task record so the UI can show project totals. */
+  readonly costUsd?: number;
 };
 
 export type ProjectWorker = (input: ProjectWorkerInput) => Promise<ProjectWorkerOutput>;
@@ -165,15 +168,17 @@ async function runWorkerForTask(
       }),
     );
     if (!output.ok) {
-      const failed = markTaskFailed(task, output.error ?? "worker reported ok=false", opts.now);
+      const failedBase = markTaskFailed(task, output.error ?? "worker reported ok=false", opts.now);
+      const failed = attachCost(failedBase, output.costUsd);
       saveTask(opts.projectsDir, failed, opts.storeOptions);
       emitAudit("projects.task.failed", failed, opts);
       await maybeReplyForOutcome(failed, { status: "failed", error: failed.error }, opts);
       return;
     }
-    const next = output.toReview
+    const completed = output.toReview
       ? markTaskInReview(task, output.result, opts.now)
       : markTaskDone(task, output.result, opts.now);
+    const next = attachCost(completed, output.costUsd);
     saveTask(opts.projectsDir, next, opts.storeOptions);
     emitAudit(output.toReview ? "projects.task.in_review" : "projects.task.completed", next, opts);
     await maybeReplyForOutcome(
@@ -242,4 +247,11 @@ function emitAudit(
     { kind, payload: summarizeTaskForAudit(task) },
     { auditLogPath: opts.auditLogPath },
   );
+}
+
+function attachCost(task: TaskRecord, costUsd: number | undefined): TaskRecord {
+  if (typeof costUsd !== "number" || !Number.isFinite(costUsd) || costUsd <= 0) {
+    return task;
+  }
+  return { ...task, costUsd };
 }

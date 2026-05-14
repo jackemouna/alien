@@ -46,6 +46,7 @@ export function adaptOrchestratorWorker(worker: OrchestratorWorker): ProjectWork
       ok: out.ok,
       ...(out.result !== undefined ? { result: out.result } : {}),
       ...(out.error !== undefined ? { error: out.error } : {}),
+      ...(typeof out.costUsd === "number" && out.costUsd > 0 ? { costUsd: out.costUsd } : {}),
     };
   };
 }

@@ -96,6 +96,9 @@ export type WorkerOutput = {
   readonly result?: unknown;
   /** Failure detail when ok=false. */
   readonly error?: string;
+  /** USD cost the worker incurred while running. Optional; LLM-backed
+   *  workers report it from the LlmClient's usage data. */
+  readonly costUsd?: number;
 };
 
 /** A worker is a pure(ish) function that turns a WorkerInput into a WorkerOutput. */

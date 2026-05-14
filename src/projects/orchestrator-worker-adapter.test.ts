@@ -106,10 +106,12 @@ describe("adaptOrchestratorWorkerRegistry", () => {
       writer: noop,
       editor: noop,
       publisher: noop,
+      "email-handler": noop,
     });
     expect(typeof adapted.researcher).toBe("function");
     expect(typeof adapted.writer).toBe("function");
     expect(typeof adapted.editor).toBe("function");
     expect(typeof adapted.publisher).toBe("function");
+    expect(typeof adapted["email-handler"]).toBe("function");
   });
 });

@@ -22,8 +22,20 @@ export type LlmCompletionRequest = {
   readonly signal?: AbortSignal;
 };
 
+export type LlmUsage = {
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  /** Model id the request actually ran against (for downstream pricing). */
+  readonly model: string;
+};
+
+export type LlmCompletionResult = {
+  readonly text: string;
+  readonly usage?: LlmUsage;
+};
+
 export type LlmClient = {
-  complete(request: LlmCompletionRequest): Promise<string>;
+  complete(request: LlmCompletionRequest): Promise<LlmCompletionResult>;
 };
 
 /**
@@ -68,7 +80,7 @@ export async function createAnthropicLlmClient(
   const defaultMaxTokens = options.defaultMaxTokens ?? DEFAULT_MAX_TOKENS;
 
   return {
-    async complete(req: LlmCompletionRequest): Promise<string> {
+    async complete(req: LlmCompletionRequest): Promise<LlmCompletionResult> {
       const message = await client.messages.create(
         {
           model,
@@ -78,18 +90,29 @@ export async function createAnthropicLlmClient(
         },
         req.signal ? { signal: req.signal } : undefined,
       );
-      return collectTextContent(message.content);
+      const text = collectTextContent(message.content);
+      const usage = readUsageFromAnthropic(message, model);
+      return usage ? { text, usage } : { text };
     },
   };
 }
 
-/** Test helper: build a stub LlmClient that returns the given response. */
+/**
+ * Test helper. The responder can return either a plain string (legacy) or
+ * a full `LlmCompletionResult` to control returned usage.
+ */
 export function createStubLlmClient(
-  respond: (request: LlmCompletionRequest) => string | Promise<string>,
+  respond: (
+    request: LlmCompletionRequest,
+  ) => string | LlmCompletionResult | Promise<string | LlmCompletionResult>,
 ): LlmClient {
   return {
-    async complete(request: LlmCompletionRequest): Promise<string> {
-      return Promise.resolve(respond(request));
+    async complete(request: LlmCompletionRequest): Promise<LlmCompletionResult> {
+      const value = await Promise.resolve(respond(request));
+      if (typeof value === "string") {
+        return { text: value };
+      }
+      return value;
     },
   };
 }
@@ -97,6 +120,11 @@ export function createStubLlmClient(
 type AnthropicContentBlock = {
   type: string;
   text?: string;
+};
+
+type AnthropicMessageUsage = {
+  input_tokens?: number;
+  output_tokens?: number;
 };
 
 function collectTextContent(content: unknown): string {
@@ -109,4 +137,19 @@ function collectTextContent(content: unknown): string {
     .map((block) => block.text ?? "")
     .join("\n")
     .trim();
+}
+
+function readUsageFromAnthropic(
+  message: { usage?: AnthropicMessageUsage; model?: string } | undefined | null,
+  fallbackModel: string,
+): LlmUsage | undefined {
+  if (!message || !message.usage) return undefined;
+  const inputTokens = message.usage.input_tokens ?? 0;
+  const outputTokens = message.usage.output_tokens ?? 0;
+  if (inputTokens === 0 && outputTokens === 0) return undefined;
+  return {
+    inputTokens,
+    outputTokens,
+    model: typeof message.model === "string" && message.model ? message.model : fallbackModel,
+  };
 }

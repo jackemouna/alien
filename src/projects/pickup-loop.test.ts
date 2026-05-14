@@ -82,6 +82,7 @@ describe("runPickupTick", () => {
       writer: stubWorker((label) => ({ wrote: label })),
       editor: stubWorker(() => null),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
@@ -123,6 +124,7 @@ describe("runPickupTick", () => {
       },
       editor: stubWorker(() => null),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
@@ -148,6 +150,7 @@ describe("runPickupTick", () => {
       writer: stubWorker(() => null),
       editor: stubWorker(() => null),
       publisher: failingWorker("oops"),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
@@ -172,6 +175,7 @@ describe("runPickupTick", () => {
       writer: stubWorker(() => null),
       editor: throwingWorker(),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
@@ -196,6 +200,7 @@ describe("runPickupTick", () => {
       writer: stubWorker(() => "ran"),
       editor: stubWorker(() => null),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
@@ -219,6 +224,7 @@ describe("runPickupTick", () => {
       writer: stubWorker(() => null),
       editor: async () => ({ ok: true, result: "draft", toReview: true }),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
@@ -258,6 +264,7 @@ describe("startPickupLoop", () => {
       writer: stubWorker(() => "ok"),
       editor: stubWorker(() => null),
       publisher: stubWorker(() => null),
+      "email-handler": stubWorker(() => null),
     };
     const handle = startPickupLoop({
       projectsDir: dir,

@@ -74,6 +74,12 @@ export type TaskRecord = {
   output?: unknown;
   error?: string;
   /**
+   * USD cost the worker reported after running. Written by the pickup
+   * loop from `WorkerOutput.costUsd` when the worker reports it.
+   * Workers that don't call an LLM (e.g. publisher) leave this unset.
+   */
+  costUsd?: number;
+  /**
    * If true, the planner has marked this task as needing operator approval
    * before its dependents may proceed. The runner pauses on "review" status.
    */
