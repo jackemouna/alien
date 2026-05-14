@@ -54,6 +54,7 @@ export type AppViewState = {
   password: string;
   loginShowGatewayToken: boolean;
   loginShowGatewayPassword: boolean;
+  loginAdvancedOpen: boolean;
   tab: Tab;
   onboarding: boolean;
   basePath: string;

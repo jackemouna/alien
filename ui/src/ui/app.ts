@@ -158,7 +158,8 @@ export class AlienApp extends LitElement {
   @state() password = "";
   @state() loginShowGatewayToken = false;
   @state() loginShowGatewayPassword = false;
-  @state() tab: Tab = "chat";
+  @state() loginAdvancedOpen = false;
+  @state() tab: Tab = "projects";
   @state() onboarding = resolveOnboardingMode();
   @state() connected = false;
   @state() theme: ThemeName = this.settings.theme ?? "claw";

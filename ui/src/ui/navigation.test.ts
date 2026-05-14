@@ -58,7 +58,7 @@ describe("titleForTab", () => {
   it("returns expected titles", () => {
     expect(titleForTab("chat")).toBe("Chat");
     expect(titleForTab("overview")).toBe("Overview");
-    expect(titleForTab("cron")).toBe("Cron Jobs");
+    expect(titleForTab("cron")).toBe("Schedules");
   });
 });
 
@@ -71,8 +71,8 @@ describe("subtitleForTab", () => {
   });
 
   it("returns descriptive subtitles", () => {
-    expect(subtitleForTab("chat")).toContain("quick interventions");
-    expect(subtitleForTab("config")).toContain("alien.json");
+    expect(subtitleForTab("chat")).toContain("conversations");
+    expect(subtitleForTab("config")).toContain("config");
   });
 });
 
