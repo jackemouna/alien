@@ -162,9 +162,9 @@ export class AlienApp extends LitElement {
   @state() tab: Tab = "projects";
   @state() onboarding = resolveOnboardingMode();
   @state() connected = false;
-  @state() theme: ThemeName = this.settings.theme ?? "claw";
-  @state() themeMode: ThemeMode = this.settings.themeMode ?? "system";
-  @state() themeResolved: ResolvedTheme = "dark";
+  @state() theme: ThemeName = this.settings.theme ?? "alien";
+  @state() themeMode: ThemeMode = this.settings.themeMode ?? "light";
+  @state() themeResolved: ResolvedTheme = "alien-light";
   @state() themeOrder: ThemeName[] = this.buildThemeOrder(this.theme);
   @state() customThemeImportUrl = "";
   @state() customThemeImportBusy = false;

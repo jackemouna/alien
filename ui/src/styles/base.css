@@ -204,6 +204,153 @@
   background: rgba(0, 0, 0, 0.25);
 }
 
+/* ---------------------------------------------------------------------------
+ * Alien — the v0.1 premium theme: ivory background, near-black ink,
+ * champagne-gold accents. Calm, refined, deliberately not Silicon-Valley
+ * tech-bright. The dark variant inverts to deep coal + gold so users who
+ * prefer dark mode still get the brand language.
+ * ------------------------------------------------------------------------- */
+
+/* Alien LIGHT — the default. Ivory + black + champagne gold. */
+:root[data-theme="alien-light"] {
+  --bg: #faf7f1;
+  --bg-accent: #f3eee2;
+  --bg-elevated: #ffffff;
+  --bg-hover: #ede6d4;
+  --bg-muted: #f3eee2;
+  --bg-content: #fbf8f2;
+
+  --card: #ffffff;
+  --card-foreground: #0a0908;
+  --card-highlight: rgba(184, 137, 59, 0.05);
+  --popover: #ffffff;
+  --popover-foreground: #0a0908;
+
+  --panel: #faf7f1;
+  --panel-strong: #f3eee2;
+  --panel-hover: #ede6d4;
+  --chrome: rgba(250, 247, 241, 0.96);
+  --chrome-strong: rgba(250, 247, 241, 0.98);
+
+  --text: #1a1611;
+  --text-strong: #000000;
+  --chat-text: #1a1611;
+  --muted: #6f6557;
+  --muted-strong: #4a4338;
+  --muted-foreground: #6f6557;
+
+  --border: #e5dcc8;
+  --border-strong: #d4c8aa;
+  --border-hover: #b89968;
+  --input: #e5dcc8;
+  --ring: #b8893b;
+
+  --accent: #b8893b;
+  --accent-hover: #d4a24f;
+  --accent-muted: #b8893b;
+  --accent-subtle: rgba(184, 137, 59, 0.1);
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(184, 137, 59, 0.2);
+  --primary: #b8893b;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f3eee2;
+  --secondary-foreground: #1a1611;
+  --accent-2: #0a0908;
+  --accent-2-muted: rgba(10, 9, 8, 0.65);
+  --accent-2-subtle: rgba(10, 9, 8, 0.06);
+
+  --ok: #4f7942;
+  --ok-muted: rgba(79, 121, 66, 0.75);
+  --ok-subtle: rgba(79, 121, 66, 0.08);
+  --destructive: #8b2942;
+  --destructive-foreground: #fafafa;
+  --warn: #c9893b;
+  --warn-muted: rgba(201, 137, 59, 0.75);
+  --warn-subtle: rgba(201, 137, 59, 0.08);
+  --danger: #8b2942;
+  --danger-muted: rgba(139, 41, 66, 0.75);
+  --danger-subtle: rgba(139, 41, 66, 0.08);
+  --info: #1a1611;
+
+  --focus: rgba(184, 137, 59, 0.22);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 3px color-mix(in srgb, var(--ring) 75%, transparent);
+  --focus-glow: 0 0 0 2px var(--bg), 0 0 0 3px var(--ring), 0 0 14px var(--accent-glow);
+
+  --grid-line: rgba(10, 9, 8, 0.04);
+
+  /* Premium shadow stack — softer, warmer */
+  --shadow-sm: 0 1px 2px rgba(40, 30, 15, 0.04);
+  --shadow-md: 0 4px 14px rgba(40, 30, 15, 0.06);
+  --shadow-lg: 0 14px 36px rgba(40, 30, 15, 0.08);
+  --shadow-xl: 0 28px 56px rgba(40, 30, 15, 0.1);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+
+  color-scheme: light;
+}
+
+:root[data-theme="alien-light"]::-webkit-scrollbar-thumb,
+:root[data-theme="alien-light"] ::-webkit-scrollbar-thumb {
+  background: rgba(184, 137, 59, 0.25);
+}
+
+:root[data-theme="alien-light"]::-webkit-scrollbar-thumb:hover,
+:root[data-theme="alien-light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 137, 59, 0.4);
+}
+
+/* Alien DARK — coal + champagne for users who prefer dark UIs. */
+:root[data-theme="alien"] {
+  --bg: #0a0908;
+  --bg-accent: #14110c;
+  --bg-elevated: #1c1812;
+  --bg-hover: #25201a;
+  --bg-muted: #1c1812;
+  --bg-content: #0a0908;
+
+  --card: #14110c;
+  --card-foreground: #f5edd8;
+  --card-highlight: rgba(212, 162, 79, 0.06);
+  --popover: #1c1812;
+  --popover-foreground: #f5edd8;
+
+  --panel: #0a0908;
+  --panel-strong: #1c1812;
+  --panel-hover: #25201a;
+  --chrome: rgba(10, 9, 8, 0.96);
+  --chrome-strong: rgba(10, 9, 8, 0.98);
+
+  --text: #e8dcb8;
+  --text-strong: #fbf3df;
+  --chat-text: #e8dcb8;
+  --muted: #8a7d62;
+  --muted-strong: #a89878;
+  --muted-foreground: #8a7d62;
+
+  --border: #2a241a;
+  --border-strong: #3d3424;
+  --border-hover: #6b5a3a;
+  --input: #2a241a;
+  --ring: #d4a24f;
+
+  --accent: #d4a24f;
+  --accent-hover: #e8be72;
+  --accent-muted: #d4a24f;
+  --accent-subtle: rgba(212, 162, 79, 0.12);
+  --accent-foreground: #0a0908;
+  --accent-glow: rgba(212, 162, 79, 0.25);
+  --primary: #d4a24f;
+  --primary-foreground: #0a0908;
+
+  --secondary: #1c1812;
+  --secondary-foreground: #f5edd8;
+  --accent-2: #f5edd8;
+  --accent-2-muted: rgba(245, 237, 216, 0.75);
+  --accent-2-subtle: rgba(245, 237, 216, 0.08);
+
+  color-scheme: dark;
+}
+
 /* Theme families override accent tokens while keeping shared surfaces/layout. */
 :root[data-theme="openknot"] {
   /*

@@ -1,6 +1,8 @@
-export type ThemeName = "claw" | "knot" | "dash" | "custom";
+export type ThemeName = "alien" | "claw" | "knot" | "dash" | "custom";
 export type ThemeMode = "system" | "light" | "dark";
 export type ResolvedTheme =
+  | "alien"
+  | "alien-light"
   | "dark"
   | "light"
   | "openknot"
@@ -10,23 +12,23 @@ export type ResolvedTheme =
   | "custom"
   | "custom-light";
 
-export const VALID_THEME_NAMES = new Set<ThemeName>(["claw", "knot", "dash", "custom"]);
+export const VALID_THEME_NAMES = new Set<ThemeName>(["alien", "claw", "knot", "dash", "custom"]);
 const VALID_THEME_MODES = new Set<ThemeMode>(["system", "light", "dark"]);
 
 type ThemeSelection = { theme: ThemeName; mode: ThemeMode };
 
 const LEGACY_MAP: Record<string, ThemeSelection> = {
-  defaultTheme: { theme: "claw", mode: "dark" },
-  docsTheme: { theme: "claw", mode: "light" },
-  lightTheme: { theme: "knot", mode: "dark" },
-  landingTheme: { theme: "knot", mode: "dark" },
-  newTheme: { theme: "knot", mode: "dark" },
-  dark: { theme: "claw", mode: "dark" },
-  light: { theme: "claw", mode: "light" },
+  defaultTheme: { theme: "alien", mode: "light" },
+  docsTheme: { theme: "alien", mode: "light" },
+  lightTheme: { theme: "alien", mode: "light" },
+  landingTheme: { theme: "alien", mode: "light" },
+  newTheme: { theme: "alien", mode: "light" },
+  dark: { theme: "alien", mode: "dark" },
+  light: { theme: "alien", mode: "light" },
   openknot: { theme: "knot", mode: "dark" },
   fieldmanual: { theme: "dash", mode: "dark" },
   clawdash: { theme: "dash", mode: "light" },
-  system: { theme: "claw", mode: "system" },
+  system: { theme: "alien", mode: "system" },
 };
 
 function prefersLightScheme(): boolean {
@@ -49,7 +51,7 @@ export function parseThemeSelection(
 
   const normalizedTheme = VALID_THEME_NAMES.has(theme as ThemeName)
     ? (theme as ThemeName)
-    : (LEGACY_MAP[theme]?.theme ?? "claw");
+    : (LEGACY_MAP[theme]?.theme ?? "alien");
   const normalizedMode = VALID_THEME_MODES.has(mode as ThemeMode)
     ? (mode as ThemeMode)
     : (LEGACY_MAP[theme]?.mode ?? "system");
@@ -66,6 +68,9 @@ function resolveMode(mode: ThemeMode): "light" | "dark" {
 
 export function resolveTheme(theme: ThemeName, mode: ThemeMode): ResolvedTheme {
   const resolvedMode = resolveMode(mode);
+  if (theme === "alien") {
+    return resolvedMode === "light" ? "alien-light" : "alien";
+  }
   if (theme === "claw") {
     return resolvedMode === "light" ? "light" : "dark";
   }

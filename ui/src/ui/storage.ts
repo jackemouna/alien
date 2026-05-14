@@ -86,8 +86,7 @@ function formatHostWithPort(hostname: string, port: string): string {
 function deriveDefaultGatewayUrl(): { pageUrl: string; effectiveUrl: string } {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   const configured =
-    typeof window !== "undefined" &&
-    normalizeOptionalString(window.__ALIEN_CONTROL_UI_BASE_PATH__);
+    typeof window !== "undefined" && normalizeOptionalString(window.__ALIEN_CONTROL_UI_BASE_PATH__);
   const basePath = configured
     ? normalizeBasePath(configured)
     : inferBasePathFromPathname(location.pathname);
@@ -196,8 +195,8 @@ export function loadSettings(): UiSettings {
     token: loadSessionToken(defaultUrl),
     sessionKey: "main",
     lastActiveSessionKey: "main",
-    theme: "claw",
-    themeMode: "system",
+    theme: "alien",
+    themeMode: "light",
     chatFocusMode: false,
     chatShowThinking: true,
     chatShowToolCalls: true,
@@ -223,17 +222,26 @@ export function loadSettings(): UiSettings {
     const gatewayUrl = parsedGatewayUrl === pageDerivedUrl ? defaultUrl : parsedGatewayUrl;
     const scopedSessionSelection = resolveScopedSessionSelection(gatewayUrl, parsed, defaults);
     const customTheme = parseImportedCustomTheme((parsed as { customTheme?: unknown }).customTheme);
-    const { theme, mode } = parseThemeSelection(
+    const parsedSelection = parseThemeSelection(
       (parsed as { theme?: unknown }).theme,
       (parsed as { themeMode?: unknown }).themeMode,
     );
+    // v0.1 launch migration: anyone whose stored theme is the prior
+    // factory default (claw/system) is upgraded to the new Alien
+    // premium theme. Users who actively picked claw with an explicit
+    // light/dark mode keep their choice.
+    const isPriorFactoryDefault =
+      parsedSelection.theme === "claw" && parsedSelection.mode === "system";
+    const { theme, mode } = isPriorFactoryDefault
+      ? { theme: "alien" as const, mode: "light" as const }
+      : parsedSelection;
     const settings = {
       gatewayUrl,
       // Gateway auth is intentionally in-memory only; scrub any legacy persisted token on load.
       token: loadSessionToken(gatewayUrl),
       sessionKey: scopedSessionSelection.sessionKey,
       lastActiveSessionKey: scopedSessionSelection.lastActiveSessionKey,
-      theme: theme === "custom" && !customTheme ? "claw" : theme,
+      theme: theme === "custom" && !customTheme ? "alien" : theme,
       themeMode: mode,
       chatFocusMode:
         typeof parsed.chatFocusMode === "boolean" ? parsed.chatFocusMode : defaults.chatFocusMode,

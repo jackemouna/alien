@@ -25,12 +25,19 @@ describe("resolveSystemTheme", () => {
 describe("parseThemeSelection", () => {
   it("maps legacy stored values onto theme + mode", () => {
     expect(parseThemeSelection("system", undefined)).toEqual({
-      theme: "claw",
+      theme: "alien",
       mode: "system",
     });
     expect(parseThemeSelection("fieldmanual", undefined)).toEqual({
       theme: "dash",
       mode: "dark",
+    });
+  });
+
+  it("defaults to alien when the stored theme is unrecognized", () => {
+    expect(parseThemeSelection("not-a-theme", undefined)).toEqual({
+      theme: "alien",
+      mode: "system",
     });
   });
 });

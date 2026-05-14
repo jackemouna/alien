@@ -1,14 +1,11 @@
 <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="alien-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#3b0764"/>
-    </linearGradient>
-  </defs>
-  <!-- Background tile -->
-  <rect x="0" y="0" width="120" height="120" rx="22" fill="url(#alien-bg)"/>
-  <!-- Alien invader body, drawn pixel-style around the centre -->
-  <g fill="#a5f3fc">
+  <!-- Premium tile: deep coal background. -->
+  <rect x="0" y="0" width="120" height="120" rx="24" fill="#0a0908"/>
+  <!-- Faint inner ring to suggest a coin / medallion edge. -->
+  <rect x="3" y="3" width="114" height="114" rx="22" fill="none"
+        stroke="#b8893b" stroke-opacity="0.18" stroke-width="1"/>
+  <!-- Alien invader, pixel-style, drawn in champagne gold. -->
+  <g fill="#d4a24f">
     <!-- top antennae -->
     <rect x="34" y="20" width="8" height="8"/>
     <rect x="78" y="20" width="8" height="8"/>
@@ -18,24 +15,24 @@
     <rect x="34" y="36" width="16" height="8"/>
     <rect x="58" y="36" width="4" height="8"/>
     <rect x="70" y="36" width="16" height="8"/>
-    <!-- head row 3 (mouth + body) -->
+    <!-- head row 3 -->
     <rect x="28" y="44" width="64" height="8"/>
-    <!-- mid body with arms -->
+    <!-- mid body -->
     <rect x="20" y="52" width="80" height="8"/>
-    <!-- lower body curve -->
+    <!-- lower body -->
     <rect x="20" y="60" width="12" height="8"/>
     <rect x="40" y="60" width="40" height="8"/>
     <rect x="88" y="60" width="12" height="8"/>
-    <!-- feet / wiggle -->
+    <!-- feet -->
     <rect x="28" y="68" width="16" height="8"/>
     <rect x="52" y="68" width="16" height="8"/>
     <rect x="76" y="68" width="16" height="8"/>
-    <!-- bottom-most feet -->
+    <!-- outer feet -->
     <rect x="20" y="76" width="8" height="8"/>
     <rect x="92" y="76" width="8" height="8"/>
   </g>
-  <!-- Eyes (carved by overlaying bg-colored squares) -->
-  <g fill="#3b0764">
+  <!-- Eye sockets carved back to background. -->
+  <g fill="#0a0908">
     <rect x="50" y="36" width="8" height="8"/>
     <rect x="62" y="36" width="8" height="8"/>
   </g>
