@@ -3,6 +3,7 @@ import type { Project, TaskRecord } from "../../../../src/projects/types.js";
 import type { StarterTemplate } from "../../../../src/templates/types.js";
 import { resolveControlUiAuthHeader } from "../control-ui-auth.ts";
 import { normalizeBasePath } from "../navigation.ts";
+import { DEMO_PROJECT, DEMO_TASKS, isDemoProject } from "./projects-demo.ts";
 
 /**
  * Projects + Kanban board UI.
@@ -535,7 +536,64 @@ function renderFirstRunEmptyState(state: ProjectsState, store: ProjectsStore) {
         </button>
       </div>
     </section>
+    ${renderDemoBoard()}
     ${state.templates.length > 0 ? renderTemplatesGallery(state.templates, store) : nothing}
+  `;
+}
+
+function renderDemoBoard() {
+  const tasksByStatus = groupByStatus([...DEMO_TASKS]);
+  return html`
+    <section style="margin-top: 16px;">
+      <div
+        class="callout"
+        style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; padding: 10px 14px;"
+      >
+        <span style="font-size: 18px;">👋</span>
+        <div>
+          <div style="font-weight: 600; font-size: 14px;">
+            Here's what your team looks like working
+          </div>
+          <div class="muted" style="font-size: 12px;">
+            This is a finished sample project. Click any card to read the worker's output. Your real
+            projects will show up here.
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding: 16px;">
+        <div class="row" style="justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div class="card-title">
+              ${DEMO_PROJECT.name}
+              <span
+                class="chip"
+                style="margin-left: 8px; background: var(--accent-subtle, rgba(184,137,59,0.1)); color: var(--accent, #b8893b); font-weight: 600;"
+                >Demo</span
+              >
+            </div>
+            <div class="card-sub">${DEMO_PROJECT.goal}</div>
+          </div>
+          <div class="muted" style="font-size: 12px;">
+            ${DEMO_TASKS.filter((t) => t.status === "done").length} of ${DEMO_TASKS.length} steps
+            done
+          </div>
+        </div>
+        <div
+          class="kanban"
+          style="display: grid; gap: 10px; margin-top: 16px; grid-template-columns: repeat(${COLUMNS.length}, minmax(180px, 1fr)); overflow-x: auto;"
+        >
+          ${COLUMNS.map((col) =>
+            renderColumn(
+              col.status,
+              col.label,
+              col.hint,
+              tasksByStatus.get(col.status) ?? [],
+              null,
+            ),
+          )}
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -692,7 +750,7 @@ function renderColumn(
   label: string,
   hint: string,
   tasks: TaskRecord[],
-  store: ProjectsStore,
+  store: ProjectsStore | null,
 ) {
   return html`
     <div class="card kanban-column" style="padding: 10px; min-height: 200px;" title="${hint}">
@@ -709,11 +767,23 @@ function renderColumn(
   `;
 }
 
-function renderTaskCard(task: TaskRecord, store: ProjectsStore) {
+function renderTaskCard(task: TaskRecord, store: ProjectsStore | null) {
+  const isDemo = isDemoProject(task.projectId);
   return html`
     <div
       class="task-card"
-      style="border: 1px solid var(--border, rgba(255,255,255,0.08)); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px;"
+      style="border: 1px solid var(--border, rgba(255,255,255,0.08)); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px; cursor: ${task.output !=
+        null || task.error
+        ? "pointer"
+        : "default"};"
+      @click=${(e: Event) => {
+        if (task.output == null && !task.error) return;
+        const card = e.currentTarget as HTMLElement;
+        const details = card.querySelector(".task-card__details") as HTMLElement | null;
+        if (details) {
+          details.style.display = details.style.display === "block" ? "none" : "block";
+        }
+      }}
     >
       <div style="font-size: 13px; font-weight: 500;">${task.title}</div>
       <div class="muted" style="font-size: 11px;">
@@ -726,7 +796,15 @@ function renderTaskCard(task: TaskRecord, store: ProjectsStore) {
             ${task.error}
           </div>`
         : nothing}
-      ${renderTaskActions(task, store)}
+      ${task.output != null
+        ? html`<div
+            class="task-card__details muted"
+            style="display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border, rgba(0,0,0,0.1)); font-size: 11px; white-space: pre-wrap; max-height: 220px; overflow-y: auto;"
+          >
+            ${formatTaskOutput(task.output)}
+          </div>`
+        : nothing}
+      ${store ? renderTaskActions(task, store) : isDemo ? renderDemoActions(task) : nothing}
     </div>
   `;
 }
@@ -737,7 +815,10 @@ function renderTaskActions(task: TaskRecord, store: ProjectsStore) {
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
       title="Approve so the team can start this step"
-      @click=${() => void store.approveTask(task.id)}
+      @click=${(e: Event) => {
+        e.stopPropagation();
+        void store.approveTask(task.id);
+      }}
     >
       Looks good — go
     </button>`;
@@ -747,7 +828,10 @@ function renderTaskActions(task: TaskRecord, store: ProjectsStore) {
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
       title="Put this back in the queue and try again"
-      @click=${() => void store.retryTask(task.id)}
+      @click=${(e: Event) => {
+        e.stopPropagation();
+        void store.retryTask(task.id);
+      }}
     >
       Try again
     </button>`;
@@ -757,7 +841,8 @@ function renderTaskActions(task: TaskRecord, store: ProjectsStore) {
       class="btn"
       style="font-size: 11px; padding: 4px 8px;"
       title="Stop the team from working on this for now"
-      @click=${() => {
+      @click=${(e: Event) => {
+        e.stopPropagation();
         const reason = prompt("Why pause this?", "paused by me");
         if (reason !== null) {
           void store.blockTask(task.id, reason || "paused");
@@ -768,6 +853,52 @@ function renderTaskActions(task: TaskRecord, store: ProjectsStore) {
     </button>`;
   }
   return nothing;
+}
+
+function renderDemoActions(task: TaskRecord) {
+  // Render the same action button shapes the user will see on a real
+  // project, but disabled — so the affordances are visible without us
+  // having to fake state changes for the demo.
+  if (task.status === "backlog" && task.requiresApproval) {
+    return html`<button
+      class="btn"
+      disabled
+      style="font-size: 11px; padding: 4px 8px; opacity: 0.6;"
+      title="Demo — start a real project to try this"
+    >
+      Looks good — go
+    </button>`;
+  }
+  if (task.status === "queued" || task.status === "in-progress" || task.status === "review") {
+    return html`<button
+      class="btn"
+      disabled
+      style="font-size: 11px; padding: 4px 8px; opacity: 0.6;"
+      title="Demo — start a real project to try this"
+    >
+      Pause
+    </button>`;
+  }
+  return nothing;
+}
+
+function formatTaskOutput(output: unknown): string {
+  if (output == null) return "";
+  if (typeof output === "string") return output;
+  if (typeof output === "object") {
+    const obj = output as Record<string, unknown>;
+    // Common worker output shapes prefer their text-y field first.
+    if (typeof obj.markdown === "string") return obj.markdown;
+    if (typeof obj.summary === "string") return obj.summary;
+    if (typeof obj.notes === "string") return obj.notes;
+    if (typeof obj.text === "string") return obj.text;
+    try {
+      return JSON.stringify(obj, null, 2);
+    } catch {
+      return String(output);
+    }
+  }
+  return String(output);
 }
 
 function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {
