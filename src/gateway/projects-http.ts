@@ -98,6 +98,8 @@ export async function handleProjectsRequest(
       return await handleArchiveProject(req, res, opts, route.projectId);
     case "from-prompt":
       return await handleFromPrompt(req, res, opts, route.projectId);
+    case "commit-plan":
+      return await handleCommitPlan(req, res, opts, route.projectId);
     case "approve":
       return await handleApproveTask(req, res, opts, route.projectId, route.taskId);
     case "retry":
@@ -109,7 +111,10 @@ export async function handleProjectsRequest(
 
 type ProjectsRoute =
   | { readonly kind: "list" | "create" }
-  | { readonly kind: "get" | "archive" | "from-prompt"; readonly projectId: string }
+  | {
+      readonly kind: "get" | "archive" | "from-prompt" | "commit-plan";
+      readonly projectId: string;
+    }
   | {
       readonly kind: "approve" | "retry" | "block";
       readonly projectId: string;
@@ -133,6 +138,9 @@ function parseProjectsRoute(method: string, pathname: string): ProjectsRoute | u
   if (segments.length === 3 && segments[1] === "tasks" && method === "POST") {
     if (segments[2] === "from-prompt") {
       return { kind: "from-prompt", projectId: segments[0]! };
+    }
+    if (segments[2] === "commit-plan") {
+      return { kind: "commit-plan", projectId: segments[0]! };
     }
     return undefined;
   }
@@ -328,6 +336,11 @@ async function handleFromPrompt(
     return true;
   }
   const origin: TaskOrigin = { kind: "operator" };
+  // Preview mode (default for the UI). The planner runs synchronously
+  // and the response carries the proposed task DAG. Nothing is persisted
+  // until the client follows up with /tasks/commit-plan. The legacy
+  // fire-and-forget path is kept for callers that pass preview=false.
+  const isPreview = body.preview !== false;
 
   let llm: Awaited<ReturnType<typeof createAnthropicLlmClient>>;
   try {
@@ -336,6 +349,21 @@ async function handleFromPrompt(
     sendJson(res, 400, {
       error: { message: stringifyError(err), type: "invalid_request_error" },
     });
+    return true;
+  }
+
+  if (isPreview) {
+    try {
+      const result = await runAsHttp("projects-plan-preview", { projectId }, async () => {
+        const existing = listTasks(projectsDir, projectId);
+        return await plan({ projectId, prompt, origin, existing }, { llm });
+      });
+      sendJson(res, 200, { plan: result });
+    } catch (err) {
+      sendJson(res, 400, {
+        error: { message: stringifyError(err), type: "invalid_request_error" },
+      });
+    }
     return true;
   }
 
@@ -355,6 +383,103 @@ async function handleFromPrompt(
   });
 
   sendJson(res, 202, { projectId, accepted: true });
+  return true;
+}
+
+async function handleCommitPlan(
+  req: IncomingMessage,
+  res: ServerResponse,
+  opts: ProjectsHttpOptions,
+  projectId: string,
+): Promise<boolean> {
+  const body = await readPostBody(req, res, opts);
+  if (!body) return true;
+  if (!isSafeId(projectId)) {
+    sendJson(res, 400, { error: { message: "invalid project id", type: "invalid_request_error" } });
+    return true;
+  }
+  const projectsDir = resolveProjectsDir();
+  const project = loadProject(projectsDir, projectId);
+  if (!project) {
+    sendJson(res, 404, {
+      error: { message: `project not found: ${projectId}`, type: "invalid_request_error" },
+    });
+    return true;
+  }
+  const planBody = body.plan as unknown;
+  if (
+    !planBody ||
+    typeof planBody !== "object" ||
+    !Array.isArray((planBody as { tasks?: unknown }).tasks)
+  ) {
+    sendJson(res, 400, {
+      error: { message: "plan.tasks[] is required", type: "invalid_request_error" },
+    });
+    return true;
+  }
+  const planResult = planBody as {
+    summary?: string;
+    tasks: ReadonlyArray<Record<string, unknown>>;
+  };
+  if (planResult.tasks.length === 0) {
+    sendJson(res, 400, {
+      error: { message: "plan must include at least one task", type: "invalid_request_error" },
+    });
+    return true;
+  }
+  // Surviving-set sanitization. After UI-side edits a depended-on task
+  // may no longer exist in the submitted plan; strip those orphan refs.
+  const presentLocalIds = new Set(
+    planResult.tasks
+      .map((t) => {
+        const value = t._localId ?? t.id;
+        return typeof value === "string" ? value : "";
+      })
+      .filter(Boolean),
+  );
+  const sanitizedTasks: Array<Record<string, unknown>> = [];
+  for (const raw of planResult.tasks) {
+    if (!raw || typeof raw !== "object") continue;
+    const title = typeof raw.title === "string" ? raw.title.trim() : "";
+    const description = typeof raw.description === "string" ? raw.description.trim() : "";
+    const role = typeof raw.role === "string" ? raw.role.trim() : "";
+    if (!title || !description || !role) continue;
+    const dependsOn = Array.isArray(raw.dependsOn)
+      ? (raw.dependsOn as unknown[]).filter(
+          (d): d is string => typeof d === "string" && presentLocalIds.has(d),
+        )
+      : [];
+    sanitizedTasks.push({ ...raw, dependsOn });
+  }
+  if (sanitizedTasks.length === 0) {
+    sendJson(res, 400, {
+      error: { message: "no valid tasks in plan", type: "invalid_request_error" },
+    });
+    return true;
+  }
+  const origin: TaskOrigin = { kind: "operator" };
+  const auditLogPath = resolveAuditLogPath();
+  try {
+    const created = persistPlan(
+      projectId,
+      // The persistPlan helper expects a PlanResult-shape with tasks
+      // matching TaskDraft. The fields it reads (title, description,
+      // role, dependsOn, input, priority, requiresApproval) are exactly
+      // what the UI roundtrips through preview → commit, so a cast is
+      // safe here.
+      { tasks: sanitizedTasks as unknown as Parameters<typeof persistPlan>[1]["tasks"] },
+      {
+        projectsDir,
+        origin,
+        ...(auditLogPath ? { auditLogPath } : {}),
+      },
+    );
+    sendJson(res, 201, { committed: true, taskCount: created.length });
+  } catch (err) {
+    sendJson(res, 400, {
+      error: { message: stringifyError(err), type: "invalid_request_error" },
+    });
+  }
   return true;
 }
 

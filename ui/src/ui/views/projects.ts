@@ -34,6 +34,30 @@ type ProjectListResponse = { readonly projects?: Project[] };
 type ProjectDetailResponse = { readonly project?: Project; readonly tasks?: TaskRecord[] };
 type TemplatesResponse = { readonly templates?: StarterTemplate[] };
 
+/**
+ * One task as returned by the planner preview. Mirrors the shape of
+ * TaskDraft + the planner's internal `_localId` hint that lets the
+ * commit step preserve dependsOn edges across edits.
+ */
+type PlannedTask = {
+  readonly _localId?: string;
+  readonly id?: string;
+  title: string;
+  description: string;
+  role: TaskRecord["role"];
+  dependsOn: string[];
+  input: Record<string, unknown>;
+  priority?: TaskRecord["priority"];
+  requiresApproval?: boolean;
+};
+
+type PlanPreview = {
+  readonly summary?: string;
+  tasks: PlannedTask[];
+};
+
+type PlanPreviewResponse = { readonly plan?: PlanPreview };
+
 const POLL_INTERVAL_MS = 3_000;
 const COLUMNS: ReadonlyArray<{
   status: TaskRecord["status"];
@@ -69,6 +93,12 @@ export type ProjectsStore = {
   readonly archiveSelectedProject: () => Promise<void>;
   /** Apply a template: fills name + goal in the new-project draft and opens the modal. */
   readonly useTemplate: (template: StarterTemplate) => void;
+  /** Drop a task from the plan-preview modal before commit. */
+  readonly removePlanTask: (taskIndex: number) => void;
+  /** Commit the (possibly edited) plan and persist tasks. */
+  readonly commitPlan: () => Promise<void>;
+  /** Discard the plan preview without committing. */
+  readonly cancelPlanPreview: () => void;
 };
 
 export type ProjectsState = {
@@ -89,6 +119,9 @@ export type ProjectsState = {
   templates: StarterTemplate[];
   /** Template id whose starterPrompt should be dispatched right after the project is created. */
   pendingTemplatePrompt: string | null;
+  /** When non-null, the plan-preview modal is open with these tasks waiting for approval. */
+  planPreview: PlanPreview | null;
+  planPreviewBusy: boolean;
 };
 
 export type CreateProjectsStoreOptions = {
@@ -117,6 +150,8 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     promptError: null,
     templates: [],
     pendingTemplatePrompt: null,
+    planPreview: null,
+    planPreviewBusy: false,
   };
 
   let mountCount = 0;
@@ -340,23 +375,92 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     state.promptError = null;
     notify();
     try {
+      // Stage 1: ask the planner for a preview (the gateway returns the
+      // proposed task DAG without persisting anything).
       const url = `/v1/projects/${encodeURIComponent(state.selectedProjectId)}/tasks/from-prompt`;
       const res = await fetchFn(buildUrl(url), {
         method: "POST",
         headers: buildHeaders({ "Content-Type": "application/json" }),
         credentials: "same-origin",
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, preview: true }),
+      });
+      const body = (await res.json().catch(() => null)) as
+        | (PlanPreviewResponse & { error?: { message?: string } })
+        | null;
+      if (!res.ok) {
+        throw new Error(body?.error?.message ?? `gateway responded ${res.status}`);
+      }
+      const planRaw = body?.plan;
+      if (!planRaw || !Array.isArray(planRaw.tasks) || planRaw.tasks.length === 0) {
+        throw new Error("Your team couldn't break that down into steps. Try rewording it.");
+      }
+      // Stage 2: hand off to the preview modal. The store keeps the
+      // plan in state; the user reviews/edits then calls commitPlan().
+      state.planPreview = {
+        ...(planRaw.summary ? { summary: planRaw.summary } : {}),
+        tasks: planRaw.tasks.map((t) => ({
+          ...t,
+          dependsOn: Array.isArray(t.dependsOn) ? [...t.dependsOn] : [],
+          input: t.input && typeof t.input === "object" ? { ...t.input } : {},
+        })),
+      };
+    } catch (err) {
+      state.promptError = stringifyError(err);
+    } finally {
+      state.promptBusy = false;
+      notify();
+    }
+  }
+
+  function removePlanTask(taskIndex: number): void {
+    if (!state.planPreview) return;
+    const removed = state.planPreview.tasks[taskIndex];
+    if (!removed) return;
+    const removedLocalId = removed._localId ?? removed.id ?? "";
+    const nextTasks = state.planPreview.tasks
+      .filter((_, i) => i !== taskIndex)
+      .map((t) =>
+        removedLocalId ? { ...t, dependsOn: t.dependsOn.filter((d) => d !== removedLocalId) } : t,
+      );
+    state.planPreview = { ...state.planPreview, tasks: nextTasks };
+    notify();
+  }
+
+  function cancelPlanPreview(): void {
+    state.planPreview = null;
+    state.planPreviewBusy = false;
+    notify();
+  }
+
+  async function commitPlan(): Promise<void> {
+    if (!state.selectedProjectId || !state.planPreview) return;
+    if (state.planPreview.tasks.length === 0) {
+      state.planPreviewBusy = false;
+      notify();
+      return;
+    }
+    state.planPreviewBusy = true;
+    state.promptError = null;
+    notify();
+    try {
+      const url = `/v1/projects/${encodeURIComponent(state.selectedProjectId)}/tasks/commit-plan`;
+      const res = await fetchFn(buildUrl(url), {
+        method: "POST",
+        headers: buildHeaders({ "Content-Type": "application/json" }),
+        credentials: "same-origin",
+        body: JSON.stringify({ plan: state.planPreview }),
       });
       const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
       if (!res.ok) {
         throw new Error(body?.error?.message ?? `gateway responded ${res.status}`);
       }
+      state.planPreview = null;
       state.promptDraft = "";
       await refreshDetail(state.selectedProjectId);
     } catch (err) {
       state.promptError = stringifyError(err);
     } finally {
-      state.promptBusy = false;
+      state.planPreviewBusy = false;
       notify();
     }
   }
@@ -454,6 +558,9 @@ export function createProjectsStore(opts: CreateProjectsStoreOptions): ProjectsS
     blockTask,
     archiveSelectedProject,
     useTemplate,
+    removePlanTask,
+    commitPlan,
+    cancelPlanPreview,
   };
 }
 
@@ -516,6 +623,7 @@ export function renderProjects(props: ProjectsProps) {
     </section>
 
     ${state.newProjectOpen ? renderNewProjectPanel(state, props.store) : nothing}
+    ${state.planPreview ? renderPlanPreviewPanel(state, props.store) : nothing}
   `;
 }
 
@@ -731,14 +839,14 @@ function renderPromptComposer(state: ProjectsState, store: ProjectsStore) {
         : nothing}
       <div class="row" style="justify-content: space-between; align-items: center;">
         <div class="muted" style="font-size: 12px;">
-          Your team will break this into small steps and start working.
+          Your team will draft a plan. You'll see the steps before anyone starts working.
         </div>
         <button
           class="btn primary"
           ?disabled=${state.promptBusy || !state.promptDraft.trim()}
           @click=${() => void store.submitPrompt()}
         >
-          ${state.promptBusy ? "Planning…" : "Send to the team"}
+          ${state.promptBusy ? "Planning…" : "Plan it"}
         </button>
       </div>
     </div>
@@ -899,6 +1007,111 @@ function formatTaskOutput(output: unknown): string {
     }
   }
   return String(output);
+}
+
+function renderPlanPreviewPanel(state: ProjectsState, store: ProjectsStore) {
+  const plan = state.planPreview;
+  if (!plan) return nothing;
+  return html`
+    <div
+      class="modal-backdrop"
+      style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 10000;"
+      @click=${() => store.cancelPlanPreview()}
+    >
+      <div
+        class="card"
+        style="min-width: 560px; max-width: 720px; max-height: 80vh; overflow-y: auto;"
+        @click=${(e: Event) => e.stopPropagation()}
+      >
+        <div class="card-title">Your team's plan</div>
+        <div class="card-sub">
+          ${plan.summary ?? "Here's how your team wants to break down the work."} Review the steps,
+          remove anything you don't want, then send.
+        </div>
+
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+          ${plan.tasks.map((task, index) => renderPlanTaskRow(task, index, store))}
+        </div>
+
+        ${plan.tasks.length === 0
+          ? html`<div class="callout" style="margin-top: 16px;">
+              You removed all the steps. Cancel and try a different prompt.
+            </div>`
+          : nothing}
+
+        <div class="row" style="justify-content: space-between; gap: 8px; margin-top: 20px;">
+          <div class="muted" style="font-size: 12px;">
+            ${plan.tasks.length} step${plan.tasks.length === 1 ? "" : "s"}.
+            ${countWithApproval(plan.tasks) > 0
+              ? html` ${countWithApproval(plan.tasks)} need your approval before running.`
+              : ""}
+          </div>
+          <div class="row" style="gap: 8px;">
+            <button
+              class="btn"
+              ?disabled=${state.planPreviewBusy}
+              @click=${() => store.cancelPlanPreview()}
+            >
+              Cancel
+            </button>
+            <button
+              class="btn primary"
+              ?disabled=${state.planPreviewBusy || plan.tasks.length === 0}
+              @click=${() => void store.commitPlan()}
+            >
+              ${state.planPreviewBusy ? "Sending…" : "Send to the team"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPlanTaskRow(task: PlannedTask, index: number, store: ProjectsStore) {
+  return html`
+    <div
+      style="border: 1px solid var(--border, rgba(0,0,0,0.1)); border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: flex-start;"
+    >
+      <div style="font-weight: 600; min-width: 24px; color: var(--accent, #b8893b);">
+        ${index + 1}.
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <div style="font-weight: 500; font-size: 14px;">${task.title}</div>
+          <span class="chip">${friendlyRole(task.role)}</span>
+          ${task.priority && task.priority !== "normal"
+            ? html`<span class="chip ${task.priority === "urgent" ? "danger" : ""}"
+                >${friendlyPriority(task.priority)}</span
+              >`
+            : nothing}
+          ${task.requiresApproval ? html`<span class="chip warn">needs your OK</span>` : nothing}
+        </div>
+        <div class="muted" style="font-size: 12px;">${task.description}</div>
+        ${task.dependsOn.length > 0
+          ? html`<div class="muted" style="font-size: 11px;">
+              Waits for: ${task.dependsOn.join(", ")}
+            </div>`
+          : nothing}
+      </div>
+      <button
+        class="btn btn--icon"
+        title="Remove this step"
+        style="opacity: 0.6;"
+        @click=${() => store.removePlanTask(index)}
+      >
+        ✕
+      </button>
+    </div>
+  `;
+}
+
+function countWithApproval(tasks: readonly PlannedTask[]): number {
+  let n = 0;
+  for (const t of tasks) {
+    if (t.requiresApproval) n += 1;
+  }
+  return n;
 }
 
 function renderNewProjectPanel(state: ProjectsState, store: ProjectsStore) {
