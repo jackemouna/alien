@@ -81,6 +81,21 @@ async function resolveAnthropicAuth(
       token: options.apiKey,
     };
   }
+  // FIRST CHOICE: piggyback on an installed Claude Code session.
+  // Anthropic treats requests carrying the Claude Code OAuth identity
+  // as Claude Code itself — billing applies to the operator's Pro/Max
+  // subscription, not the "third-party app extra usage" pool. This is
+  // the answer to "make it use the subscription I pay for."
+  const { readClaudeCodeSession, isClaudeCodeSessionExpiringSoon } =
+    await import("../security/claude-code-session.js");
+  const ccSession = readClaudeCodeSession();
+  if (ccSession && !isClaudeCodeSessionExpiringSoon(ccSession)) {
+    return { kind: "oauth", token: ccSession.accessToken };
+  }
+  // SECOND CHOICE: wizard-OAuth session at ~/.alien/anthropic-oauth.json.
+  // Same token shape, but Anthropic bills the user's "extra usage" pool
+  // for these. Caller will see a 400 with that message if they haven't
+  // topped up.
   const { readAnthropicOAuth, shouldRefresh, writeAnthropicOAuth } =
     await import("../security/anthropic-oauth-store.js");
   const stored = await readAnthropicOAuth();
@@ -104,6 +119,7 @@ async function resolveAnthropicAuth(
       return { kind: "oauth", token: stored.access };
     }
   }
+  // THIRD CHOICE: env-var or keychain-stored regular API key.
   const { readSecretFromEnvOrKeychain } = await import("../security/secret-source.js");
   const fromEnv = readSecretFromEnvOrKeychain({
     envVarName: "ANTHROPIC_API_KEY",

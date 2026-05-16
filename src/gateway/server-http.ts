@@ -72,6 +72,7 @@ let capabilitiesHttpModulePromise: Promise<typeof import("./capabilities-http.js
 let capabilitiesUiModulePromise: Promise<typeof import("./capabilities-ui.js")> | undefined;
 let activityStreamModulePromise: Promise<typeof import("./activity-stream-http.js")> | undefined;
 let activityUiModulePromise: Promise<typeof import("./activity-ui.js")> | undefined;
+let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -157,6 +158,11 @@ function getActivityStreamModule() {
 function getActivityUiModule() {
   activityUiModulePromise ??= import("./activity-ui.js");
   return activityUiModulePromise;
+}
+
+function getModelSwitcherModule() {
+  modelSwitcherModulePromise ??= import("./model-switcher-http.js");
+  return modelSwitcherModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -850,6 +856,14 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "activity-stream",
           run: async () => (await getActivityStreamModule()).handleAuditStreamRequest(req, res),
+        });
+      }
+      // /model + /v1/model: change the default agent model without
+      // hand-editing alien.json. Loopback-only.
+      if ((await getModelSwitcherModule()).isModelSwitcherPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "model-switcher",
+          run: async () => (await getModelSwitcherModule()).handleModelSwitcherRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a

@@ -922,14 +922,26 @@ export async function startGatewayServer(
     try {
       const fs = await import("node:fs/promises");
       const path = await import("node:path");
-      const [anth, oai, paths] = await Promise.all([
+      const [anth, oai, paths, ccSession] = await Promise.all([
         import("../security/anthropic-oauth-store.js"),
         import("../security/openai-oauth-store.js"),
         import("../config/paths.js"),
+        import("../security/claude-code-session.js"),
       ]);
       const a = await anth.readAnthropicOAuth();
       const o = await oai.readOpenAIOAuth();
-      if (!a && !o) return;
+      // Prefer a locally-installed Claude Code OAuth session for the
+      // Anthropic profile. Claude Code's token bills against the
+      // operator's Pro/Max plan (not the third-party "extra usage"
+      // pool that wizard OAuth lands in), which is what subscribers
+      // actually expect from "use my subscription."
+      const cc = ccSession.readClaudeCodeSession();
+      if (cc) {
+        log.info?.(
+          `auth: using Claude Code session for Anthropic (sub=${cc.subscriptionType ?? "unknown"})`,
+        );
+      }
+      if (!a && !o && !cc) return;
       const agentsRoot = path.join(paths.resolveStateDir(), "agents");
       let agentIds: string[] = [];
       try {
@@ -962,6 +974,20 @@ export async function startGatewayServer(
         } catch {
           // file may not exist yet — that's fine.
         }
+        if (cc) {
+          // Overwrite the canonical Anthropic OAuth profile with the
+          // Claude Code session so the agent picks Pro/Max-billed auth.
+          // The wizard's anthropic-subscription profile is left intact
+          // for fallback if Claude Code is uninstalled later.
+          existing.profiles["anthropic-claude-code"] = {
+            type: "oauth",
+            provider: "anthropic",
+            access: cc.accessToken,
+            refresh: cc.refreshToken,
+            expires: cc.expiresAt,
+            displayName: `Claude Code (${cc.subscriptionType ?? "subscription"})`,
+          };
+        }
         if (a) {
           existing.profiles["anthropic-subscription"] = {
             type: "oauth",
@@ -969,7 +995,7 @@ export async function startGatewayServer(
             access: a.access,
             refresh: a.refresh,
             expires: a.expires,
-            displayName: "Claude (subscription)",
+            displayName: "Claude (wizard OAuth — third-party billing)",
           };
         }
         if (o) {
