@@ -525,8 +525,7 @@ export async function startGatewayServer(
   const { bootstrapGatewayNetworkRuntime } = await import("./server-network-runtime.js");
   bootstrapGatewayNetworkRuntime();
 
-  const minimalTestGateway =
-    isVitestRuntimeEnv() && process.env.ALIEN_TEST_MINIMAL_GATEWAY === "1";
+  const minimalTestGateway = isVitestRuntimeEnv() && process.env.ALIEN_TEST_MINIMAL_GATEWAY === "1";
 
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
   process.env.ALIEN_GATEWAY_PORT = String(port);
@@ -896,6 +895,23 @@ export async function startGatewayServer(
     gatewayMethods: listActiveGatewayMethods(baseGatewayMethods),
   });
   deps.cron = runtimeState.cronState.cron;
+
+  // Boot the Projects runtime eagerly so Slack/Discord/Telegram DMs that
+  // land in a bound project's channel get picked up even when no one has
+  // opened the Projects tab yet. The singleton is idempotent — first-
+  // touch HTTP traffic will see the same handle if we hadn't booted here.
+  // Errors are surfaced as warnings; nothing in this boot is allowed to
+  // block gateway startup.
+  void (async () => {
+    try {
+      const { ensureProjectsRuntimeStarted } = await import("./projects-runtime-singleton.js");
+      await ensureProjectsRuntimeStarted({ cfg: cfgAtStart });
+    } catch (err) {
+      log.warn(
+        `projects-runtime: eager boot from gateway failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  })();
 
   let closePreludeStarted = false;
   let postReadyMaintenanceTimer: ReturnType<typeof setTimeout> | null = null;
