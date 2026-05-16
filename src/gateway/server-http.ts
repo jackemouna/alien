@@ -74,6 +74,7 @@ let activityStreamModulePromise: Promise<typeof import("./activity-stream-http.j
 let activityUiModulePromise: Promise<typeof import("./activity-ui.js")> | undefined;
 let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js")> | undefined;
 let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
+let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -169,6 +170,11 @@ function getModelSwitcherModule() {
 function getSoulModule() {
   soulModulePromise ??= import("./soul-http.js");
   return soulModulePromise;
+}
+
+function getIntegrationsModule() {
+  integrationsModulePromise ??= import("./integrations-http.js");
+  return integrationsModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -878,6 +884,16 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "soul",
           run: async () => (await getSoulModule()).handleSoulRequest(req, res),
+        });
+      }
+      // /integrations: ongoing edit + disconnect surface for AI providers
+      // (Anthropic, OpenAI). Reuses /v1/setup validate + save endpoints
+      // from the page-side JS; adds its own /v1/integrations status +
+      // disconnect endpoints. Loopback-only.
+      if ((await getIntegrationsModule()).isIntegrationsPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "integrations",
+          run: async () => (await getIntegrationsModule()).handleIntegrationsRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
