@@ -8,6 +8,7 @@ import {
   writeAnthropicOAuth,
   type AnthropicOAuthCredentials,
 } from "../security/anthropic-oauth-store.js";
+import { writeGeminiOAuth, type GeminiOAuthCredentials } from "../security/gemini-oauth-store.js";
 import { writeOpenAIOAuth, type OpenAIOAuthCredentials } from "../security/openai-oauth-store.js";
 import { detectKeychainBackend, setKeychainSecret } from "../security/os-keychain.js";
 import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
@@ -45,7 +46,7 @@ const ANTHROPIC_KEYCHAIN = { service: "alien.ai", account: "anthropic-api-key" }
 const OPENAI_KEYCHAIN = { service: "alien.ai", account: "openai-api-key" } as const;
 const GEMINI_KEYCHAIN = { service: "alien.ai", account: "gemini-api-key" } as const;
 
-type OAuthProvider = "anthropic" | "openai";
+type OAuthProvider = "anthropic" | "openai" | "gemini";
 
 type OAuthSession = {
   readonly id: string;
@@ -198,8 +199,8 @@ export async function handleSetupRequest(
 
   if (pathname === "/v1/setup/oauth/start") {
     const provider = String(body.provider ?? "");
-    if (provider !== "anthropic" && provider !== "openai") {
-      return badRequest(res, "provider must be 'anthropic' or 'openai'");
+    if (provider !== "anthropic" && provider !== "openai" && provider !== "gemini") {
+      return badRequest(res, "provider must be 'anthropic', 'openai', or 'gemini'");
     }
     const session = startOAuthFlow(provider);
     // Reply once the authUrl is captured.
@@ -252,6 +253,11 @@ function startOAuthFlow(provider: OAuthProvider): OAuthSession {
 }
 
 async function runOAuthFlow(session: OAuthSession): Promise<void> {
+  if (session.provider === "gemini") {
+    await runGeminiOAuthFlow(session);
+    return;
+  }
+
   const { loginAnthropic, loginOpenAICodex } = await import("@mariozechner/pi-ai/oauth");
   const onAuth = ({ url }: { url: string; instructions?: string }) => {
     session.authUrl = url;
@@ -286,27 +292,86 @@ async function runOAuthFlow(session: OAuthSession): Promise<void> {
 }
 
 /**
+ * Drives the Gemini CLI OAuth flow from the wizard. The Gemini plugin's
+ * `loginGeminiCliOAuth` does the real work — we just provide a context
+ * that captures the auth URL into the session (so the wizard page can
+ * open it in the operator's browser) and a no-op `openUrl` so the server
+ * doesn't try to open it itself.
+ *
+ * NB: imports an extension via dynamic import. The right long-term fix is
+ * a Plugin SDK OAuth seam; until that exists, this is the pragmatic path
+ * for a personal fork.
+ */
+async function runGeminiOAuthFlow(session: OAuthSession): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let oauthModule: any;
+  try {
+    oauthModule = await import("../../extensions/google/oauth.runtime.js");
+  } catch (err) {
+    throw new Error(
+      `Gemini OAuth runtime not available: ${err instanceof Error ? err.message : String(err)}. ` +
+        `Make sure the @alien/google-plugin extension is built.`,
+    );
+  }
+  const ctx = {
+    isRemote: false,
+    note: async () => {},
+    log: () => {},
+    progress: { update: () => {}, stop: () => {} },
+    prompt: async () => "",
+    openUrl: async (url: string) => {
+      // Capture the auth URL for the wizard page; do NOT open in server-side
+      // browser — the operator's browser opens it.
+      session.authUrl = url;
+    },
+  };
+  const creds = await oauthModule.loginGeminiCliOAuth(ctx);
+  const next: GeminiOAuthCredentials = {
+    access: creds.access,
+    refresh: creds.refresh,
+    expires: creds.expires,
+    ...(creds.email ? { email: creds.email } : {}),
+    ...(creds.projectId ? { projectId: creds.projectId } : {}),
+  };
+  await writeGeminiOAuth(next);
+  await persistOAuthToAuthProfiles("gemini", next);
+  // The runtime reads GEMINI_API_KEY/GOOGLE_API_KEY for key-based access;
+  // the OAuth path uses a separate access-token flow handled by the google
+  // plugin itself. Don't set env vars here.
+  session.status = "complete";
+}
+
+/**
  * Write OAuth credentials to the canonical auth-profiles store
  * (~/.alien/agents/<id>/agent/auth-profiles.json) so the agent runtime
  * finds them. The wizard's own OAuth file (~/.alien/<provider>-oauth.json)
  * still holds the refresh token for the LLM client's auto-refresh path.
  */
 async function persistOAuthToAuthProfiles(
-  provider: "anthropic" | "openai",
+  provider: "anthropic" | "openai" | "gemini",
   creds: { access: string; refresh: string; expires: number },
 ): Promise<void> {
   try {
     const { upsertAuthProfileWithLock } =
       await import("../agents/auth-profiles/upsert-with-lock.js");
+    // Gemini lives under provider="google" in auth-profiles to match the
+    // runtime registry the @alien/google-plugin registers.
+    const authProvider = provider === "gemini" ? "google" : provider;
+    const displayName =
+      provider === "anthropic"
+        ? "Claude (subscription)"
+        : provider === "openai"
+          ? "ChatGPT (subscription)"
+          : "Google Gemini (sign-in)";
     await upsertAuthProfileWithLock({
       profileId: `${provider}-subscription`,
       credential: {
         type: "oauth",
-        provider,
+        provider: authProvider,
         access: creds.access,
         refresh: creds.refresh,
         expires: creds.expires,
-        displayName: provider === "anthropic" ? "Claude (subscription)" : "ChatGPT (subscription)",
+        displayName,
       },
     });
   } catch (err) {

@@ -11,6 +11,7 @@ import {
   isClaudeCodeSessionAvailable,
   readClaudeCodeSession,
 } from "../security/claude-code-session.js";
+import { clearGeminiOAuth, resolveGeminiOAuthPath } from "../security/gemini-oauth-store.js";
 import { clearOpenAIOAuth, resolveOpenAIOAuthPath } from "../security/openai-oauth-store.js";
 import { deleteKeychainSecret, detectKeychainBackend } from "../security/os-keychain.js";
 import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
@@ -232,8 +233,9 @@ async function readIntegrationsState(): Promise<{
     };
   }
 
-  // Gemini priority: keychain / env GEMINI_API_KEY / env GOOGLE_API_KEY
+  // Gemini priority: wizard OAuth > keychain/env API key
   let geminiState: ProviderState;
+  const hasGeminiOAuth = await fileExists(resolveGeminiOAuthPath());
   const geminiKey =
     readSecretFromEnvOrKeychain({
       envVarName: "GEMINI_API_KEY",
@@ -245,7 +247,17 @@ async function readIntegrationsState(): Promise<{
       keychain: GEMINI_KEYCHAIN,
       keychainGate: "always",
     });
-  if (geminiKey) {
+  if (hasGeminiOAuth) {
+    geminiState = {
+      id: "gemini",
+      label: "Google Gemini",
+      status: "wizard-oauth",
+      statusLabel: "Connected via Google sign-in",
+      statusDetail:
+        "Uses your Google account via the Gemini CLI OAuth flow. " +
+        "Free tier billing where eligible; otherwise GCP project billing.",
+    };
+  } else if (geminiKey) {
     geminiState = {
       id: "gemini",
       label: "Google Gemini",
@@ -300,7 +312,7 @@ async function disconnectProvider(provider: "anthropic" | "openai" | "gemini"): 
       `integrations: keychain delete failed for ${provider}: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
-  // 2. Wizard OAuth file (only for providers that have one)
+  // 2. Wizard OAuth file
   try {
     if (provider === "anthropic") {
       await clearAnthropicOAuth();
@@ -308,8 +320,10 @@ async function disconnectProvider(provider: "anthropic" | "openai" | "gemini"): 
     } else if (provider === "openai") {
       await clearOpenAIOAuth();
       result.oauthFile = true;
+    } else if (provider === "gemini") {
+      await clearGeminiOAuth();
+      result.oauthFile = true;
     }
-    // Gemini: no OAuth wizard yet — API key only.
   } catch {
     // already absent — fine
   }
@@ -488,6 +502,19 @@ function script(): string {
   function renderCard(p) {
     const cls = p.status !== 'not-connected' ? 'connected' : '';
     const badge = badgeFor(p.status);
+    // Gemini gets a "Sign in with Google" path in addition to the paste-key row.
+    const oauthRow = p.id === 'gemini'
+      ? [
+          '<div class="row">',
+            '<div class="row-label">Sign in with Google</div>',
+            '<div class="actions">',
+              '<button class="btn primary" data-oauth="' + esc(p.id) + '" type="button">Sign in with Google</button>',
+            '</div>',
+            '<div class="field-feedback" data-oauth-feedback="' + esc(p.id) + '"></div>',
+            '<div class="help">Uses the Gemini CLI OAuth flow. Requires the Gemini CLI installed (<code>brew install gemini-cli</code> or <code>npm i -g @google/gemini-cli</code>) or both <code>GEMINI_CLI_OAUTH_CLIENT_ID</code> and <code>GEMINI_CLI_OAUTH_CLIENT_SECRET</code> env vars.</div>',
+          '</div>',
+        ].join('')
+      : '';
     return [
       '<div class="card ' + cls + '" data-provider="' + esc(p.id) + '">',
         '<div class="card-head">',
@@ -497,6 +524,7 @@ function script(): string {
         '<div class="status-line">' + esc(p.statusLabel) + '</div>',
         p.statusDetail ? '<div class="detail">' + esc(p.statusDetail) + '</div>' : '',
         p.billingHint ? '<div class="hint">' + esc(p.billingHint) + '</div>' : '',
+        oauthRow,
         '<div class="row">',
           '<div class="row-label">Update API key</div>',
           '<div class="actions">',
@@ -535,6 +563,64 @@ function script(): string {
     document.querySelectorAll('button[data-disconnect]').forEach((b) => {
       b.addEventListener('click', () => disconnect(b.getAttribute('data-disconnect')));
     });
+    document.querySelectorAll('button[data-oauth]').forEach((b) => {
+      b.addEventListener('click', () => startOAuth(b.getAttribute('data-oauth')));
+    });
+  }
+
+  function setOAuthFeedback(provider, kind, msg) {
+    const el = document.querySelector('div[data-oauth-feedback="' + provider + '"]');
+    if (!el) return;
+    el.className = 'field-feedback' + (kind ? ' ' + kind : '');
+    el.textContent = msg || '';
+  }
+
+  async function startOAuth(provider) {
+    const btn = document.querySelector('button[data-oauth="' + provider + '"]');
+    if (!btn) return;
+    btn.disabled = true;
+    setOAuthFeedback(provider, '', 'Starting sign-in…');
+    try {
+      const start = await fetchJson('/v1/setup/oauth/start', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ provider }),
+      });
+      if (!start.data || !start.data.ok) {
+        throw new Error((start.data && start.data.error) || 'Could not start sign-in');
+      }
+      if (start.data.authUrl) {
+        window.open(start.data.authUrl, '_blank', 'noopener');
+        setOAuthFeedback(provider, '', 'Opened Google sign-in in a new tab. Complete sign-in there.');
+      } else {
+        setOAuthFeedback(provider, '', 'Waiting for auth URL…');
+      }
+      // Poll for completion
+      const sessionId = start.data.sessionId;
+      const deadline = Date.now() + 5 * 60 * 1000;
+      let lastStatus = '';
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const poll = await fetchJson('/v1/setup/oauth/poll?sessionId=' + encodeURIComponent(sessionId));
+        const status = poll.data && poll.data.status;
+        if (status && status !== lastStatus) {
+          lastStatus = status;
+          if (status === 'complete') {
+            setOAuthFeedback(provider, 'ok', '✓ Signed in. Reloading…');
+            await load();
+            return;
+          }
+          if (status === 'error') {
+            throw new Error(poll.data.error || 'Sign-in failed');
+          }
+        }
+      }
+      throw new Error('Sign-in timed out after 5 minutes');
+    } catch (err) {
+      setOAuthFeedback(provider, 'err', 'Failed: ' + (err && err.message || err));
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   function setFeedback(provider, kind, msg) {
