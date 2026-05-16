@@ -380,17 +380,40 @@ function pageScript(): string {
     }
   }
 
-  async function doActivate(id, btn) {
+  async function doActivate(id, btn, forced) {
     btn.disabled = true;
-    btn.textContent = 'Activating…';
-    const r = await fetchJson('/v1/capabilities/' + encodeURIComponent(id) + '/activate', { method: 'POST', body: '{}' });
+    btn.textContent = forced ? 'Force-activating…' : 'Activating…';
+    const r = await fetchJson('/v1/capabilities/' + encodeURIComponent(id) + '/activate', {
+      method: 'POST',
+      body: JSON.stringify(forced ? { force: true } : {}),
+    });
     if (r.data && r.data.ok) {
       toast(r.data.message || 'Activated');
       await loadAll();
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Activate';
+    if (r.data && r.data.preflight && !r.data.preflight.ok) {
+      showPreflight(id, r.data);
     } else {
-      btn.disabled = false;
-      btn.textContent = 'Activate';
       toast((r.data && r.data.error) || 'Activation failed', 'err');
+    }
+  }
+
+  function showPreflight(id, payload) {
+    const checks = (payload.preflight && payload.preflight.checks) || [];
+    const lines = checks.map(function (c) {
+      const sigil = c.passed ? '✓' : (c.warningOnly ? '⚠' : '✗');
+      return sigil + ' ' + c.name + (c.detail ? ' — ' + c.detail : '');
+    });
+    const msg =
+      'Pre-flight failed:\\n\\n' +
+      lines.join('\\n') +
+      '\\n\\nForce-activate anyway? (Only do this if you have read the generated code and trust it.)';
+    if (window.confirm(msg)) {
+      const btn = document.querySelector('button[data-action="activate"][data-id="' + id + '"]');
+      if (btn) doActivate(id, btn, true);
     }
   }
 

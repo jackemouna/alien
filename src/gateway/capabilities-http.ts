@@ -154,12 +154,19 @@ export async function handleCapabilitiesRequest(
     if (handshake === false || handshake === undefined) return true;
     const auditLogPath = path.join(resolveStateDir(), "audit.log");
     const loader = getActiveCapabilityRuntimeLoader();
+    const activateBody = handshake.body as { force?: unknown } | undefined;
+    const force = activateBody?.force === true;
     const outcome = await activateCapability(requestId, {
       auditLogPath,
       ...(loader ? { loader } : {}),
+      ...(force ? { force: true } : {}),
     });
     if (!outcome.ok) {
-      sendJson(res, 400, { ok: false, error: outcome.error });
+      sendJson(res, 400, {
+        ok: false,
+        error: outcome.error,
+        ...(outcome.preflight ? { preflight: outcome.preflight } : {}),
+      });
       return true;
     }
     const liveNow = loader?.getCapability(outcome.record.id);
@@ -168,6 +175,7 @@ export async function handleCapabilitiesRequest(
       record: outcome.record,
       newlyActivated: outcome.newlyActivated,
       hotLoaded: Boolean(liveNow),
+      preflight: outcome.preflight,
       message: outcome.newlyActivated
         ? liveNow
           ? "Activated and hot-loaded into the running gateway."

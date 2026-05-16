@@ -81,7 +81,7 @@ describe("capability-activator", () => {
       status: "fulfilled",
     });
     writeGenerated("stripe", {
-      "index.ts": "export const run = async () => ({ ok: true });",
+      "index.mjs": "export const run = async () => ({ ok: true });",
       "README.md": "# stripe stub",
     });
     const out = await activateCapability("cap-stripe", {
@@ -95,7 +95,7 @@ describe("capability-activator", () => {
     expect(out.newlyActivated).toBe(true);
     expect(out.record.status).toBe("active");
     expect(out.record.activatedBy).toBe("tester");
-    expect(fs.existsSync(path.join(activeRoot, "stripe", "index.ts"))).toBe(true);
+    expect(fs.existsSync(path.join(activeRoot, "stripe", "index.mjs"))).toBe(true);
     expect(fs.existsSync(path.join(activeRoot, "stripe", "README.md"))).toBe(true);
 
     const records = await readActivatedCapabilities();
@@ -118,11 +118,13 @@ describe("capability-activator", () => {
       generatedRoot,
       activeRoot,
       now: fixedNow,
+      force: true,
     });
     const second = await activateCapability("cap-twice", {
       generatedRoot,
       activeRoot,
       now: fixedNow,
+      force: true,
     });
     expect(first.ok && second.ok).toBe(true);
     if (first.ok && second.ok) {
@@ -164,7 +166,12 @@ describe("capability-activator", () => {
       status: "fulfilled",
     });
     writeGenerated("roll", { "index.ts": "ok" });
-    const act = await activateCapability("cap-roll", { generatedRoot, activeRoot, now: fixedNow });
+    const act = await activateCapability("cap-roll", {
+      generatedRoot,
+      activeRoot,
+      now: fixedNow,
+      force: true,
+    });
     expect(act.ok).toBe(true);
 
     const out = await deactivateCapability("cap-roll", "looked wrong on review", {
@@ -179,6 +186,53 @@ describe("capability-activator", () => {
     expect(out.record.rollbackReason).toBe("looked wrong on review");
     expect(fs.existsSync(path.join(activeRoot, "roll"))).toBe(false);
     expect(fs.existsSync(path.join(generatedRoot, "roll", "index.ts"))).toBe(true);
+  });
+
+  it("aborts activation when pre-flight fails, succeeds when force is set", async () => {
+    await appendCapabilityRequest({
+      id: "cap-bad",
+      projectId: "p",
+      taskId: "t",
+      integration: "bad",
+      why: "test",
+      createdAt: fixedNow(),
+      status: "fulfilled",
+    });
+    // Stub is syntactically broken — preflight's module-imports check
+    // will fail.
+    const sub = path.join(generatedRoot, "bad");
+    fs.mkdirSync(sub, { recursive: true });
+    fs.writeFileSync(
+      path.join(sub, "index.mjs"),
+      "export async function run() { this is not js",
+      "utf8",
+    );
+
+    const blocked = await activateCapability("cap-bad", {
+      generatedRoot,
+      activeRoot,
+      now: fixedNow,
+    });
+    expect(blocked.ok).toBe(false);
+    if (!blocked.ok) {
+      expect(blocked.error).toMatch(/pre-flight/);
+      expect(blocked.preflight?.ok).toBe(false);
+    }
+    // Active dir should NOT have been populated.
+    expect(fs.existsSync(path.join(activeRoot, "bad", "index.mjs"))).toBe(false);
+
+    // Force-activate bypasses the gate.
+    const forced = await activateCapability("cap-bad", {
+      generatedRoot,
+      activeRoot,
+      now: fixedNow,
+      force: true,
+    });
+    expect(forced.ok).toBe(true);
+    if (forced.ok) {
+      expect(forced.preflight?.ok).toBe(false);
+      expect(fs.existsSync(path.join(activeRoot, "bad", "index.mjs"))).toBe(true);
+    }
   });
 
   it("hot-loads via the loader on activate, drops cache on deactivate", async () => {
@@ -231,7 +285,12 @@ describe("capability-activator", () => {
       status: "fulfilled",
     });
     writeGenerated("trace", { "index.ts": "x" });
-    await activateCapability("cap-trace", { generatedRoot, activeRoot, now: fixedNow });
+    await activateCapability("cap-trace", {
+      generatedRoot,
+      activeRoot,
+      now: fixedNow,
+      force: true,
+    });
 
     const trace = await readReasoningTrace("cap-trace");
     expect(trace.request?.integration).toBe("trace");

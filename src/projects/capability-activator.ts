@@ -8,6 +8,7 @@ import {
   type ActivatedCapabilityRecord,
 } from "./activated-capabilities-store.js";
 import { emitProjectsAuditEvent } from "./audit.js";
+import { runPreflight, type PreflightOutcome } from "./capability-preflight.js";
 import {
   readCapabilityRequests,
   resolveCapabilityRequestsPath,
@@ -47,8 +48,13 @@ export type ActivationOutcome =
       readonly ok: true;
       readonly record: ActivatedCapabilityRecord;
       readonly newlyActivated: boolean;
+      readonly preflight?: PreflightOutcome;
     }
-  | { readonly ok: false; readonly error: string };
+  | {
+      readonly ok: false;
+      readonly error: string;
+      readonly preflight?: PreflightOutcome;
+    };
 
 export type DeactivationOutcome =
   | { readonly ok: true; readonly record: ActivatedCapabilityRecord }
@@ -78,6 +84,15 @@ export type ActivatorOptions = {
    * (back-compat with the Phase D MVP).
    */
   readonly loader?: CapabilityRuntimeLoader;
+  /**
+   * Skip pre-flight checks (import / run-export / source-scan) on the
+   * sandbox dir. Default is false — preflight runs and gates the
+   * activation. Operator override (`?force=true` on the HTTP endpoint)
+   * is the only way to activate code that failed preflight, intended
+   * for the case where the planner emits a known-good stub but the
+   * scan flags a legitimate fs/child_process import.
+   */
+  readonly force?: boolean;
 };
 
 export async function activateCapability(
@@ -139,6 +154,18 @@ export async function activateCapability(
         error: `refusing to activate: ${entry.name} is ${stat.size} bytes (max ${MAX_FILE_BYTES})`,
       };
     }
+  }
+
+  // Pre-flight: import + run-export + source-scan on the SANDBOX dir,
+  // before we touch the active dir. Hard-failure aborts activation
+  // unless the operator passed force.
+  const preflight = await runPreflight(sourceDir);
+  if (!preflight.ok && !opts.force) {
+    return {
+      ok: false,
+      error: `pre-flight failed: ${preflight.errorSummary}. Fix the stub or re-activate with force.`,
+      preflight,
+    };
   }
 
   await fs.mkdir(activeDir, { recursive: true });
@@ -217,7 +244,7 @@ export async function activateCapability(
     }
   }
 
-  return { ok: true, record, newlyActivated: true };
+  return { ok: true, record, newlyActivated: true, preflight };
 }
 
 export async function deactivateCapability(
