@@ -9,6 +9,7 @@ import {
   isClaudeCodeSessionExpiringSoon,
   readClaudeCodeSession,
 } from "../security/claude-code-session.js";
+import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
 import { sendJson } from "./http-common.js";
 
 /**
@@ -116,6 +117,7 @@ type DashboardState = {
   readonly integrations: {
     anthropic: { status: IntegrationStatus; hint?: string };
     openai: { status: IntegrationStatus };
+    gemini: { status: IntegrationStatus };
   };
   readonly stats: { projectCount: number; activeMissionCount: number };
 };
@@ -301,11 +303,27 @@ async function readIntegrationsState(): Promise<DashboardState["integrations"]> 
     // leave as not-connected
   }
 
+  // Gemini: API-key only — no OAuth flow yet. Check env + keychain.
+  let geminiStatus: IntegrationStatus = "not-connected";
+  const geminiKey =
+    readSecretFromEnvOrKeychain({
+      envVarName: "GEMINI_API_KEY",
+      keychain: { service: "alien.ai", account: "gemini-api-key" },
+      keychainGate: "always",
+    }) ??
+    readSecretFromEnvOrKeychain({
+      envVarName: "GOOGLE_API_KEY",
+      keychain: { service: "alien.ai", account: "gemini-api-key" },
+      keychainGate: "always",
+    });
+  if (geminiKey) geminiStatus = "api-key";
+
   return {
     anthropic: anthropicHint
       ? { status: anthropicStatus, hint: anthropicHint }
       : { status: anthropicStatus },
     openai: { status: openaiStatus },
+    gemini: { status: geminiStatus },
   };
 }
 
@@ -803,6 +821,7 @@ function render(s) {
     '<div class="chip-row">' +
     integrationLine("Anthropic", integrations.anthropic || { status: "not-connected" }) +
     integrationLine("OpenAI", integrations.openai || { status: "not-connected" }) +
+    integrationLine("Gemini", integrations.gemini || { status: "not-connected" }) +
     '</div>';
 }
 

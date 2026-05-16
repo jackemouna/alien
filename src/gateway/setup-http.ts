@@ -43,6 +43,7 @@ import { readJsonBodyOrError, sendInvalidRequest, sendJson } from "./http-common
 
 const ANTHROPIC_KEYCHAIN = { service: "alien.ai", account: "anthropic-api-key" } as const;
 const OPENAI_KEYCHAIN = { service: "alien.ai", account: "openai-api-key" } as const;
+const GEMINI_KEYCHAIN = { service: "alien.ai", account: "gemini-api-key" } as const;
 
 type OAuthProvider = "anthropic" | "openai";
 
@@ -71,6 +72,7 @@ const SETUP_PATHS = new Set([
   "/v1/setup/status",
   "/v1/setup/validate-anthropic-key",
   "/v1/setup/validate-openai-key",
+  "/v1/setup/validate-gemini-key",
   "/v1/setup/save-keys",
   "/v1/setup/oauth/start",
   "/v1/setup/oauth/poll",
@@ -152,6 +154,7 @@ export async function handleSetupRequest(
         readonly apiKey?: unknown;
         readonly anthropicKey?: unknown;
         readonly openaiKey?: unknown;
+        readonly geminiKey?: unknown;
         readonly provider?: unknown;
       }
     | undefined;
@@ -173,13 +176,22 @@ export async function handleSetupRequest(
     return true;
   }
 
+  if (pathname === "/v1/setup/validate-gemini-key") {
+    const key = readKey(body.apiKey ?? body.geminiKey);
+    if (!key) return badRequest(res, "Missing apiKey");
+    const result = await validateGeminiKey(key);
+    sendJson(res, result.ok ? 200 : 400, result);
+    return true;
+  }
+
   if (pathname === "/v1/setup/save-keys") {
     const anthropic = readKey(body.anthropicKey);
     const openai = readKey(body.openaiKey);
-    if (!anthropic && !openai) {
-      return badRequest(res, "Provide at least anthropicKey or openaiKey");
+    const gemini = readKey(body.geminiKey);
+    if (!anthropic && !openai && !gemini) {
+      return badRequest(res, "Provide at least one of anthropicKey, openaiKey, geminiKey");
     }
-    const result = await saveApiKeys({ anthropic, openai });
+    const result = await saveApiKeys({ anthropic, openai, gemini });
     sendJson(res, result.ok ? 200 : 500, result);
     return true;
   }
@@ -377,6 +389,20 @@ async function validateOpenAiKey(key: string): Promise<ValidationResult> {
   }
 }
 
+async function validateGeminiKey(key: string): Promise<ValidationResult> {
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`,
+      { method: "GET" },
+    );
+    if (res.ok) return { ok: true };
+    const text = await res.text().catch(() => "");
+    return { ok: false, error: explainHttpError(res.status, text, "Gemini") };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 function explainHttpError(status: number, body: string, provider: string): string {
   if (status === 401 || status === 403) {
     return `${provider} rejected the key (HTTP ${status}). Double-check you copied the whole thing.`;
@@ -394,7 +420,11 @@ type SaveResult =
   | { readonly ok: true; readonly savedTo: "keychain" | "env-only"; readonly providers: string[] }
   | { readonly ok: false; readonly error: string };
 
-async function saveApiKeys(keys: { anthropic?: string; openai?: string }): Promise<SaveResult> {
+async function saveApiKeys(keys: {
+  anthropic?: string;
+  openai?: string;
+  gemini?: string;
+}): Promise<SaveResult> {
   const providers: string[] = [];
   const backend = detectKeychainBackend();
   const useKeychain = backend.available;
@@ -411,6 +441,12 @@ async function saveApiKeys(keys: { anthropic?: string; openai?: string }): Promi
       await persistApiKeyToAuthProfiles("openai", keys.openai);
       providers.push("openai");
     }
+    if (keys.gemini) {
+      if (useKeychain) setKeychainSecret(GEMINI_KEYCHAIN, keys.gemini);
+      process.env.GEMINI_API_KEY = keys.gemini;
+      await persistApiKeyToAuthProfiles("gemini", keys.gemini);
+      providers.push("gemini");
+    }
     return { ok: true, savedTo: useKeychain ? "keychain" : "env-only", providers };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
@@ -418,20 +454,25 @@ async function saveApiKeys(keys: { anthropic?: string; openai?: string }): Promi
 }
 
 async function persistApiKeyToAuthProfiles(
-  provider: "anthropic" | "openai",
+  provider: "anthropic" | "openai" | "gemini",
   key: string,
 ): Promise<void> {
   try {
     const { upsertAuthProfileWithLock } =
       await import("../agents/auth-profiles/upsert-with-lock.js");
+    // The Gemini provider is wired into the runtime as "google" — match
+    // that here so provider-aware code (model picker, fallback, usage
+    // tracker) finds it.
+    const authProvider = provider === "gemini" ? "google" : provider;
+    const displayName =
+      provider === "anthropic"
+        ? "Anthropic (API key)"
+        : provider === "openai"
+          ? "OpenAI (API key)"
+          : "Google Gemini (API key)";
     await upsertAuthProfileWithLock({
       profileId: `${provider}-api-key`,
-      credential: {
-        type: "api_key",
-        provider,
-        key,
-        displayName: provider === "anthropic" ? "Anthropic (API key)" : "OpenAI (API key)",
-      },
+      credential: { type: "api_key", provider: authProvider, key, displayName },
     });
   } catch (err) {
     logWarn(
@@ -445,6 +486,7 @@ async function persistApiKeyToAuthProfiles(
 type SetupStatus = {
   readonly anthropic: { readonly configured: boolean; readonly source: string };
   readonly openai: { readonly configured: boolean; readonly source: string };
+  readonly gemini: { readonly configured: boolean; readonly source: string };
   readonly keychainAvailable: boolean;
 };
 
@@ -459,6 +501,17 @@ function readSetupStatus(): SetupStatus {
     keychain: OPENAI_KEYCHAIN,
     keychainGate: "always",
   });
+  const geminiKey =
+    readSecretFromEnvOrKeychain({
+      envVarName: "GEMINI_API_KEY",
+      keychain: GEMINI_KEYCHAIN,
+      keychainGate: "always",
+    }) ??
+    readSecretFromEnvOrKeychain({
+      envVarName: "GOOGLE_API_KEY",
+      keychain: GEMINI_KEYCHAIN,
+      keychainGate: "always",
+    });
   const anthropicOAuth = oauthFileExists("anthropic-oauth.json");
   const openaiOAuth = oauthFileExists("openai-oauth.json");
   const backend = detectKeychainBackend();
@@ -470,6 +523,10 @@ function readSetupStatus(): SetupStatus {
     openai: {
       configured: Boolean(openaiKey) || openaiOAuth,
       source: openaiOAuth ? "subscription" : openaiKey ? "api-key" : "none",
+    },
+    gemini: {
+      configured: Boolean(geminiKey),
+      source: geminiKey ? "api-key" : "none",
     },
     keychainAvailable: backend.available,
   };

@@ -37,12 +37,14 @@ import { sendJson } from "./http-common.js";
 
 const ANTHROPIC_KEYCHAIN = { service: "alien.ai", account: "anthropic-api-key" } as const;
 const OPENAI_KEYCHAIN = { service: "alien.ai", account: "openai-api-key" } as const;
+const GEMINI_KEYCHAIN = { service: "alien.ai", account: "gemini-api-key" } as const;
 
 const PATHS = new Set([
   "/integrations",
   "/v1/integrations",
   "/v1/integrations/anthropic/disconnect",
   "/v1/integrations/openai/disconnect",
+  "/v1/integrations/gemini/disconnect",
 ]);
 
 export function isIntegrationsPath(pathname: string): boolean {
@@ -88,7 +90,8 @@ export async function handleIntegrationsRequest(
 
   if (
     pathname === "/v1/integrations/anthropic/disconnect" ||
-    pathname === "/v1/integrations/openai/disconnect"
+    pathname === "/v1/integrations/openai/disconnect" ||
+    pathname === "/v1/integrations/gemini/disconnect"
   ) {
     if (req.method !== "POST") {
       res.statusCode = 405;
@@ -96,7 +99,11 @@ export async function handleIntegrationsRequest(
       res.end();
       return true;
     }
-    const provider = pathname.includes("anthropic") ? "anthropic" : "openai";
+    const provider: "anthropic" | "openai" | "gemini" = pathname.includes("anthropic")
+      ? "anthropic"
+      : pathname.includes("gemini")
+        ? "gemini"
+        : "openai";
     try {
       const cleared = await disconnectProvider(provider);
       sendJson(res, 200, {
@@ -129,7 +136,7 @@ function isLoopbackRequest(req: IncomingMessage): boolean {
 // ---- state read ----
 
 type ProviderState = {
-  readonly id: "anthropic" | "openai";
+  readonly id: "anthropic" | "openai" | "gemini";
   readonly label: string;
   readonly status: "claude-code-session" | "wizard-oauth" | "api-key" | "not-connected";
   readonly statusLabel: string;
@@ -225,8 +232,38 @@ async function readIntegrationsState(): Promise<{
     };
   }
 
+  // Gemini priority: keychain / env GEMINI_API_KEY / env GOOGLE_API_KEY
+  let geminiState: ProviderState;
+  const geminiKey =
+    readSecretFromEnvOrKeychain({
+      envVarName: "GEMINI_API_KEY",
+      keychain: GEMINI_KEYCHAIN,
+      keychainGate: "always",
+    }) ??
+    readSecretFromEnvOrKeychain({
+      envVarName: "GOOGLE_API_KEY",
+      keychain: GEMINI_KEYCHAIN,
+      keychainGate: "always",
+    });
+  if (geminiKey) {
+    geminiState = {
+      id: "gemini",
+      label: "Google Gemini",
+      status: "api-key",
+      statusLabel: "Connected via API key",
+      statusDetail: "Pay-per-token billing. Free tier available for low-volume usage.",
+    };
+  } else {
+    geminiState = {
+      id: "gemini",
+      label: "Google Gemini",
+      status: "not-connected",
+      statusLabel: "Not connected",
+    };
+  }
+
   return {
-    providers: [anthropicState, openaiState],
+    providers: [anthropicState, openaiState, geminiState],
     keychainAvailable: backend.available,
   };
 }
@@ -242,7 +279,7 @@ async function fileExists(p: string): Promise<boolean> {
 
 // ---- disconnect ----
 
-async function disconnectProvider(provider: "anthropic" | "openai"): Promise<{
+async function disconnectProvider(provider: "anthropic" | "openai" | "gemini"): Promise<{
   readonly keychain: boolean;
   readonly oauthFile: boolean;
   readonly authProfiles: ReadonlyArray<string>;
@@ -250,23 +287,29 @@ async function disconnectProvider(provider: "anthropic" | "openai"): Promise<{
   const result = { keychain: false, oauthFile: false, authProfiles: [] as string[] };
   // 1. Keychain entry
   try {
-    const ok = deleteKeychainSecret(
-      provider === "anthropic" ? ANTHROPIC_KEYCHAIN : OPENAI_KEYCHAIN,
-    );
+    const keychain =
+      provider === "anthropic"
+        ? ANTHROPIC_KEYCHAIN
+        : provider === "openai"
+          ? OPENAI_KEYCHAIN
+          : GEMINI_KEYCHAIN;
+    const ok = deleteKeychainSecret(keychain);
     result.keychain = ok;
   } catch (err) {
     logWarn(
       `integrations: keychain delete failed for ${provider}: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
-  // 2. Wizard OAuth file
+  // 2. Wizard OAuth file (only for providers that have one)
   try {
     if (provider === "anthropic") {
       await clearAnthropicOAuth();
-    } else {
+      result.oauthFile = true;
+    } else if (provider === "openai") {
       await clearOpenAIOAuth();
+      result.oauthFile = true;
     }
-    result.oauthFile = true;
+    // Gemini: no OAuth wizard yet — API key only.
   } catch {
     // already absent — fine
   }
@@ -284,7 +327,11 @@ async function disconnectProvider(provider: "anthropic" | "openai"): Promise<{
   return result;
 }
 
-async function removeProviderFromAuthProfiles(provider: "anthropic" | "openai"): Promise<string[]> {
+async function removeProviderFromAuthProfiles(
+  provider: "anthropic" | "openai" | "gemini",
+): Promise<string[]> {
+  // Gemini is wired as "google" inside auth-profiles (matches runtime).
+  const authProvider = provider === "gemini" ? "google" : provider;
   const stateDir = resolveStateDir();
   const agentsRoot = path.join(stateDir, "agents");
   let agentIds: string[];
@@ -308,7 +355,7 @@ async function removeProviderFromAuthProfiles(provider: "anthropic" | "openai"):
     const next: Record<string, unknown> = {};
     let removedAny = false;
     for (const [pid, profile] of Object.entries(parsed.profiles)) {
-      if ((profile as { provider?: string }).provider === provider) {
+      if ((profile as { provider?: string }).provider === authProvider) {
         removedAny = true;
         continue;
       }
@@ -427,13 +474,15 @@ function script(): string {
   }
 
   function placeholderFor(provider) {
-    return provider === 'anthropic' ? 'sk-ant-…' : 'sk-…';
+    if (provider === 'anthropic') return 'sk-ant-…';
+    if (provider === 'gemini') return 'AIza…';
+    return 'sk-…';
   }
 
   function getKeyLink(provider) {
-    return provider === 'anthropic'
-      ? 'https://console.anthropic.com/settings/keys'
-      : 'https://platform.openai.com/api-keys';
+    if (provider === 'anthropic') return 'https://console.anthropic.com/settings/keys';
+    if (provider === 'gemini') return 'https://aistudio.google.com/apikey';
+    return 'https://platform.openai.com/api-keys';
   }
 
   function renderCard(p) {
@@ -516,7 +565,11 @@ function script(): string {
     const apiKey = input.value.trim();
     if (!apiKey) { setFeedback(provider, 'err', 'Paste a key first.'); return; }
     setFeedback(provider, '', 'Saving…');
-    const payload = provider === 'anthropic' ? { anthropicKey: apiKey } : { openaiKey: apiKey };
+    const payload = provider === 'anthropic'
+      ? { anthropicKey: apiKey }
+      : provider === 'gemini'
+        ? { geminiKey: apiKey }
+        : { openaiKey: apiKey };
     const r = await fetchJson('/v1/setup/save-keys', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
