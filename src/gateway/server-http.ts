@@ -75,6 +75,7 @@ let activityUiModulePromise: Promise<typeof import("./activity-ui.js")> | undefi
 let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js")> | undefined;
 let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
 let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> | undefined;
+let mcpServerModulePromise: Promise<typeof import("./mcp-server-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -175,6 +176,11 @@ function getSoulModule() {
 function getIntegrationsModule() {
   integrationsModulePromise ??= import("./integrations-http.js");
   return integrationsModulePromise;
+}
+
+function getMcpServerModule() {
+  mcpServerModulePromise ??= import("./mcp-server-http.js");
+  return mcpServerModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -894,6 +900,15 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "integrations",
           run: async () => (await getIntegrationsModule()).handleIntegrationsRequest(req, res),
+        });
+      }
+      // /mcp: Model Context Protocol server surface. Lets Claude Code
+      // (subscription-billed) use Alien as its tool surface. Loopback-only,
+      // no bearer required — the module enforces its own loopback gate.
+      if ((await getMcpServerModule()).isMcpServerPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "mcp-server",
+          run: async () => (await getMcpServerModule()).handleMcpServerRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
