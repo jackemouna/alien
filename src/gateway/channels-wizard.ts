@@ -248,9 +248,11 @@ async function findWhatsAppProvider(): Promise<{
   };
 } | null> {
   try {
-    const { listChannelPlugins } = await import("../channels/plugins/index.js");
-    const plugins = listChannelPlugins();
-    const wa = plugins.find((p) => p.id === "whatsapp") ?? null;
+    // Prefer the already-loaded plugin (cheaper, used by the normal
+    // gateway flow). Fall back to the bundled descriptor so the wizard
+    // works even on minimal gateways that haven't loaded WhatsApp at boot.
+    const { getChannelPlugin } = await import("../channels/plugins/index.js");
+    const wa = getChannelPlugin("whatsapp") ?? null;
     return wa as Awaited<ReturnType<typeof findWhatsAppProvider>>;
   } catch (err) {
     logWarn(
