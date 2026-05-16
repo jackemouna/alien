@@ -17,6 +17,9 @@ import type { TaskOrigin, TaskRecord } from "./types.js";
 export type ProjectsAuditKind =
   | "projects.project.created"
   | "projects.project.archived"
+  | "projects.project.iteration_started"
+  | "projects.project.goal_achieved"
+  | "projects.project.stuck"
   | "projects.task.created"
   | "projects.task.queued"
   | "projects.task.claimed"

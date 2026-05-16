@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resetFileLockStateForTest } from "../plugin-sdk/file-lock.js";
 import {
+  isProjectIdle,
   runPickupTick,
   startPickupLoop,
   type ProjectWorker,
@@ -229,6 +230,45 @@ describe("runPickupTick", () => {
     await runPickupTick({ projectsDir: dir, workers, claimedBy: "loop-1" });
     const [final] = listTasks(dir, "p");
     expect(final?.status).toBe("review");
+  });
+});
+
+describe("isProjectIdle", () => {
+  function task(status: import("./types.js").TaskStatus): import("./types.js").TaskRecord {
+    return createTaskRecord({
+      taskId: `t-${status}`,
+      projectId: "p",
+      draft: makeTaskDraft("writer"),
+      origin,
+      now: fixedNow,
+    });
+    // Note: the helper returns a task with status "backlog"; tests below
+    // manually overwrite status. Inline mutation is fine for a unit test.
+  }
+
+  function withStatus(status: import("./types.js").TaskStatus): import("./types.js").TaskRecord {
+    return { ...task("backlog"), status };
+  }
+
+  it("returns false for an empty task list (nothing to evaluate yet)", () => {
+    expect(isProjectIdle([])).toBe(false);
+  });
+
+  it("returns false when any task is still queued or in progress", () => {
+    expect(isProjectIdle([withStatus("done"), withStatus("queued")])).toBe(false);
+    expect(isProjectIdle([withStatus("done"), withStatus("in-progress")])).toBe(false);
+    expect(isProjectIdle([withStatus("backlog")])).toBe(false);
+  });
+
+  it("returns false when a task is awaiting approval ('review')", () => {
+    expect(isProjectIdle([withStatus("done"), withStatus("review")])).toBe(false);
+  });
+
+  it("returns true when every task is done / failed / blocked", () => {
+    expect(isProjectIdle([withStatus("done"), withStatus("failed"), withStatus("blocked")])).toBe(
+      true,
+    );
+    expect(isProjectIdle([withStatus("done")])).toBe(true);
   });
 });
 

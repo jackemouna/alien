@@ -14,7 +14,13 @@
 
 import type { WorkerRole } from "../orchestrator/types.js";
 
-export type ProjectStatus = "active" | "paused" | "archived";
+/**
+ * Project lifecycle. Goal-loop additions:
+ *   - "achieved" — the evaluator confirmed the goal is met. Terminal.
+ *   - "needs-input" — the evaluator gave up (hit iteration cap or stuck).
+ *     Operator action required before the loop can resume.
+ */
+export type ProjectStatus = "active" | "paused" | "archived" | "achieved" | "needs-input";
 
 /**
  * Task lifecycle. A few important transitions:
@@ -133,6 +139,32 @@ export type PlanRequest = {
   readonly origin: TaskOrigin;
   /** Existing tasks already on the project board, so the planner doesn't duplicate. */
   readonly existing: readonly TaskRecord[];
+  /**
+   * Set when the goal-loop is re-firing the planner after an evaluation
+   * round. Includes the goal recap, prior task outcomes summary, and the
+   * evaluator's feedback on what's still missing. The planner uses this
+   * to pivot rather than re-emit the same DAG.
+   */
+  readonly priorContext?: PlannerPriorContext;
+};
+
+export type PlannerPriorContext = {
+  /** Iteration index, 1-based. Iteration 1 is the second planner call. */
+  readonly iteration: number;
+  /** Recap of the project goal the loop is pursuing. */
+  readonly goal: string;
+  /**
+   * Evaluator's "why we're still not done" message. The planner should
+   * treat this as the new top-level instruction, more important than the
+   * raw user prompt for this round.
+   */
+  readonly evaluatorFeedback: string;
+  /**
+   * Short prose summary of what prior task batches produced. Truncated
+   * if the underlying outputs are huge. The planner uses this to decide
+   * what's new vs already-done.
+   */
+  readonly priorResultsSummary: string;
 };
 
 export type PlanResult = {

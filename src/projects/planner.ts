@@ -172,6 +172,27 @@ function buildUserPrompt(req: PlanRequest): string {
     req.existing.length === 0
       ? "(none)"
       : req.existing.map((t) => `- ${t.id} [${t.status} / ${t.role}] ${t.title}`).join("\n");
+  const priorBlock = req.priorContext
+    ? `
+
+This is iteration ${req.priorContext.iteration} of the goal-loop. The
+project goal is:
+
+"""
+${req.priorContext.goal}
+"""
+
+The prior batch produced:
+${req.priorContext.priorResultsSummary}
+
+The evaluator says we still need to:
+"""
+${req.priorContext.evaluatorFeedback}
+"""
+
+Plan ONLY the next batch of tasks. Do not redo work the prior batch
+already produced — pivot toward what the evaluator says is missing.`
+    : "";
   return `Project: ${req.projectId}
 Origin: ${describeOrigin(req.origin)}
 
@@ -182,7 +203,7 @@ New request from the operator/channel:
 """
 ${req.prompt}
 """
-
+${priorBlock}
 Emit the JSON plan now.`;
 }
 

@@ -74,6 +74,21 @@ export type PickupLoopOptions = {
    * ticks deterministically without setInterval.
    */
   readonly schedule?: (tick: () => Promise<void>) => () => void;
+  /**
+   * Goal-loop hook. Invoked once per tick for each active project whose
+   * tasks have all reached terminal states (done / failed / blocked).
+   * The handler typically runs an evaluator and either re-fires the
+   * planner with the prior results or transitions the project to a
+   * terminal status ("achieved" / "needs-input"). When undefined, the
+   * loop has no autonomy — projects just sit idle once tasks complete.
+   *
+   * The handler is responsible for its own dedup: the loop will keep
+   * calling it every tick as long as the project stays idle and active.
+   * The standard play is for the handler to either inject new tasks
+   * (making the project non-idle) or flip project.status away from
+   * "active" (making the outer loop skip it).
+   */
+  readonly onProjectIdle?: (project: Project, tasks: readonly TaskRecord[]) => Promise<void>;
 };
 
 export type PickupLoopHandle = {
@@ -141,7 +156,36 @@ export async function runPickupTick(opts: PickupLoopOptions): Promise<void> {
       emitAudit("projects.task.claimed", claim.task, opts);
       await runWorkerForTask(claim.task, project, opts);
     }
+    // Goal-loop hook: after the role loop has had a chance to claim work
+    // for this project, see if the project is idle (no runnable tasks
+    // left). If so, hand off to the autonomy handler. The handler may
+    // re-plan (injecting fresh tasks) or transition the project status.
+    if (opts.onProjectIdle) {
+      const freshProject = loadProject(opts.projectsDir, projectId, opts.storeOptions);
+      if (freshProject && freshProject.status === "active") {
+        const tasks = listTasks(opts.projectsDir, projectId, opts.storeOptions);
+        if (isProjectIdle(tasks)) {
+          await opts.onProjectIdle(freshProject, tasks);
+        }
+      }
+    }
   }
+}
+
+/**
+ * True when at least one task exists and every task is in a terminal
+ * status (done / failed / blocked). Tasks in "review" don't count as
+ * terminal because they're awaiting operator approval — the loop
+ * should not interpret that as "done."
+ */
+export function isProjectIdle(tasks: readonly TaskRecord[]): boolean {
+  if (tasks.length === 0) return false;
+  for (const t of tasks) {
+    if (t.status !== "done" && t.status !== "failed" && t.status !== "blocked") {
+      return false;
+    }
+  }
+  return true;
 }
 
 async function runWorkerForTask(

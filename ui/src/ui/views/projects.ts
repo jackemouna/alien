@@ -1226,6 +1226,10 @@ function projectStatusTone(status: Project["status"]): string {
       return "warn";
     case "archived":
       return "";
+    case "achieved":
+      return "success";
+    case "needs-input":
+      return "warn";
   }
 }
 
@@ -1237,6 +1241,10 @@ function friendlyProjectStatus(status: Project["status"]): string {
       return "Paused";
     case "archived":
       return "Closed";
+    case "achieved":
+      return "Goal achieved";
+    case "needs-input":
+      return "Needs your input";
   }
 }
 

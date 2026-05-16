@@ -7,8 +7,10 @@ import { logWarn } from "../logger.js";
 import type { LlmClient } from "../orchestrator/llm-client.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { createDailyResearchWorkers } from "../orchestrator/workers.js";
+import { emitProjectsAuditEvent } from "../projects/audit.js";
 import { bindChannelInboxToProjects } from "../projects/channel-inbox.js";
 import type { ChannelReplySend } from "../projects/channel-reply.js";
+import { evaluate, defaultMaxIterations } from "../projects/evaluator.js";
 import { adaptOrchestratorWorkerRegistry } from "../projects/orchestrator-worker-adapter.js";
 import {
   startPickupLoop,
@@ -16,6 +18,9 @@ import {
   type ProjectWorker,
   type ProjectWorkerRegistry,
 } from "../projects/pickup-loop.js";
+import { persistPlan, plan } from "../projects/planner.js";
+import { listTasks, loadProject, saveProject } from "../projects/store.js";
+import type { Project, TaskRecord } from "../projects/types.js";
 
 /**
  * Gateway-side glue for the Projects runtime. Boots:
@@ -80,6 +85,10 @@ export async function startProjectsRuntime(
 
   const sendChannelReply = buildChannelReplyAdapter(opts.cfg);
 
+  const onProjectIdle = llm
+    ? buildGoalLoopHandler({ projectsDir, llm, ...(auditLogPath ? { auditLogPath } : {}) })
+    : undefined;
+
   const pickupHandle: PickupLoopHandle = startPickupLoop({
     projectsDir,
     workers,
@@ -87,6 +96,7 @@ export async function startProjectsRuntime(
     sendChannelReply,
     ...(opts.intervalMs ? { intervalMs: opts.intervalMs } : {}),
     ...(auditLogPath ? { auditLogPath } : {}),
+    ...(onProjectIdle ? { onProjectIdle } : {}),
   });
 
   const unbindInbox = llm
@@ -179,4 +189,129 @@ function overrideEmailHandler(
 function stringifyError(err: unknown): string {
   if (err instanceof Error) return err.message;
   return String(err);
+}
+
+/**
+ * The goal-loop handler that fires when a project's tasks have all reached
+ * terminal states. Asks the evaluator whether the goal is met; if not,
+ * re-fires the planner with the prior results as context. Iteration count
+ * lives in `project.metadata.iteration` so it survives gateway restarts.
+ *
+ *   verdict: "achieved"   -> project.status = "achieved"
+ *   verdict: "needs-more" -> planner emits next batch; iteration++
+ *   verdict: "stuck"      -> project.status = "needs-input"
+ */
+function buildGoalLoopHandler(params: {
+  projectsDir: string;
+  llm: LlmClient;
+  auditLogPath?: string;
+}): (project: Project, tasks: readonly TaskRecord[]) => Promise<void> {
+  const evaluatorOptions = { llm: params.llm, maxIterations: defaultMaxIterations() } as const;
+  return async (project, tasks) => {
+    try {
+      const iteration = readIteration(project);
+      const outcome = await evaluate(project, tasks, iteration, evaluatorOptions);
+      if (params.auditLogPath) {
+        emitProjectsAuditEvent(
+          {
+            kind:
+              outcome.verdict === "achieved"
+                ? "projects.project.goal_achieved"
+                : outcome.verdict === "stuck"
+                  ? "projects.project.stuck"
+                  : "projects.project.iteration_started",
+            payload: {
+              projectId: project.id,
+              iteration,
+              verdict: outcome.verdict,
+              feedback: outcome.feedback,
+              ...(typeof outcome.costUsd === "number" ? { costUsd: outcome.costUsd } : {}),
+            },
+          },
+          { auditLogPath: params.auditLogPath },
+        );
+      }
+      if (outcome.verdict === "achieved") {
+        saveProject(params.projectsDir, {
+          ...project,
+          status: "achieved",
+          metadata: {
+            ...(project.metadata ?? {}),
+            iteration,
+            lastEvaluation: outcome.feedback,
+          },
+        });
+        return;
+      }
+      if (outcome.verdict === "stuck") {
+        saveProject(params.projectsDir, {
+          ...project,
+          status: "needs-input",
+          metadata: {
+            ...(project.metadata ?? {}),
+            iteration,
+            lastEvaluation: outcome.feedback,
+          },
+        });
+        return;
+      }
+      // needs-more: re-fire the planner. The new tasks make the project
+      // non-idle, so the next tick won't re-trigger this handler.
+      const nextIteration = iteration + 1;
+      const fresh = loadProject(params.projectsDir, project.id);
+      const projectAfter = fresh ?? project;
+      const existing = listTasks(params.projectsDir, project.id);
+      const planResult = await plan(
+        {
+          projectId: project.id,
+          prompt: projectAfter.goal,
+          origin: { kind: "planner", runId: `iter-${nextIteration}` },
+          existing,
+          priorContext: {
+            iteration: nextIteration,
+            goal: projectAfter.goal,
+            evaluatorFeedback: outcome.feedback,
+            priorResultsSummary: outcome.priorResultsSummary,
+          },
+        },
+        { llm: params.llm },
+      );
+      if (planResult.tasks.length === 0) {
+        // Planner had nothing to add — treat as stuck so the operator can
+        // step in instead of letting the loop spin forever.
+        saveProject(params.projectsDir, {
+          ...projectAfter,
+          status: "needs-input",
+          metadata: {
+            ...(projectAfter.metadata ?? {}),
+            iteration: nextIteration,
+            lastEvaluation:
+              "Evaluator wanted more work but the planner produced no new tasks. Operator needed.",
+          },
+        });
+        return;
+      }
+      persistPlan(project.id, planResult, {
+        projectsDir: params.projectsDir,
+        origin: { kind: "planner", runId: `iter-${nextIteration}` },
+        ...(params.auditLogPath ? { auditLogPath: params.auditLogPath } : {}),
+      });
+      saveProject(params.projectsDir, {
+        ...projectAfter,
+        metadata: {
+          ...(projectAfter.metadata ?? {}),
+          iteration: nextIteration,
+          lastEvaluation: outcome.feedback,
+        },
+      });
+    } catch (err) {
+      logWarn(`goal-loop: handler failed for ${project.id}: ${stringifyError(err)}`);
+    }
+  };
+}
+
+function readIteration(project: Project): number {
+  const raw = (project.metadata as Record<string, unknown> | undefined)?.iteration;
+  if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) return raw;
+  return 0;
 }
