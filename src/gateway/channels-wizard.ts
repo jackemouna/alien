@@ -51,6 +51,8 @@ const WIZARD_PATHS = new Set([
   "/v1/setup/channels/validate-discord",
   "/v1/setup/channels/validate-slack",
   "/v1/setup/channels/imessage-permission",
+  "/v1/setup/channels/whatsapp-pair-start",
+  "/v1/setup/channels/whatsapp-pair-poll",
   "/v1/setup/channels/save",
   "/v1/setup/channels/status",
 ]);
@@ -123,6 +125,8 @@ export async function handleChannelsWizardRequest(
         readonly appToken?: unknown;
         readonly channel?: unknown;
         readonly credentials?: unknown;
+        readonly accountId?: unknown;
+        readonly currentQrDataUrl?: unknown;
       }
     | undefined;
   if (body === undefined) return true;
@@ -151,6 +155,19 @@ export async function handleChannelsWizardRequest(
 
   if (pathname === "/v1/setup/channels/imessage-permission") {
     sendJson(res, 200, await checkIMessagePermission());
+    return true;
+  }
+
+  if (pathname === "/v1/setup/channels/whatsapp-pair-start") {
+    const accountId = readStr(body.accountId) ?? "default";
+    sendJson(res, 200, await startWhatsAppPairing(accountId));
+    return true;
+  }
+
+  if (pathname === "/v1/setup/channels/whatsapp-pair-poll") {
+    const accountId = readStr(body.accountId) ?? "default";
+    const currentQrDataUrl = readStr((body as { currentQrDataUrl?: unknown }).currentQrDataUrl);
+    sendJson(res, 200, await pollWhatsAppPairing(accountId, currentQrDataUrl));
     return true;
   }
 
@@ -200,6 +217,115 @@ async function checkIMessagePermission(): Promise<{
     return { platform: "darwin", hasFullDiskAccess: true, chatDbPath };
   } catch {
     return { platform: "darwin", hasFullDiskAccess: false, chatDbPath };
+  }
+}
+
+// ------ WhatsApp pairing (Baileys QR streamed to browser, no restart) ------
+
+type WhatsAppPairResult =
+  | {
+      readonly ok: true;
+      readonly qrDataUrl?: string;
+      readonly connected?: boolean;
+      readonly message?: string;
+    }
+  | { readonly ok: false; readonly error: string };
+
+async function findWhatsAppProvider(): Promise<{
+  readonly id: string;
+  readonly gateway?: {
+    loginWithQrStart?: (params: {
+      force?: boolean;
+      timeoutMs?: number;
+      verbose?: boolean;
+      accountId?: string;
+    }) => Promise<{ qrDataUrl?: string; message?: string; connected?: boolean }>;
+    loginWithQrWait?: (params: {
+      accountId?: string;
+      timeoutMs?: number;
+      currentQrDataUrl?: string;
+    }) => Promise<{ qrDataUrl?: string; message?: string; connected?: boolean }>;
+  };
+} | null> {
+  try {
+    const { listChannelPlugins } = await import("../channels/plugins/index.js");
+    const plugins = listChannelPlugins();
+    const wa = plugins.find((p) => p.id === "whatsapp") ?? null;
+    return wa as Awaited<ReturnType<typeof findWhatsAppProvider>>;
+  } catch (err) {
+    logWarn(
+      `channels-wizard: failed to resolve WhatsApp plugin: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return null;
+  }
+}
+
+async function startWhatsAppPairing(accountId: string): Promise<WhatsAppPairResult> {
+  const provider = await findWhatsAppProvider();
+  if (!provider) {
+    return {
+      ok: false,
+      error:
+        "WhatsApp plugin isn't loaded in this gateway build. Make sure extensions/whatsapp is present and the gateway was started with bundled channels.",
+    };
+  }
+  if (!provider.gateway?.loginWithQrStart) {
+    return {
+      ok: false,
+      error: `WhatsApp plugin (${provider.id}) doesn't expose loginWithQrStart`,
+    };
+  }
+  try {
+    const result = await provider.gateway.loginWithQrStart({
+      force: true,
+      accountId,
+      timeoutMs: 30_000,
+    });
+    return {
+      ok: true,
+      ...(result.qrDataUrl ? { qrDataUrl: result.qrDataUrl } : {}),
+      ...(typeof result.connected === "boolean" ? { connected: result.connected } : {}),
+      ...(result.message ? { message: result.message } : {}),
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function pollWhatsAppPairing(
+  accountId: string,
+  currentQrDataUrl: string | undefined,
+): Promise<WhatsAppPairResult> {
+  const provider = await findWhatsAppProvider();
+  if (!provider) {
+    return { ok: false, error: "WhatsApp plugin not available" };
+  }
+  if (!provider.gateway?.loginWithQrWait) {
+    return {
+      ok: false,
+      error: `WhatsApp plugin (${provider.id}) doesn't expose loginWithQrWait`,
+    };
+  }
+  try {
+    const result = await provider.gateway.loginWithQrWait({
+      accountId,
+      timeoutMs: 25_000,
+      ...(currentQrDataUrl ? { currentQrDataUrl } : {}),
+    });
+    return {
+      ok: true,
+      ...(result.qrDataUrl ? { qrDataUrl: result.qrDataUrl } : {}),
+      ...(typeof result.connected === "boolean" ? { connected: result.connected } : {}),
+      ...(result.message ? { message: result.message } : {}),
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 }
 
@@ -932,41 +1058,37 @@ function renderWhatsAppWizardHtml(): string {
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Connect WhatsApp</title><style>${SHARED_CSS}</style>
+<title>Connect WhatsApp</title><style>${SHARED_CSS}${WHATSAPP_EXTRA_CSS}</style>
 </head><body>
 <div class="card">
   <p class="crumb"><a href="/setup/channels">← Channels</a></p>
   <h1>Connect WhatsApp</h1>
-  <p class="tag">~1 minute. Pairing happens by scanning a QR code with your phone, just like WhatsApp Web.</p>
+  <p class="tag">~1 minute. Scan a QR with your phone, like WhatsApp Web. No restart needed.</p>
 
   <div class="step">
-    <div class="step-head"><span class="step-num">1</span><p class="step-title">Click "Enable WhatsApp"</p></div>
+    <div class="step-head"><span class="step-num">1</span><p class="step-title">Open Linked Devices on your phone</p></div>
     <div class="step-body">
-      <p>That tells Alien to bring WhatsApp online on the next restart. Pairing happens at boot.</p>
+      <p>In WhatsApp on your phone: <strong>Settings → Linked Devices → Link a Device</strong>.</p>
+      <p style="font-size: 13px; color: var(--gold-deep);">Heads up: the Linked Devices flow may ask for biometric (Face ID / fingerprint) confirmation before showing the camera.</p>
     </div>
   </div>
 
   <div class="step">
-    <div class="step-head"><span class="step-num">2</span><p class="step-title">Restart Alien</p></div>
+    <div class="step-head"><span class="step-num">2</span><p class="step-title">Show the pairing QR</p></div>
     <div class="step-body">
-      <p>In your terminal, restart the gateway so the WhatsApp plugin can boot:</p>
-      <p><code>pnpm alien --dev gateway run</code></p>
+      <p>Click below and the QR appears right here. Point your phone's camera at it.</p>
+      <div id="qr-stage" class="qr-stage">
+        <div id="qr-idle" class="qr-idle">No QR yet — click "Show QR" below.</div>
+        <img id="qr-img" class="qr-img" alt="WhatsApp pairing QR" style="display:none">
+        <div id="qr-status" class="qr-status"></div>
+      </div>
     </div>
   </div>
 
-  <div class="step">
-    <div class="step-head"><span class="step-num">3</span><p class="step-title">Scan the QR code with your phone</p></div>
-    <div class="step-body">
-      <p>The gateway logs print a QR. On your phone:</p>
-      <p>WhatsApp → Settings → <strong>Linked Devices</strong> → <strong>Link a Device</strong> → point the camera at the QR in the terminal.</p>
-      <p style="color: var(--gold-deep); font-size: 13px;">Heads up: WhatsApp's Linked Devices flow can ask for biometric confirmation. Once paired the session persists until you remove it from WhatsApp.</p>
-    </div>
-  </div>
-
-  <button id="save" class="primary" type="button">Enable WhatsApp</button>
+  <button id="pair" class="primary" type="button">Show QR</button>
   <div id="err" class="err-banner"></div>
   <div id="done" class="success" style="display:none">
-    <strong>✓ WhatsApp enabled.</strong> Restart the gateway, then scan the QR from your phone's Linked Devices screen.
+    <strong>✓ Paired.</strong> WhatsApp is connected — you'll see messages flow into the activity feed.
   </div>
   <div class="toolbar">
     <a class="btn" href="/setup/channels">← Pick a different channel</a>
@@ -977,20 +1099,103 @@ ${whatsappScript()}
 </body></html>`;
 }
 
+const WHATSAPP_EXTRA_CSS = `
+  .qr-stage { margin: 12px 0 0; padding: 18px; border: 1px dashed var(--line);
+    border-radius: 10px; background: #fbfaf7; text-align: center; min-height: 280px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+  .qr-idle { color: var(--muted); font-size: 14px; }
+  .qr-img { display: block; max-width: 240px; width: 100%; height: auto;
+    background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .qr-status { font-size: 13px; color: var(--muted); min-height: 18px; }
+  .qr-status.live { color: var(--ok); }
+  .qr-status.err { color: var(--err); }
+`;
+
 function whatsappScript(): string {
   return `<script>
 (() => {
   const $ = (id) => document.getElementById(id);
+  const ACCOUNT_ID = "default";
+  let polling = false;
+  let currentQr = "";
+
   async function postJson(p, b) {
     const r = await fetch(p, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) });
     return r.json().catch(() => null);
   }
-  $("save").addEventListener("click", async () => {
-    $("save").disabled = true; $("save").textContent = "Saving...";
-    const r = await postJson("/v1/setup/channels/save", { channel: "whatsapp", credentials: {} });
-    if (r && r.ok) { $("done").style.display = "block"; $("save").textContent = "✓ Enabled"; }
-    else { $("save").disabled = false; $("save").textContent = "Enable WhatsApp"; $("err").textContent = (r && r.error) || "Save failed."; $("err").classList.add("show"); }
+
+  function showQr(dataUrl, statusText) {
+    $("qr-idle").style.display = "none";
+    if (dataUrl) {
+      $("qr-img").src = dataUrl;
+      $("qr-img").style.display = "block";
+      currentQr = dataUrl;
+    }
+    const s = $("qr-status");
+    s.className = "qr-status live";
+    s.textContent = statusText || "Scan with your phone (Linked Devices → Link a Device).";
+  }
+
+  function showErr(msg) {
+    $("err").textContent = msg;
+    $("err").classList.add("show");
+  }
+
+  function showSuccess() {
+    $("done").style.display = "block";
+    $("qr-stage").style.display = "none";
+    $("pair").style.display = "none";
+  }
+
+  async function poll() {
+    while (polling) {
+      const r = await postJson("/v1/setup/channels/whatsapp-pair-poll", {
+        accountId: ACCOUNT_ID,
+        currentQrDataUrl: currentQr,
+      });
+      if (!r || !r.ok) {
+        // Transient; brief pause + retry
+        $("qr-status").textContent = (r && r.error) || "polling…";
+        await new Promise((rz) => setTimeout(rz, 1500));
+        continue;
+      }
+      if (r.connected) {
+        polling = false;
+        showSuccess();
+        return;
+      }
+      if (r.qrDataUrl && r.qrDataUrl !== currentQr) {
+        showQr(r.qrDataUrl);
+      } else {
+        $("qr-status").className = "qr-status live";
+        $("qr-status").textContent = "Waiting for scan…";
+      }
+      await new Promise((rz) => setTimeout(rz, 1500));
+    }
+  }
+
+  $("pair").addEventListener("click", async () => {
+    $("pair").disabled = true; $("pair").textContent = "Generating QR…";
+    $("err").classList.remove("show");
+    const r = await postJson("/v1/setup/channels/whatsapp-pair-start", { accountId: ACCOUNT_ID });
+    if (!r || !r.ok) {
+      $("pair").disabled = false; $("pair").textContent = "Show QR";
+      showErr((r && r.error) || "Failed to start pairing.");
+      return;
+    }
+    if (r.connected) {
+      $("pair").textContent = "✓ Already paired";
+      showSuccess();
+      return;
+    }
+    if (r.qrDataUrl) showQr(r.qrDataUrl);
+    else $("qr-status").textContent = "Waiting for QR…";
+    $("pair").textContent = "QR is live — scan it";
+    polling = true;
+    poll();
   });
+
+  window.addEventListener("beforeunload", () => { polling = false; });
 })();
 </script>`;
 }
