@@ -2,7 +2,7 @@ import { promises as fsp } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-import { BUNDLED_EXPERTS } from "../experts/builtin.js";
+import { BUNDLED_EXPERTS } from "../experts/builtin/index.js";
 import { readCapabilityRequests } from "../projects/capability-requests-store.js";
 import { listProjectIds, loadProject, saveProject } from "../projects/store.js";
 import type { Project } from "../projects/types.js";

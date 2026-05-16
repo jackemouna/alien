@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import { listExperts } from "../experts/registry.js";
+import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "../experts/types.js";
 import type { Expert } from "../experts/types.js";
 import { logWarn } from "../logger.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
@@ -269,28 +270,50 @@ function renderRosterHtml(): string {
 <title>👾 Alien · Experts</title>
 <style>
 ${SHARED_CSS}
-  h2.section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
-    color: var(--gold); margin: 24px 0 12px; font-weight: 600; }
-  .roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .summary { color: var(--text-mute); font-size: 13px; margin: 4px 0 28px; }
+  details.dept { margin-bottom: 16px; }
+  details.dept > summary {
+    list-style: none; cursor: pointer; padding: 14px 16px;
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.15s;
+  }
+  details.dept > summary::-webkit-details-marker { display: none; }
+  details.dept[open] > summary { border-color: var(--line-strong); border-radius: 10px 10px 0 0; }
+  details.dept > summary:hover { border-color: var(--line-strong); }
+  .dept-title { font-weight: 600; font-size: 15px; color: var(--text); }
+  .dept-count { color: var(--text-mute); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .dept-chev { color: var(--text-mute); font-size: 11px; }
+  details.dept[open] .dept-chev::after { content: " ▾"; }
+  details.dept:not([open]) .dept-chev::after { content: " ▸"; }
+  .roster {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--line-strong); border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
   .ecard {
-    background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 18px 20px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .ecard:hover { border-color: var(--line-strong);
     box-shadow: 0 6px 24px -10px rgba(184,144,40,0.15); }
   .head { display: flex; align-items: center; gap: 10px; }
-  .ava { font-size: 26px; }
-  .name { font-weight: 600; font-size: 16px; }
-  .titleln { color: var(--gold); font-size: 12px; letter-spacing: 0.04em;
+  .ava { font-size: 24px; }
+  .name { font-weight: 600; font-size: 15px; }
+  .titleln { color: var(--gold); font-size: 11px; letter-spacing: 0.04em;
     text-transform: uppercase; font-weight: 600; }
   .role { color: var(--text-dim); margin: 8px 0 0; font-size: 13px; }
   .purpose { color: var(--text-mute); margin: 8px 0 0; font-size: 12px; line-height: 1.5;
     border-left: 2px solid var(--line); padding-left: 10px; }
-  .skills { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .skills { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .skill { background: #faf5e4; border: 1px solid var(--line); border-radius: 999px;
     padding: 2px 9px; font-size: 11px; color: var(--text-dim); }
-  .tone { color: var(--text-mute); font-size: 12px; margin-top: 10px; font-style: italic; }
+  .tone { color: var(--text-mute); font-size: 11px; margin-top: 10px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -305,10 +328,12 @@ ${SHARED_CSS}
       <a href="/settings">Settings</a>
     </nav>
   </header>
-  <h2 class="section">Bundled roster</h2>
-  <div class="roster" id="roster">Loading…</div>
+  <div class="summary" id="summary">Loading roster…</div>
+  <div id="departments"></div>
 </div>
 <script>
+const DEPT_ORDER = ${JSON.stringify(DEPARTMENT_ORDER)};
+const DEPT_LABELS = ${JSON.stringify(DEPARTMENT_LABELS)};
 ${rosterScript()}
 </script>
 </body>
@@ -324,10 +349,39 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
 async function load() {
   const r = await fetch("/v1/experts");
   const d = await r.json();
-  $("roster").innerHTML = (d.experts || []).map(card).join("");
+  const experts = d.experts || [];
+  const groups = groupByDept(experts);
+  $("summary").textContent = experts.length + " experts across " +
+    Object.keys(groups).length + " departments. Click a department to expand.";
+  const html = DEPT_ORDER
+    .filter((id) => (groups[id] || []).length > 0)
+    .map((id) => renderDept(id, groups[id]))
+    .join("");
+  $("departments").innerHTML = html;
+}
+function groupByDept(experts) {
+  const out = {};
+  for (const e of experts) {
+    const d = e.department || "operations";
+    (out[d] ||= []).push(e);
+  }
+  return out;
+}
+function renderDept(deptId, members) {
+  // Open Leadership by default; the rest stay collapsed.
+  const open = deptId === "leadership" ? "open" : "";
+  return [
+    '<details class="dept" ' + open + '>',
+      '<summary>',
+        '<span class="dept-title">' + esc(DEPT_LABELS[deptId] || deptId) + '</span>',
+        '<span class="dept-count">' + members.length + ' · <span class="dept-chev"></span></span>',
+      '</summary>',
+      '<div class="roster">' + members.map(card).join("") + '</div>',
+    '</details>',
+  ].join("");
 }
 function card(e) {
-  const skills = (e.skills || []).map(s =>
+  const skills = (e.skills || []).slice(0, 5).map((s) =>
     '<span class="skill">' + esc(s) + '</span>'
   ).join("");
   return [
@@ -439,21 +493,45 @@ ${SHARED_CSS}
     display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 14px;
   }
-  .ecard {
+  details.dept { margin-bottom: 12px; }
+  details.dept > summary {
+    list-style: none; cursor: pointer; padding: 12px 14px;
     background: var(--bg-card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 18px 20px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.15s;
+  }
+  details.dept > summary::-webkit-details-marker { display: none; }
+  details.dept[open] > summary { border-color: var(--line-strong); border-radius: 8px 8px 0 0; }
+  details.dept > summary:hover { border-color: var(--line-strong); }
+  .dept-title { font-weight: 600; font-size: 14px; color: var(--text); }
+  .dept-count { color: var(--text-mute); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .dept-chev { color: var(--text-mute); font-size: 11px; }
+  details.dept[open] .dept-chev::after { content: " ▾"; }
+  details.dept:not([open]) .dept-chev::after { content: " ▸"; }
+  .dept-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--line-strong); border-top: none;
+    border-radius: 0 0 8px 8px;
+  }
+  .ecard {
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px;
   }
   .head { display: flex; align-items: center; gap: 10px; }
-  .ava { font-size: 26px; }
+  .ava { font-size: 22px; }
   .titleln { color: var(--gold); font-size: 11px; letter-spacing: 0.04em;
     text-transform: uppercase; font-weight: 600; }
-  .name { font-weight: 600; font-size: 15px; }
-  .ecard .role { color: var(--text-dim); font-size: 12px; margin: 8px 0 0; }
+  .name { font-weight: 600; font-size: 14px; }
+  .ecard .role { color: var(--text-dim); font-size: 12px; margin: 6px 0 0; }
   .ecard .tasks {
-    margin-top: 12px; padding-top: 12px;
+    margin-top: 10px; padding-top: 10px;
     border-top: 1px dashed var(--line); font-size: 13px;
   }
-  .ecard .empty { color: var(--text-mute); font-style: italic; font-size: 12px; }
+  .ecard .empty { color: var(--text-mute); font-style: italic; font-size: 11px; }
   .tline {
     display: flex; justify-content: space-between; gap: 8px;
     padding: 4px 0; color: var(--text-dim); font-size: 12px;
@@ -506,11 +584,13 @@ ${SHARED_CSS}
   </div>
 
   <h2 class="section">Assigned experts</h2>
-  <div class="roster" id="roster">Loading the team…</div>
+  <div id="roster">Loading the team…</div>
 </div>
 
 <script>
 const PROJECT_ID = ${JSON.stringify(projectId)};
+const DEPT_ORDER = ${JSON.stringify(DEPARTMENT_ORDER)};
+const DEPT_LABELS = ${JSON.stringify(DEPARTMENT_LABELS)};
 ${missionScript()}
 </script>
 </body>
@@ -573,29 +653,56 @@ function render(s) {
     $("eval-block").style.display = "none";
   }
 
-  $("roster").innerHTML = (s.grouped || []).map(group => {
-    const e = group.expert;
-    const tasks = group.tasks || [];
-    const taskHtml = tasks.length === 0
-      ? '<div class="empty">Waiting for the planner to assign a task.</div>'
-      : tasks.map(t =>
-          '<div class="tline">' +
-            '<span>' + esc(t.title) + '</span>' +
-            '<span class="tstatus ' + esc(t.status) + '">' + esc(t.status) + '</span>' +
-          '</div>'
-        ).join("");
-    return [
-      '<div class="ecard">',
-        '<div class="head">',
-          '<div class="ava">' + esc(e.avatar || "👤") + '</div>',
-          '<div><div class="titleln">' + esc(e.title) + '</div>',
-          '<div class="name">' + esc(e.name) + '</div></div>',
-        '</div>',
-        '<div class="role">' + esc(e.role) + '</div>',
-        '<div class="tasks">' + taskHtml + '</div>',
+  // Group expert cards by department. Auto-expand Leadership + any
+  // department that currently has at least one task.
+  const groups = {};
+  for (const g of s.grouped || []) {
+    const dept = (g.expert && g.expert.department) || "operations";
+    (groups[dept] ||= []).push(g);
+  }
+  $("roster").innerHTML = DEPT_ORDER
+    .filter((id) => (groups[id] || []).length > 0)
+    .map((id) => renderDept(id, groups[id]))
+    .join("");
+}
+
+function renderDept(deptId, groupsInDept) {
+  const hasTasks = groupsInDept.some((g) => (g.tasks || []).length > 0);
+  const open = deptId === "leadership" || hasTasks ? "open" : "";
+  const cards = groupsInDept.map(renderExpertCard).join("");
+  return [
+    '<details class="dept" ' + open + '>',
+      '<summary>',
+        '<span class="dept-title">' + esc(DEPT_LABELS[deptId] || deptId) + '</span>',
+        '<span class="dept-count">' + groupsInDept.length + ' · <span class="dept-chev"></span></span>',
+      '</summary>',
+      '<div class="dept-grid">' + cards + '</div>',
+    '</details>',
+  ].join("");
+}
+
+function renderExpertCard(group) {
+  const e = group.expert;
+  const tasks = group.tasks || [];
+  const taskHtml = tasks.length === 0
+    ? '<div class="empty">Waiting for the planner to assign a task.</div>'
+    : tasks.map((t) =>
+        '<div class="tline">' +
+          '<span>' + esc(t.title) + '</span>' +
+          '<span class="tstatus ' + esc(t.status) + '">' + esc(t.status) + '</span>' +
+        '</div>'
+      ).join("");
+  return [
+    '<div class="ecard">',
+      '<div class="head">',
+        '<div class="ava">' + esc(e.avatar || "👤") + '</div>',
+        '<div><div class="titleln">' + esc(e.title) + '</div>',
+        '<div class="name">' + esc(e.name) + '</div></div>',
       '</div>',
-    ].join("");
-  }).join("");
+      '<div class="role">' + esc(e.role) + '</div>',
+      '<div class="tasks">' + taskHtml + '</div>',
+    '</div>',
+  ].join("");
 }
 
 function cell(label, value) {

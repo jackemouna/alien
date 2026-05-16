@@ -2,8 +2,9 @@ import { promises as fsp } from "node:fs";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import { logWarn } from "../logger.js";
-import { BUNDLED_EXPERTS } from "./builtin.js";
-import type { Expert, ExpertId } from "./types.js";
+import { BUNDLED_EXPERTS } from "./builtin/index.js";
+import { DEPARTMENT_ORDER } from "./types.js";
+import type { Department, Expert, ExpertId } from "./types.js";
 
 /**
  * Loads the bundled experts, merges in any user-defined experts under
@@ -89,6 +90,8 @@ async function loadUserExperts(dir: string): Promise<readonly Expert[]> {
   return out;
 }
 
+const KNOWN_DEPARTMENTS = new Set<Department>(DEPARTMENT_ORDER);
+
 function validateExpert(input: Partial<Expert> & { id: ExpertId }): Expert | undefined {
   if (
     typeof input.id !== "string" ||
@@ -101,10 +104,15 @@ function validateExpert(input: Partial<Expert> & { id: ExpertId }): Expert | und
   ) {
     return undefined;
   }
+  const department: Department =
+    typeof input.department === "string" && KNOWN_DEPARTMENTS.has(input.department as Department)
+      ? (input.department as Department)
+      : "operations";
   return {
     id: input.id,
     name: input.name,
     title: input.title,
+    department,
     role: input.role,
     purpose: input.purpose,
     tone: input.tone,

@@ -19,6 +19,26 @@
 
 export type ExpertId = string;
 
+/**
+ * High-level org-chart bucket. Used to group the roster on the /experts
+ * page and the Mission Control board so a 70+ expert company doesn't
+ * overwhelm. Keep the set small and stable.
+ */
+export type Department =
+  | "leadership"
+  | "product"
+  | "engineering"
+  | "design"
+  | "marketing"
+  | "sales"
+  | "operations"
+  | "finance"
+  | "people"
+  | "legal"
+  | "data"
+  | "customer"
+  | "research";
+
 export type Expert = {
   /** Stable, kebab-case id. Used in Project.assignedExperts. Never renamed. */
   readonly id: ExpertId;
@@ -26,6 +46,8 @@ export type Expert = {
   readonly name: string;
   /** Short title shown under the name. */
   readonly title: string;
+  /** Department the expert belongs to (for grouping in UIs). */
+  readonly department: Department;
   /** One-line role summary. */
   readonly role: string;
   /** What this expert is here to do — read into their soul on each turn. */
@@ -55,3 +77,39 @@ export type Expert = {
  * currently-assigned-task-id) without changing the persisted Expert.
  */
 export type ExpertSnapshot = Expert;
+
+/**
+ * Department display order on the /experts roster and Mission Control
+ * board. Mirrors how an org chart reads top-to-bottom.
+ */
+export const DEPARTMENT_ORDER: readonly Department[] = [
+  "leadership",
+  "product",
+  "engineering",
+  "design",
+  "research",
+  "data",
+  "marketing",
+  "sales",
+  "customer",
+  "operations",
+  "finance",
+  "people",
+  "legal",
+] as const;
+
+export const DEPARTMENT_LABELS: Readonly<Record<Department, string>> = {
+  leadership: "Leadership",
+  product: "Product",
+  engineering: "Engineering",
+  design: "Design",
+  research: "Research & Strategy",
+  data: "Data & Analytics",
+  marketing: "Marketing",
+  sales: "Sales",
+  customer: "Customer Success & Support",
+  operations: "Operations",
+  finance: "Finance",
+  people: "People & HR",
+  legal: "Legal & Compliance",
+} as const;
