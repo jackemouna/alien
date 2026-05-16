@@ -660,7 +660,6 @@ function renderDashboardHtml(): string {
       <a href="/integrations">Integrations</a>
       <a href="/capabilities">Capabilities</a>
       <a href="/activity">Activity</a>
-      <a href="/mcp/info">MCP</a>
     </nav>
   </header>
 
