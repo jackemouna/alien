@@ -61,6 +61,7 @@ export function adaptOrchestratorWorkerRegistry(
     publisher: adaptOrchestratorWorker(registry.publisher),
     "email-handler": adaptOrchestratorWorker(registry["email-handler"]),
     "capability-broker": adaptOrchestratorWorker(registry["capability-broker"]),
+    "self-coder": adaptOrchestratorWorker(registry["self-coder"]),
   };
 }
 

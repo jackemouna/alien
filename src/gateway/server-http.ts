@@ -68,6 +68,7 @@ let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js
 let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | undefined;
 let setupHttpModulePromise: Promise<typeof import("./setup-http.js")> | undefined;
 let channelsWizardModulePromise: Promise<typeof import("./channels-wizard.js")> | undefined;
+let capabilitiesHttpModulePromise: Promise<typeof import("./capabilities-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -133,6 +134,11 @@ function getSetupHttpModule() {
 function getChannelsWizardModule() {
   channelsWizardModulePromise ??= import("./channels-wizard.js");
   return channelsWizardModulePromise;
+}
+
+function getCapabilitiesHttpModule() {
+  capabilitiesHttpModulePromise ??= import("./capabilities-http.js");
+  return capabilitiesHttpModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -799,6 +805,19 @@ export function createGatewayHttpServer(opts: {
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
+            }),
+        });
+      }
+      // Phase C capability operations: list open requests + trigger a
+      // self-coder build for a specific request id.
+      if ((await getCapabilitiesHttpModule()).isCapabilitiesPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "capabilities",
+          run: async () =>
+            (await getCapabilitiesHttpModule()).handleCapabilitiesRequest(req, res, {
+              auth: resolvedAuth,
+              trustedProxies,
+              allowRealIpFallback,
             }),
         });
       }

@@ -31,7 +31,15 @@ export type WorkerRole =
    * "needs-input" so the operator (or eventually a self-coding worker)
    * can resolve the gap.
    */
-  | "capability-broker";
+  | "capability-broker"
+  /**
+   * Self-coder (Phase C). Reads an open capability request and asks the
+   * LLM to generate a stub extension (index/types/README) under
+   * `extensions/.generated/<id>/`. Generated files are NEVER auto-loaded
+   * by the gateway in v0.1 — operator review is the gate. Phase D adds
+   * loading; Phase E adds rollback and reasoning trace.
+   */
+  | "self-coder";
 
 export type TaskStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
 

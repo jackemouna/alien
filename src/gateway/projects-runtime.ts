@@ -20,6 +20,7 @@ import {
   type ProjectWorkerRegistry,
 } from "../projects/pickup-loop.js";
 import { persistPlan, plan } from "../projects/planner.js";
+import { createSelfCoderWorker } from "../projects/self-coder.js";
 import { listTasks, loadProject, saveProject } from "../projects/store.js";
 import type { Project, TaskRecord } from "../projects/types.js";
 
@@ -81,6 +82,9 @@ export async function startProjectsRuntime(
     projectsDir,
     ...(auditLogPath ? { auditLogPath } : {}),
   });
+  const selfCoderWorker = llm
+    ? createSelfCoderWorker({ llm, ...(auditLogPath ? { auditLogPath } : {}) })
+    : null;
 
   const workers: ProjectWorkerRegistry = llm
     ? {
@@ -89,8 +93,12 @@ export async function startProjectsRuntime(
           buildEmailHandler(llm),
         ),
         "capability-broker": brokerWorker,
+        ...(selfCoderWorker ? { "self-coder": selfCoderWorker } : {}),
       }
-    : { ...buildNoLlmWorkerRegistry(), "capability-broker": brokerWorker };
+    : {
+        ...buildNoLlmWorkerRegistry(),
+        "capability-broker": brokerWorker,
+      };
 
   const sendChannelReply = buildChannelReplyAdapter(opts.cfg);
 
@@ -158,6 +166,7 @@ function buildNoLlmWorkerRegistry(): ProjectWorkerRegistry {
     publisher: refuse,
     "email-handler": refuse,
     "capability-broker": refuse,
+    "self-coder": refuse,
   };
 }
 

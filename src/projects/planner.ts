@@ -84,6 +84,10 @@ const KNOWN_ROLES: readonly WorkerRole[] = [
   "publisher",
   "email-handler",
   "capability-broker",
+  // The self-coder is operator-triggered for v0.1 — the planner should not
+  // emit it directly. We still include it here so the schema validates if
+  // an operator-issued task arrives with this role.
+  "self-coder",
 ] as const;
 
 const KNOWN_PRIORITIES: readonly Priority[] = ["low", "normal", "high", "urgent"] as const;

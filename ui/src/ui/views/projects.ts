@@ -1262,6 +1262,8 @@ function friendlyRole(role: TaskRecord["role"]): string {
       return "Email";
     case "capability-broker":
       return "Capability gap";
+    case "self-coder":
+      return "Self-coder";
   }
 }
 
