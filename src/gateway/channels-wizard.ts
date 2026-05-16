@@ -209,8 +209,19 @@ type ValidationOk = Record<string, unknown> & { readonly ok: true };
 type ValidationFail = { readonly ok: false; readonly error: string };
 
 async function validateTelegram(botToken: string): Promise<ValidationOk | ValidationFail> {
+  // Telegram bot tokens look like  <numeric-id>:<35-char-alphanum>
+  // e.g.  123456789:AAHpQ...  Catch the obvious paste mistakes locally
+  // before round-tripping to Telegram's API.
+  const trimmed = botToken.trim();
+  if (!/^\d+:[A-Za-z0-9_-]{20,}$/.test(trimmed)) {
+    return {
+      ok: false,
+      error:
+        "That doesn't look like a Telegram bot token. The format is <digits>:<35-character key> — copy it again from @BotFather (e.g. 123456789:AAH...). Make sure you got the whole thing, no surrounding quotes or whitespace.",
+    };
+  }
   try {
-    const res = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
+    const res = await fetch(`https://api.telegram.org/bot${trimmed}/getMe`);
     const data = (await res.json().catch(() => null)) as {
       ok?: boolean;
       result?: { id?: number; username?: string; first_name?: string };
@@ -224,7 +235,24 @@ async function validateTelegram(botToken: string): Promise<ValidationOk | Valida
         id: data.result.id ?? 0,
       };
     }
-    return { ok: false, error: data?.description ?? `Telegram returned HTTP ${res.status}` };
+    if (res.status === 401) {
+      return {
+        ok: false,
+        error:
+          "Telegram says this bot token is unauthorized. Most common causes: (1) the token was revoked or regenerated (open @BotFather → /mybots → your bot → API Token → re-copy), (2) you pasted only part of the token, or (3) you pasted a stale token from a different bot.",
+      };
+    }
+    if (res.status === 404) {
+      return {
+        ok: false,
+        error:
+          "Telegram doesn't recognize this bot token. The bot may have been deleted, or the digits before the colon are wrong. Re-copy from @BotFather.",
+      };
+    }
+    return {
+      ok: false,
+      error: data?.description ?? `Telegram returned HTTP ${res.status}`,
+    };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
