@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import chalk from "chalk";
 import { resolveDefaultAgentId, resolveAgentConfig } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -8,10 +10,19 @@ import {
   legacyModelKey,
   modelKey,
 } from "../agents/model-selection.js";
+import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
 import { getResolvedLoggerSettings } from "../logging.js";
 import { collectEnabledInsecureOrDangerousFlags } from "../security/dangerous-config-flags.js";
 import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
+
+function anthropicOAuthFileExists(): boolean {
+  try {
+    return existsSync(path.join(resolveStateDir(), "anthropic-oauth.json"));
+  } catch {
+    return false;
+  }
+}
 
 type StartupThinkLevel =
   | "off"
@@ -75,7 +86,8 @@ export function logGatewayStartup(params: {
       keychainGate: "always",
     }),
   );
-  if (!hasAnthropicKey) {
+  const hasAnthropicOAuth = anthropicOAuthFileExists();
+  if (!hasAnthropicKey && !hasAnthropicOAuth) {
     const scheme = params.tlsEnabled ? "https" : "http";
     const setupUrl = `${scheme}://${params.bindHost}:${params.port}/setup`;
     const banner = `first-run setup: no Anthropic key configured — open ${setupUrl} to finish setup`;

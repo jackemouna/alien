@@ -601,12 +601,42 @@ export function createGatewayHttpServer(opts: {
         },
         // First-run setup wizard. Self-gates to loopback only and bypasses
         // bearer-token auth because it runs before any token is configured.
+        // For loopback GET / requests we also inject the gateway token into
+        // the URL hash so users who hit / directly aren't blocked by the
+        // token-paste wall (the wall stays in place for remote/Tailscale).
         {
           name: "setup",
           run: async () => {
             const mod = await getSetupHttpModule();
-            if (!mod.isSetupPath(scopedRequestPath)) return false;
-            return mod.handleSetupRequest(req, res);
+            if (mod.isSetupPath(scopedRequestPath)) {
+              return mod.handleSetupRequest(req, res, { resolvedAuth });
+            }
+            const isRootGet =
+              req.method === "GET" &&
+              (scopedRequestPath === "/" || scopedRequestPath === "/index.html");
+            if (!isRootGet) return false;
+            const isLoopback = Boolean(
+              (req.socket?.remoteAddress ?? "").match(/^(127\.|::1|::ffff:127\.)/),
+            );
+            if (!isLoopback) return false;
+            if (mod.isFirstRun()) {
+              res.statusCode = 302;
+              res.setHeader("Location", "/setup");
+              res.setHeader("Cache-Control", "no-store");
+              res.end();
+              return true;
+            }
+            // Skip the token-handoff redirect if the request already has the
+            // bearer token (returning visit / already-logged-in tab).
+            const hasBearer = (req.headers.authorization ?? "").startsWith("Bearer ");
+            if (!hasBearer && resolvedAuth.token) {
+              res.statusCode = 302;
+              res.setHeader("Location", `/#token=${encodeURIComponent(resolvedAuth.token)}`);
+              res.setHeader("Cache-Control", "no-store");
+              res.end();
+              return true;
+            }
+            return false;
           },
         },
       ];

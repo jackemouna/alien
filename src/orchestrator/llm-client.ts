@@ -39,10 +39,20 @@ export type LlmClient = {
 };
 
 /**
- * Anthropic-backed implementation. Reads ANTHROPIC_API_KEY from the env
- * first; if absent and the operator has opted into keychain-backed secrets
- * (`ALIEN_SECRETS_FROM_KEYCHAIN=1`), falls back to the macOS Keychain /
- * Linux libsecret entry `service=alien.ai`, `account=anthropic-api-key`.
+ * Anthropic-backed implementation. Three credential paths, in order:
+ *
+ *   1. The setup wizard's Claude OAuth credentials at
+ *      `~/.alien/anthropic-oauth.json` — used when the operator signs in
+ *      with their Pro/Max subscription so inference is billed against
+ *      that subscription instead of metered API. Tokens auto-refresh.
+ *   2. `ANTHROPIC_API_KEY` env var.
+ *   3. macOS Keychain / Linux libsecret entry
+ *      `service=alien.ai`, `account=anthropic-api-key`.
+ *
+ * The OAuth path detects the `sk-ant-oat-` prefix and sends the token as
+ * `Authorization: Bearer ...` with the OAuth beta header; the SDK's
+ * `authToken` option does both. The API-key path uses `x-api-key` the
+ * conventional way.
  */
 export type CreateAnthropicLlmClientOptions = {
   readonly apiKey?: string;
@@ -56,29 +66,75 @@ const DEFAULT_MAX_TOKENS = 1024;
 export const ANTHROPIC_API_KEY_KEYCHAIN_SERVICE = "alien.ai";
 export const ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT = "anthropic-api-key";
 
+const ANTHROPIC_OAUTH_BETA_HEADER = "oauth-2025-04-20,claude-code-20250219";
+
+function isAnthropicOAuthToken(token: string): boolean {
+  return token.startsWith("sk-ant-oat-");
+}
+
+async function resolveAnthropicAuth(
+  options: CreateAnthropicLlmClientOptions,
+): Promise<{ kind: "oauth" | "api-key"; token: string } | null> {
+  if (options.apiKey) {
+    return {
+      kind: isAnthropicOAuthToken(options.apiKey) ? "oauth" : "api-key",
+      token: options.apiKey,
+    };
+  }
+  const { readAnthropicOAuth, shouldRefresh, writeAnthropicOAuth } =
+    await import("../security/anthropic-oauth-store.js");
+  const stored = await readAnthropicOAuth();
+  if (stored) {
+    if (shouldRefresh(stored)) {
+      try {
+        const { refreshAnthropicToken } = await import("@mariozechner/pi-ai/oauth");
+        const refreshed = await refreshAnthropicToken(stored.refresh);
+        const next = {
+          access: refreshed.access,
+          refresh: refreshed.refresh ?? stored.refresh,
+          expires: refreshed.expires,
+        };
+        await writeAnthropicOAuth(next);
+        return { kind: "oauth", token: next.access };
+      } catch {
+        // Fall through and try env / keychain. The wizard will catch
+        // the next time the user opens /setup.
+      }
+    } else {
+      return { kind: "oauth", token: stored.access };
+    }
+  }
+  const { readSecretFromEnvOrKeychain } = await import("../security/secret-source.js");
+  const fromEnv = readSecretFromEnvOrKeychain({
+    envVarName: "ANTHROPIC_API_KEY",
+    keychain: {
+      service: ANTHROPIC_API_KEY_KEYCHAIN_SERVICE,
+      account: ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT,
+    },
+    keychainGate: "always",
+  });
+  if (!fromEnv) return null;
+  return { kind: isAnthropicOAuthToken(fromEnv) ? "oauth" : "api-key", token: fromEnv };
+}
+
 export async function createAnthropicLlmClient(
   options: CreateAnthropicLlmClientOptions = {},
 ): Promise<LlmClient> {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const { readSecretFromEnvOrKeychain } = await import("../security/secret-source.js");
-  const apiKey =
-    options.apiKey ??
-    readSecretFromEnvOrKeychain({
-      envVarName: "ANTHROPIC_API_KEY",
-      keychain: {
-        service: ANTHROPIC_API_KEY_KEYCHAIN_SERVICE,
-        account: ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT,
-      },
-      // The setup wizard writes here directly; the legacy
-      // ALIEN_SECRETS_FROM_KEYCHAIN gate would block first-run users.
-      keychainGate: "always",
-    });
-  if (!apiKey) {
+  const auth = await resolveAnthropicAuth(options);
+  if (!auth) {
     throw new Error(
-      "createAnthropicLlmClient: ANTHROPIC_API_KEY is required. Open the setup wizard at /setup, set ANTHROPIC_API_KEY in the env, or pass options.apiKey.",
+      "createAnthropicLlmClient: no Anthropic credentials. Open the setup wizard at /setup to sign in with Claude or paste an API key.",
     );
   }
-  const client = new Anthropic({ apiKey });
+  const client =
+    auth.kind === "oauth"
+      ? new Anthropic({
+          apiKey: null,
+          authToken: auth.token,
+          defaultHeaders: { "anthropic-beta": ANTHROPIC_OAUTH_BETA_HEADER },
+        })
+      : new Anthropic({ apiKey: auth.token });
   const model = options.model ?? DEFAULT_MODEL;
   const defaultMaxTokens = options.defaultMaxTokens ?? DEFAULT_MAX_TOKENS;
 
