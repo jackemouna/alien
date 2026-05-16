@@ -482,7 +482,8 @@ export function coerceToFailoverError(
   }
 
   const signal = normalizeErrorSignal(err);
-  const message = signal.message ?? String(err);
+  const rawMessage = signal.message ?? String(err);
+  const message = humanizeBillingMessage(rawMessage);
   const status = signal.status ?? resolveFailoverStatus(reason);
   const code = signal.code;
 
@@ -498,4 +499,30 @@ export function coerceToFailoverError(
     rawError: message,
     cause: err instanceof Error ? err : undefined,
   });
+}
+
+/**
+ * Rewrites raw provider error messages into an operator-actionable form
+ * so the agent UI shows what to DO, not just what broke. v0.1 covers the
+ * one error operators actually hit in practice: Anthropic rejecting
+ * subscription-OAuth-token API calls because programmatic access bills
+ * against the "extra usage" pool, not the Pro/Max plan.
+ *
+ * Returns the original message untouched for any pattern we don't have
+ * a friendly rewrite for.
+ */
+export function humanizeBillingMessage(raw: string): string {
+  if (/third[- ]party apps now draw from your extra usage/i.test(raw)) {
+    return (
+      "Your Anthropic subscription doesn't cover programmatic API calls yet. " +
+      "Two paths to fix in under 5 minutes:\n\n" +
+      "  1. Add extra-usage credit (keeps your subscription billing):\n" +
+      "     https://claude.ai/settings/usage\n\n" +
+      "  2. Use a regular Anthropic API key (separate billing):\n" +
+      "     https://console.anthropic.com/settings/keys\n" +
+      "     Then paste it at http://127.0.0.1:19001/setup and restart Alien.\n\n" +
+      `(Anthropic raw message: "${raw.replace(/\s+/g, " ").trim()}")`
+    );
+  }
+  return raw;
 }
