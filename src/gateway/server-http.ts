@@ -69,6 +69,7 @@ let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | un
 let setupHttpModulePromise: Promise<typeof import("./setup-http.js")> | undefined;
 let channelsWizardModulePromise: Promise<typeof import("./channels-wizard.js")> | undefined;
 let capabilitiesHttpModulePromise: Promise<typeof import("./capabilities-http.js")> | undefined;
+let capabilitiesUiModulePromise: Promise<typeof import("./capabilities-ui.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -139,6 +140,11 @@ function getChannelsWizardModule() {
 function getCapabilitiesHttpModule() {
   capabilitiesHttpModulePromise ??= import("./capabilities-http.js");
   return capabilitiesHttpModulePromise;
+}
+
+function getCapabilitiesUiModule() {
+  capabilitiesUiModulePromise ??= import("./capabilities-ui.js");
+  return capabilitiesUiModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -806,6 +812,16 @@ export function createGatewayHttpServer(opts: {
               allowRealIpFallback,
               rateLimiter,
             }),
+        });
+      }
+      // Phase D2 follow-up: loopback admin page for capability lifecycle.
+      // Fires BEFORE the auth-gated /v1/capabilities/* stage so the page
+      // itself loads without a bearer token (its inline JS grabs the
+      // token from /v1/setup/status and uses it for POST calls).
+      if ((await getCapabilitiesUiModule()).isCapabilitiesUiPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "capabilities-ui",
+          run: async () => (await getCapabilitiesUiModule()).handleCapabilitiesUiRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
