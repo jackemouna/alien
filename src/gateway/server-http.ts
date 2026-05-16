@@ -76,6 +76,7 @@ let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js"
 let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
 let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> | undefined;
 let mcpServerModulePromise: Promise<typeof import("./mcp-server-http.js")> | undefined;
+let dashboardModulePromise: Promise<typeof import("./dashboard-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -181,6 +182,11 @@ function getIntegrationsModule() {
 function getMcpServerModule() {
   mcpServerModulePromise ??= import("./mcp-server-http.js");
   return mcpServerModulePromise;
+}
+
+function getDashboardModule() {
+  dashboardModulePromise ??= import("./dashboard-http.js");
+  return dashboardModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -909,6 +915,15 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "mcp-server",
           run: async () => (await getMcpServerModule()).handleMcpServerRequest(req, res),
+        });
+      }
+      // /dashboard: premium home that aggregates projects, channels,
+      // activity, capabilities, soul, and integrations into one surface
+      // and exposes a "Start a new mission" prompt. Loopback-only.
+      if ((await getDashboardModule()).isDashboardPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "dashboard",
+          run: async () => (await getDashboardModule()).handleDashboardRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
