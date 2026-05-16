@@ -90,10 +90,28 @@ export function findCapability(id: string): CapabilityEntry | undefined {
 }
 
 /**
+ * Live capabilities (self-coded + activated + loaded at runtime). The
+ * planner sees these alongside the static catalog and can dispatch to
+ * them via a capability-runner task. The renderer accepts an optional
+ * list so the gateway can pass its current loader snapshot without the
+ * catalog module depending on the loader directly.
+ */
+export type LiveCapability = {
+  readonly id: string;
+  /** Free-form summary the operator (or self-coder README) provided. */
+  readonly summary: string;
+};
+
+/**
  * One-line per capability, suitable for inlining into the planner prompt.
  */
-export function renderCatalogForPlanner(): string {
-  return CAPABILITY_CATALOG.map((entry) => `- ${entry.id} (${entry.kind}): ${entry.summary}`).join(
-    "\n",
+export function renderCatalogForPlanner(live: ReadonlyArray<LiveCapability> = []): string {
+  const baseLines = CAPABILITY_CATALOG.map(
+    (entry) => `- ${entry.id} (${entry.kind}): ${entry.summary}`,
   );
+  if (live.length === 0) return baseLines.join("\n");
+  const liveLines = live.map(
+    (entry) => `- live:${entry.id} (activated, dispatch via capability-runner): ${entry.summary}`,
+  );
+  return [...baseLines, ...liveLines].join("\n");
 }

@@ -9,6 +9,7 @@ import {
   readReasoningTrace,
 } from "./capability-activator.js";
 import { appendCapabilityRequest } from "./capability-requests-store.js";
+import { createCapabilityRuntimeLoader } from "./capability-runtime-loader.js";
 
 const fixedNow = () => "2026-05-15T12:00:00.000Z";
 
@@ -178,6 +179,45 @@ describe("capability-activator", () => {
     expect(out.record.rollbackReason).toBe("looked wrong on review");
     expect(fs.existsSync(path.join(activeRoot, "roll"))).toBe(false);
     expect(fs.existsSync(path.join(generatedRoot, "roll", "index.ts"))).toBe(true);
+  });
+
+  it("hot-loads via the loader on activate, drops cache on deactivate", async () => {
+    await appendCapabilityRequest({
+      id: "cap-hot",
+      projectId: "p",
+      taskId: "t",
+      integration: "hot",
+      why: "test",
+      createdAt: fixedNow(),
+      status: "fulfilled",
+    });
+    // Self-coder now writes index.mjs; the loader needs a real ESM file.
+    const sub = path.join(generatedRoot, "hot");
+    fs.mkdirSync(sub, { recursive: true });
+    fs.writeFileSync(
+      path.join(sub, "index.mjs"),
+      "export async function run() { return { hot: true }; }",
+      "utf8",
+    );
+
+    const loader = createCapabilityRuntimeLoader();
+    const act = await activateCapability("cap-hot", {
+      generatedRoot,
+      activeRoot,
+      loader,
+      now: fixedNow,
+    });
+    expect(act.ok).toBe(true);
+    expect(loader.getCapability("hot")).toBeDefined();
+
+    const deact = await deactivateCapability("cap-hot", "test rollback", {
+      generatedRoot,
+      activeRoot,
+      loader,
+      now: fixedNow,
+    });
+    expect(deact.ok).toBe(true);
+    expect(loader.getCapability("hot")).toBeUndefined();
   });
 
   it("readReasoningTrace returns request + activation + sources", async () => {

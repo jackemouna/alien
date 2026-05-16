@@ -526,6 +526,8 @@ function friendlyRoleShort(role: TaskRecord["role"]): string {
       return "capability gap";
     case "self-coder":
       return "self-coder";
+    case "capability-runner":
+      return "live capability";
   }
 }
 

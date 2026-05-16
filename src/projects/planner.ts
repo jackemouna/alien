@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { LlmClient } from "../orchestrator/llm-client.js";
 import type { WorkerRole } from "../orchestrator/types.js";
 import { emitProjectsAuditEvent } from "./audit.js";
-import { renderCatalogForPlanner } from "./capability-catalog.js";
+import { renderCatalogForPlanner, type LiveCapability } from "./capability-catalog.js";
 import { saveTask, type ProjectStoreOptions } from "./store.js";
 import { createTaskRecord } from "./task-state.js";
 import type {
@@ -49,6 +49,12 @@ The available worker roles are exactly:
   When you emit one of these, treat it as the only task for this iteration
   and do NOT also emit dependent tasks that assume the capability exists —
   the loop will pause for operator input.
+- capability-runner: invoke a self-coded capability that has been
+  activated. The catalog lists these as "live:<id>" — use the id
+  without the "live:" prefix in task input. Shape:
+    { "capability": "<id from the live catalog>", "args": { ... } }
+  Pick this role when a live capability matches the work; the worker
+  dispatches to the in-process module and returns its result.
 
 Current capability catalog (what already exists; do NOT request these):
 {{CAPABILITY_CATALOG}}
@@ -63,7 +69,7 @@ Hard rules:
          "id": "<short kebab id, unique in this plan>",
          "title": "<one-line>",
          "description": "<two-sentence what to do>",
-         "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler" | "capability-broker",
+         "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler" | "capability-broker" | "capability-runner",
          "dependsOn": ["<id of another task in this list>", ...],
          "input": { ...arbitrary JSON the worker needs... },
          "priority": "low" | "normal" | "high" | "urgent",
@@ -88,6 +94,7 @@ const KNOWN_ROLES: readonly WorkerRole[] = [
   // emit it directly. We still include it here so the schema validates if
   // an operator-issued task arrives with this role.
   "self-coder",
+  "capability-runner",
 ] as const;
 
 const KNOWN_PRIORITIES: readonly Priority[] = ["low", "normal", "high", "urgent"] as const;
@@ -97,6 +104,13 @@ const DEFAULT_MAX_TASKS = 8;
 export type PlannerOptions = {
   readonly llm: LlmClient;
   readonly maxTasks?: number;
+  /**
+   * Live (self-coded + activated + loaded) capabilities to advertise to
+   * the planner alongside the static catalog. Called at render time so
+   * an activate/deactivate that happened mid-session is visible on the
+   * next plan() call without rebuilding the planner.
+   */
+  readonly liveCapabilities?: () => ReadonlyArray<LiveCapability>;
 };
 
 export function createPlanner(opts: PlannerOptions): (req: PlanRequest) => Promise<PlanResult> {
@@ -106,9 +120,10 @@ export function createPlanner(opts: PlannerOptions): (req: PlanRequest) => Promi
 export async function plan(req: PlanRequest, opts: PlannerOptions): Promise<PlanResult> {
   const maxTasks = opts.maxTasks ?? DEFAULT_MAX_TASKS;
   const userPrompt = buildUserPrompt(req);
+  const liveCapabilities = opts.liveCapabilities ? opts.liveCapabilities() : [];
   const systemPrompt = PLANNER_SYSTEM_PROMPT.replace(
     "{{CAPABILITY_CATALOG}}",
-    renderCatalogForPlanner(),
+    renderCatalogForPlanner(liveCapabilities),
   );
   const completion = await opts.llm.complete({
     system: systemPrompt,

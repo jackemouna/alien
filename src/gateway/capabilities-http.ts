@@ -20,6 +20,7 @@ import type { Project, TaskDraft } from "../projects/types.js";
 import type { ResolvedGatewayAuth } from "./auth-resolve.js";
 import { sendJson } from "./http-common.js";
 import { handleGatewayPostJsonEndpoint } from "./http-endpoint-helpers.js";
+import { getActiveCapabilityRuntimeLoader } from "./projects-runtime.js";
 
 /**
  * Capability operations (Phase C). One endpoint for now:
@@ -152,17 +153,25 @@ export async function handleCapabilitiesRequest(
     });
     if (handshake === false || handshake === undefined) return true;
     const auditLogPath = path.join(resolveStateDir(), "audit.log");
-    const outcome = await activateCapability(requestId, { auditLogPath });
+    const loader = getActiveCapabilityRuntimeLoader();
+    const outcome = await activateCapability(requestId, {
+      auditLogPath,
+      ...(loader ? { loader } : {}),
+    });
     if (!outcome.ok) {
       sendJson(res, 400, { ok: false, error: outcome.error });
       return true;
     }
+    const liveNow = loader?.getCapability(outcome.record.id);
     sendJson(res, 200, {
       ok: true,
       record: outcome.record,
       newlyActivated: outcome.newlyActivated,
+      hotLoaded: Boolean(liveNow),
       message: outcome.newlyActivated
-        ? "Activated. Restart the gateway to load the new capability (Phase D2 will hot-load)."
+        ? liveNow
+          ? "Activated and hot-loaded into the running gateway."
+          : "Activated, but hot-load did not complete — restart the gateway to load."
         : "Already active; no-op.",
     });
     return true;
@@ -187,7 +196,11 @@ export async function handleCapabilitiesRequest(
         ? body.reason.trim()
         : undefined;
     const auditLogPath = path.join(resolveStateDir(), "audit.log");
-    const outcome = await deactivateCapability(requestId, reason, { auditLogPath });
+    const loader = getActiveCapabilityRuntimeLoader();
+    const outcome = await deactivateCapability(requestId, reason, {
+      auditLogPath,
+      ...(loader ? { loader } : {}),
+    });
     if (!outcome.ok) {
       sendJson(res, 400, { ok: false, error: outcome.error });
       return true;
@@ -196,7 +209,7 @@ export async function handleCapabilitiesRequest(
       ok: true,
       record: outcome.record,
       message:
-        "Rolled back. Active-dir copy was removed; the sandbox copy remains for forensics. Restart the gateway to fully unload (Phase D2).",
+        "Rolled back. Active-dir copy was removed; the sandbox copy remains for forensics. The cached module reference has been dropped from the running loader (Node ESM cannot truly unload — restart for a clean slate).",
     });
     return true;
   }

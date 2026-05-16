@@ -7,8 +7,15 @@ import { logWarn } from "../logger.js";
 import type { LlmClient } from "../orchestrator/llm-client.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { createDailyResearchWorkers } from "../orchestrator/workers.js";
+import { listLiveCapabilities } from "../projects/activated-capabilities-store.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
 import { createCapabilityBrokerWorker } from "../projects/capability-broker.js";
+import type { LiveCapability } from "../projects/capability-catalog.js";
+import { createCapabilityRunnerWorker } from "../projects/capability-runner-worker.js";
+import {
+  createCapabilityRuntimeLoader,
+  type CapabilityRuntimeLoader,
+} from "../projects/capability-runtime-loader.js";
 import { bindChannelInboxToProjects } from "../projects/channel-inbox.js";
 import type { ChannelReplySend } from "../projects/channel-reply.js";
 import { evaluate, defaultMaxIterations } from "../projects/evaluator.js";
@@ -85,6 +92,13 @@ export async function startProjectsRuntime(
   const selfCoderWorker = llm
     ? createSelfCoderWorker({ llm, ...(auditLogPath ? { auditLogPath } : {}) })
     : null;
+  // Phase D2: singleton runtime loader for activated capabilities. The
+  // gateway boot path also publishes the same handle so the
+  // capabilities-http activate/deactivate endpoints can hot-load /
+  // unload without restart.
+  const runtimeLoader = createCapabilityRuntimeLoader();
+  setActiveCapabilityRuntimeLoader(runtimeLoader);
+  const runnerWorker = createCapabilityRunnerWorker(runtimeLoader);
 
   const workers: ProjectWorkerRegistry = llm
     ? {
@@ -94,11 +108,33 @@ export async function startProjectsRuntime(
         ),
         "capability-broker": brokerWorker,
         ...(selfCoderWorker ? { "self-coder": selfCoderWorker } : {}),
+        "capability-runner": runnerWorker,
       }
     : {
         ...buildNoLlmWorkerRegistry(),
         "capability-broker": brokerWorker,
+        "capability-runner": runnerWorker,
       };
+
+  // Boot-time restore: read activated-capabilities.json and re-load
+  // each live entry into the in-process loader. Failures are logged
+  // but don't block startup — operator can re-activate to retry.
+  void (async () => {
+    try {
+      const live = await listLiveCapabilities();
+      for (const record of live) {
+        try {
+          await runtimeLoader.loadCapability(record.id, record.activeDir);
+        } catch (err) {
+          logWarn(
+            `capabilities: failed to restore "${record.id}" from ${record.activeDir}: ${stringifyError(err)}`,
+          );
+        }
+      }
+    } catch (err) {
+      logWarn(`capabilities: failed to read activated list: ${stringifyError(err)}`);
+    }
+  })();
 
   const sendChannelReply = buildChannelReplyAdapter(opts.cfg);
 
@@ -167,7 +203,30 @@ function buildNoLlmWorkerRegistry(): ProjectWorkerRegistry {
     "email-handler": refuse,
     "capability-broker": refuse,
     "self-coder": refuse,
+    "capability-runner": refuse,
   };
+}
+
+/**
+ * Module-level singleton for the active capability runtime loader. The
+ * capabilities-http endpoints read this so activate/deactivate can
+ * hot-load against the same loader the pickup-loop dispatches through.
+ */
+let activeCapabilityRuntimeLoader: CapabilityRuntimeLoader | undefined;
+
+export function setActiveCapabilityRuntimeLoader(loader: CapabilityRuntimeLoader): void {
+  activeCapabilityRuntimeLoader = loader;
+}
+
+export function getActiveCapabilityRuntimeLoader(): CapabilityRuntimeLoader | undefined {
+  return activeCapabilityRuntimeLoader;
+}
+
+function snapshotLiveCapabilities(loader: CapabilityRuntimeLoader): LiveCapability[] {
+  return loader.listLoaded().map((entry) => ({
+    id: entry.id,
+    summary: `Self-coded capability loaded from ${entry.activeDir}.`,
+  }));
 }
 
 /**
@@ -293,7 +352,13 @@ function buildGoalLoopHandler(params: {
             priorResultsSummary: outcome.priorResultsSummary,
           },
         },
-        { llm: params.llm },
+        {
+          llm: params.llm,
+          liveCapabilities: () => {
+            const loader = getActiveCapabilityRuntimeLoader();
+            return loader ? snapshotLiveCapabilities(loader) : [];
+          },
+        },
       );
       if (planResult.tasks.length === 0) {
         // Planner had nothing to add — treat as stuck so the operator can

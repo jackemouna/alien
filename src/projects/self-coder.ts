@@ -181,29 +181,32 @@ You output strict JSON in this exact shape, no prose, no fences:
 
 {
   "files": [
-    { "path": "index.ts",  "contents": "<TypeScript module>" },
-    { "path": "types.ts",  "contents": "<TypeScript types>" },
-    { "path": "README.md", "contents": "<markdown notes>" }
+    { "path": "index.mjs",  "contents": "<ESM JavaScript module with JSDoc>" },
+    { "path": "types.d.ts", "contents": "<TypeScript .d.ts type declarations, for human review>" },
+    { "path": "README.md",  "contents": "<markdown notes>" }
   ]
 }
 
 Hard rules:
 1. The three files above are required. Do not add others.
-2. index.ts must export a function \`export async function run(input, deps)\`
-   that accepts a typed input from types.ts and returns a typed output.
+2. index.mjs must export a function \`export async function run(input, deps)\`
+   that accepts the input the planner will pass and returns the output
+   the planner expects. Use JSDoc types referring to types.d.ts so the
+   reviewer gets type hints without a compile step. The file must be
+   valid ECMAScript so 'await import(file://.../index.mjs)' loads it.
 3. Implementations are STUBS for v0.1. Return mock/placeholder data and
    leave a clear "TODO" comment in the body — DO NOT actually call any
    external API, write to disk, or invoke deps you weren't given. The
    operator will review and harden the stub before activation.
-4. types.ts exports two named types: \`Input\` and \`Output\`. Mirror the
-   sketch the operator provided.
+4. types.d.ts exports two named types: \`Input\` and \`Output\`. Mirror the
+   sketch the operator provided. (Editor-only; not executed.)
 5. README.md explains in plain English: what the capability does, what
    the planner can pass it, what gets returned, what the operator still
    needs to wire up (auth, API client init, error handling).
 6. All file paths are relative to the sandbox dir. Never use \`..\` or
    absolute paths — your output is rejected if you try to escape.
-7. No imports outside the sandbox (no \`../../src/...\`). Keep types
-   self-contained for v0.1.`;
+7. No imports outside the sandbox (no \`../../src/...\`). Use only the
+   \`deps\` parameter and the standard JS globals available to ESM.`;
 
 function renderSelfCoderUserPrompt(req: {
   integration: string;

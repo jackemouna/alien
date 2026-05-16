@@ -62,6 +62,7 @@ export function adaptOrchestratorWorkerRegistry(
     "email-handler": adaptOrchestratorWorker(registry["email-handler"]),
     "capability-broker": adaptOrchestratorWorker(registry["capability-broker"]),
     "self-coder": adaptOrchestratorWorker(registry["self-coder"]),
+    "capability-runner": adaptOrchestratorWorker(registry["capability-runner"]),
   };
 }
 

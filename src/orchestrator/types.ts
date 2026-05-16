@@ -39,7 +39,16 @@ export type WorkerRole =
    * by the gateway in v0.1 — operator review is the gate. Phase D adds
    * loading; Phase E adds rollback and reasoning trace.
    */
-  | "self-coder";
+  | "self-coder"
+  /**
+   * Capability runner (Phase D2). Generic dispatcher for activated
+   * self-coded capabilities. Task input:
+   *   { capability: "<id>", args: { ... } }
+   * The runner looks up the loaded module in the capability-runtime
+   * loader and invokes `run(args, deps)`. Unknown / unloaded
+   * capabilities return a friendly error.
+   */
+  | "capability-runner";
 
 export type TaskStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
 

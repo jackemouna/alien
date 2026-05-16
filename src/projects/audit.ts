@@ -24,6 +24,8 @@ export type ProjectsAuditKind =
   | "projects.capability.code_generated"
   | "projects.capability.activated"
   | "projects.capability.deactivated"
+  | "projects.capability.loaded"
+  | "projects.capability.unloaded"
   | "projects.task.created"
   | "projects.task.queued"
   | "projects.task.claimed"

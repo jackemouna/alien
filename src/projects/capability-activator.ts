@@ -12,6 +12,7 @@ import {
   readCapabilityRequests,
   resolveCapabilityRequestsPath,
 } from "./capability-requests-store.js";
+import type { CapabilityRuntimeLoader } from "./capability-runtime-loader.js";
 
 /**
  * Activation + rollback for self-coded capability stubs (Phase D + E).
@@ -67,6 +68,16 @@ export type ActivatorOptions = {
   readonly activeRoot?: string;
   readonly now?: () => string;
   readonly actor?: string;
+  /**
+   * Phase D2 runtime loader. When provided, activateCapability calls
+   * loader.loadCapability after a successful copy, and
+   * deactivateCapability calls loader.unloadCapability before the
+   * record flips to "rolled-back". Tests typically pass an in-memory
+   * fake loader; the gateway boot path passes the singleton instance.
+   * When undefined the activator just persists state and skips loading
+   * (back-compat with the Phase D MVP).
+   */
+  readonly loader?: CapabilityRuntimeLoader;
 };
 
 export async function activateCapability(
@@ -169,6 +180,43 @@ export async function activateCapability(
     );
   }
 
+  // Phase D2: hot-load into the running gateway. If loading fails, leave
+  // the activation record in place — the file is on disk, a restart can
+  // pick it up. We emit a separate audit event so the trace shows the
+  // load attempt distinctly from the activation step.
+  if (opts.loader) {
+    try {
+      await opts.loader.loadCapability(id, activeDir);
+      if (opts.auditLogPath) {
+        emitProjectsAuditEvent(
+          {
+            kind: "projects.capability.loaded",
+            payload: { id, integration: request.integration, fromRequestId: request.id },
+          },
+          { auditLogPath: opts.auditLogPath },
+        );
+      }
+    } catch (err) {
+      // Don't fail the activation — the file is staged and the operator
+      // can retry. Surface the load failure clearly in the audit log.
+      if (opts.auditLogPath) {
+        emitProjectsAuditEvent(
+          {
+            kind: "projects.capability.loaded",
+            payload: {
+              id,
+              integration: request.integration,
+              fromRequestId: request.id,
+              loaded: false,
+              error: err instanceof Error ? err.message : String(err),
+            },
+          },
+          { auditLogPath: opts.auditLogPath },
+        );
+      }
+    }
+  }
+
   return { ok: true, record, newlyActivated: true };
 }
 
@@ -218,6 +266,18 @@ export async function deactivateCapability(
           rolledBackBy: opts.actor ?? "operator",
           ...(reason ? { reason } : {}),
         },
+      },
+      { auditLogPath: opts.auditLogPath },
+    );
+  }
+  // Phase D2: drop the cached module reference. Node ESM modules are not
+  // truly unloadable, but dropping our handle stops the runner from
+  // dispatching to it and lets GC reclaim what it can.
+  if (opts.loader && opts.loader.unloadCapability(record.id) && opts.auditLogPath) {
+    emitProjectsAuditEvent(
+      {
+        kind: "projects.capability.unloaded",
+        payload: { id: record.id, integration: record.integration, fromRequestId: requestId },
       },
       { auditLogPath: opts.auditLogPath },
     );

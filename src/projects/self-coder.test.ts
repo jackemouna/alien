@@ -103,8 +103,8 @@ describe("self-coder", () => {
     });
     const generated = {
       files: [
-        { path: "index.ts", contents: "export async function run(): Promise<void> {}" },
-        { path: "types.ts", contents: "export type Input = {}; export type Output = {};" },
+        { path: "index.mjs", contents: "export async function run() { return {}; }" },
+        { path: "types.d.ts", contents: "export type Input = {}; export type Output = {};" },
         { path: "README.md", contents: "# stripe stub\nTODO: real impl" },
       ],
     };
@@ -124,8 +124,8 @@ describe("self-coder", () => {
     expect(out.ok).toBe(true);
     expect(out.toReview).toBe(true);
     const stripeDir = path.join(generatedRoot, "stripe");
-    expect(fs.existsSync(path.join(stripeDir, "index.ts"))).toBe(true);
-    expect(fs.existsSync(path.join(stripeDir, "types.ts"))).toBe(true);
+    expect(fs.existsSync(path.join(stripeDir, "index.mjs"))).toBe(true);
+    expect(fs.existsSync(path.join(stripeDir, "types.d.ts"))).toBe(true);
     expect(fs.existsSync(path.join(stripeDir, "README.md"))).toBe(true);
     expect(fs.readFileSync(path.join(stripeDir, "README.md"), "utf8")).toMatch(/stripe stub/);
 

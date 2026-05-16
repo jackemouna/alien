@@ -64,6 +64,7 @@ export function createDailyResearchWorkers(deps: WorkerDeps): WorkerRegistry {
     "email-handler": createUnsupportedRole("email-handler"),
     "capability-broker": createUnsupportedRole("capability-broker"),
     "self-coder": createUnsupportedRole("self-coder"),
+    "capability-runner": createUnsupportedRole("capability-runner"),
   };
 }
 
