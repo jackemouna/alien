@@ -1,3 +1,4 @@
+import { resolveGeminiOAuthPath } from "../security/gemini-oauth-store.js";
 import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
 import type { LlmClient, LlmCompletionRequest, LlmCompletionResult } from "./llm-client.js";
 
@@ -8,10 +9,11 @@ import type { LlmClient, LlmCompletionRequest, LlmCompletionResult } from "./llm
  * `GOOGLE_API_KEY`).
  *
  * The Gemini-CLI OAuth path is intentionally NOT supported here — that
- * path is for the Gemini CLI's Code Assist endpoint, not the public
- * generateContent endpoint we're calling. If the operator has only
- * signed in via OAuth, this client throws a clear "paste an API key"
- * error so they understand the gap.
+ * sign-in flow grants `cloud-platform` scope for Google's Code Assist
+ * endpoint (cloudcode-pa.googleapis.com), NOT the public Generative
+ * Language API (generativelanguage.googleapis.com) we call. If the
+ * operator has only signed in via OAuth, this client surfaces an
+ * explicit error pointing at /integrations to paste an API key.
  *
  * The result.usage.model is set from the response's modelVersion (or
  * the requested model if Google doesn't echo it back).
@@ -44,9 +46,22 @@ export async function createGeminiLlmClient(
       keychainGate: "always",
     });
   if (!apiKey) {
+    // Detect the "Sign in with Google" case and steer the operator to
+    // the API-key path. The OAuth token at gemini-oauth.json is scoped
+    // for Code Assist (cloudcode-pa) — it won't authorize the public
+    // generateContent endpoint Alien's brain uses.
+    const oauthOnly = await oauthFilePresent();
+    if (oauthOnly) {
+      throw new Error(
+        "Gemini sign-in is for Google Code Assist — it does NOT authorize the public " +
+          "Generative Language API that Alien's brain calls. Paste a free API key from " +
+          "https://aistudio.google.com/apikey on /integrations (takes 30 seconds) and Gemini " +
+          "will start answering for every mission.",
+      );
+    }
     throw new Error(
-      "createGeminiLlmClient: no Gemini credentials. Open /integrations and paste a key from " +
-        "https://aistudio.google.com/apikey, or sign in with Google.",
+      "No Gemini credentials. Open /integrations and paste a key from " +
+        "https://aistudio.google.com/apikey.",
     );
   }
 
@@ -92,6 +107,16 @@ export async function createGeminiLlmClient(
       return usage ? { text, usage } : { text };
     },
   };
+}
+
+async function oauthFilePresent(): Promise<boolean> {
+  const { promises: fsp } = await import("node:fs");
+  try {
+    await fsp.access(resolveGeminiOAuthPath());
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 type GeminiResponse = {

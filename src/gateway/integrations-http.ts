@@ -252,10 +252,13 @@ async function readIntegrationsState(): Promise<{
       id: "gemini",
       label: "Google Gemini",
       status: "wizard-oauth",
-      statusLabel: "Connected via Google sign-in",
+      statusLabel: "Signed in with Google — but the brain can't use it yet",
       statusDetail:
-        "Uses your Google account via the Gemini CLI OAuth flow. " +
-        "Free tier billing where eligible; otherwise GCP project billing.",
+        "Sign-in OAuth grants Code Assist scope (cloudcode-pa). Alien's brain " +
+        "calls the public Generative Language API, which only accepts API keys.",
+      billingHint:
+        "Paste a free API key from aistudio.google.com/apikey below — takes 30 seconds " +
+        "and Gemini will start answering missions.",
     };
   } else if (geminiKey) {
     geminiState = {
