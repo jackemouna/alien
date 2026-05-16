@@ -192,7 +192,7 @@ export function renderSkills(props: SkillsProps) {
 
       <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-          <div style="font-weight: 600;">ClawHub</div>
+          <div style="font-weight: 600;">👾 Skill registry</div>
           <div class="muted" style="font-size: 13px;">
             Search and install skills from the registry
           </div>
@@ -203,7 +203,7 @@ export function renderSkills(props: SkillsProps) {
               .value=${props.clawhubQuery}
               @input=${(e: Event) =>
                 props.onClawHubQueryChange((e.target as HTMLInputElement).value)}
-              placeholder="Search ClawHub skills…"
+              placeholder="Search the skill registry…"
               autocomplete="off"
               name="clawhub-search"
             />
@@ -267,7 +267,9 @@ function renderClawHubResults(props: SkillsProps) {
     return nothing;
   }
   if (results.length === 0) {
-    return html`<div class="muted" style="margin-top: 8px;">No skills found on ClawHub.</div>`;
+    return html`<div class="muted" style="margin-top: 8px;">
+      No matching skills found in the registry.
+    </div>`;
   }
   return html`
     <div class="list" style="margin-top: 8px;">

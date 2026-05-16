@@ -73,6 +73,7 @@ let capabilitiesUiModulePromise: Promise<typeof import("./capabilities-ui.js")> 
 let activityStreamModulePromise: Promise<typeof import("./activity-stream-http.js")> | undefined;
 let activityUiModulePromise: Promise<typeof import("./activity-ui.js")> | undefined;
 let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js")> | undefined;
+let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -163,6 +164,11 @@ function getActivityUiModule() {
 function getModelSwitcherModule() {
   modelSwitcherModulePromise ??= import("./model-switcher-http.js");
   return modelSwitcherModulePromise;
+}
+
+function getSoulModule() {
+  soulModulePromise ??= import("./soul-http.js");
+  return soulModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -864,6 +870,14 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "model-switcher",
           run: async () => (await getModelSwitcherModule()).handleModelSwitcherRequest(req, res),
+        });
+      }
+      // /soul + /v1/soul: edit SOUL.md / IDENTITY.md / USER.md from a form
+      // without hand-editing the workspace files. Loopback-only.
+      if ((await getSoulModule()).isSoulPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "soul",
+          run: async () => (await getSoulModule()).handleSoulRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
