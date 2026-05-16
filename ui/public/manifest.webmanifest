@@ -1,7 +1,7 @@
 {
   "name": "Alien Control",
   "short_name": "Alien",
-  "description": "Multi-channel AI gateway control panel",
+  "description": "Anyone can hire their own AI team. Give one prompt, your Alien runs the business.",
   "start_url": "./",
   "display": "standalone",
   "theme_color": "#0a0a0a",
@@ -11,17 +11,7 @@
       "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "./favicon-32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "./apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
+      "purpose": "any maskable"
     }
   ]
 }
