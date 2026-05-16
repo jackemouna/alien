@@ -3,7 +3,8 @@ import { resolveStateDir } from "../config/paths.js";
 import { listExperts } from "../experts/registry.js";
 import type { Expert } from "../experts/types.js";
 import { logWarn } from "../logger.js";
-import { createAnthropicLlmClient, type LlmClient } from "../orchestrator/llm-client.js";
+import { createLlmClientFromConfig } from "../orchestrator/llm-client-factory.js";
+import type { LlmClient } from "../orchestrator/llm-client.js";
 import { emitProjectsAuditEvent } from "./audit.js";
 import { evaluateGoal } from "./goal-evaluator.js";
 import { plan, persistPlan } from "./planner.js";
@@ -77,7 +78,9 @@ export async function tickGoalLoop(opts: GoalLoopOptions = {}): Promise<void> {
       // Skip if recently evaluated.
       const lastEval = project.goalEvaluation?.evaluatedAt;
       if (lastEval && Date.now() - new Date(lastEval).getTime() < EVAL_COOLDOWN_MS) continue;
-      llm ??= await (opts.llmFactory ? opts.llmFactory() : createAnthropicLlmClient({}));
+      llm ??= await (opts.llmFactory
+        ? opts.llmFactory()
+        : (await createLlmClientFromConfig()).client);
       try {
         await runOneIteration({ project, tasks, llm, projectsDir });
       } catch (err) {

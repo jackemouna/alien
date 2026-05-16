@@ -25,7 +25,7 @@ import { sendInvalidRequest, sendJson } from "./http-common.js";
 
 const PATHS = new Set(["/v1/model", "/model"]);
 
-type ChoiceKind = "anthropic" | "openai";
+type ChoiceKind = "anthropic" | "openai" | "google";
 
 type ModelChoice = {
   readonly id: string;
@@ -69,6 +69,22 @@ const CHOICES: ReadonlyArray<ModelChoice> = [
     tier: "premium",
     tagline:
       "OpenAI flagship. Needs an OpenAI API key (subscription OAuth doesn't grant /v1/responses).",
+  },
+  {
+    id: "google/gemini-2.5-flash",
+    provider: "google",
+    model: "gemini-2.5-flash",
+    label: "Gemini 2.5 Flash",
+    tier: "fast",
+    tagline: "Fastest + cheapest Google. Generous free tier for casual use.",
+  },
+  {
+    id: "google/gemini-2.5-pro",
+    provider: "google",
+    model: "gemini-2.5-pro",
+    label: "Gemini 2.5 Pro",
+    tier: "balanced",
+    tagline: "Google's flagship reasoning model. Strong with long context + tools.",
   },
 ];
 

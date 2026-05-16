@@ -5,7 +5,8 @@ import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
 import { listExperts } from "../experts/registry.js";
 import { logWarn } from "../logger.js";
-import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
+import { createLlmClientFromConfig } from "../orchestrator/llm-client-factory.js";
+import type { LlmClient } from "../orchestrator/llm-client.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
 import { persistPlan, plan } from "../projects/planner.js";
 import {
@@ -343,9 +344,9 @@ async function handleFromPrompt(
   // fire-and-forget path is kept for callers that pass preview=false.
   const isPreview = body.preview !== false;
 
-  let llm: Awaited<ReturnType<typeof createAnthropicLlmClient>>;
+  let llm: LlmClient;
   try {
-    llm = await createAnthropicLlmClient({});
+    llm = (await createLlmClientFromConfig()).client;
   } catch (err) {
     sendJson(res, 400, {
       error: { message: stringifyError(err), type: "invalid_request_error" },

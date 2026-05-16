@@ -5,7 +5,7 @@ import { listExperts } from "../experts/registry.js";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "../experts/types.js";
 import type { Expert } from "../experts/types.js";
 import { logWarn } from "../logger.js";
-import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
+import { createLlmClientFromConfig } from "../orchestrator/llm-client-factory.js";
 import type { CapabilityRequest } from "../projects/capability-requests-store.js";
 import { runOneIteration, startGoalLoop } from "../projects/goal-loop.js";
 import { listProjectCapabilityRequests, startSelfCoderLoop } from "../projects/self-coder-loop.js";
@@ -124,7 +124,7 @@ export async function handleMissionRequest(
       return true;
     }
     try {
-      const llm = await createAnthropicLlmClient({});
+      const llm = (await createLlmClientFromConfig()).client;
       const tasks = listTasks(projectsDir, projectId);
       const result = await runOneIteration({
         project,
