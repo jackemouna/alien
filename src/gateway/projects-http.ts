@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import type { AlienConfig } from "../config/types.alien.js";
+import { listExperts } from "../experts/registry.js";
 import { logWarn } from "../logger.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
@@ -352,11 +353,19 @@ async function handleFromPrompt(
     return true;
   }
 
+  // Resolve the assigned expert roster so the planner can route each
+  // task to a named expert. Falls back to the full bundled roster when
+  // the project doesn't have an explicit assignment.
+  const allExperts = await listExperts();
+  const projectForExperts = loadProject(projectsDir, projectId);
+  const assignedIds = new Set(projectForExperts?.assignedExperts ?? allExperts.map((e) => e.id));
+  const availableExperts = allExperts.filter((e) => assignedIds.has(e.id));
+
   if (isPreview) {
     try {
       const result = await runAsHttp("projects-plan-preview", { projectId }, async () => {
         const existing = listTasks(projectsDir, projectId);
-        return await plan({ projectId, prompt, origin, existing }, { llm });
+        return await plan({ projectId, prompt, origin, existing }, { llm, availableExperts });
       });
       sendJson(res, 200, { plan: result });
     } catch (err) {
@@ -370,7 +379,7 @@ async function handleFromPrompt(
   void runAsHttp("projects-plan", { projectId }, async () => {
     try {
       const existing = listTasks(projectsDir, projectId);
-      const result = await plan({ projectId, prompt, origin, existing }, { llm });
+      const result = await plan({ projectId, prompt, origin, existing }, { llm, availableExperts });
       const auditLogPath = resolveAuditLogPath();
       persistPlan(projectId, result, {
         projectsDir,

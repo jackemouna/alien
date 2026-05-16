@@ -43,6 +43,7 @@ export function createTaskRecord(params: {
     status: initialStatus,
     attempts: 0,
     ...(requiresApproval ? { requiresApproval: true } : {}),
+    ...(params.draft.expertId ? { expertId: params.draft.expertId } : {}),
   };
 }
 

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { Expert } from "../experts/types.js";
 import type { LlmClient } from "../orchestrator/llm-client.js";
 import type { WorkerRole } from "../orchestrator/types.js";
 import { emitProjectsAuditEvent } from "./audit.js";
@@ -28,6 +29,16 @@ import type {
 const PLANNER_SYSTEM_PROMPT = `You are the planner agent for Alien — an AI-powered workforce.
 You receive a request and must break it into a small set of tasks that
 specialist workers will execute.
+
+Your company:
+You have a roster of named experts. Each task you emit MUST be assigned
+to the single best-fit expert by id (the "expertId" field). Pick the
+expert whose role + skills most directly match the work — bias toward
+the most senior expert in that department if it's a strategic call,
+toward the IC if it's hands-on execution.
+
+Available experts (id · title · skills):
+{{EXPERT_ROSTER}}
 
 The available worker roles are exactly:
 - researcher: gathers facts about a topic.
@@ -70,6 +81,7 @@ Hard rules:
          "title": "<one-line>",
          "description": "<two-sentence what to do>",
          "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler" | "capability-broker" | "capability-runner",
+         "expertId": "<id from the expert roster above>",
          "dependsOn": ["<id of another task in this list>", ...],
          "input": { ...arbitrary JSON the worker needs... },
          "priority": "low" | "normal" | "high" | "urgent",
@@ -111,6 +123,13 @@ export type PlannerOptions = {
    * next plan() call without rebuilding the planner.
    */
   readonly liveCapabilities?: () => ReadonlyArray<LiveCapability>;
+  /**
+   * Roster of experts the planner may route tasks to. When provided, the
+   * system prompt lists each expert with id + title + skills, and the
+   * parser will accept an `expertId` field on each task. Required for
+   * expert-aware planning; omit only for legacy callers.
+   */
+  readonly availableExperts?: ReadonlyArray<Expert>;
 };
 
 export function createPlanner(opts: PlannerOptions): (req: PlanRequest) => Promise<PlanResult> {
@@ -121,17 +140,37 @@ export async function plan(req: PlanRequest, opts: PlannerOptions): Promise<Plan
   const maxTasks = opts.maxTasks ?? DEFAULT_MAX_TASKS;
   const userPrompt = buildUserPrompt(req);
   const liveCapabilities = opts.liveCapabilities ? opts.liveCapabilities() : [];
+  const experts = opts.availableExperts ?? [];
+  const knownExpertIds = new Set(experts.map((e) => e.id));
   const systemPrompt = PLANNER_SYSTEM_PROMPT.replace(
     "{{CAPABILITY_CATALOG}}",
     renderCatalogForPlanner(liveCapabilities),
-  );
+  ).replace("{{EXPERT_ROSTER}}", renderRosterForPlanner(experts));
   const completion = await opts.llm.complete({
     system: systemPrompt,
     user: userPrompt,
     purpose: "planner",
     maxTokens: 1024,
   });
-  return parsePlannerResponse(completion.text, maxTasks);
+  return parsePlannerResponse(completion.text, maxTasks, knownExpertIds);
+}
+
+/**
+ * Render the assigned expert roster for the planner prompt. One line per
+ * expert: `- {id}: {title} ({department}). Skills: {top 5 joined}`.
+ * Returns "(no experts available — omit expertId)" when the roster is
+ * empty so the planner doesn't hallucinate ids.
+ */
+function renderRosterForPlanner(experts: ReadonlyArray<Expert>): string {
+  if (experts.length === 0) {
+    return "(no experts available — omit expertId in every task)";
+  }
+  return experts
+    .map((e) => {
+      const skills = e.skills.slice(0, 5).join(", ");
+      return `- ${e.id}: ${e.title} (${e.department})${skills ? ". Skills: " + skills : ""}`;
+    })
+    .join("\n");
 }
 
 /**
@@ -255,7 +294,11 @@ function describeOrigin(origin: TaskOrigin): string {
   return "operator";
 }
 
-export function parsePlannerResponse(raw: string, maxTasks: number): PlanResult {
+export function parsePlannerResponse(
+  raw: string,
+  maxTasks: number,
+  knownExpertIds: ReadonlySet<string> = new Set(),
+): PlanResult {
   const trimmed = stripJsonFence(raw).trim();
   if (!trimmed) {
     throw new Error("planner returned an empty response");
@@ -308,6 +351,13 @@ export function parsePlannerResponse(raw: string, maxTasks: number): PlanResult 
       ? (priorityRaw as Priority)
       : "normal";
     const requiresApproval = t.requiresApproval === true;
+    const rawExpertId = typeof t.expertId === "string" ? t.expertId.trim() : "";
+    // Only accept expertIds that exist in the known roster — silently drop
+    // hallucinated ones rather than fail the whole plan.
+    const expertId =
+      rawExpertId && (knownExpertIds.size === 0 || knownExpertIds.has(rawExpertId))
+        ? rawExpertId
+        : undefined;
     const draft: TaskDraft = {
       title,
       description,
@@ -316,6 +366,7 @@ export function parsePlannerResponse(raw: string, maxTasks: number): PlanResult 
       input,
       priority,
       ...(requiresApproval ? { requiresApproval: true } : {}),
+      ...(expertId ? { expertId } : {}),
     };
     // Carry the planner's local id as a private hint so persistPlan can
     // remap dependsOn edges from local-id-space to persistent-id-space.

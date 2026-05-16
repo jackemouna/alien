@@ -197,14 +197,13 @@ async function readMissionState(projectId: string): Promise<MissionState | undef
 }
 
 /**
- * Phase 1 fallback: tasks aren't yet routed to experts (planner-level
- * routing arrives in Phase 2). For now we group by `task.role` heuristic
- * — explicit `metadata.expertId` wins if set.
+ * Tasks the planner emits with an explicit `expertId` show up under that
+ * expert's card on the Mission Control board. Legacy tasks without an
+ * expertId (created before expert-aware planning landed) stay unrouted
+ * and don't appear on any expert card.
  */
 function taskBelongsToExpert(task: TaskRecord, expertId: string): boolean {
-  const explicit = (task as { metadata?: { expertId?: unknown } }).metadata?.expertId;
-  if (typeof explicit === "string") return explicit === expertId;
-  return false;
+  return task.expertId === expertId;
 }
 
 // ---- helpers ----

@@ -70,6 +70,9 @@ export type TaskRecord = {
   readonly priority: Priority;
   readonly createdAt: string;
 
+  /** See TaskDraft.expertId — copied through at create time. */
+  readonly expertId?: string;
+
   status: TaskStatus;
   /** Set when a worker holds the task. Empty when not claimed. */
   claimedBy?: string;
@@ -226,4 +229,12 @@ export type TaskDraft = {
   readonly input: Record<string, unknown>;
   readonly priority?: Priority;
   readonly requiresApproval?: boolean;
+  /**
+   * The expert id (from src/experts/registry.ts) that owns this task,
+   * if the planner has decided. Orthogonal to `role` — `role` picks the
+   * pickup-loop worker, `expertId` picks the persona the task is framed
+   * for and routed to on the Mission Control board. Optional for tasks
+   * created before expert-aware planning landed.
+   */
+  readonly expertId?: string;
 };

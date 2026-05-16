@@ -1,5 +1,7 @@
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { listExperts } from "../experts/registry.js";
+import type { Expert } from "../experts/types.js";
 import { logWarn } from "../logger.js";
 import { createAnthropicLlmClient, type LlmClient } from "../orchestrator/llm-client.js";
 import { emitProjectsAuditEvent } from "./audit.js";
@@ -137,6 +139,7 @@ export async function runOneIteration(args: {
     });
   } else if (shouldReplan(tasks) || args.forceReplan) {
     try {
+      const assignedExperts = await resolveAssignedExperts(project);
       const planResult = await plan(
         {
           projectId: project.id,
@@ -144,7 +147,7 @@ export async function runOneIteration(args: {
           origin: { kind: "planner", runId: `goal-loop-${iterationCount + 1}` },
           existing: tasks,
         },
-        { llm },
+        { llm, availableExperts: assignedExperts },
       );
       if (planResult.tasks.length > 0) {
         persistPlan(project.id, planResult, {
@@ -191,6 +194,14 @@ function emitAudit(
   const auditLogPath = resolveAuditLogPath();
   if (!auditLogPath) return;
   emitProjectsAuditEvent({ kind, payload }, { auditLogPath });
+}
+
+async function resolveAssignedExperts(project: Project): Promise<readonly Expert[]> {
+  const all = await listExperts();
+  const assigned = project.assignedExperts;
+  if (!assigned || assigned.length === 0) return all;
+  const assignedSet = new Set(assigned);
+  return all.filter((e) => assignedSet.has(e.id));
 }
 
 function resolveProjectsDir(): string {
