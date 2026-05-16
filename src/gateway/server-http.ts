@@ -76,6 +76,7 @@ let modelSwitcherModulePromise: Promise<typeof import("./model-switcher-http.js"
 let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
 let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> | undefined;
 let dashboardModulePromise: Promise<typeof import("./dashboard-http.js")> | undefined;
+let settingsModulePromise: Promise<typeof import("./settings-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -181,6 +182,11 @@ function getIntegrationsModule() {
 function getDashboardModule() {
   dashboardModulePromise ??= import("./dashboard-http.js");
   return dashboardModulePromise;
+}
+
+function getSettingsModule() {
+  settingsModulePromise ??= import("./settings-http.js");
+  return settingsModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -909,6 +915,15 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "dashboard",
           run: async () => (await getDashboardModule()).handleDashboardRequest(req, res),
+        });
+      }
+      // /settings: hub of cards linking to every settings surface
+      // (soul, integrations, model, channels, capabilities) plus
+      // read-only facts (workspace path, state dir, gateway). Loopback.
+      if ((await getSettingsModule()).isSettingsPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "settings",
+          run: async () => (await getSettingsModule()).handleSettingsRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a

@@ -392,20 +392,20 @@ function renderDashboardHtml(): string {
 <title>👾 Alien · Dashboard</title>
 <style>
   :root {
-    color-scheme: dark;
-    --bg: #0b0a08;
-    --bg-elev: #14120e;
-    --bg-card: #16140f;
-    --line: #2a261d;
-    --line-strong: #3a3325;
-    --text: #f4ecd8;
-    --text-dim: #b8a98a;
-    --text-mute: #7a6f57;
-    --gold: #e6cf8a;
-    --gold-strong: #f3dc99;
-    --ok: #9bd29b;
-    --warn: #e8b96a;
-    --bad: #d98a8a;
+    color-scheme: light;
+    --bg: #faf6ec;
+    --bg-elev: #f4eedf;
+    --bg-card: #ffffff;
+    --line: #ece1c4;
+    --line-strong: #d8c89d;
+    --text: #1a1409;
+    --text-dim: #5a5040;
+    --text-mute: #8a7d62;
+    --gold: #b89028;
+    --gold-strong: #d9a936;
+    --ok: #2b8a3e;
+    --warn: #b06a16;
+    --bad: #b8423a;
   }
   * { box-sizing: border-box; }
   body {
@@ -444,12 +444,12 @@ function renderDashboardHtml(): string {
   .greeting strong { color: var(--gold); font-weight: 500; }
 
   .mission-card {
-    background: linear-gradient(180deg, #1a1611 0%, #14110d 100%);
+    background: linear-gradient(180deg, #fffaee 0%, #faf2da 100%);
     border: 1px solid var(--line-strong);
     border-radius: 14px;
     padding: 28px;
     margin-bottom: 40px;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 24px 80px -32px rgba(230,207,138,0.08);
+    box-shadow: 0 1px 2px rgba(184,144,40,0.04), 0 24px 80px -32px rgba(184,144,40,0.15);
   }
   .mission-label {
     font-size: 11px;
@@ -480,13 +480,14 @@ function renderDashboardHtml(): string {
   .mission-hint { color: var(--text-mute); font-size: 12px; }
   .launch {
     background: var(--gold);
-    color: #1a1409;
+    color: #fffbef;
     border: none;
     padding: 10px 22px;
     border-radius: 8px;
     font: 600 14px -apple-system, system-ui, sans-serif;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.05s ease;
+    box-shadow: 0 1px 2px rgba(184,144,40,0.25);
   }
   .launch:hover { background: var(--gold-strong); }
   .launch:active { transform: translateY(1px); }
@@ -576,15 +577,15 @@ function renderDashboardHtml(): string {
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 11px;
-    background: #1f1c14;
+    background: #f5efde;
     color: var(--text-dim);
     border: 1px solid var(--line);
   }
-  .badge.active { color: var(--ok); border-color: rgba(155,210,155,0.25); }
+  .badge.active { color: var(--ok); border-color: rgba(43,138,62,0.30); background: #ebf6ec; }
   .badge.archived { color: var(--text-mute); }
-  .badge.paused { color: var(--warn); border-color: rgba(232,185,106,0.3); }
-  .badge.achieved { color: var(--gold); border-color: rgba(230,207,138,0.4); }
-  .badge.needs-input { color: var(--bad); border-color: rgba(217,138,138,0.35); }
+  .badge.paused { color: var(--warn); border-color: rgba(176,106,22,0.30); background: #fcefd9; }
+  .badge.achieved { color: var(--gold); border-color: rgba(184,144,40,0.40); background: #fbf2d4; }
+  .badge.needs-input { color: var(--bad); border-color: rgba(184,66,58,0.30); background: #fbe9e7; }
 
   .row {
     display: flex; gap: 8px; align-items: center;
@@ -600,7 +601,7 @@ function renderDashboardHtml(): string {
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
     display: inline-flex; align-items: center; gap: 6px;
-    background: #1c1812; padding: 6px 12px; border-radius: 999px;
+    background: #faf5e4; padding: 6px 12px; border-radius: 999px;
     border: 1px solid var(--line); color: var(--text-dim); font-size: 13px;
   }
   .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-mute); }
@@ -632,7 +633,7 @@ function renderDashboardHtml(): string {
     color: var(--text);
     padding: 12px 20px;
     border-radius: 10px;
-    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 60px -20px rgba(60,40,10,0.18);
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.2s, transform 0.2s;
@@ -656,6 +657,7 @@ function renderDashboardHtml(): string {
       <div class="greeting" id="greeting">Loading your AI workforce…</div>
     </div>
     <nav class="quick">
+      <a href="/settings">Settings</a>
       <a href="/soul">Soul</a>
       <a href="/integrations">Integrations</a>
       <a href="/capabilities">Capabilities</a>
