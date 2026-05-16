@@ -737,17 +737,11 @@ function renderSetupHtml(): string {
       }
     }
 
-    $("save").textContent = "✓ Done. Opening Alien...";
-    // Fetch the gateway token from /v1/setup/status (loopback-only) so the
-    // main UI doesn't bounce us to its token-paste screen.
-    let gotoUrl = "/";
-    try {
-      const statusRes = await postJson("/v1/setup/status", {});
-      if (statusRes.data && typeof statusRes.data.gatewayToken === "string") {
-        gotoUrl = "/#token=" + encodeURIComponent(statusRes.data.gatewayToken);
-      }
-    } catch {}
-    setTimeout(() => { window.location.href = gotoUrl; }, 600);
+    $("save").textContent = "✓ Done. Next: pick a channel (or skip)";
+    // Route through the channels wizard so first-run users see the
+    // "connect a messaging channel" step. The picker page has a "skip"
+    // button that lands on / with the token-handoff redirect.
+    setTimeout(() => { window.location.href = "/setup/channels"; }, 600);
   });
 
   refreshStatus();

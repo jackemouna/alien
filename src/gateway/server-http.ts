@@ -67,6 +67,7 @@ let openResponsesHttpModulePromise: Promise<typeof import("./openresponses-http.
 let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js")> | undefined;
 let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | undefined;
 let setupHttpModulePromise: Promise<typeof import("./setup-http.js")> | undefined;
+let channelsWizardModulePromise: Promise<typeof import("./channels-wizard.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -127,6 +128,11 @@ function getProjectsHttpModule() {
 function getSetupHttpModule() {
   setupHttpModulePromise ??= import("./setup-http.js");
   return setupHttpModulePromise;
+}
+
+function getChannelsWizardModule() {
+  channelsWizardModulePromise ??= import("./channels-wizard.js");
+  return channelsWizardModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -598,6 +604,17 @@ export function createGatewayHttpServer(opts: {
         {
           name: "hooks",
           run: () => handleHooksRequest(req, res),
+        },
+        // Channels wizard. Step-by-step "Add a channel" UX for Telegram /
+        // Discord / Slack. Loopback-only, no bearer-token auth required —
+        // reachable from /setup (post-OAuth) and from the main UI.
+        {
+          name: "channels-wizard",
+          run: async () => {
+            const mod = await getChannelsWizardModule();
+            if (!mod.isChannelsWizardPath(scopedRequestPath)) return false;
+            return mod.handleChannelsWizardRequest(req, res);
+          },
         },
         // First-run setup wizard. Self-gates to loopback only and bypasses
         // bearer-token auth because it runs before any token is configured.

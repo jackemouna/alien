@@ -59,6 +59,27 @@ export function renderChannels(props: ChannelsProps) {
   const partialWarnings = props.snapshot?.warnings?.filter((warning) => warning.trim()) ?? [];
 
   return html`
+    <section class="card" style="margin-bottom: 16px;">
+      <div class="row" style="justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 15px; margin-bottom: 2px;">
+            👾 Connect a messaging channel
+          </div>
+          <div style="color: var(--muted, #6b6258); font-size: 13px;">
+            Step-by-step setup for Telegram, Discord, or Slack — your Alien team will message you
+            there.
+          </div>
+        </div>
+        <a
+          class="button button--primary"
+          href="/setup/channels"
+          style="text-decoration: none; padding: 8px 16px; border-radius: 8px;
+                 background: #1a1714; color: #fff; font-weight: 500;"
+        >
+          + Add a channel
+        </a>
+      </div>
+    </section>
     <section class="grid grid-cols-2">
       ${orderedChannels.map((channel) =>
         renderChannel(channel.key, props, {
