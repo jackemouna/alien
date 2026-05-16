@@ -74,6 +74,8 @@ const ROLE_TOKEN_ESTIMATES: Record<WorkerRole, { input: number; output: number }
   editor: { input: 980, output: 1180 },
   publisher: { input: 0, output: 0 }, // no LLM call
   "email-handler": { input: 420, output: 580 },
+  // The broker only writes a file + emits an event — no LLM call.
+  "capability-broker": { input: 0, output: 0 },
 };
 
 export function estimateRoleCostUsd(role: WorkerRole, model?: string): number {

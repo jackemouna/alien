@@ -62,6 +62,7 @@ export function createDailyResearchWorkers(deps: WorkerDeps): WorkerRegistry {
     editor: createEditor(deps.llm),
     publisher: createPublisher(deps.writeFile),
     "email-handler": createUnsupportedRole("email-handler"),
+    "capability-broker": createUnsupportedRole("capability-broker"),
   };
 }
 

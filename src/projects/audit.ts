@@ -20,6 +20,7 @@ export type ProjectsAuditKind =
   | "projects.project.iteration_started"
   | "projects.project.goal_achieved"
   | "projects.project.stuck"
+  | "projects.capability.requested"
   | "projects.task.created"
   | "projects.task.queued"
   | "projects.task.claimed"

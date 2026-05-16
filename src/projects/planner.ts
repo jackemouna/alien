@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { LlmClient } from "../orchestrator/llm-client.js";
 import type { WorkerRole } from "../orchestrator/types.js";
 import { emitProjectsAuditEvent } from "./audit.js";
+import { renderCatalogForPlanner } from "./capability-catalog.js";
 import { saveTask, type ProjectStoreOptions } from "./store.js";
 import { createTaskRecord } from "./task-state.js";
 import type {
@@ -39,6 +40,18 @@ The available worker roles are exactly:
     { "action": "send", "to": "...", "subject": "...", "bodyText": "..." }
     { "action": "draft_reply", "inReplyToMessageId": "...",
       "replyPrompt": "Politely decline; suggest next week." }
+- capability-broker: a SPECIAL role you emit ONLY when the goal genuinely
+  needs an integration that does not exist in our catalog (see below).
+  Don't use it for things you can fake or skip. Task input shape:
+    { "integration": "<short id like 'stripe' or 'calendly'>",
+      "why": "<one sentence: what this is needed for in the current goal>",
+      "sketch": "<optional: a couple of sentences on the API surface you'd want>" }
+  When you emit one of these, treat it as the only task for this iteration
+  and do NOT also emit dependent tasks that assume the capability exists —
+  the loop will pause for operator input.
+
+Current capability catalog (what already exists; do NOT request these):
+{{CAPABILITY_CATALOG}}
 
 Hard rules:
 1. Respond with strict JSON only, no prose, no markdown fence.
@@ -50,7 +63,7 @@ Hard rules:
          "id": "<short kebab id, unique in this plan>",
          "title": "<one-line>",
          "description": "<two-sentence what to do>",
-         "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler",
+         "role": "researcher" | "writer" | "editor" | "publisher" | "email-handler" | "capability-broker",
          "dependsOn": ["<id of another task in this list>", ...],
          "input": { ...arbitrary JSON the worker needs... },
          "priority": "low" | "normal" | "high" | "urgent",
@@ -70,6 +83,7 @@ const KNOWN_ROLES: readonly WorkerRole[] = [
   "editor",
   "publisher",
   "email-handler",
+  "capability-broker",
 ] as const;
 
 const KNOWN_PRIORITIES: readonly Priority[] = ["low", "normal", "high", "urgent"] as const;
@@ -88,8 +102,12 @@ export function createPlanner(opts: PlannerOptions): (req: PlanRequest) => Promi
 export async function plan(req: PlanRequest, opts: PlannerOptions): Promise<PlanResult> {
   const maxTasks = opts.maxTasks ?? DEFAULT_MAX_TASKS;
   const userPrompt = buildUserPrompt(req);
+  const systemPrompt = PLANNER_SYSTEM_PROMPT.replace(
+    "{{CAPABILITY_CATALOG}}",
+    renderCatalogForPlanner(),
+  );
   const completion = await opts.llm.complete({
-    system: PLANNER_SYSTEM_PROMPT,
+    system: systemPrompt,
     user: userPrompt,
     purpose: "planner",
     maxTokens: 1024,

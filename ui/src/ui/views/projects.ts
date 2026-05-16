@@ -1260,6 +1260,8 @@ function friendlyRole(role: TaskRecord["role"]): string {
       return "Publisher";
     case "email-handler":
       return "Email";
+    case "capability-broker":
+      return "Capability gap";
   }
 }
 

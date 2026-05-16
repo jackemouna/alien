@@ -522,6 +522,8 @@ function friendlyRoleShort(role: TaskRecord["role"]): string {
       return "publisher";
     case "email-handler":
       return "email";
+    case "capability-broker":
+      return "capability gap";
   }
 }
 

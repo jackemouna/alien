@@ -8,6 +8,7 @@ import type { LlmClient } from "../orchestrator/llm-client.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
 import { createDailyResearchWorkers } from "../orchestrator/workers.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
+import { createCapabilityBrokerWorker } from "../projects/capability-broker.js";
 import { bindChannelInboxToProjects } from "../projects/channel-inbox.js";
 import type { ChannelReplySend } from "../projects/channel-reply.js";
 import { evaluate, defaultMaxIterations } from "../projects/evaluator.js";
@@ -76,12 +77,20 @@ export async function startProjectsRuntime(
     );
   }
 
+  const brokerWorker = createCapabilityBrokerWorker({
+    projectsDir,
+    ...(auditLogPath ? { auditLogPath } : {}),
+  });
+
   const workers: ProjectWorkerRegistry = llm
-    ? overrideEmailHandler(
-        adaptOrchestratorWorkerRegistry(createDailyResearchWorkers({ llm })),
-        buildEmailHandler(llm),
-      )
-    : buildNoLlmWorkerRegistry();
+    ? {
+        ...overrideEmailHandler(
+          adaptOrchestratorWorkerRegistry(createDailyResearchWorkers({ llm })),
+          buildEmailHandler(llm),
+        ),
+        "capability-broker": brokerWorker,
+      }
+    : { ...buildNoLlmWorkerRegistry(), "capability-broker": brokerWorker };
 
   const sendChannelReply = buildChannelReplyAdapter(opts.cfg);
 
@@ -148,6 +157,7 @@ function buildNoLlmWorkerRegistry(): ProjectWorkerRegistry {
     editor: refuse,
     publisher: refuse,
     "email-handler": refuse,
+    "capability-broker": refuse,
   };
 }
 

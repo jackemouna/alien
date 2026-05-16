@@ -60,6 +60,7 @@ export function adaptOrchestratorWorkerRegistry(
     editor: adaptOrchestratorWorker(registry.editor),
     publisher: adaptOrchestratorWorker(registry.publisher),
     "email-handler": adaptOrchestratorWorker(registry["email-handler"]),
+    "capability-broker": adaptOrchestratorWorker(registry["capability-broker"]),
   };
 }
 

@@ -22,7 +22,16 @@ export type WorkerRole =
    * src/integrations/gmail/worker.ts for the Gmail integration; v0.2+ may
    * add Outlook/IMAP behind the same role.
    */
-  | "email-handler";
+  | "email-handler"
+  /**
+   * Capability broker (Phase B). The planner emits a task with this role
+   * when it identifies a needed integration that does not currently exist
+   * in the toolkit (e.g. "Stripe charge", "Calendly availability"). The
+   * broker records the request and flips the parent project to
+   * "needs-input" so the operator (or eventually a self-coding worker)
+   * can resolve the gap.
+   */
+  | "capability-broker";
 
 export type TaskStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
 
