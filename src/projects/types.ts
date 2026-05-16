@@ -121,8 +121,45 @@ export type Project = {
    * Optional for backward compatibility with pre-Phase-1 project files.
    */
   assignedExperts?: string[];
+  /**
+   * Last goal-loop evaluation. Updated by goal-evaluator.ts each time
+   * the operator (or the auto-loop) asks the model whether the mission's
+   * goal is achieved. Surfaced on the Mission Control board.
+   */
+  goalEvaluation?: GoalEvaluation;
+  /**
+   * How many goal-loop iterations have run against this project. Capped
+   * at `maxIterations` to prevent runaway LLM spend. Bumped by the loop
+   * after each evaluate-and-replan cycle.
+   */
+  iterationCount?: number;
+  /** Per-project cap on iterations. Defaults to 10 when omitted. */
+  maxIterations?: number;
   /** Free-form metadata the planner or operator wants to carry through. */
   metadata?: Record<string, unknown>;
+};
+
+/**
+ * Result of a goal-loop evaluation. Persisted on Project.goalEvaluation.
+ *
+ * `status` mirrors a deliberately small set:
+ *   - "in-progress" — work remains; planner should keep producing tasks.
+ *   - "achieved"    — terminal; mission considered done.
+ *   - "blocked"     — needs operator input (missing capability, ambiguity,
+ *                     external dependency). Loop pauses.
+ */
+export type GoalEvaluation = {
+  readonly status: "in-progress" | "achieved" | "blocked";
+  /** Plain-English reasoning the evaluator wrote. Shown to the operator. */
+  readonly reason: string;
+  /** Self-reported model confidence in [0, 1]. */
+  readonly confidence: number;
+  /** ISO timestamp when this evaluation was written. */
+  readonly evaluatedAt: string;
+  /** Iteration counter at the time of evaluation. */
+  readonly iteration: number;
+  /** Model that produced the evaluation, for diagnostics. */
+  readonly model?: string;
 };
 
 /**

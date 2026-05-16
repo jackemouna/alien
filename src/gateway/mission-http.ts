@@ -3,6 +3,9 @@ import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import { listExperts } from "../experts/registry.js";
 import type { Expert } from "../experts/types.js";
+import { logWarn } from "../logger.js";
+import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
+import { runOneIteration, startGoalLoop } from "../projects/goal-loop.js";
 import { listTasks, loadProject } from "../projects/store.js";
 import type { Project, TaskRecord } from "../projects/types.js";
 import { sendJson } from "./http-common.js";
@@ -25,12 +28,9 @@ const STATIC_PATHS = new Set(["/experts", "/v1/experts"]);
 export function isMissionPath(pathname: string): boolean {
   if (STATIC_PATHS.has(pathname)) return true;
   if (pathname.startsWith("/mission/") && pathname.length > "/mission/".length) return true;
-  if (
-    pathname.startsWith("/v1/mission/") &&
-    pathname.endsWith("/state") &&
-    pathname.length > "/v1/mission//state".length
-  ) {
-    return true;
+  if (pathname.startsWith("/v1/mission/")) {
+    const tail = pathname.slice("/v1/mission/".length);
+    return tail.endsWith("/state") || tail.endsWith("/evaluate") || tail.endsWith("/replan");
   }
   return false;
 }
@@ -85,6 +85,9 @@ export async function handleMissionRequest(
       sendJson(res, 400, { error: { type: "invalid_request", message: "bad project id" } });
       return true;
     }
+    // Lazy-start the auto-loop on first state read. No-op unless
+    // ALIEN_GOAL_LOOP=1 is set, so default behavior is unchanged.
+    startGoalLoop();
     const state = await readMissionState(projectId);
     if (!state) {
       sendJson(res, 404, {
@@ -93,6 +96,52 @@ export async function handleMissionRequest(
       return true;
     }
     sendJson(res, 200, state);
+    return true;
+  }
+
+  if (
+    pathname.startsWith("/v1/mission/") &&
+    (pathname.endsWith("/evaluate") || pathname.endsWith("/replan"))
+  ) {
+    if (req.method !== "POST") return methodNotAllowed(res, "POST");
+    const tail = pathname.endsWith("/evaluate") ? "/evaluate" : "/replan";
+    const projectId = pathname.slice("/v1/mission/".length, -tail.length);
+    if (!isSafeId(projectId)) {
+      sendJson(res, 400, { error: { type: "invalid_request", message: "bad project id" } });
+      return true;
+    }
+    const projectsDir = path.join(resolveStateDir(process.env), "projects");
+    const project = loadProject(projectsDir, projectId);
+    if (!project) {
+      sendJson(res, 404, {
+        error: { type: "not_found", message: `project not found: ${projectId}` },
+      });
+      return true;
+    }
+    try {
+      const llm = await createAnthropicLlmClient({});
+      const tasks = listTasks(projectsDir, projectId);
+      const result = await runOneIteration({
+        project,
+        tasks,
+        llm,
+        projectsDir,
+        forceReplan: tail === "/replan",
+      });
+      sendJson(res, 200, {
+        ok: true,
+        evaluation: result.evaluation,
+        action: result.action,
+      });
+    } catch (err) {
+      logWarn(
+        `mission-http: ${tail.slice(1)} failed for ${projectId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      sendJson(res, 500, {
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
     return true;
   }
 
@@ -337,6 +386,41 @@ ${SHARED_CSS}
     border-color: rgba(184,66,58,0.30); }
   .status-pill.needs-input .dot { background: var(--bad); }
 
+  .eval {
+    margin-top: 18px; padding: 14px 16px;
+    background: rgba(255,255,255,0.6); border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .eval-head {
+    display: flex; gap: 10px; align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .eval-status {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 600; color: var(--gold);
+  }
+  .eval-status.achieved { color: var(--ok); }
+  .eval-status.blocked { color: var(--bad); }
+  .eval-meta { color: var(--text-mute); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .eval-reason { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+
+  .actions {
+    margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .action-btn {
+    background: var(--bg-card); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 14px; font: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: border-color 0.12s, background 0.12s;
+  }
+  .action-btn:hover { border-color: var(--gold); }
+  .action-btn:disabled { opacity: 0.5; cursor: default; }
+  .action-btn.primary { background: var(--gold); color: #fffbef; border-color: var(--gold); }
+  .action-btn.primary:hover { background: var(--gold-strong); border-color: var(--gold-strong); }
+  .action-feedback { color: var(--text-mute); font-size: 12px; min-height: 16px; }
+  .action-feedback.ok { color: var(--ok); }
+  .action-feedback.err { color: var(--bad); }
+
   .stats {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px; margin-top: 18px;
@@ -407,6 +491,18 @@ ${SHARED_CSS}
       <span class="status-pill" id="status-pill"><span class="dot"></span><span id="status-label">…</span></span>
     </div>
     <div class="stats" id="stats"></div>
+    <div class="eval" id="eval-block" style="display:none;">
+      <div class="eval-head">
+        <span class="eval-status" id="eval-status">…</span>
+        <span class="eval-meta" id="eval-meta"></span>
+      </div>
+      <div class="eval-reason" id="eval-reason"></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" id="btn-evaluate" type="button">Check goal status</button>
+      <button class="action-btn primary" id="btn-replan" type="button">Plan next batch</button>
+      <span class="action-feedback" id="action-feedback"></span>
+    </div>
   </div>
 
   <h2 class="section">Assigned experts</h2>
@@ -457,8 +553,25 @@ function render(s) {
     cell("In progress", c.inProgress),
     cell("Queued", c.queued),
     cell("Blocked", c.blocked),
-    cell("Experts assigned", (s.experts || []).length),
+    cell("Iterations", s.project.iterationCount || 0),
   ].join("");
+
+  // Goal evaluation panel
+  const ev = s.project.goalEvaluation;
+  if (ev) {
+    $("eval-block").style.display = "";
+    const cls = ev.status === "achieved" ? "achieved" : ev.status === "blocked" ? "blocked" : "";
+    const statusEl = $("eval-status");
+    statusEl.className = "eval-status " + cls;
+    statusEl.textContent = ev.status;
+    const conf = Math.round((ev.confidence || 0) * 100);
+    const evTs = ev.evaluatedAt ? new Date(ev.evaluatedAt).toLocaleString() : "";
+    $("eval-meta").textContent = "confidence " + conf + "% · " + evTs +
+      (ev.model ? " · " + ev.model : "");
+    $("eval-reason").textContent = ev.reason;
+  } else {
+    $("eval-block").style.display = "none";
+  }
 
   $("roster").innerHTML = (s.grouped || []).map(group => {
     const e = group.expert;
@@ -489,6 +602,34 @@ function cell(label, value) {
   return '<div class="stat-cell"><div class="lbl">' + esc(label) +
     '</div><div class="val">' + esc(value) + '</div></div>';
 }
+
+async function trigger(tail) {
+  const fb = $("action-feedback");
+  fb.className = "action-feedback";
+  fb.textContent = tail === "evaluate" ? "Asking the evaluator…" : "Asking the planner for the next batch…";
+  const btnEval = $("btn-evaluate");
+  const btnReplan = $("btn-replan");
+  btnEval.disabled = true; btnReplan.disabled = true;
+  try {
+    const r = await fetch("/v1/mission/" + encodeURIComponent(PROJECT_ID) + "/" + tail, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.ok) throw new Error((d && d.error) || "Request failed (HTTP " + r.status + ")");
+    fb.className = "action-feedback ok";
+    fb.textContent = "Evaluator: " + (d.evaluation && d.evaluation.status || "ok") +
+      " · action: " + (d.action || "idle");
+    await load();
+  } catch (err) {
+    fb.className = "action-feedback err";
+    fb.textContent = "Failed: " + (err && err.message || err);
+  } finally {
+    btnEval.disabled = false; btnReplan.disabled = false;
+  }
+}
+
+$("btn-evaluate").addEventListener("click", () => trigger("evaluate"));
+$("btn-replan").addEventListener("click", () => trigger("replan"));
 
 load();
 setInterval(load, 10000);
