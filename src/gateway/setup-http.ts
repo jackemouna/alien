@@ -179,7 +179,7 @@ export async function handleSetupRequest(
     if (!anthropic && !openai) {
       return badRequest(res, "Provide at least anthropicKey or openaiKey");
     }
-    const result = saveApiKeys({ anthropic, openai });
+    const result = await saveApiKeys({ anthropic, openai });
     sendJson(res, result.ok ? 200 : 500, result);
     return true;
   }
@@ -254,6 +254,8 @@ async function runOAuthFlow(session: OAuthSession): Promise<void> {
       expires: creds.expires,
     };
     await writeAnthropicOAuth(next);
+    await persistOAuthToAuthProfiles("anthropic", next);
+    process.env.ANTHROPIC_OAUTH_TOKEN = next.access;
     session.status = "complete";
     return;
   }
@@ -264,7 +266,44 @@ async function runOAuthFlow(session: OAuthSession): Promise<void> {
     expires: creds.expires,
   };
   await writeOpenAIOAuth(next);
+  await persistOAuthToAuthProfiles("openai", next);
+  // OpenAI Codex tokens act as bearer API keys for the inference endpoints,
+  // so the env var the agent runtime already reads is the right slot.
+  process.env.OPENAI_API_KEY = next.access;
   session.status = "complete";
+}
+
+/**
+ * Write OAuth credentials to the canonical auth-profiles store
+ * (~/.alien/agents/<id>/agent/auth-profiles.json) so the agent runtime
+ * finds them. The wizard's own OAuth file (~/.alien/<provider>-oauth.json)
+ * still holds the refresh token for the LLM client's auto-refresh path.
+ */
+async function persistOAuthToAuthProfiles(
+  provider: "anthropic" | "openai",
+  creds: { access: string; refresh: string; expires: number },
+): Promise<void> {
+  try {
+    const { upsertAuthProfileWithLock } =
+      await import("../agents/auth-profiles/upsert-with-lock.js");
+    await upsertAuthProfileWithLock({
+      profileId: `${provider}-subscription`,
+      credential: {
+        type: "oauth",
+        provider,
+        access: creds.access,
+        refresh: creds.refresh,
+        expires: creds.expires,
+        displayName: provider === "anthropic" ? "Claude (subscription)" : "ChatGPT (subscription)",
+      },
+    });
+  } catch (err) {
+    logWarn(
+      `setup: failed to write ${provider} OAuth to auth-profiles: ${
+        err instanceof Error ? err.message : String(err)
+      }. The agent runtime may not see the credential until restart.`,
+    );
+  }
 }
 
 async function waitForAuthUrl(session: OAuthSession, timeoutMs: number): Promise<void> {
@@ -355,7 +394,7 @@ type SaveResult =
   | { readonly ok: true; readonly savedTo: "keychain" | "env-only"; readonly providers: string[] }
   | { readonly ok: false; readonly error: string };
 
-function saveApiKeys(keys: { anthropic?: string; openai?: string }): SaveResult {
+async function saveApiKeys(keys: { anthropic?: string; openai?: string }): Promise<SaveResult> {
   const providers: string[] = [];
   const backend = detectKeychainBackend();
   const useKeychain = backend.available;
@@ -363,16 +402,43 @@ function saveApiKeys(keys: { anthropic?: string; openai?: string }): SaveResult 
     if (keys.anthropic) {
       if (useKeychain) setKeychainSecret(ANTHROPIC_KEYCHAIN, keys.anthropic);
       process.env.ANTHROPIC_API_KEY = keys.anthropic;
+      await persistApiKeyToAuthProfiles("anthropic", keys.anthropic);
       providers.push("anthropic");
     }
     if (keys.openai) {
       if (useKeychain) setKeychainSecret(OPENAI_KEYCHAIN, keys.openai);
       process.env.OPENAI_API_KEY = keys.openai;
+      await persistApiKeyToAuthProfiles("openai", keys.openai);
       providers.push("openai");
     }
     return { ok: true, savedTo: useKeychain ? "keychain" : "env-only", providers };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+async function persistApiKeyToAuthProfiles(
+  provider: "anthropic" | "openai",
+  key: string,
+): Promise<void> {
+  try {
+    const { upsertAuthProfileWithLock } =
+      await import("../agents/auth-profiles/upsert-with-lock.js");
+    await upsertAuthProfileWithLock({
+      profileId: `${provider}-api-key`,
+      credential: {
+        type: "api_key",
+        provider,
+        key,
+        displayName: provider === "anthropic" ? "Anthropic (API key)" : "OpenAI (API key)",
+      },
+    });
+  } catch (err) {
+    logWarn(
+      `setup: failed to write ${provider} API key to auth-profiles: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
   }
 }
 

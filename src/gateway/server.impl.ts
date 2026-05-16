@@ -912,6 +912,89 @@ export async function startGatewayServer(
       );
     }
   })();
+  // One-shot migration: sync setup-wizard OAuth files into the canonical
+  // auth-profiles store so the agent runtime finds the credentials. Earlier
+  // versions of the wizard wrote only to ~/.alien/<provider>-oauth.json;
+  // without this, the agent errors with "No API key found for provider".
+  // Writes directly to the JSON file (bypassing the overlay/lock layer)
+  // for every agentDir found under ~/.alien/agents/*.
+  void (async () => {
+    try {
+      const fs = await import("node:fs/promises");
+      const path = await import("node:path");
+      const [anth, oai, paths] = await Promise.all([
+        import("../security/anthropic-oauth-store.js"),
+        import("../security/openai-oauth-store.js"),
+        import("../config/paths.js"),
+      ]);
+      const a = await anth.readAnthropicOAuth();
+      const o = await oai.readOpenAIOAuth();
+      if (!a && !o) return;
+      const agentsRoot = path.join(paths.resolveStateDir(), "agents");
+      let agentIds: string[] = [];
+      try {
+        const entries = await fs.readdir(agentsRoot, { withFileTypes: true });
+        agentIds = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+      } catch {
+        agentIds = [];
+      }
+      if (agentIds.length === 0) return;
+      for (const id of agentIds) {
+        const agentDir = path.join(agentsRoot, id, "agent");
+        const filePath = path.join(agentDir, "auth-profiles.json");
+        let existing: { version: number; profiles: Record<string, unknown> } = {
+          version: 1,
+          profiles: {},
+        };
+        try {
+          const raw = await fs.readFile(filePath, "utf8");
+          const parsed = JSON.parse(raw) as {
+            version?: number;
+            profiles?: Record<string, unknown>;
+          };
+          if (parsed && typeof parsed === "object") {
+            existing = {
+              version: parsed.version ?? 1,
+              profiles:
+                parsed.profiles && typeof parsed.profiles === "object" ? parsed.profiles : {},
+            };
+          }
+        } catch {
+          // file may not exist yet — that's fine.
+        }
+        if (a) {
+          existing.profiles["anthropic-subscription"] = {
+            type: "oauth",
+            provider: "anthropic",
+            access: a.access,
+            refresh: a.refresh,
+            expires: a.expires,
+            displayName: "Claude (subscription)",
+          };
+        }
+        if (o) {
+          existing.profiles["openai-subscription"] = {
+            type: "oauth",
+            provider: "openai",
+            access: o.access,
+            refresh: o.refresh,
+            expires: o.expires,
+            displayName: "ChatGPT (subscription)",
+          };
+        }
+        await fs.mkdir(agentDir, { recursive: true });
+        await fs.writeFile(filePath, `${JSON.stringify(existing, null, 2)}\n`, {
+          encoding: "utf8",
+          mode: 0o600,
+        });
+        await fs.chmod(filePath, 0o600).catch(() => {});
+      }
+    } catch (err) {
+      log.warn(
+        `oauth-migration: failed to sync to auth-profiles: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  })();
 
   let closePreludeStarted = false;
   let postReadyMaintenanceTimer: ReturnType<typeof setTimeout> | null = null;
