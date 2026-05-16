@@ -209,15 +209,17 @@ type ValidationOk = Record<string, unknown> & { readonly ok: true };
 type ValidationFail = { readonly ok: false; readonly error: string };
 
 async function validateTelegram(botToken: string): Promise<ValidationOk | ValidationFail> {
-  // Telegram bot tokens look like  <numeric-id>:<35-char-alphanum>
-  // e.g.  123456789:AAHpQ...  Catch the obvious paste mistakes locally
-  // before round-tripping to Telegram's API.
+  // Loose sanity check only: catch the most common paste mistake
+  // (forgot the colon entirely). Anything else goes through to
+  // Telegram so they can give an authoritative verdict — bot tokens
+  // can include characters our regex might not anticipate, and a
+  // false-reject is worse than a round trip.
   const trimmed = botToken.trim();
-  if (!/^\d+:[A-Za-z0-9_-]{20,}$/.test(trimmed)) {
+  if (!trimmed.includes(":")) {
     return {
       ok: false,
       error:
-        "That doesn't look like a Telegram bot token. The format is <digits>:<35-character key> — copy it again from @BotFather (e.g. 123456789:AAH...). Make sure you got the whole thing, no surrounding quotes or whitespace.",
+        "Telegram bot tokens contain a colon between the bot id and the key — like 123456789:AAH... Looks like you pasted only part of it. Copy the whole token from @BotFather and try again.",
     };
   }
   try {
