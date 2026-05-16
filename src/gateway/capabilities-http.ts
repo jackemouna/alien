@@ -3,7 +3,16 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import { logWarn } from "../logger.js";
+import {
+  readActivatedCapabilities,
+  resolveActivatedCapabilitiesPath,
+} from "../projects/activated-capabilities-store.js";
 import { emitProjectsAuditEvent } from "../projects/audit.js";
+import {
+  activateCapability,
+  deactivateCapability,
+  readReasoningTrace,
+} from "../projects/capability-activator.js";
 import { readCapabilityRequests } from "../projects/capability-requests-store.js";
 import { saveProject, saveTask } from "../projects/store.js";
 import { createTaskRecord } from "../projects/task-state.js";
@@ -41,7 +50,8 @@ const DEFAULT_MAX_BODY_BYTES = 4096;
 
 export function isCapabilitiesPath(pathname: string): boolean {
   if (pathname === "/v1/capabilities") return true;
-  return /^\/v1\/capabilities\/[^/]+\/build$/.test(pathname);
+  if (pathname === "/v1/capabilities/activated") return true;
+  return /^\/v1\/capabilities\/[^/]+\/(build|activate|deactivate|trace)$/.test(pathname);
 }
 
 export async function handleCapabilitiesRequest(
@@ -79,6 +89,115 @@ export async function handleCapabilitiesRequest(
         error: { message: err instanceof Error ? err.message : String(err) },
       });
     }
+    return true;
+  }
+
+  if (pathname === "/v1/capabilities/activated") {
+    if (req.method !== "GET") {
+      res.statusCode = 405;
+      res.setHeader("Allow", "GET");
+      res.end();
+      return true;
+    }
+    try {
+      const activated = await readActivatedCapabilities();
+      sendJson(res, 200, {
+        activated: activated.map((a) => ({
+          id: a.id,
+          integration: a.integration,
+          fromRequestId: a.fromRequestId,
+          activatedAt: a.activatedAt,
+          activatedBy: a.activatedBy,
+          status: a.status,
+          ...(a.rollbackAt ? { rollbackAt: a.rollbackAt } : {}),
+          ...(a.rollbackReason ? { rollbackReason: a.rollbackReason } : {}),
+        })),
+        store: resolveActivatedCapabilitiesPath(),
+      });
+    } catch (err) {
+      sendJson(res, 500, { error: { message: err instanceof Error ? err.message : String(err) } });
+    }
+    return true;
+  }
+
+  const traceMatch = pathname.match(/^\/v1\/capabilities\/([^/]+)\/trace$/);
+  if (traceMatch) {
+    if (req.method !== "GET") {
+      res.statusCode = 405;
+      res.setHeader("Allow", "GET");
+      res.end();
+      return true;
+    }
+    try {
+      const requestId = decodeURIComponent(traceMatch[1] ?? "");
+      const trace = await readReasoningTrace(requestId);
+      sendJson(res, trace.request ? 200 : 404, trace);
+    } catch (err) {
+      sendJson(res, 500, { error: { message: err instanceof Error ? err.message : String(err) } });
+    }
+    return true;
+  }
+
+  const activateMatch = pathname.match(/^\/v1\/capabilities\/([^/]+)\/activate$/);
+  if (activateMatch) {
+    const requestId = decodeURIComponent(activateMatch[1] ?? "");
+    const handshake = await handleGatewayPostJsonEndpoint(req, res, {
+      pathname,
+      auth: opts.auth,
+      maxBodyBytes: opts.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
+      ...(opts.trustedProxies ? { trustedProxies: opts.trustedProxies } : {}),
+      ...(opts.allowRealIpFallback !== undefined
+        ? { allowRealIpFallback: opts.allowRealIpFallback }
+        : {}),
+    });
+    if (handshake === false || handshake === undefined) return true;
+    const auditLogPath = path.join(resolveStateDir(), "audit.log");
+    const outcome = await activateCapability(requestId, { auditLogPath });
+    if (!outcome.ok) {
+      sendJson(res, 400, { ok: false, error: outcome.error });
+      return true;
+    }
+    sendJson(res, 200, {
+      ok: true,
+      record: outcome.record,
+      newlyActivated: outcome.newlyActivated,
+      message: outcome.newlyActivated
+        ? "Activated. Restart the gateway to load the new capability (Phase D2 will hot-load)."
+        : "Already active; no-op.",
+    });
+    return true;
+  }
+
+  const deactivateMatch = pathname.match(/^\/v1\/capabilities\/([^/]+)\/deactivate$/);
+  if (deactivateMatch) {
+    const requestId = decodeURIComponent(deactivateMatch[1] ?? "");
+    const handshake = await handleGatewayPostJsonEndpoint(req, res, {
+      pathname,
+      auth: opts.auth,
+      maxBodyBytes: opts.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
+      ...(opts.trustedProxies ? { trustedProxies: opts.trustedProxies } : {}),
+      ...(opts.allowRealIpFallback !== undefined
+        ? { allowRealIpFallback: opts.allowRealIpFallback }
+        : {}),
+    });
+    if (handshake === false || handshake === undefined) return true;
+    const body = handshake.body as { reason?: unknown } | undefined;
+    const reason =
+      body && typeof body.reason === "string" && body.reason.trim().length > 0
+        ? body.reason.trim()
+        : undefined;
+    const auditLogPath = path.join(resolveStateDir(), "audit.log");
+    const outcome = await deactivateCapability(requestId, reason, { auditLogPath });
+    if (!outcome.ok) {
+      sendJson(res, 400, { ok: false, error: outcome.error });
+      return true;
+    }
+    sendJson(res, 200, {
+      ok: true,
+      record: outcome.record,
+      message:
+        "Rolled back. Active-dir copy was removed; the sandbox copy remains for forensics. Restart the gateway to fully unload (Phase D2).",
+    });
     return true;
   }
 
