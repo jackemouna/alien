@@ -1,5 +1,6 @@
 import { resolveGeminiOAuthPath } from "../security/gemini-oauth-store.js";
 import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
+import { tryCreateGeminiCodeAssistClient } from "./gemini-code-assist-client.js";
 import type { LlmClient, LlmCompletionRequest, LlmCompletionResult } from "./llm-client.js";
 
 /**
@@ -46,22 +47,23 @@ export async function createGeminiLlmClient(
       keychainGate: "always",
     });
   if (!apiKey) {
-    // Detect the "Sign in with Google" case and steer the operator to
-    // the API-key path. The OAuth token at gemini-oauth.json is scoped
-    // for Code Assist (cloudcode-pa) — it won't authorize the public
-    // generateContent endpoint Alien's brain uses.
+    // No API key — try the Code Assist (OAuth sign-in) path. Works
+    // against cloudcode-pa.googleapis.com using the user's Google
+    // account. Same free tier as the Gemini CLI.
+    const codeAssist = await tryCreateGeminiCodeAssistClient({ model });
+    if (codeAssist) return codeAssist;
+
     const oauthOnly = await oauthFilePresent();
     if (oauthOnly) {
       throw new Error(
-        "Gemini sign-in is for Google Code Assist — it does NOT authorize the public " +
-          "Generative Language API that Alien's brain calls. Paste a free API key from " +
-          "https://aistudio.google.com/apikey on /integrations (takes 30 seconds) and Gemini " +
-          "will start answering for every mission.",
+        "Signed in with Google, but Code Assist isn't usable yet (missing projectId " +
+          "or Gemini CLI client credentials). Either re-sign-in on /integrations or " +
+          "paste a free API key from https://aistudio.google.com/apikey.",
       );
     }
     throw new Error(
       "No Gemini credentials. Open /integrations and paste a key from " +
-        "https://aistudio.google.com/apikey.",
+        "https://aistudio.google.com/apikey, or sign in with Google.",
     );
   }
 
