@@ -626,12 +626,22 @@ export function createGatewayHttpServer(opts: {
               res.end();
               return true;
             }
-            // Skip the token-handoff redirect if the request already has the
-            // bearer token (returning visit / already-logged-in tab).
+            // Token handoff: 302 to `/#token=...` once per browser session.
+            // Cookie + bearer check prevent the infinite redirect loop that
+            // would otherwise fire (URL hashes aren't sent on the follow-up
+            // GET, so the server can't tell the handoff already happened).
+            const cookieHeader = req.headers.cookie ?? "";
+            const alreadyHandedOff = cookieHeader
+              .split(/;\s*/)
+              .some((c) => c === "alien-token-handoff=done");
             const hasBearer = (req.headers.authorization ?? "").startsWith("Bearer ");
-            if (!hasBearer && resolvedAuth.token) {
+            if (!alreadyHandedOff && !hasBearer && resolvedAuth.token) {
               res.statusCode = 302;
               res.setHeader("Location", `/#token=${encodeURIComponent(resolvedAuth.token)}`);
+              res.setHeader(
+                "Set-Cookie",
+                "alien-token-handoff=done; Max-Age=300; Path=/; SameSite=Lax",
+              );
               res.setHeader("Cache-Control", "no-store");
               res.end();
               return true;
