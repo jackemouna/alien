@@ -6,7 +6,9 @@ import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "../experts/types.js";
 import type { Expert } from "../experts/types.js";
 import { logWarn } from "../logger.js";
 import { createAnthropicLlmClient } from "../orchestrator/llm-client.js";
+import type { CapabilityRequest } from "../projects/capability-requests-store.js";
 import { runOneIteration, startGoalLoop } from "../projects/goal-loop.js";
+import { listProjectCapabilityRequests, startSelfCoderLoop } from "../projects/self-coder-loop.js";
 import { listTasks, loadProject } from "../projects/store.js";
 import type { Project, TaskRecord } from "../projects/types.js";
 import { sendJson } from "./http-common.js";
@@ -86,9 +88,11 @@ export async function handleMissionRequest(
       sendJson(res, 400, { error: { type: "invalid_request", message: "bad project id" } });
       return true;
     }
-    // Lazy-start the auto-loop on first state read. No-op unless
-    // ALIEN_GOAL_LOOP=1 is set, so default behavior is unchanged.
+    // Lazy-start the auto-loops on first state read. Both are no-ops
+    // unless their respective env vars (ALIEN_GOAL_LOOP / ALIEN_SELF_CODER)
+    // are set, so default behavior is unchanged.
     startGoalLoop();
+    startSelfCoderLoop();
     const state = await readMissionState(projectId);
     if (!state) {
       sendJson(res, 404, {
@@ -168,6 +172,12 @@ type MissionState = {
     readonly queued: number;
     readonly blocked: number;
   };
+  /**
+   * Capability requests the planner raised for this project (open and
+   * in-progress). Surfaced on the Mission Control board so the operator
+   * can see what's blocking + which Self-Coder builds are queued.
+   */
+  readonly capabilityRequests: readonly CapabilityRequest[];
 };
 
 async function readMissionState(projectId: string): Promise<MissionState | undefined> {
@@ -193,7 +203,8 @@ async function readMissionState(projectId: string): Promise<MissionState | undef
     queued: tasks.filter((t) => t.status === "queued").length,
     blocked: tasks.filter((t) => t.status === "blocked").length,
   };
-  return { project, tasks, experts, grouped, counts };
+  const capabilityRequests = await listProjectCapabilityRequests(projectId);
+  return { project, tasks, experts, grouped, counts, capabilityRequests };
 }
 
 /**
@@ -543,6 +554,27 @@ ${SHARED_CSS}
   .tstatus.in-progress { color: var(--gold); border-color: rgba(184,144,40,0.40); }
   .tstatus.queued { color: var(--text-mute); }
   .tstatus.blocked { color: var(--bad); border-color: rgba(184,66,58,0.30); }
+
+  .caps-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .cap-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .cap-head { display: flex; justify-content: space-between;
+    align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .cap-emoji { margin-right: 6px; font-size: 16px; }
+  .cap-int { font-weight: 600; font-size: 14px; color: var(--text); }
+  .cap-why { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+  .cap-sketch { color: var(--text-mute); font-size: 12px; margin-top: 8px;
+    padding-left: 10px; border-left: 2px solid var(--line); }
+  .cap-meta { color: var(--text-mute); font-size: 11px; margin-top: 10px;
+    font-family: ui-monospace, "SF Mono", monospace; }
+  .empty-card { color: var(--text-mute); font-style: italic;
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 16px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -581,6 +613,9 @@ ${SHARED_CSS}
       <span class="action-feedback" id="action-feedback"></span>
     </div>
   </div>
+
+  <h2 class="section">Capability requests</h2>
+  <div id="caps">Loading…</div>
 
   <h2 class="section">Assigned experts</h2>
   <div id="roster">Loading the team…</div>
@@ -652,6 +687,13 @@ function render(s) {
     $("eval-block").style.display = "none";
   }
 
+  // Capability requests panel — what the planner asked for but the
+  // workforce can't yet do.
+  const caps = s.capabilityRequests || [];
+  $("caps").innerHTML = caps.length === 0
+    ? '<div class="empty-card">No capability requests. The workforce has every integration it needs.</div>'
+    : '<div class="caps-grid">' + caps.map(renderCapCard).join("") + '</div>';
+
   // Group expert cards by department. Auto-expand Leadership + any
   // department that currently has at least one task.
   const groups = {};
@@ -677,6 +719,34 @@ function renderDept(deptId, groupsInDept) {
       '</summary>',
       '<div class="dept-grid">' + cards + '</div>',
     '</details>',
+  ].join("");
+}
+
+function renderCapCard(req) {
+  const statusCls = req.status === 'fulfilled' ? 'done'
+    : req.status === 'rejected' ? 'blocked'
+    : req.status === 'in-progress' ? 'in-progress'
+    : 'queued';
+  const sketch = req.sketch
+    ? '<div class="cap-sketch">' + esc(req.sketch) + '</div>'
+    : '';
+  const resolution = req.resolution
+    ? '<div class="cap-sketch"><strong>Resolution:</strong> ' + esc(req.resolution) + '</div>'
+    : '';
+  return [
+    '<div class="cap-card">',
+      '<div class="cap-head">',
+        '<div>',
+          '<span class="cap-emoji">🔨</span>',
+          '<span class="cap-int">' + esc(req.integration) + '</span>',
+        '</div>',
+        '<span class="tstatus ' + statusCls + '">' + esc(req.status) + '</span>',
+      '</div>',
+      '<div class="cap-why">' + esc(req.why) + '</div>',
+      sketch,
+      resolution,
+      '<div class="cap-meta">id ' + esc(req.id) + ' · ' + new Date(req.createdAt).toLocaleString() + '</div>',
+    '</div>',
   ].join("");
 }
 
