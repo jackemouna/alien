@@ -1,7 +1,6 @@
 import { promises as fs } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { resolveConfigPath } from "../config/paths.js";
-import { isClaudeCodeSessionAvailable } from "../security/claude-code-session.js";
 import { readJsonBody } from "./hooks.js";
 import { sendInvalidRequest, sendJson } from "./http-common.js";
 
@@ -192,7 +191,6 @@ export async function handleModelSwitcherRequest(
       sendJson(res, 200, {
         current,
         choices: CHOICES,
-        claudeCodeAvailable: isClaudeCodeSessionAvailable(),
       });
       return true;
     }
@@ -314,12 +312,6 @@ function renderHtml(): string {
   <h1>👾 Which model runs the show?</h1>
   <p class="tag">Pick the model your agent uses by default. Saved to your local config — restart the gateway for it to take effect.</p>
 
-  <div id="cc-banner" class="cc-banner" style="display:none">
-    <b>Claude Code session detected.</b> Anthropic models route through your
-    Pro/Max subscription billing automatically. Other choices need their own
-    auth (Anthropic API key or OpenAI API key).
-  </div>
-
   <div id="choices" class="choices"></div>
   <div id="status" class="status"></div>
 </div>
@@ -342,8 +334,6 @@ const CSS = `
   .crumb a:hover { text-decoration: underline; }
   h1 { font-size: 28px; font-weight: 600; letter-spacing: -.01em; margin: 0 0 4px; }
   .tag { color: var(--muted); margin: 0 0 22px; font-size: 14px; }
-  .cc-banner { background: #ffeed6; border: 1px solid #efd996; padding: 12px 14px;
-    border-radius: 8px; font-size: 13px; color: #685320; margin: 0 0 18px; }
   .choices { display: flex; flex-direction: column; gap: 10px; }
   .choice { display: flex; gap: 14px; padding: 14px 18px; border: 1px solid var(--line);
     border-radius: 10px; background: #fff; cursor: pointer; align-items: center;
@@ -434,9 +424,6 @@ function pageScript(): string {
       return;
     }
     current = r.data.current;
-    if (r.data.claudeCodeAvailable) {
-      $("cc-banner").style.display = "block";
-    }
     render(r.data.choices);
   })();
 })();

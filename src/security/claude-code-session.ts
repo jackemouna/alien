@@ -40,7 +40,21 @@ type StoredCredentials = {
 
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
+/**
+ * Default OFF since 2026-05. Reasoning: even though the Claude Code
+ * keychain entry IS available, Anthropic bills "third-party app" calls
+ * through their extra-usage pool — not the Pro/Max subscription. The
+ * piggyback path led to confusing 429s mid-mission. Operators who want
+ * Anthropic should either paste an API key on /integrations or finish
+ * the wizard OAuth. Set `ALIEN_ENABLE_CLAUDE_CODE_SESSION=1` to opt
+ * back in if billing ever changes.
+ */
+function claudeCodeSessionAllowed(): boolean {
+  return process.env.ALIEN_ENABLE_CLAUDE_CODE_SESSION === "1";
+}
+
 export function isClaudeCodeSessionAvailable(): boolean {
+  if (!claudeCodeSessionAllowed()) return false;
   if (process.platform !== "darwin") return false;
   try {
     const result = spawnSync("security", ["find-generic-password", "-s", KEYCHAIN_SERVICE, "-g"], {
@@ -53,6 +67,7 @@ export function isClaudeCodeSessionAvailable(): boolean {
 }
 
 export function readClaudeCodeSession(): ClaudeCodeSession | null {
+  if (!claudeCodeSessionAllowed()) return null;
   if (process.platform !== "darwin") return null;
   let raw: string;
   try {
