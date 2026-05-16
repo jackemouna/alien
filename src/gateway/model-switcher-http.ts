@@ -70,21 +70,88 @@ const CHOICES: ReadonlyArray<ModelChoice> = [
     tagline:
       "OpenAI flagship. Needs an OpenAI API key (subscription OAuth doesn't grant /v1/responses).",
   },
+  // --- Gemini 3.x (current flagship family) ---
   {
-    id: "google/gemini-2.5-flash",
+    id: "google/gemini-3.1-pro",
     provider: "google",
-    model: "gemini-2.5-flash",
-    label: "Gemini 2.5 Flash",
-    tier: "fast",
-    tagline: "Fastest + cheapest Google. Generous free tier for casual use.",
+    model: "gemini-3.1-pro",
+    label: "Gemini 3.1 Pro",
+    tier: "premium",
+    tagline: "Latest Google flagship. Strongest reasoning + long context.",
   },
+  {
+    id: "google/gemini-3.1-flash",
+    provider: "google",
+    model: "gemini-3.1-flash",
+    label: "Gemini 3.1 Flash",
+    tier: "balanced",
+    tagline: "Newest fast Gemini. Best price/quality for most workforce tasks.",
+  },
+  {
+    id: "google/gemini-3.1-flash-lite",
+    provider: "google",
+    model: "gemini-3.1-flash-lite",
+    label: "Gemini 3.1 Flash Lite",
+    tier: "fast",
+    tagline: "Cheapest 3.x option. Generous free tier; ideal for high-volume routine work.",
+  },
+  {
+    id: "google/gemini-3-pro",
+    provider: "google",
+    model: "gemini-3-pro",
+    label: "Gemini 3 Pro",
+    tier: "premium",
+    tagline: "Prior-gen flagship. Slightly cheaper than 3.1 Pro with very similar quality.",
+  },
+  {
+    id: "google/gemini-3-flash",
+    provider: "google",
+    model: "gemini-3-flash",
+    label: "Gemini 3 Flash",
+    tier: "balanced",
+    tagline: "Prior-gen fast Gemini. Good fallback when 3.1 Flash is rate-limited.",
+  },
+  // --- Gemini 2.5 (still widely supported) ---
   {
     id: "google/gemini-2.5-pro",
     provider: "google",
     model: "gemini-2.5-pro",
     label: "Gemini 2.5 Pro",
+    tier: "premium",
+    tagline: "Established Google flagship. Mature multimodal + long context.",
+  },
+  {
+    id: "google/gemini-2.5-flash",
+    provider: "google",
+    model: "gemini-2.5-flash",
+    label: "Gemini 2.5 Flash",
     tier: "balanced",
-    tagline: "Google's flagship reasoning model. Strong with long context + tools.",
+    tagline: "Reliable fast Gemini. Wide free-tier limits.",
+  },
+  {
+    id: "google/gemini-2.5-flash-lite",
+    provider: "google",
+    model: "gemini-2.5-flash-lite",
+    label: "Gemini 2.5 Flash Lite",
+    tier: "fast",
+    tagline: "Cheapest 2.x Gemini. Use for high-volume routine work.",
+  },
+  // --- Legacy / fallback ---
+  {
+    id: "google/gemini-2.0-flash",
+    provider: "google",
+    model: "gemini-2.0-flash",
+    label: "Gemini 2.0 Flash",
+    tier: "fast",
+    tagline: "Legacy 2.0 Flash. Kept around for compatibility with older callers.",
+  },
+  {
+    id: "google/gemini-1.5-pro",
+    provider: "google",
+    model: "gemini-1.5-pro",
+    label: "Gemini 1.5 Pro",
+    tier: "balanced",
+    tagline: "Legacy 1.5 Pro — large-context veteran. Still serviceable for document work.",
   },
 ];
 
@@ -179,16 +246,23 @@ function isLoopbackRequest(req: IncomingMessage): boolean {
   );
 }
 
+/**
+ * The config schema accepts agents.defaults.model as a "provider/model"
+ * string (or a {primary, fallbacks, timeoutMs} object). We persist the
+ * flat string form; `provider` is parsed from the prefix on read.
+ */
 async function readCurrentSelection(): Promise<{ provider: string; model: string } | null> {
   try {
     const raw = await fs.readFile(resolveConfigPath(), "utf8");
     const parsed = JSON.parse(raw) as {
-      agents?: { defaults?: { provider?: unknown; model?: unknown } };
+      agents?: { defaults?: { model?: unknown } };
     };
-    const provider = parsed.agents?.defaults?.provider;
     const model = parsed.agents?.defaults?.model;
-    if (typeof provider === "string" && typeof model === "string") {
-      return { provider, model };
+    if (typeof model === "string") {
+      const slash = model.indexOf("/");
+      if (slash > 0) {
+        return { provider: model.slice(0, slash), model: model.slice(slash + 1) };
+      }
     }
   } catch {
     // file may not exist or be partial
@@ -215,8 +289,10 @@ async function writeSelection(provider: string, model: string): Promise<void> {
       ? (agents.defaults as Record<string, unknown>)
       : {}
   ) as Record<string, unknown>;
-  defaults.provider = provider;
-  defaults.model = model;
+  // Drop any stale top-level provider key from older versions of this
+  // module — the schema doesn't allow it and leaving it tanks gateway boot.
+  delete defaults.provider;
+  defaults.model = `${provider}/${model}`;
   agents.defaults = defaults;
   parsed.agents = agents;
   await fs.writeFile(configPath, `${JSON.stringify(parsed, null, 2)}\n`, {

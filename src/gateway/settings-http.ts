@@ -84,11 +84,20 @@ async function readSettingsState(): Promise<SettingsState> {
       agents?: { defaults?: { workspace?: string; provider?: string; model?: string } };
     };
     workspace = cfg.agents?.defaults?.workspace;
-    if (cfg.agents?.defaults?.provider || cfg.agents?.defaults?.model) {
-      model = {
-        provider: cfg.agents?.defaults?.provider,
-        id: cfg.agents?.defaults?.model,
-      };
+    const m = cfg.agents?.defaults?.model;
+    // Modern format is "provider/model"; legacy was two separate top-level keys.
+    if (typeof m === "string") {
+      const slash = m.indexOf("/");
+      if (slash > 0) {
+        model = { provider: m.slice(0, slash), id: m.slice(slash + 1) };
+      } else {
+        model = {
+          id: m,
+          ...(cfg.agents?.defaults?.provider ? { provider: cfg.agents.defaults.provider } : {}),
+        };
+      }
+    } else if (cfg.agents?.defaults?.provider) {
+      model = { provider: cfg.agents.defaults.provider };
     }
   } catch {
     // ignore — config not yet written

@@ -52,12 +52,20 @@ async function readDefaults(): Promise<Defaults> {
   try {
     const raw = await fsp.readFile(path.join(stateDir, "alien.json"), "utf8");
     const cfg = JSON.parse(raw) as {
-      agents?: { defaults?: { provider?: unknown; model?: unknown } };
+      agents?: { defaults?: { model?: unknown; provider?: unknown } };
     };
-    const provider = cfg.agents?.defaults?.provider;
     const model = cfg.agents?.defaults?.model;
-    if (typeof provider === "string" && typeof model === "string") {
-      return { provider, model };
+    // Modern format: "provider/model"
+    if (typeof model === "string") {
+      const slash = model.indexOf("/");
+      if (slash > 0) {
+        return { provider: model.slice(0, slash), model: model.slice(slash + 1) };
+      }
+    }
+    // Legacy format: split provider + model
+    const legacyProvider = cfg.agents?.defaults?.provider;
+    if (typeof legacyProvider === "string" && typeof model === "string") {
+      return { provider: legacyProvider, model };
     }
   } catch {
     // file may not exist or be partial — fall through to Anthropic default
