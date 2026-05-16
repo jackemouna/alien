@@ -70,6 +70,8 @@ let setupHttpModulePromise: Promise<typeof import("./setup-http.js")> | undefine
 let channelsWizardModulePromise: Promise<typeof import("./channels-wizard.js")> | undefined;
 let capabilitiesHttpModulePromise: Promise<typeof import("./capabilities-http.js")> | undefined;
 let capabilitiesUiModulePromise: Promise<typeof import("./capabilities-ui.js")> | undefined;
+let activityStreamModulePromise: Promise<typeof import("./activity-stream-http.js")> | undefined;
+let activityUiModulePromise: Promise<typeof import("./activity-ui.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -145,6 +147,16 @@ function getCapabilitiesHttpModule() {
 function getCapabilitiesUiModule() {
   capabilitiesUiModulePromise ??= import("./capabilities-ui.js");
   return capabilitiesUiModulePromise;
+}
+
+function getActivityStreamModule() {
+  activityStreamModulePromise ??= import("./activity-stream-http.js");
+  return activityStreamModulePromise;
+}
+
+function getActivityUiModule() {
+  activityUiModulePromise ??= import("./activity-ui.js");
+  return activityUiModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -822,6 +834,22 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "capabilities-ui",
           run: async () => (await getCapabilitiesUiModule()).handleCapabilitiesUiRequest(req, res),
+        });
+      }
+      // Live activity feed: /activity HTML page + /v1/projects/audit-stream
+      // SSE source. Both loopback-only, no auth — see the modules' own
+      // gating. Putting the stream stage here keeps it ahead of the bearer
+      // wall that protects most /v1/* endpoints.
+      if ((await getActivityUiModule()).isActivityUiPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "activity-ui",
+          run: async () => (await getActivityUiModule()).handleActivityUiRequest(req, res),
+        });
+      }
+      if ((await getActivityStreamModule()).isAuditStreamPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "activity-stream",
+          run: async () => (await getActivityStreamModule()).handleAuditStreamRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
