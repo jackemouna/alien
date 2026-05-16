@@ -1,56 +1,7 @@
-# Protect the ownership rules themselves.
-/.github/CODEOWNERS @steipete
+# Code ownership for jackemouna/alien.
+#
+# This fork is single-maintainer for now. Every file is owned by @jackemouna.
+# When the team grows, scope this file to specific paths so reviews are
+# routed correctly (last-match-wins per GitHub semantics).
 
-# WARNING: GitHub CODEOWNERS uses last-match-wins semantics.
-# If you add overlapping rules below the secops block, include @alien/alien-secops
-# on those entries too or you can silently remove required secops review.
-# Security-sensitive code, config, and docs require secops review.
-/SECURITY.md @alien/alien-secops
-/.github/dependabot.yml @alien/alien-secops
-/.github/codeql/ @alien/alien-secops
-/.github/workflows/codeql.yml @alien/alien-secops
-/.github/workflows/codeql-android-critical-security.yml @alien/alien-secops
-/.github/workflows/codeql-critical-quality.yml @alien/alien-secops
-/src/security/ @alien/alien-secops
-/src/secrets/ @alien/alien-secops
-/src/config/*secret*.ts @alien/alien-secops
-/src/config/**/*secret*.ts @alien/alien-secops
-/src/gateway/*auth*.ts @alien/alien-secops
-/src/gateway/**/*auth*.ts @alien/alien-secops
-/src/gateway/*secret*.ts @alien/alien-secops
-/src/gateway/**/*secret*.ts @alien/alien-secops
-/src/gateway/security-path*.ts @alien/alien-secops
-/src/gateway/resolve-configured-secret-input-string*.ts @alien/alien-secops
-/src/gateway/protocol/**/*secret*.ts @alien/alien-secops
-/src/gateway/server-methods/secrets*.ts @alien/alien-secops
-/src/agents/*auth*.ts @alien/alien-secops
-/src/agents/**/*auth*.ts @alien/alien-secops
-/src/agents/auth-profiles*.ts @alien/alien-secops
-/src/agents/auth-health*.ts @alien/alien-secops
-/src/agents/auth-profiles/ @alien/alien-secops
-/src/agents/sandbox.ts @alien/alien-secops
-/src/agents/sandbox-*.ts @alien/alien-secops
-/src/agents/sandbox/ @alien/alien-secops
-/src/infra/secret-file*.ts @alien/alien-secops
-/src/cron/stagger.ts @alien/alien-secops
-/src/cron/service/jobs.ts @alien/alien-secops
-/docs/security/ @alien/alien-secops
-/docs/gateway/authentication.md @alien/alien-secops
-/docs/gateway/sandbox-vs-tool-policy-vs-elevated.md @alien/alien-secops
-/docs/gateway/sandboxing.md @alien/alien-secops
-/docs/gateway/secrets-plan-contract.md @alien/alien-secops
-/docs/gateway/secrets.md @alien/alien-secops
-/docs/gateway/security/ @alien/alien-secops
-/docs/cli/approvals.md @alien/alien-secops
-/docs/cli/sandbox.md @alien/alien-secops
-/docs/cli/security.md @alien/alien-secops
-/docs/cli/secrets.md @alien/alien-secops
-/docs/reference/secretref-credential-surface.md @alien/alien-secops
-/docs/reference/secretref-user-supplied-credentials-matrix.json @alien/alien-secops
-
-# Release workflow and its supporting release-path checks.
-/.github/workflows/alien-npm-release.yml @alien/alien-release-managers
-/docs/reference/RELEASING.md @alien/alien-release-managers
-/scripts/alien-npm-publish.sh @alien/alien-release-managers
-/scripts/alien-npm-release-check.ts @alien/alien-release-managers
-/scripts/release-check.ts @alien/alien-release-managers
+* @jackemouna

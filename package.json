@@ -1,14 +1,20 @@
 {
   "name": "alien",
-  "version": "2026.5.6",
-  "description": "Multi-channel AI gateway with extensible messaging integrations",
-  "keywords": [],
-  "homepage": "https://github.com/alien/alien#readme",
+  "version": "0.1.0",
+  "description": "Anyone can hire their own AI team. Give one prompt, your Alien runs the business.",
+  "keywords": [
+    "agents",
+    "ai",
+    "automation",
+    "self-hosted",
+    "workforce"
+  ],
+  "homepage": "https://github.com/jackemouna/alien#readme",
   "bugs": {
-    "url": "https://github.com/alien/alien/issues"
+    "url": "https://github.com/jackemouna/alien/issues"
   },
   "license": "Apache-2.0",
-  "author": "",
+  "author": "jackemouna",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jackemouna/alien.git"
