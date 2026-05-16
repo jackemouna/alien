@@ -59,77 +59,143 @@ export function renderChannels(props: ChannelsProps) {
   const partialWarnings = props.snapshot?.warnings?.filter((warning) => warning.trim()) ?? [];
 
   return html`
-    <section class="card" style="margin-bottom: 16px;">
-      <div class="row" style="justify-content: space-between; align-items: center;">
-        <div>
-          <div style="font-weight: 600; font-size: 15px; margin-bottom: 2px;">
-            👾 Connect a messaging channel
-          </div>
-          <div style="color: var(--muted, #6b6258); font-size: 13px;">
-            Step-by-step setup for Telegram, Discord, or Slack — your Alien team will message you
-            there.
-          </div>
+    <section style="margin-bottom: 16px;">
+      <div style="margin: 0 0 12px;">
+        <div style="font-size: 18px; font-weight: 600; margin: 0 0 2px;">Channels</div>
+        <div style="color: var(--muted, #6b6258); font-size: 13px;">
+          Pick a channel to set it up. Click again later to edit or disconnect.
         </div>
-        <a
-          class="button button--primary"
-          href="/setup/channels"
-          style="text-decoration: none; padding: 8px 16px; border-radius: 8px;
-                 background: #1a1714; color: #fff; font-weight: 500;"
-        >
-          + Add a channel
-        </a>
       </div>
-    </section>
-    <section class="grid grid-cols-2">
-      ${orderedChannels.map((channel) =>
-        renderChannel(channel.key, props, {
-          whatsapp,
-          telegram,
-          discord,
-          googlechat,
-          slack,
-          signal,
-          imessage,
-          nostr,
-          channelAccounts: props.snapshot?.channelAccounts ?? null,
-        }),
-      )}
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;"
+      >
+        ${CLEAN_CHANNELS.map((c) => renderCleanChannelCard(c, channelEnabled(c.key, props)))}
+      </div>
     </section>
 
-    <section class="card" style="margin-top: 18px;">
-      <div class="row" style="justify-content: space-between;">
-        <div>
-          <div class="card-title">${t("channels.health.title")}</div>
-          <div class="card-sub">${t("channels.health.subtitle")}</div>
-        </div>
-        <div class="muted">
-          ${props.lastSuccessAt ? formatRelativeTimestamp(props.lastSuccessAt) : t("common.na")}
-        </div>
-      </div>
-      ${showingStaleSnapshot
-        ? html`
-            <div class="callout info" style="margin-top: 12px;">
-              Refreshing channel status in the background; showing the last successful snapshot.
-            </div>
-          `
-        : nothing}
-      ${props.snapshot?.partial
-        ? html`
-            <div class="callout warn" style="margin-top: 12px;">
-              Some channel checks did not finish before the UI budget.
-              ${partialWarnings.length > 0 ? partialWarnings.slice(0, 3).join("; ") : ""}
-            </div>
-          `
-        : nothing}
-      ${props.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
-        : nothing}
-      <pre class="code-block" style="margin-top: 12px;">
-${props.snapshot ? JSON.stringify(props.snapshot, null, 2) : t("channels.health.noSnapshotYet")}
-      </pre
+    <details style="margin-top: 24px;">
+      <summary
+        style="cursor: pointer; color: var(--muted, #6b6258); font-size: 14px; padding: 6px 0;"
       >
-    </section>
+        Advanced — runtime status &amp; raw config
+      </summary>
+      <section class="grid grid-cols-2" style="margin-top: 12px;">
+        ${orderedChannels.map((channel) =>
+          renderChannel(channel.key, props, {
+            whatsapp,
+            telegram,
+            discord,
+            googlechat,
+            slack,
+            signal,
+            imessage,
+            nostr,
+            channelAccounts: props.snapshot?.channelAccounts ?? null,
+          }),
+        )}
+      </section>
+
+      <section class="card" style="margin-top: 18px;">
+        <div class="row" style="justify-content: space-between;">
+          <div>
+            <div class="card-title">${t("channels.health.title")}</div>
+            <div class="card-sub">${t("channels.health.subtitle")}</div>
+          </div>
+          <div class="muted">
+            ${props.lastSuccessAt ? formatRelativeTimestamp(props.lastSuccessAt) : t("common.na")}
+          </div>
+        </div>
+        ${showingStaleSnapshot
+          ? html`
+              <div class="callout info" style="margin-top: 12px;">
+                Refreshing channel status in the background; showing the last successful snapshot.
+              </div>
+            `
+          : nothing}
+        ${props.snapshot?.partial
+          ? html`
+              <div class="callout warn" style="margin-top: 12px;">
+                Some channel checks did not finish before the UI budget.
+                ${partialWarnings.length > 0 ? partialWarnings.slice(0, 3).join("; ") : ""}
+              </div>
+            `
+          : nothing}
+        ${props.lastError
+          ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
+          : nothing}
+        <pre class="code-block" style="margin-top: 12px;">
+${props.snapshot ? JSON.stringify(props.snapshot, null, 2) : t("channels.health.noSnapshotYet")}
+        </pre
+        >
+      </section>
+    </details>
   `;
+}
+
+type CleanChannel = {
+  readonly key: ChannelKey;
+  readonly name: string;
+  readonly icon: string;
+  readonly setupTime: string;
+  readonly slug: string;
+};
+
+const CLEAN_CHANNELS: ReadonlyArray<CleanChannel> = [
+  { key: "telegram", name: "Telegram", icon: "✈", setupTime: "30 sec", slug: "telegram" },
+  { key: "discord", name: "Discord", icon: "💬", setupTime: "90 sec", slug: "discord" },
+  { key: "slack", name: "Slack", icon: "#", setupTime: "2-3 min", slug: "slack" },
+  { key: "whatsapp", name: "WhatsApp", icon: "🟢", setupTime: "1 min", slug: "whatsapp" },
+  { key: "imessage", name: "iMessage", icon: "💙", setupTime: "1 min", slug: "imessage" },
+  { key: "signal", name: "Signal", icon: "📨", setupTime: "soon", slug: "" },
+  { key: "googlechat", name: "Google Chat", icon: "🅖", setupTime: "soon", slug: "" },
+  { key: "nostr", name: "Nostr", icon: "⚡", setupTime: "soon", slug: "" },
+];
+
+function renderCleanChannelCard(c: CleanChannel, connected: boolean) {
+  const hasWizard = c.slug.length > 0;
+  const href = hasWizard ? `/setup/channels/${c.slug}` : undefined;
+  const statusLabel = connected ? "Connected" : hasWizard ? "Not set up" : "Coming soon";
+  const statusColor = connected ? "#2f7a4b" : hasWizard ? "#6b6258" : "#a8a195";
+  const borderColor = connected ? "#c4e3cd" : "#e6dfd2";
+  const bg = connected ? "#f6fbf7" : "#fff";
+  const card = html`
+    <div
+      style="position: relative; padding: 16px 18px; border: 1px solid ${borderColor};
+                border-radius: 12px; background: ${bg};
+                opacity: ${hasWizard ? "1" : "0.6"};
+                ${hasWizard ? "cursor: pointer;" : ""}"
+    >
+      <div
+        style="display: flex; justify-content: space-between; align-items: flex-start; margin: 0 0 8px;"
+      >
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">${c.icon}</span>
+          <span style="font-weight: 600; font-size: 15px;">${c.name}</span>
+        </div>
+        ${connected
+          ? html`<span
+              style="font-size: 11px; font-weight: 600; padding: 2px 8px;
+                          border-radius: 99px; background: #ddeede; color: #2f7a4b;
+                          text-transform: uppercase; letter-spacing: .04em;"
+              >✓</span
+            >`
+          : nothing}
+      </div>
+      <div style="font-size: 13px; color: ${statusColor};">${statusLabel}</div>
+      <div style="font-size: 12px; color: #a8a195; margin-top: 2px;">
+        ${hasWizard
+          ? connected
+            ? "Click to edit"
+            : `Setup in ${c.setupTime}`
+          : "In a later release"}
+      </div>
+    </div>
+  `;
+  return href
+    ? html`<a href=${href} style="text-decoration: none; color: inherit; display: block;"
+        >${card}</a
+      >`
+    : card;
 }
 
 function resolveChannelOrder(snapshot: ChannelsStatusSnapshot | null): ChannelKey[] {

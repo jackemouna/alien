@@ -38,16 +38,19 @@ import { readJsonBodyOrError, sendInvalidRequest, sendJson } from "./http-common
  *   POST /v1/setup/channels/status                — { configured: [...] }
  */
 
-type ChannelId = "telegram" | "discord" | "slack";
+type ChannelId = "telegram" | "discord" | "slack" | "whatsapp" | "imessage";
 
 const WIZARD_PATHS = new Set([
   "/setup/channels",
   "/setup/channels/telegram",
   "/setup/channels/discord",
   "/setup/channels/slack",
+  "/setup/channels/whatsapp",
+  "/setup/channels/imessage",
   "/v1/setup/channels/validate-telegram",
   "/v1/setup/channels/validate-discord",
   "/v1/setup/channels/validate-slack",
+  "/v1/setup/channels/imessage-permission",
   "/v1/setup/channels/save",
   "/v1/setup/channels/status",
 ]);
@@ -87,7 +90,11 @@ export async function handleChannelsWizardRequest(
             ? renderDiscordWizardHtml()
             : pathname === "/setup/channels/slack"
               ? renderSlackWizardHtml()
-              : null;
+              : pathname === "/setup/channels/whatsapp"
+                ? renderWhatsAppWizardHtml()
+                : pathname === "/setup/channels/imessage"
+                  ? renderIMessageWizardHtml()
+                  : null;
     if (!html) {
       res.statusCode = 404;
       res.end();
@@ -142,10 +149,24 @@ export async function handleChannelsWizardRequest(
     return true;
   }
 
+  if (pathname === "/v1/setup/channels/imessage-permission") {
+    sendJson(res, 200, await checkIMessagePermission());
+    return true;
+  }
+
   if (pathname === "/v1/setup/channels/save") {
     const channel = readStr(body.channel);
-    if (channel !== "telegram" && channel !== "discord" && channel !== "slack") {
-      return badRequest(res, "channel must be telegram, discord, or slack");
+    if (
+      channel !== "telegram" &&
+      channel !== "discord" &&
+      channel !== "slack" &&
+      channel !== "whatsapp" &&
+      channel !== "imessage"
+    ) {
+      return badRequest(
+        res,
+        "channel must be one of: telegram, discord, slack, whatsapp, imessage",
+      );
     }
     const credentials =
       body.credentials && typeof body.credentials === "object"
@@ -157,6 +178,29 @@ export async function handleChannelsWizardRequest(
   }
 
   return false;
+}
+
+async function checkIMessagePermission(): Promise<{
+  readonly platform: NodeJS.Platform;
+  readonly hasFullDiskAccess: boolean;
+  readonly chatDbPath: string;
+}> {
+  const home = process.env.HOME ?? "/Users/unknown";
+  const chatDbPath = path.join(home, "Library/Messages/chat.db");
+  if (process.platform !== "darwin") {
+    return { platform: process.platform, hasFullDiskAccess: false, chatDbPath };
+  }
+  try {
+    // Reading the DB file requires Full Disk Access on macOS — a small read
+    // is enough to probe permission without locking the file.
+    const fh = await fs.open(chatDbPath, "r");
+    const buf = Buffer.alloc(16);
+    await fh.read(buf, 0, 16, 0);
+    await fh.close();
+    return { platform: "darwin", hasFullDiskAccess: true, chatDbPath };
+  } catch {
+    return { platform: "darwin", hasFullDiskAccess: false, chatDbPath };
+  }
 }
 
 // ------ validation ------
@@ -315,6 +359,13 @@ async function saveChannel(
       if (!botToken || !appToken) return { ok: false, error: "Missing botToken or appToken" };
       setKeychainSecret({ service: "alien.ai", account: "slack-bot-token" }, botToken);
       setKeychainSecret({ service: "alien.ai", account: "slack-app-token" }, appToken);
+    } else if (channel === "whatsapp") {
+      // No credentials at this step — pairing happens via QR after the
+      // channel is enabled and restarted. The flag tells the next gateway
+      // boot to bring WhatsApp online.
+    } else if (channel === "imessage") {
+      // No credentials — macOS reads chat.db directly. The user grants
+      // Full Disk Access in System Settings; we just flip the flag.
     }
     const file = await readChannelsFlag();
     const next: ChannelsFlagFile = {
@@ -486,13 +537,25 @@ function renderPickerHtml(): string {
       </div>
       <p class="channel-card-desc">Install an app to your workspace and copy two tokens. Best for work teams.</p>
     </a>
+    <a class="channel-card" href="/setup/channels/whatsapp">
+      <div class="channel-card-head">
+        <p class="channel-card-name">WhatsApp</p>
+        <span class="channel-card-badge easy">1 min</span>
+      </div>
+      <p class="channel-card-desc">Pair with your phone via QR, just like WhatsApp Web. Needs a restart to bring up the QR.</p>
+    </a>
+    <a class="channel-card" href="/setup/channels/imessage">
+      <div class="channel-card-head">
+        <p class="channel-card-name">iMessage (macOS)</p>
+        <span class="channel-card-badge easy">1 min</span>
+      </div>
+      <p class="channel-card-desc">No tokens — grant Full Disk Access to your terminal and Alien reads Messages.app directly.</p>
+    </a>
   </div>
   <h2>Coming soon</h2>
   <div class="channel-grid">
-    ${comingSoonCard("WhatsApp", "Phone-paired via Baileys QR code")}
     ${comingSoonCard("Matrix", "Federated chat with your own homeserver")}
     ${comingSoonCard("Signal", "Phone-paired E2E chat")}
-    ${comingSoonCard("iMessage", "macOS-native, via AppleScript bridge")}
     ${comingSoonCard("Google Chat", "Workspace OAuth")}
     ${comingSoonCard("Mattermost / Teams", "Enterprise chat platforms")}
   </div>
@@ -831,6 +894,174 @@ settings:
 </div>
 ${slackScript()}
 </body></html>`;
+}
+
+// ---- WhatsApp wizard ----
+
+function renderWhatsAppWizardHtml(): string {
+  return `<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect WhatsApp</title><style>${SHARED_CSS}</style>
+</head><body>
+<div class="card">
+  <p class="crumb"><a href="/setup/channels">← Channels</a></p>
+  <h1>Connect WhatsApp</h1>
+  <p class="tag">~1 minute. Pairing happens by scanning a QR code with your phone, just like WhatsApp Web.</p>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">1</span><p class="step-title">Click "Enable WhatsApp"</p></div>
+    <div class="step-body">
+      <p>That tells Alien to bring WhatsApp online on the next restart. Pairing happens at boot.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">2</span><p class="step-title">Restart Alien</p></div>
+    <div class="step-body">
+      <p>In your terminal, restart the gateway so the WhatsApp plugin can boot:</p>
+      <p><code>pnpm alien --dev gateway run</code></p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">3</span><p class="step-title">Scan the QR code with your phone</p></div>
+    <div class="step-body">
+      <p>The gateway logs print a QR. On your phone:</p>
+      <p>WhatsApp → Settings → <strong>Linked Devices</strong> → <strong>Link a Device</strong> → point the camera at the QR in the terminal.</p>
+      <p style="color: var(--gold-deep); font-size: 13px;">Heads up: WhatsApp's Linked Devices flow can ask for biometric confirmation. Once paired the session persists until you remove it from WhatsApp.</p>
+    </div>
+  </div>
+
+  <button id="save" class="primary" type="button">Enable WhatsApp</button>
+  <div id="err" class="err-banner"></div>
+  <div id="done" class="success" style="display:none">
+    <strong>✓ WhatsApp enabled.</strong> Restart the gateway, then scan the QR from your phone's Linked Devices screen.
+  </div>
+  <div class="toolbar">
+    <a class="btn" href="/setup/channels">← Pick a different channel</a>
+    <div class="spacer"></div>
+  </div>
+</div>
+${whatsappScript()}
+</body></html>`;
+}
+
+function whatsappScript(): string {
+  return `<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  async function postJson(p, b) {
+    const r = await fetch(p, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) });
+    return r.json().catch(() => null);
+  }
+  $("save").addEventListener("click", async () => {
+    $("save").disabled = true; $("save").textContent = "Saving...";
+    const r = await postJson("/v1/setup/channels/save", { channel: "whatsapp", credentials: {} });
+    if (r && r.ok) { $("done").style.display = "block"; $("save").textContent = "✓ Enabled"; }
+    else { $("save").disabled = false; $("save").textContent = "Enable WhatsApp"; $("err").textContent = (r && r.error) || "Save failed."; $("err").classList.add("show"); }
+  });
+})();
+</script>`;
+}
+
+// ---- iMessage wizard ----
+
+function renderIMessageWizardHtml(): string {
+  return `<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect iMessage</title><style>${SHARED_CSS}</style>
+</head><body>
+<div class="card">
+  <p class="crumb"><a href="/setup/channels">← Channels</a></p>
+  <h1>Connect iMessage</h1>
+  <p class="tag">macOS only. No tokens — Alien reads <code>Messages.app</code> directly through the system database.</p>
+
+  <div id="non-mac" class="err-banner" style="margin: 12px 0; display: none">
+    iMessage only works on macOS. Skip this one and pick a different channel.
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">1</span><p class="step-title">Grant Full Disk Access to your terminal</p></div>
+    <div class="step-body">
+      <p>macOS protects <code>chat.db</code> behind Full Disk Access. You need to give it to whatever runs Alien (usually your terminal app — Terminal.app, iTerm, etc.).</p>
+      <p>Open System Settings → <strong>Privacy &amp; Security</strong> → <strong>Full Disk Access</strong> → click <strong>+</strong> and add your terminal app.</p>
+      <p><a class="btn" href="x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" target="_blank">Open Full Disk Access settings →</a></p>
+      <p style="font-size: 13px; color: var(--gold-deep);">After adding, you'll need to quit + reopen your terminal for it to take effect.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">2</span><p class="step-title">Check permission</p></div>
+    <div class="step-body">
+      <p>Once you've granted access and reopened your terminal:</p>
+      <div class="field-row">
+        <button id="check" type="button">Check permission</button>
+      </div>
+      <div id="check-status" class="status"></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="step-num">3</span><p class="step-title">Enable iMessage</p></div>
+    <div class="step-body">
+      <p>Click below to enable the channel. After restart, Alien starts watching new messages and can reply through Messages.app.</p>
+    </div>
+  </div>
+
+  <button id="save" class="primary" type="button">Enable iMessage</button>
+  <div id="err" class="err-banner"></div>
+  <div id="done" class="success" style="display:none">
+    <strong>✓ iMessage enabled.</strong> Restart the gateway to bring it online.
+  </div>
+  <div class="toolbar">
+    <a class="btn" href="/setup/channels">← Pick a different channel</a>
+    <div class="spacer"></div>
+  </div>
+</div>
+${imessageScript()}
+</body></html>`;
+}
+
+function imessageScript(): string {
+  return `<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const setStatus = (kind, msg) => { $("check-status").className = "status " + kind; $("check-status").textContent = msg || ""; };
+  async function postJson(p, b) {
+    const r = await fetch(p, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b || {}) });
+    return r.json().catch(() => null);
+  }
+  // Probe permission immediately on load so the user sees current state.
+  postJson("/v1/setup/channels/imessage-permission").then((d) => {
+    if (!d) return;
+    if (d.platform !== "darwin") {
+      $("non-mac").style.display = "block";
+      $("check").disabled = true; $("save").disabled = true;
+      return;
+    }
+    if (d.hasFullDiskAccess) {
+      setStatus("ok", "✓ Full Disk Access is granted.");
+    } else {
+      setStatus("info", "Not yet granted. Add your terminal above, then click Check.");
+    }
+  });
+  $("check").addEventListener("click", async () => {
+    $("check").disabled = true; setStatus("info", "Checking...");
+    const d = await postJson("/v1/setup/channels/imessage-permission");
+    $("check").disabled = false;
+    if (d && d.hasFullDiskAccess) setStatus("ok", "✓ Full Disk Access is granted.");
+    else setStatus("err", "Still no access. Did you add your terminal and reopen it?");
+  });
+  $("save").addEventListener("click", async () => {
+    $("save").disabled = true; $("save").textContent = "Saving...";
+    const r = await postJson("/v1/setup/channels/save", { channel: "imessage", credentials: {} });
+    if (r && r.ok) { $("done").style.display = "block"; $("save").textContent = "✓ Enabled"; }
+    else { $("save").disabled = false; $("save").textContent = "Enable iMessage"; $("err").textContent = (r && r.error) || "Save failed."; $("err").classList.add("show"); }
+  });
+})();
+</script>`;
 }
 
 function slackScript(): string {
