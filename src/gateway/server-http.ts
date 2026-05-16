@@ -66,6 +66,7 @@ let openAiHttpModulePromise: Promise<typeof import("./openai-http.js")> | undefi
 let openResponsesHttpModulePromise: Promise<typeof import("./openresponses-http.js")> | undefined;
 let orchestratorHttpModulePromise: Promise<typeof import("./orchestrator-http.js")> | undefined;
 let projectsHttpModulePromise: Promise<typeof import("./projects-http.js")> | undefined;
+let setupHttpModulePromise: Promise<typeof import("./setup-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -121,6 +122,11 @@ function getOrchestratorHttpModule() {
 function getProjectsHttpModule() {
   projectsHttpModulePromise ??= import("./projects-http.js");
   return projectsHttpModulePromise;
+}
+
+function getSetupHttpModule() {
+  setupHttpModulePromise ??= import("./setup-http.js");
+  return setupHttpModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -592,6 +598,16 @@ export function createGatewayHttpServer(opts: {
         {
           name: "hooks",
           run: () => handleHooksRequest(req, res),
+        },
+        // First-run setup wizard. Self-gates to loopback only and bypasses
+        // bearer-token auth because it runs before any token is configured.
+        {
+          name: "setup",
+          run: async () => {
+            const mod = await getSetupHttpModule();
+            if (!mod.isSetupPath(scopedRequestPath)) return false;
+            return mod.handleSetupRequest(req, res);
+          },
         },
       ];
       if (openAiCompatEnabled && isOpenAiModelsPath(scopedRequestPath)) {

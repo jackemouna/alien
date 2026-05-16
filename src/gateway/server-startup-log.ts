@@ -11,6 +11,7 @@ import {
 import type { AlienConfig } from "../config/types.alien.js";
 import { getResolvedLoggerSettings } from "../logging.js";
 import { collectEnabledInsecureOrDangerousFlags } from "../security/dangerous-config-flags.js";
+import { readSecretFromEnvOrKeychain } from "../security/secret-source.js";
 
 type StartupThinkLevel =
   | "off"
@@ -65,6 +66,22 @@ export function logGatewayStartup(params: {
       `security warning: dangerous config flags enabled: ${enabledDangerousFlags.join(", ")}. ` +
       "Run `alien security audit`.";
     params.log.warn(warning);
+  }
+
+  const hasAnthropicKey = Boolean(
+    readSecretFromEnvOrKeychain({
+      envVarName: "ANTHROPIC_API_KEY",
+      keychain: { service: "alien.ai", account: "anthropic-api-key" },
+      keychainGate: "always",
+    }),
+  );
+  if (!hasAnthropicKey) {
+    const scheme = params.tlsEnabled ? "https" : "http";
+    const setupUrl = `${scheme}://${params.bindHost}:${params.port}/setup`;
+    const banner = `first-run setup: no Anthropic key configured — open ${setupUrl} to finish setup`;
+    params.log.info(banner, {
+      consoleMessage: `${chalk.bgYellow.black(" SETUP ")} ${chalk.whiteBright(banner)}`,
+    });
   }
 }
 

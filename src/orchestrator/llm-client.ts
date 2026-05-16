@@ -69,10 +69,13 @@ export async function createAnthropicLlmClient(
         service: ANTHROPIC_API_KEY_KEYCHAIN_SERVICE,
         account: ANTHROPIC_API_KEY_KEYCHAIN_ACCOUNT,
       },
+      // The setup wizard writes here directly; the legacy
+      // ALIEN_SECRETS_FROM_KEYCHAIN gate would block first-run users.
+      keychainGate: "always",
     });
   if (!apiKey) {
     throw new Error(
-      "createAnthropicLlmClient: ANTHROPIC_API_KEY is required. Set it in the env, store it in the OS keychain (ALIEN_SECRETS_FROM_KEYCHAIN=1, service=alien.ai, account=anthropic-api-key), or pass options.apiKey.",
+      "createAnthropicLlmClient: ANTHROPIC_API_KEY is required. Open the setup wizard at /setup, set ANTHROPIC_API_KEY in the env, or pass options.apiKey.",
     );
   }
   const client = new Anthropic({ apiKey });
