@@ -114,6 +114,13 @@ export type Project = {
   status: ProjectStatus;
   /** Channels attached to this project as inbox + reply-back surfaces. */
   channels: ProjectChannelBinding[];
+  /**
+   * Expert ids (from src/experts/registry.ts) assigned to this mission.
+   * Phase 1 ships with all bundled experts assigned by default; the
+   * planner uses this list to route each Task to the best-fit expert.
+   * Optional for backward compatibility with pre-Phase-1 project files.
+   */
+  assignedExperts?: string[];
   /** Free-form metadata the planner or operator wants to carry through. */
   metadata?: Record<string, unknown>;
 };

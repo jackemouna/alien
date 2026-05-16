@@ -77,6 +77,7 @@ let soulModulePromise: Promise<typeof import("./soul-http.js")> | undefined;
 let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> | undefined;
 let dashboardModulePromise: Promise<typeof import("./dashboard-http.js")> | undefined;
 let settingsModulePromise: Promise<typeof import("./settings-http.js")> | undefined;
+let missionModulePromise: Promise<typeof import("./mission-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -187,6 +188,11 @@ function getDashboardModule() {
 function getSettingsModule() {
   settingsModulePromise ??= import("./settings-http.js");
   return settingsModulePromise;
+}
+
+function getMissionModule() {
+  missionModulePromise ??= import("./mission-http.js");
+  return missionModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -924,6 +930,15 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "settings",
           run: async () => (await getSettingsModule()).handleSettingsRequest(req, res),
+        });
+      }
+      // /mission/<id>, /experts, /v1/experts, /v1/mission/<id>/state —
+      // Phase 1: the company-of-experts roster + per-mission Mission
+      // Control board. Loopback-only.
+      if ((await getMissionModule()).isMissionPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "mission",
+          run: async () => (await getMissionModule()).handleMissionRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a

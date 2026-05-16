@@ -1,0 +1,496 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
+import path from "node:path";
+import { resolveStateDir } from "../config/paths.js";
+import { listExperts } from "../experts/registry.js";
+import type { Expert } from "../experts/types.js";
+import { listTasks, loadProject } from "../projects/store.js";
+import type { Project, TaskRecord } from "../projects/types.js";
+import { sendJson } from "./http-common.js";
+
+/**
+ * /mission/<projectId> — premium "Mission Control" board for one mission.
+ *
+ * Shows the project header (name, goal, status), the assigned expert
+ * roster as a grid of cards, each expert's current task list, and a
+ * tail of mission-scoped activity. Loopback-only.
+ *
+ *   GET  /experts                           — HTML roster page (read-only)
+ *   GET  /mission/<projectId>               — HTML board
+ *   GET  /v1/experts                        — list of all experts (JSON)
+ *   GET  /v1/mission/<projectId>/state      — board state JSON
+ */
+
+const STATIC_PATHS = new Set(["/experts", "/v1/experts"]);
+
+export function isMissionPath(pathname: string): boolean {
+  if (STATIC_PATHS.has(pathname)) return true;
+  if (pathname.startsWith("/mission/") && pathname.length > "/mission/".length) return true;
+  if (
+    pathname.startsWith("/v1/mission/") &&
+    pathname.endsWith("/state") &&
+    pathname.length > "/v1/mission//state".length
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export async function handleMissionRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<boolean> {
+  const url = new URL(req.url ?? "/", "http://localhost");
+  const pathname = url.pathname;
+  if (!isMissionPath(pathname)) return false;
+  if (!isLoopbackRequest(req)) {
+    sendJson(res, 403, { error: { type: "forbidden", message: "Loopback-only" } });
+    return true;
+  }
+
+  if (pathname === "/v1/experts") {
+    if (req.method !== "GET") return methodNotAllowed(res, "GET");
+    const experts = await listExperts();
+    sendJson(res, 200, { experts });
+    return true;
+  }
+
+  if (pathname === "/experts") {
+    if (req.method !== "GET") return methodNotAllowed(res, "GET");
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(renderRosterHtml());
+    return true;
+  }
+
+  if (pathname.startsWith("/mission/")) {
+    if (req.method !== "GET") return methodNotAllowed(res, "GET");
+    const projectId = pathname.slice("/mission/".length);
+    if (!isSafeId(projectId)) {
+      res.statusCode = 400;
+      res.end("Bad project id");
+      return true;
+    }
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(renderMissionHtml(projectId));
+    return true;
+  }
+
+  if (pathname.startsWith("/v1/mission/") && pathname.endsWith("/state")) {
+    if (req.method !== "GET") return methodNotAllowed(res, "GET");
+    const projectId = pathname.slice("/v1/mission/".length, -"/state".length);
+    if (!isSafeId(projectId)) {
+      sendJson(res, 400, { error: { type: "invalid_request", message: "bad project id" } });
+      return true;
+    }
+    const state = await readMissionState(projectId);
+    if (!state) {
+      sendJson(res, 404, {
+        error: { type: "not_found", message: `project not found: ${projectId}` },
+      });
+      return true;
+    }
+    sendJson(res, 200, state);
+    return true;
+  }
+
+  return false;
+}
+
+// ---- state ----
+
+type ExpertTaskGroup = {
+  readonly expert: Expert;
+  readonly tasks: readonly TaskRecord[];
+};
+
+type MissionState = {
+  readonly project: Project;
+  readonly tasks: readonly TaskRecord[];
+  readonly experts: readonly Expert[];
+  readonly grouped: readonly ExpertTaskGroup[];
+  readonly counts: {
+    readonly total: number;
+    readonly done: number;
+    readonly inProgress: number;
+    readonly queued: number;
+    readonly blocked: number;
+  };
+};
+
+async function readMissionState(projectId: string): Promise<MissionState | undefined> {
+  const projectsDir = path.join(resolveStateDir(process.env), "projects");
+  const project = loadProject(projectsDir, projectId);
+  if (!project) return undefined;
+  const tasks = listTasks(projectsDir, projectId);
+  const all = await listExperts();
+  const assignedIds = new Set(
+    project.assignedExperts && project.assignedExperts.length > 0
+      ? project.assignedExperts
+      : all.map((e) => e.id),
+  );
+  const experts = all.filter((e) => assignedIds.has(e.id));
+  const grouped: ExpertTaskGroup[] = experts.map((expert) => ({
+    expert,
+    tasks: tasks.filter((t) => taskBelongsToExpert(t, expert.id)),
+  }));
+  const counts = {
+    total: tasks.length,
+    done: tasks.filter((t) => t.status === "done").length,
+    inProgress: tasks.filter((t) => t.status === "in-progress").length,
+    queued: tasks.filter((t) => t.status === "queued").length,
+    blocked: tasks.filter((t) => t.status === "blocked").length,
+  };
+  return { project, tasks, experts, grouped, counts };
+}
+
+/**
+ * Phase 1 fallback: tasks aren't yet routed to experts (planner-level
+ * routing arrives in Phase 2). For now we group by `task.role` heuristic
+ * — explicit `metadata.expertId` wins if set.
+ */
+function taskBelongsToExpert(task: TaskRecord, expertId: string): boolean {
+  const explicit = (task as { metadata?: { expertId?: unknown } }).metadata?.expertId;
+  if (typeof explicit === "string") return explicit === expertId;
+  return false;
+}
+
+// ---- helpers ----
+
+function methodNotAllowed(res: ServerResponse, allow: string): true {
+  res.statusCode = 405;
+  res.setHeader("Allow", allow);
+  res.end();
+  return true;
+}
+
+function isSafeId(id: string): boolean {
+  return /^[A-Za-z0-9_.-]+$/.test(id);
+}
+
+function isLoopbackRequest(req: IncomingMessage): boolean {
+  const addr = req.socket?.remoteAddress ?? "";
+  return (
+    addr === "127.0.0.1" ||
+    addr === "::1" ||
+    addr === "::ffff:127.0.0.1" ||
+    addr.startsWith("::ffff:127.")
+  );
+}
+
+// ---- HTML ----
+
+const SHARED_CSS = `
+  :root {
+    color-scheme: light;
+    --bg: #faf6ec; --bg-card: #ffffff;
+    --line: #ece1c4; --line-strong: #d8c89d;
+    --text: #1a1409; --text-dim: #5a5040; --text-mute: #8a7d62;
+    --gold: #b89028; --gold-strong: #d9a936;
+    --ok: #2b8a3e; --warn: #b06a16; --bad: #b8423a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.55 -apple-system, "SF Pro Text", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  .shell { max-width: 1080px; padding: 40px 32px 80px; margin: 0 auto; }
+  header.hero { display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px; margin-bottom: 28px; }
+  .brand { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .brand .glyph { font-size: 30px; }
+  .subtitle { color: var(--text-mute); margin-top: 4px; font-size: 13px; }
+  nav.quick { display: flex; gap: 8px; flex-wrap: wrap; }
+  nav.quick a {
+    text-decoration: none; color: var(--text-dim);
+    background: var(--bg-card); border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: 8px; font-size: 13px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  nav.quick a:hover { color: var(--gold); border-color: var(--line-strong); }
+`;
+
+function renderRosterHtml(): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>👾 Alien · Experts</title>
+<style>
+${SHARED_CSS}
+  h2.section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--gold); margin: 24px 0 12px; font-weight: 600; }
+  .roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .ecard {
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .ecard:hover { border-color: var(--line-strong);
+    box-shadow: 0 6px 24px -10px rgba(184,144,40,0.15); }
+  .head { display: flex; align-items: center; gap: 10px; }
+  .ava { font-size: 26px; }
+  .name { font-weight: 600; font-size: 16px; }
+  .titleln { color: var(--gold); font-size: 12px; letter-spacing: 0.04em;
+    text-transform: uppercase; font-weight: 600; }
+  .role { color: var(--text-dim); margin: 8px 0 0; font-size: 13px; }
+  .purpose { color: var(--text-mute); margin: 8px 0 0; font-size: 12px; line-height: 1.5;
+    border-left: 2px solid var(--line); padding-left: 10px; }
+  .skills { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .skill { background: #faf5e4; border: 1px solid var(--line); border-radius: 999px;
+    padding: 2px 9px; font-size: 11px; color: var(--text-dim); }
+  .tone { color: var(--text-mute); font-size: 12px; margin-top: 10px; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="hero">
+    <div>
+      <div class="brand"><span class="glyph">👾</span> The team</div>
+      <div class="subtitle">Alien isn't a single assistant — it's a company of experts.</div>
+    </div>
+    <nav class="quick">
+      <a href="/dashboard">← Dashboard</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </header>
+  <h2 class="section">Bundled roster</h2>
+  <div class="roster" id="roster">Loading…</div>
+</div>
+<script>
+${rosterScript()}
+</script>
+</body>
+</html>`;
+}
+
+function rosterScript(): string {
+  return `
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+  "&": "&amp;","<": "&lt;",">": "&gt;",'"': "&quot;","'": "&#39;",
+})[c]);
+async function load() {
+  const r = await fetch("/v1/experts");
+  const d = await r.json();
+  $("roster").innerHTML = (d.experts || []).map(card).join("");
+}
+function card(e) {
+  const skills = (e.skills || []).map(s =>
+    '<span class="skill">' + esc(s) + '</span>'
+  ).join("");
+  return [
+    '<div class="ecard">',
+      '<div class="head">',
+        '<div class="ava">' + esc(e.avatar || "👤") + '</div>',
+        '<div><div class="titleln">' + esc(e.title) + '</div>',
+        '<div class="name">' + esc(e.name) + '</div></div>',
+      '</div>',
+      '<div class="role">' + esc(e.role) + '</div>',
+      '<div class="purpose">' + esc(e.purpose) + '</div>',
+      '<div class="skills">' + skills + '</div>',
+      '<div class="tone">tone: ' + esc(e.tone) + '</div>',
+    '</div>',
+  ].join("");
+}
+load();
+`;
+}
+
+function renderMissionHtml(projectId: string): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>👾 Alien · Mission</title>
+<style>
+${SHARED_CSS}
+  .mission-hero {
+    background: linear-gradient(180deg, #fffaee 0%, #faf2da 100%);
+    border: 1px solid var(--line-strong); border-radius: 14px;
+    padding: 26px 28px; margin-bottom: 26px;
+    box-shadow: 0 1px 2px rgba(184,144,40,0.04), 0 24px 80px -32px rgba(184,144,40,0.15);
+  }
+  .mhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .mname { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .mgoal { color: var(--text-dim); font-size: 14px; line-height: 1.5; margin: 0; }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px; font-size: 12px;
+    font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    background: #ebf6ec; color: var(--ok); border: 1px solid rgba(43,138,62,0.25);
+  }
+  .status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+  .status-pill.paused { background: #fcefd9; color: var(--warn);
+    border-color: rgba(176,106,22,0.30); }
+  .status-pill.paused .dot { background: var(--warn); }
+  .status-pill.achieved { background: #fbf2d4; color: var(--gold);
+    border-color: rgba(184,144,40,0.40); }
+  .status-pill.achieved .dot { background: var(--gold); }
+  .status-pill.archived { background: #f4ecda; color: var(--text-mute);
+    border-color: var(--line); }
+  .status-pill.archived .dot { background: var(--text-mute); }
+  .status-pill.needs-input { background: #fbe9e7; color: var(--bad);
+    border-color: rgba(184,66,58,0.30); }
+  .status-pill.needs-input .dot { background: var(--bad); }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; margin-top: 18px;
+  }
+  .stat-cell { background: rgba(255,255,255,0.6);
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat-cell .lbl { font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--text-mute); }
+  .stat-cell .val { font-size: 18px; font-weight: 600; margin-top: 2px;
+    color: var(--text); font-variant-numeric: tabular-nums; }
+
+  h2.section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--gold); margin: 28px 0 12px; font-weight: 600; }
+
+  .roster {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .ecard {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .head { display: flex; align-items: center; gap: 10px; }
+  .ava { font-size: 26px; }
+  .titleln { color: var(--gold); font-size: 11px; letter-spacing: 0.04em;
+    text-transform: uppercase; font-weight: 600; }
+  .name { font-weight: 600; font-size: 15px; }
+  .ecard .role { color: var(--text-dim); font-size: 12px; margin: 8px 0 0; }
+  .ecard .tasks {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px dashed var(--line); font-size: 13px;
+  }
+  .ecard .empty { color: var(--text-mute); font-style: italic; font-size: 12px; }
+  .tline {
+    display: flex; justify-content: space-between; gap: 8px;
+    padding: 4px 0; color: var(--text-dim); font-size: 12px;
+  }
+  .tstatus {
+    padding: 1px 8px; border-radius: 999px; font-size: 10px;
+    background: var(--bg); border: 1px solid var(--line); color: var(--text-mute);
+  }
+  .tstatus.done { color: var(--ok); border-color: rgba(43,138,62,0.25); }
+  .tstatus.in-progress { color: var(--gold); border-color: rgba(184,144,40,0.40); }
+  .tstatus.queued { color: var(--text-mute); }
+  .tstatus.blocked { color: var(--bad); border-color: rgba(184,66,58,0.30); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="hero">
+    <div>
+      <div class="brand"><span class="glyph">👾</span> Mission</div>
+      <div class="subtitle" id="subtitle">Loading…</div>
+    </div>
+    <nav class="quick">
+      <a href="/dashboard">← Dashboard</a>
+      <a href="/experts">The team</a>
+      <a href="/activity">Activity</a>
+    </nav>
+  </header>
+
+  <div class="mission-hero">
+    <div class="mhead">
+      <div>
+        <h1 class="mname" id="mname">…</h1>
+        <p class="mgoal" id="mgoal">Loading mission goal…</p>
+      </div>
+      <span class="status-pill" id="status-pill"><span class="dot"></span><span id="status-label">…</span></span>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <h2 class="section">Assigned experts</h2>
+  <div class="roster" id="roster">Loading the team…</div>
+</div>
+
+<script>
+const PROJECT_ID = ${JSON.stringify(projectId)};
+${missionScript()}
+</script>
+</body>
+</html>`;
+}
+
+function missionScript(): string {
+  return `
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+  "&": "&amp;","<": "&lt;",">": "&gt;",'"': "&quot;","'": "&#39;",
+})[c]);
+
+async function load() {
+  try {
+    const r = await fetch("/v1/mission/" + encodeURIComponent(PROJECT_ID) + "/state");
+    if (r.status === 404) { $("subtitle").textContent = "Mission not found."; return; }
+    if (!r.ok) throw new Error("state " + r.status);
+    const s = await r.json();
+    render(s);
+  } catch (err) {
+    $("subtitle").textContent = "Could not load mission state.";
+    console.error(err);
+  }
+}
+
+function render(s) {
+  $("mname").textContent = s.project.name;
+  $("mgoal").textContent = s.project.goal;
+  $("subtitle").innerHTML = "owner <strong>" + esc(s.project.owner) +
+    "</strong> · launched " + new Date(s.project.createdAt).toLocaleString();
+  const pill = $("status-pill");
+  pill.className = "status-pill " + esc(s.project.status);
+  $("status-label").textContent = s.project.status === "active" ? "Working on it" : s.project.status;
+
+  const c = s.counts;
+  $("stats").innerHTML = [
+    cell("Tasks total", c.total),
+    cell("Done", c.done),
+    cell("In progress", c.inProgress),
+    cell("Queued", c.queued),
+    cell("Blocked", c.blocked),
+    cell("Experts assigned", (s.experts || []).length),
+  ].join("");
+
+  $("roster").innerHTML = (s.grouped || []).map(group => {
+    const e = group.expert;
+    const tasks = group.tasks || [];
+    const taskHtml = tasks.length === 0
+      ? '<div class="empty">Waiting for the planner to assign a task.</div>'
+      : tasks.map(t =>
+          '<div class="tline">' +
+            '<span>' + esc(t.title) + '</span>' +
+            '<span class="tstatus ' + esc(t.status) + '">' + esc(t.status) + '</span>' +
+          '</div>'
+        ).join("");
+    return [
+      '<div class="ecard">',
+        '<div class="head">',
+          '<div class="ava">' + esc(e.avatar || "👤") + '</div>',
+          '<div><div class="titleln">' + esc(e.title) + '</div>',
+          '<div class="name">' + esc(e.name) + '</div></div>',
+        '</div>',
+        '<div class="role">' + esc(e.role) + '</div>',
+        '<div class="tasks">' + taskHtml + '</div>',
+      '</div>',
+    ].join("");
+  }).join("");
+}
+
+function cell(label, value) {
+  return '<div class="stat-cell"><div class="lbl">' + esc(label) +
+    '</div><div class="val">' + esc(value) + '</div></div>';
+}
+
+load();
+setInterval(load, 10000);
+`;
+}

@@ -2,6 +2,7 @@ import { promises as fsp } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { BUNDLED_EXPERTS } from "../experts/builtin.js";
 import { readCapabilityRequests } from "../projects/capability-requests-store.js";
 import { listProjectIds, loadProject, saveProject } from "../projects/store.js";
 import type { Project } from "../projects/types.js";
@@ -129,6 +130,7 @@ type DashboardProject = {
   readonly status: string;
   readonly createdAt: string;
   readonly channels: readonly string[];
+  readonly expertCount: number;
 };
 
 type DashboardAuditEntry = {
@@ -172,6 +174,7 @@ async function readProjectsState(): Promise<DashboardProject[]> {
       status: p.status,
       createdAt: p.createdAt,
       channels: p.channels.map((c) => c.channel),
+      expertCount: p.assignedExperts?.length ?? BUNDLED_EXPERTS.length,
     });
   }
   // newest first
@@ -352,6 +355,9 @@ function createMissionProject(input: { name: string; goal: string; owner: string
     createdAt: new Date().toISOString(),
     status: "active",
     channels: [],
+    // Phase 1: every new mission starts with the full bundled roster.
+    // The planner (Phase 2) will route each Task to the best-fit expert.
+    assignedExperts: BUNDLED_EXPERTS.map((e) => e.id),
   };
   saveProject(resolveProjectsDir(), project);
   return project;
@@ -583,9 +589,14 @@ function renderDashboardHtml(): string {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 8px 16px;
-    padding: 14px 0;
+    padding: 14px 4px;
     border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    color: inherit;
+    border-radius: 6px;
+    transition: background 0.12s;
   }
+  .project:hover { background: #fdf8e8; }
   .project:last-child { border-bottom: none; }
   .project .name { font-weight: 500; color: var(--text); font-size: 15px; }
   .project .goal { color: var(--text-dim); font-size: 13px; grid-column: 1 / -1; }
@@ -676,6 +687,7 @@ function renderDashboardHtml(): string {
     </div>
     <nav class="quick">
       <a href="/settings">Settings</a>
+      <a href="/experts">Team</a>
       <a href="/soul">Soul</a>
       <a href="/integrations">Integrations</a>
       <a href="/capabilities">Capabilities</a>
@@ -773,11 +785,14 @@ function render(s) {
     : projects.slice(0, 6).map((p) => {
         const badge = '<span class="badge ' + escapeHtml(p.status) + '">' + escapeHtml(p.status) + '</span>';
         const created = new Date(p.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
-        return '<div class="project">' +
+        const expertChip = (p.expertCount || 0) > 0
+          ? ' · ' + p.expertCount + ' expert' + (p.expertCount === 1 ? '' : 's')
+          : '';
+        return '<a class="project" href="/mission/' + encodeURIComponent(p.id) + '">' +
           '<div class="name">' + escapeHtml(p.name) + '</div>' +
-          '<div class="meta">' + badge + ' · ' + created + '</div>' +
+          '<div class="meta">' + badge + ' · ' + created + expertChip + '</div>' +
           '<div class="goal">' + escapeHtml(p.goal) + '</div>' +
-          '</div>';
+          '</a>';
       }).join("");
 
   // Activity
