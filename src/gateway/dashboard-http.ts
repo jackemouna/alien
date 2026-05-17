@@ -683,6 +683,12 @@ async function loadState() {
     const r = await fetch("/v1/dashboard/state", { headers: { Accept: "application/json" } });
     if (!r.ok) throw new Error("state " + r.status);
     const s = await r.json();
+    // First-run: if no brain is connected, redirect to the onboarding
+    // wizard instead of showing an empty dashboard.
+    if (firstLoad && shouldRedirectToOnboarding(s)) {
+      window.location.replace("/onboarding");
+      return;
+    }
     render(s);
   } catch (err) {
     if (firstLoad) {
@@ -690,6 +696,15 @@ async function loadState() {
     }
   }
   firstLoad = false;
+}
+
+function shouldRedirectToOnboarding(s) {
+  const ints = s.integrations || {};
+  const anyBrain =
+    (ints.anthropic && ints.anthropic.status !== "not-connected") ||
+    (ints.openai && ints.openai.status !== "not-connected") ||
+    (ints.gemini && ints.gemini.status !== "not-connected");
+  return !anyBrain;
 }
 
 function render(s) {

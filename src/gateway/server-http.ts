@@ -79,6 +79,7 @@ let dashboardModulePromise: Promise<typeof import("./dashboard-http.js")> | unde
 let settingsModulePromise: Promise<typeof import("./settings-http.js")> | undefined;
 let missionModulePromise: Promise<typeof import("./mission-http.js")> | undefined;
 let soulProposalsModulePromise: Promise<typeof import("./soul-proposals-http.js")> | undefined;
+let onboardingModulePromise: Promise<typeof import("./onboarding-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -199,6 +200,11 @@ function getMissionModule() {
 function getSoulProposalsModule() {
   soulProposalsModulePromise ??= import("./soul-proposals-http.js");
   return soulProposalsModulePromise;
+}
+
+function getOnboardingModule() {
+  onboardingModulePromise ??= import("./onboarding-http.js");
+  return onboardingModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -953,6 +959,15 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "soul-proposals",
           run: async () => (await getSoulProposalsModule()).handleSoulProposalsRequest(req, res),
+        });
+      }
+      // /onboarding/* — UI-driven first-run wizard. Five steps: welcome,
+      // pick brain, sign in, set up soul, done. Reuses /v1/setup + /v1/soul
+      // endpoints. Loopback-only.
+      if ((await getOnboardingModule()).isOnboardingPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "onboarding",
+          run: async () => (await getOnboardingModule()).handleOnboardingRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
