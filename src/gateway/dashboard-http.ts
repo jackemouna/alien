@@ -413,329 +413,251 @@ function renderDashboardHtml(): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>👾 Alien · Dashboard</title>
+<title>👾 Alien</title>
 <style>
+  /* Apple-inspired design tokens. One accent. Generous space. */
   :root {
     color-scheme: light;
-    --bg: #faf6ec;
-    --bg-elev: #f4eedf;
-    --bg-card: #ffffff;
-    --line: #ece1c4;
-    --line-strong: #d8c89d;
-    --text: #1a1409;
-    --text-dim: #5a5040;
-    --text-mute: #8a7d62;
-    --gold: #b89028;
-    --gold-strong: #d9a936;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --line: #eceae3;
+    --line-strong: #d9d6cb;
+    --ink: #1a1814;
+    --ink-soft: #4a4640;
+    --ink-mute: #8a8378;
+    --accent: #b89028;
+    --accent-soft: #d9a936;
     --ok: #2b8a3e;
     --warn: #b06a16;
     --bad: #b8423a;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 20px -8px rgba(0,0,0,0.10);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--text);
-    font: 14px/1.55 -apple-system, "SF Pro Text", system-ui, sans-serif;
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, "SF Pro Text", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  /* Page shell — single column, max-width content */
   .shell {
-    max-width: 1080px;
-    padding: 48px 32px 80px;
+    max-width: 720px;
     margin: 0 auto;
+    padding: 56px 24px 80px;
   }
-  header.hero {
+
+  /* Top bar — brand on the left, single quiet gear on the right */
+  .topbar {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 32px;
+    align-items: center;
+    margin-bottom: 56px;
   }
   .brand {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 17px; font-weight: 600; letter-spacing: -0.01em;
   }
-  .brand .glyph { font-size: 36px; }
-  .greeting {
-    color: var(--text-dim);
-    margin-top: 6px;
-    font-size: 14px;
+  .brand .glyph { font-size: 22px; }
+  .gear {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--ink-mute);
+    transition: background 0.15s, color 0.15s;
   }
-  .greeting strong { color: var(--gold); font-weight: 500; }
+  .gear:hover { background: var(--surface); color: var(--ink); }
+  .gear svg { width: 18px; height: 18px; }
 
-  .mission-card {
-    background: linear-gradient(180deg, #fffaee 0%, #faf2da 100%);
-    border: 1px solid var(--line-strong);
-    border-radius: 14px;
-    padding: 28px;
-    margin-bottom: 40px;
-    box-shadow: 0 1px 2px rgba(184,144,40,0.04), 0 24px 80px -32px rgba(184,144,40,0.15);
+  /* Hero — the one thing on this page */
+  .hero { margin-bottom: 40px; }
+  .hello {
+    font-size: 32px; font-weight: 600; letter-spacing: -0.02em;
+    color: var(--ink); margin: 0 0 8px;
   }
-  .mission-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--gold);
-    margin-bottom: 12px;
+  .hello-sub {
+    color: var(--ink-mute); font-size: 16px; line-height: 1.5; margin: 0;
   }
-  .mission-prompt {
+
+  /* The primary input — one big text field, one button */
+  .composer {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 24px 24px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .composer:focus-within {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+  }
+  .composer-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-mute); margin: 0 0 12px;
+  }
+  .composer textarea {
     width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--text);
-    font: 18px/1.4 -apple-system, "SF Pro Text", system-ui, sans-serif;
-    resize: vertical;
-    min-height: 72px;
-    padding: 0;
-    outline: none;
+    background: transparent; border: none; outline: none;
+    color: var(--ink);
+    font: 17px/1.5 inherit; resize: none;
+    min-height: 56px; padding: 0;
   }
-  .mission-prompt::placeholder { color: var(--text-mute); }
-  .mission-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 16px;
-    gap: 16px;
+  .composer textarea::placeholder { color: var(--ink-mute); }
+  .composer-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px; gap: 16px;
   }
-  .mission-hint { color: var(--text-mute); font-size: 12px; }
-  .launch {
-    background: var(--gold);
-    color: #fffbef;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 8px;
-    font: 600 14px -apple-system, system-ui, sans-serif;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.05s ease;
-    box-shadow: 0 1px 2px rgba(184,144,40,0.25);
+  .composer-help {
+    color: var(--ink-mute); font-size: 12px;
   }
-  .launch:hover { background: var(--gold-strong); }
-  .launch:active { transform: translateY(1px); }
-  .launch:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none;
+    padding: 10px 20px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  .btn-primary:hover { background: #000; }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:disabled { background: var(--ink-mute); cursor: not-allowed; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .stat {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 18px 20px;
-  }
-  .stat .label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--text-mute);
-    margin-bottom: 8px;
-  }
-  .stat .value {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.2;
-  }
-  .stat .value small {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--text-dim);
-    margin-left: 6px;
-  }
-  .stat .sub {
-    color: var(--text-dim);
-    font-size: 12px;
-    margin-top: 6px;
-  }
-
-  section.panel {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  section.panel > header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--line);
-  }
-  section.panel > header h2 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--gold);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  section.panel > header a {
-    color: var(--text-dim);
-    text-decoration: none;
-    font-size: 13px;
-  }
-  section.panel > header a:hover { color: var(--gold); }
-  .panel-body { padding: 18px 22px; }
-  .empty { color: var(--text-mute); font-style: italic; }
-
-  .project {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px 16px;
-    padding: 14px 4px;
-    border-bottom: 1px solid var(--line);
-    text-decoration: none;
-    color: inherit;
-    border-radius: 6px;
-    transition: background 0.12s;
-  }
-  .project:hover { background: #fdf8e8; }
-  .project:last-child { border-bottom: none; }
-  .project .name { font-weight: 500; color: var(--text); font-size: 15px; }
-  .project .goal { color: var(--text-dim); font-size: 13px; grid-column: 1 / -1; }
-  .project .meta { color: var(--text-mute); font-size: 12px; text-align: right; white-space: nowrap; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    background: #f5efde;
-    color: var(--text-dim);
-    border: 1px solid var(--line);
-  }
-  .badge.active { color: var(--ok); border-color: rgba(43,138,62,0.30); background: #ebf6ec; }
-  .badge.archived { color: var(--text-mute); }
-  .badge.paused { color: var(--warn); border-color: rgba(176,106,22,0.30); background: #fcefd9; }
-  .badge.achieved { color: var(--gold); border-color: rgba(184,144,40,0.40); background: #fbf2d4; }
-  .badge.needs-input { color: var(--bad); border-color: rgba(184,66,58,0.30); background: #fbe9e7; }
-
-  .row {
-    display: flex; gap: 8px; align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--line);
-    font-size: 13px;
-  }
-  .row:last-child { border-bottom: none; }
-  .row .ts { color: var(--text-mute); font-variant-numeric: tabular-nums; font-size: 12px; min-width: 64px; }
-  .row .kind { color: var(--gold); font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; }
-  .row .summary { color: var(--text-dim); font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; }
-
-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #faf5e4; padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--line); color: var(--text-dim); font-size: 13px;
-  }
-  .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-mute); }
-  .chip.on .dot { background: var(--ok); }
-  .chip.off .dot { background: var(--bad); }
-
-  nav.quick {
+  /* Status strip — single line under the composer, quiet */
+  .status-strip {
     display: flex; flex-wrap: wrap; gap: 8px;
-    margin-bottom: 32px;
+    margin: 16px 4px 0;
   }
-  nav.quick a {
-    text-decoration: none;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    transition: color 0.15s ease, border-color 0.15s ease;
-  }
-  nav.quick a:hover { color: var(--gold); border-color: var(--line-strong); }
-
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--gold);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: 10px;
-    box-shadow: 0 20px 60px -20px rgba(60,40,10,0.18);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-
-  footer.foot {
-    margin-top: 48px;
-    color: var(--text-mute);
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: transparent; color: var(--ink-mute);
     font-size: 12px;
-    text-align: center;
+    transition: color 0.15s, background 0.15s;
+  }
+  .status-chip:hover { background: var(--surface); color: var(--ink-soft); }
+  .status-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-mute); }
+  .status-chip.on .dot { background: var(--ok); }
+  .status-chip.off .dot { background: var(--ink-mute); }
+  .status-chip.warn .dot { background: var(--warn); }
+
+  /* Recent missions — small cards, max 3, more behind a link */
+  .section-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin: 56px 4px 16px;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-mute);
+  }
+  .section-action {
+    color: var(--ink-mute); font-size: 13px;
+    transition: color 0.15s;
+  }
+  .section-action:hover { color: var(--ink); }
+
+  .missions-empty {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    color: var(--ink-mute); font-size: 14px; text-align: center;
+  }
+  .mission-list { display: flex; flex-direction: column; gap: 8px; }
+  .mission-row {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    transition: border-color 0.15s, transform 0.05s, box-shadow 0.15s;
+  }
+  .mission-row:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-sm);
+  }
+  .mission-row:active { transform: translateY(1px); }
+  .mission-row-top {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; margin-bottom: 4px;
+  }
+  .mission-row-name {
+    font-size: 15px; font-weight: 600; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .mission-row-status {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 999px;
+    background: #f5f3ee; color: var(--ink-mute);
+    flex-shrink: 0;
+  }
+  .mission-row-status.active { background: #ebf6ec; color: var(--ok); }
+  .mission-row-status.achieved { background: #fbf2d4; color: var(--accent); }
+  .mission-row-status.needs-input { background: #fbe9e7; color: var(--bad); }
+  .mission-row-status.paused { background: #fcefd9; color: var(--warn); }
+  .mission-row-goal {
+    color: var(--ink-soft); font-size: 13px; line-height: 1.5;
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff;
+    padding: 10px 20px; border-radius: var(--radius-sm);
+    font-size: 13px;
+    box-shadow: var(--shadow-md);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
   }
 </style>
 </head>
 <body>
 <div class="shell">
-  <header class="hero">
-    <div>
-      <div class="brand"><span class="glyph">👾</span> Alien</div>
-      <div class="greeting" id="greeting">Loading your AI workforce…</div>
-    </div>
-    <nav class="quick">
-      <a href="/settings">Settings</a>
-      <a href="/experts">Team</a>
-      <a href="/soul">Soul</a>
-      <a href="/integrations">Integrations</a>
-      <a href="/capabilities">Capabilities</a>
-      <a href="/activity">Activity</a>
-    </nav>
+  <header class="topbar">
+    <a class="brand" href="/dashboard"><span class="glyph">👾</span> Alien</a>
+    <a class="gear" href="/settings" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </a>
   </header>
 
-  <div class="mission-card">
-    <div class="mission-label">Start a new mission</div>
+  <div class="hero">
+    <h1 class="hello" id="hello">Hello.</h1>
+    <p class="hello-sub" id="hello-sub">Tell me what to build.</p>
+  </div>
+
+  <div class="composer">
+    <div class="composer-label">New mission</div>
     <textarea
       id="mission"
-      class="mission-prompt"
-      placeholder="Describe what should be achieved. One sentence is enough — Alien runs the rest."
+      rows="2"
+      placeholder="Ship a landing page for the new pricing tier. Or research the top 5 competitors. Or anything else."
     ></textarea>
-    <div class="mission-actions">
-      <div class="mission-hint">⌘ + Return to launch · Becomes a project goal the workforce picks up.</div>
-      <button id="launch" class="launch">Launch mission</button>
+    <div class="composer-row">
+      <span class="composer-help">⌘ + Return to launch</span>
+      <button id="launch" class="btn-primary">Launch</button>
     </div>
   </div>
 
-  <div class="grid" id="stats">
-    <div class="stat"><div class="label">Active missions</div><div class="value" id="stat-active">…</div></div>
-    <div class="stat"><div class="label">All projects</div><div class="value" id="stat-projects">…</div></div>
-    <div class="stat"><div class="label">Capability requests</div><div class="value" id="stat-caps">…</div><div class="sub" id="stat-caps-sub"></div></div>
-    <div class="stat"><div class="label">Channels enabled</div><div class="value" id="stat-channels">…</div></div>
+  <div class="status-strip" id="status-strip"></div>
+
+  <div class="section-head">
+    <span class="section-title">Recent missions</span>
+    <a class="section-action" href="/settings/missions" id="all-missions-link">View all →</a>
   </div>
-
-  <section class="panel">
-    <header><h2>Missions</h2><a href="/v1/dashboard/state">JSON state →</a></header>
-    <div class="panel-body" id="projects"><div class="empty">Loading…</div></div>
-  </section>
-
-  <section class="panel">
-    <header><h2>Recent activity</h2><a href="/activity">Live feed →</a></header>
-    <div class="panel-body" id="activity"><div class="empty">Loading…</div></div>
-  </section>
-
-  <section class="panel">
-    <header><h2>Channels</h2><a href="/setup">Wire one up →</a></header>
-    <div class="panel-body" id="channels"><div class="empty">Loading…</div></div>
-  </section>
-
-  <section class="panel">
-    <header><h2>Integrations</h2><a href="/integrations">Manage →</a></header>
-    <div class="panel-body" id="integrations"><div class="empty">Loading…</div></div>
-  </section>
-
-  <footer class="foot">Loopback-only · 👾 Alien gateway · <span id="gateway-host"></span></footer>
+  <div id="missions"><div class="missions-empty">Loading…</div></div>
 </div>
 
 <div id="toast" class="toast">Mission launched</div>
@@ -750,9 +672,11 @@ ${dashboardScript()}
 function dashboardScript(): string {
   return `
 const $ = (id) => document.getElementById(id);
-const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 })[c]);
+
+let firstLoad = true;
 
 async function loadState() {
   try {
@@ -761,83 +685,93 @@ async function loadState() {
     const s = await r.json();
     render(s);
   } catch (err) {
-    $("greeting").textContent = "Could not load dashboard state — is the gateway running?";
+    if (firstLoad) {
+      $("hello-sub").textContent = "Could not reach the gateway.";
+    }
   }
+  firstLoad = false;
 }
 
 function render(s) {
+  // Personal greeting — pulled from Soul. Falls back gracefully.
   const soulName = (s.soul && s.soul.name) || "Alien";
-  const soulRole = (s.soul && s.soul.role) || "your AI workforce";
-  $("greeting").innerHTML = "Hello — this is <strong>" + escapeHtml(soulName) + "</strong>, " + escapeHtml(soulRole) + ".";
-  $("gateway-host").textContent = location.host;
+  $("hello").textContent = "Hello, I'm " + soulName + ".";
+  const activeCount = (s.stats && s.stats.activeMissionCount) || 0;
+  $("hello-sub").textContent = activeCount > 0
+    ? "You have " + activeCount + " mission" + (activeCount === 1 ? "" : "s") + " in flight. Want to start another?"
+    : "Tell me what to build.";
 
-  $("stat-active").innerHTML = s.stats.activeMissionCount + " <small>running</small>";
-  $("stat-projects").innerHTML = s.stats.projectCount + " <small>on disk</small>";
-  $("stat-caps").innerHTML = (s.capabilities.openCount || 0) + " <small>open</small>";
-  $("stat-caps-sub").textContent = s.capabilities.totalCount + " total requests raised";
-  const channelsOn = (s.channels || []).filter((c) => c.status === "enabled").length;
-  $("stat-channels").innerHTML = channelsOn + " <small>of " + (s.channels || []).length + "</small>";
+  // Status strip — quiet, scannable, each chip is clickable to a detail page.
+  renderStatusStrip(s);
 
-  // Projects
-  const projects = s.projects || [];
-  $("projects").innerHTML = projects.length === 0
-    ? '<div class="empty">No missions yet. Launch one above and the workforce picks it up.</div>'
-    : projects.slice(0, 6).map((p) => {
-        const badge = '<span class="badge ' + escapeHtml(p.status) + '">' + escapeHtml(p.status) + '</span>';
-        const created = new Date(p.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
-        const expertChip = (p.expertCount || 0) > 0
-          ? ' · ' + p.expertCount + ' expert' + (p.expertCount === 1 ? '' : 's')
-          : '';
-        return '<a class="project" href="/mission/' + encodeURIComponent(p.id) + '">' +
-          '<div class="name">' + escapeHtml(p.name) + '</div>' +
-          '<div class="meta">' + badge + ' · ' + created + expertChip + '</div>' +
-          '<div class="goal">' + escapeHtml(p.goal) + '</div>' +
-          '</a>';
-      }).join("");
+  // Recent missions — at most 3.
+  renderMissions(s.projects || []);
+}
 
-  // Activity
-  const activity = s.activity || [];
-  $("activity").innerHTML = activity.length === 0
-    ? '<div class="empty">No activity yet.</div>'
-    : activity.map((e) => {
-        const t = new Date(e.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        return '<div class="row">' +
-          '<div class="ts">' + escapeHtml(t) + '</div>' +
-          '<div class="kind">' + escapeHtml(e.kind) + '</div>' +
-          '<div class="summary">' + escapeHtml(e.summary) + '</div>' +
-          '</div>';
-      }).join("");
+function renderStatusStrip(s) {
+  const chips = [];
+
+  // Brain — show what model is in use, click to model picker
+  const integrations = s.integrations || {};
+  const brainStatus = (integrations.anthropic && integrations.anthropic.status !== "not-connected")
+    || (integrations.openai && integrations.openai.status !== "not-connected")
+    || (integrations.gemini && integrations.gemini.status !== "not-connected");
+  chips.push({
+    href: "/model",
+    cls: brainStatus ? "on" : "warn",
+    label: brainStatus ? "Brain connected" : "No brain — connect one",
+  });
+
+  // Experts
+  const expertCount = (s.projects && s.projects[0] && s.projects[0].expertCount) || 84;
+  chips.push({
+    href: "/experts",
+    cls: "on",
+    label: expertCount + " experts ready",
+  });
 
   // Channels
   const channels = s.channels || [];
-  $("channels").innerHTML = channels.length === 0
-    ? '<div class="empty">No channels wired. <a href="/setup" style="color: var(--gold);">Open the setup wizard</a> to add one.</div>'
-    : '<div class="chip-row">' + channels.map((c) => {
-        const cls = c.status === "enabled" ? "on" : "off";
-        return '<div class="chip ' + cls + '"><span class="dot"></span>' + escapeHtml(c.id) + '</div>';
-      }).join("") + '</div>';
+  const channelsOn = channels.filter((c) => c.status === "enabled").length;
+  chips.push({
+    href: "/integrations",
+    cls: channelsOn > 0 ? "on" : "off",
+    label: channelsOn > 0 ? channelsOn + " channel" + (channelsOn === 1 ? "" : "s") : "No channels",
+  });
 
-  // Integrations
-  const integrations = s.integrations || {};
-  const integrationLine = (id, info) => {
-    const labels = {
-      "claude-code-session": "Claude Code session (subscription-billed)",
-      "wizard-oauth": "OAuth (wizard)",
-      "api-key": "API key",
-      "not-connected": "not connected",
-    };
-    const onClass = info.status === "not-connected" ? "off" : "on";
-    const hint = info.hint ? ' · ' + escapeHtml(info.hint) : '';
-    return '<div class="chip ' + onClass + '"><span class="dot"></span>' +
-      '<strong style="color: var(--text); margin-right: 4px;">' + escapeHtml(id) + '</strong>' +
-      escapeHtml(labels[info.status] || info.status) + hint + '</div>';
-  };
-  $("integrations").innerHTML =
-    '<div class="chip-row">' +
-    integrationLine("Anthropic", integrations.anthropic || { status: "not-connected" }) +
-    integrationLine("OpenAI", integrations.openai || { status: "not-connected" }) +
-    integrationLine("Gemini", integrations.gemini || { status: "not-connected" }) +
-    '</div>';
+  // Capability requests — only show if any pending
+  const caps = (s.capabilities && s.capabilities.openCount) || 0;
+  if (caps > 0) {
+    chips.push({
+      href: "/capabilities",
+      cls: "warn",
+      label: caps + " capability request" + (caps === 1 ? "" : "s"),
+    });
+  }
+
+  $("status-strip").innerHTML = chips.map((c) =>
+    '<a class="status-chip ' + c.cls + '" href="' + c.href + '"><span class="dot"></span>' + esc(c.label) + '</a>'
+  ).join("");
+}
+
+function renderMissions(projects) {
+  if (projects.length === 0) {
+    $("missions").innerHTML = '<div class="missions-empty">No missions yet. Launch one above to get started.</div>';
+    $("all-missions-link").style.display = "none";
+    return;
+  }
+  $("all-missions-link").style.display = projects.length > 3 ? "" : "none";
+  const recent = projects.slice(0, 3);
+  $("missions").innerHTML = '<div class="mission-list">' + recent.map((p) => {
+    const statusLabel = p.status === "active" ? "running" : p.status;
+    return '<a class="mission-row" href="/mission/' + encodeURIComponent(p.id) + '">' +
+      '<div class="mission-row-top">' +
+        '<div class="mission-row-name">' + esc(p.name) + '</div>' +
+        '<div class="mission-row-status ' + esc(p.status) + '">' + esc(statusLabel) + '</div>' +
+      '</div>' +
+      '<div class="mission-row-goal">' + esc(p.goal) + '</div>' +
+    '</a>';
+  }).join("") + '</div>';
 }
 
 async function launchMission() {
@@ -860,7 +794,7 @@ async function launchMission() {
     if (!r.ok) throw new Error("mission " + r.status);
     const out = await r.json();
     ta.value = "";
-    showToast("Mission launched · " + (out.project && out.project.name ? out.project.name : "queued"));
+    showToast("Mission launched");
     await loadState();
   } catch (err) {
     showToast("Could not launch: " + (err && err.message || err));
