@@ -78,6 +78,7 @@ let integrationsModulePromise: Promise<typeof import("./integrations-http.js")> 
 let dashboardModulePromise: Promise<typeof import("./dashboard-http.js")> | undefined;
 let settingsModulePromise: Promise<typeof import("./settings-http.js")> | undefined;
 let missionModulePromise: Promise<typeof import("./mission-http.js")> | undefined;
+let soulProposalsModulePromise: Promise<typeof import("./soul-proposals-http.js")> | undefined;
 let templatesHttpModulePromise: Promise<typeof import("./templates-http.js")> | undefined;
 let sessionHistoryHttpModulePromise:
   | Promise<typeof import("./sessions-history-http.js")>
@@ -193,6 +194,11 @@ function getSettingsModule() {
 function getMissionModule() {
   missionModulePromise ??= import("./mission-http.js");
   return missionModulePromise;
+}
+
+function getSoulProposalsModule() {
+  soulProposalsModulePromise ??= import("./soul-proposals-http.js");
+  return soulProposalsModulePromise;
 }
 
 function getTemplatesHttpModule() {
@@ -939,6 +945,14 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "mission",
           run: async () => (await getMissionModule()).handleMissionRequest(req, res),
+        });
+      }
+      // /soul-proposals + /v1/soul-proposals/* — Phase 4: the agent's
+      // self-improvement review surface. Loopback-only.
+      if ((await getSoulProposalsModule()).isSoulProposalsPath(scopedRequestPath)) {
+        requestStages.push({
+          name: "soul-proposals",
+          run: async () => (await getSoulProposalsModule()).handleSoulProposalsRequest(req, res),
         });
       }
       // Phase C capability operations: list open requests + trigger a
