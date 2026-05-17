@@ -69,63 +69,16 @@ const CHOICES: ReadonlyArray<ModelChoice> = [
     tagline:
       "OpenAI flagship. Needs an OpenAI API key (subscription OAuth doesn't grant /v1/responses).",
   },
-  // --- Gemini 3.x (current flagship family) ---
-  {
-    id: "google/gemini-3.1-pro",
-    provider: "google",
-    model: "gemini-3.1-pro",
-    label: "Gemini 3.1 Pro",
-    tier: "premium",
-    tagline: "Latest Google flagship. Strongest reasoning + long context.",
-  },
-  {
-    id: "google/gemini-3.1-flash",
-    provider: "google",
-    model: "gemini-3.1-flash",
-    label: "Gemini 3.1 Flash",
-    tier: "balanced",
-    tagline: "Newest fast Gemini. Best price/quality for most workforce tasks.",
-  },
-  {
-    id: "google/gemini-3.1-flash-lite",
-    provider: "google",
-    model: "gemini-3.1-flash-lite",
-    label: "Gemini 3.1 Flash Lite",
-    tier: "fast",
-    tagline: "Cheapest 3.x option. Generous free tier; ideal for high-volume routine work.",
-  },
-  {
-    id: "google/gemini-3-pro",
-    provider: "google",
-    model: "gemini-3-pro",
-    label: "Gemini 3 Pro",
-    tier: "premium",
-    tagline: "Prior-gen flagship. Slightly cheaper than 3.1 Pro with very similar quality.",
-  },
-  {
-    id: "google/gemini-3-flash",
-    provider: "google",
-    model: "gemini-3-flash",
-    label: "Gemini 3 Flash",
-    tier: "balanced",
-    tagline: "Prior-gen fast Gemini. Good fallback when 3.1 Flash is rate-limited.",
-  },
-  // --- Gemini 2.5 (still widely supported) ---
-  {
-    id: "google/gemini-2.5-pro",
-    provider: "google",
-    model: "gemini-2.5-pro",
-    label: "Gemini 2.5 Pro",
-    tier: "premium",
-    tagline: "Established Google flagship. Mature multimodal + long context.",
-  },
+  // --- Gemini 2.5 — best free Code Assist tier coverage ---
   {
     id: "google/gemini-2.5-flash",
     provider: "google",
     model: "gemini-2.5-flash",
-    label: "Gemini 2.5 Flash",
+    label: "Gemini 2.5 Flash ⭐ free-tier recommended",
     tier: "balanced",
-    tagline: "Reliable fast Gemini. Wide free-tier limits.",
+    tagline:
+      "Best on the free Code Assist tier — generous per-minute quota. " +
+      "What I'd reach for first.",
   },
   {
     id: "google/gemini-2.5-flash-lite",
@@ -133,7 +86,60 @@ const CHOICES: ReadonlyArray<ModelChoice> = [
     model: "gemini-2.5-flash-lite",
     label: "Gemini 2.5 Flash Lite",
     tier: "fast",
-    tagline: "Cheapest 2.x Gemini. Use for high-volume routine work.",
+    tagline: "Cheapest 2.x Gemini. Good free-tier quota, lightweight reasoning.",
+  },
+  {
+    id: "google/gemini-2.5-pro",
+    provider: "google",
+    model: "gemini-2.5-pro",
+    label: "Gemini 2.5 Pro",
+    tier: "premium",
+    tagline:
+      "Established Google flagship. Strong reasoning but the free Code Assist " +
+      "quota is small (you'll see 429s quickly).",
+  },
+  // --- Gemini 3.x — paid GCP project required on Code Assist ---
+  {
+    id: "google/gemini-3.1-pro",
+    provider: "google",
+    model: "gemini-3.1-pro",
+    label: "Gemini 3.1 Pro · paid",
+    tier: "premium",
+    tagline:
+      "Latest Google flagship. Requires API key or a Cloudaicompanion " +
+      "project with billing enabled (Code Assist free tier returns 404).",
+  },
+  {
+    id: "google/gemini-3.1-flash",
+    provider: "google",
+    model: "gemini-3.1-flash",
+    label: "Gemini 3.1 Flash · paid",
+    tier: "balanced",
+    tagline: "Newest fast Gemini. Same paid-project requirement as 3.1 Pro.",
+  },
+  {
+    id: "google/gemini-3.1-flash-lite",
+    provider: "google",
+    model: "gemini-3.1-flash-lite",
+    label: "Gemini 3.1 Flash Lite · paid",
+    tier: "fast",
+    tagline: "Cheapest 3.x option. Same paid-project requirement.",
+  },
+  {
+    id: "google/gemini-3-pro",
+    provider: "google",
+    model: "gemini-3-pro",
+    label: "Gemini 3 Pro · paid",
+    tier: "premium",
+    tagline: "Prior-gen 3.x flagship. Same paid-project requirement.",
+  },
+  {
+    id: "google/gemini-3-flash",
+    provider: "google",
+    model: "gemini-3-flash",
+    label: "Gemini 3 Flash · paid",
+    tier: "balanced",
+    tagline: "Prior-gen 3.x fast. Same paid-project requirement.",
   },
   // --- Legacy / fallback ---
   {

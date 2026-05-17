@@ -98,7 +98,7 @@ export async function tryCreateGeminiCodeAssistClient(
       });
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new Error(`Gemini Code Assist ${res.status}: ${text.slice(0, 400)}`);
+        throw new Error(humanizeCodeAssistError(res.status, text, model));
       }
       const json = (await res.json()) as CodeAssistResponse;
       const inner = json.response;
@@ -172,6 +172,40 @@ async function resolveGeminiCliClientCredentials(): Promise<ClientCreds | null> 
   } catch {
     return null;
   }
+}
+
+/**
+ * Translate Code Assist's raw error JSON into one actionable line.
+ * The free Code Assist tier throttles per-model with a small quota
+ * (most aggressive on 2.5-Pro and the 3.x family). When that hits,
+ * Google returns 429 with "You have exhausted your capacity on this
+ * model" — operators read "Gemini isn't working" and don't realize
+ * the fix is "switch to Flash".
+ */
+function humanizeCodeAssistError(status: number, body: string, model: string): string {
+  if (status === 429) {
+    return (
+      `Google free tier quota hit for ${model}. The free Code Assist tier ` +
+      `throttles aggressively on Pro and 3.x models. ` +
+      `Switch to gemini-2.5-flash on /model (much higher free quota), wait ~1 minute ` +
+      `for the per-minute quota window to reset, or paste an aistudio.google.com API key ` +
+      `on /integrations for the much higher API-key free tier.`
+    );
+  }
+  if (status === 401 || status === 403) {
+    return (
+      `Google rejected the Gemini Code Assist token (${status}). Re-sign in with ` +
+      `Google on /integrations.`
+    );
+  }
+  if (status === 404) {
+    return (
+      `Model "${model}" isn't available on the free Code Assist tier (${status}). ` +
+      `Switch to gemini-2.5-flash or gemini-2.5-pro on /model, or add billing to ` +
+      `your Cloudaicompanion project for the 3.x family.`
+    );
+  }
+  return `Gemini Code Assist ${status}: ${body.slice(0, 300)}`;
 }
 
 // ---- response shape ----
