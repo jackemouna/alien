@@ -34,7 +34,10 @@ const SCOPE =
 
 export async function bootstrapGeminiCliEnv(): Promise<void> {
   const creds = await readGeminiOAuth();
-  if (!creds) return;
+  if (!creds) {
+    logInfo("gemini-cli-bootstrap: no oauth file — skipping (sign in on /integrations to enable)");
+    return;
+  }
 
   // 1. Env vars (process-level — child spawns inherit)
   if (!process.env.GOOGLE_GENAI_USE_GCA) process.env.GOOGLE_GENAI_USE_GCA = "true";
@@ -44,6 +47,7 @@ export async function bootstrapGeminiCliEnv(): Promise<void> {
   if (!process.env.GEMINI_CLI_TRUST_WORKSPACE) {
     process.env.GEMINI_CLI_TRUST_WORKSPACE = "true";
   }
+  logInfo(`gemini-cli-bootstrap: GCA env set (project=${process.env.GOOGLE_CLOUD_PROJECT ?? "?"})`);
 
   const home = process.env.HOME ?? "";
   if (!home) return;
