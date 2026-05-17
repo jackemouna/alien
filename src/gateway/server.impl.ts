@@ -920,6 +920,17 @@ export async function startGatewayServer(
   // for every agentDir found under ~/.alien/agents/*.
   void (async () => {
     try {
+      // Boot-time: if the operator signed in with Google for Gemini,
+      // mirror the credentials into the gemini CLI's expected paths
+      // (~/.gemini/{settings,oauth_creds}.json) and set the env vars
+      // so the agent's CLI backend can use OAuth Code Assist without
+      // the operator having to wrangle env vars themselves.
+      try {
+        const { bootstrapGeminiCliEnv } = await import("../security/gemini-cli-bootstrap.js");
+        await bootstrapGeminiCliEnv();
+      } catch (err) {
+        log.warn?.(`gemini-cli-bootstrap: ${err instanceof Error ? err.message : String(err)}`);
+      }
       const fs = await import("node:fs/promises");
       const path = await import("node:path");
       const [anth, oai, paths, ccSession] = await Promise.all([
