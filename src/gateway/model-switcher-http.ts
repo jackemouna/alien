@@ -265,7 +265,13 @@ async function readCurrentSelection(): Promise<{ provider: string; model: string
     if (typeof model === "string") {
       const slash = model.indexOf("/");
       if (slash > 0) {
-        return { provider: model.slice(0, slash), model: model.slice(slash + 1) };
+        let providerPrefix = model.slice(0, slash);
+        // Normalize back to the "google" provider so the /model dropdown's
+        // matching logic finds the right choice card — the runtime-level
+        // prefix is google-gemini-cli but the picker lists choices by
+        // logical provider.
+        if (providerPrefix === "google-gemini-cli") providerPrefix = "google";
+        return { provider: providerPrefix, model: model.slice(slash + 1) };
       }
     }
   } catch {
@@ -283,6 +289,11 @@ async function writeSelection(provider: string, model: string): Promise<void> {
   } catch {
     // file may not exist
   }
+  // For Google: prefer the google-gemini-cli provider id (OAuth Code Assist
+  // endpoint, much higher free-tier quota than the public API) when the
+  // operator has signed in. Falls back to the plain "google" prefix
+  // (api-key path) otherwise.
+  const effectiveProvider = await resolveEffectiveGoogleProvider(provider);
   const agents = (
     parsed.agents && typeof parsed.agents === "object" && parsed.agents !== null
       ? (parsed.agents as Record<string, unknown>)
@@ -296,7 +307,7 @@ async function writeSelection(provider: string, model: string): Promise<void> {
   // Drop any stale top-level provider key from older versions of this
   // module — the schema doesn't allow it and leaving it tanks gateway boot.
   delete defaults.provider;
-  defaults.model = `${provider}/${model}`;
+  defaults.model = `${effectiveProvider}/${model}`;
   agents.defaults = defaults;
   parsed.agents = agents;
   await fs.writeFile(configPath, `${JSON.stringify(parsed, null, 2)}\n`, {
@@ -304,6 +315,17 @@ async function writeSelection(provider: string, model: string): Promise<void> {
     mode: 0o600,
   });
   await fs.chmod(configPath, 0o600).catch(() => {});
+}
+
+async function resolveEffectiveGoogleProvider(provider: string): Promise<string> {
+  if (provider !== "google") return provider;
+  try {
+    const { resolveGeminiOAuthPath } = await import("../security/gemini-oauth-store.js");
+    await fs.access(resolveGeminiOAuthPath());
+    return "google-gemini-cli";
+  } catch {
+    return "google";
+  }
 }
 
 function renderHtml(): string {

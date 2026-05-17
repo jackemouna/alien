@@ -89,7 +89,11 @@ async function readSettingsState(): Promise<SettingsState> {
     if (typeof m === "string") {
       const slash = m.indexOf("/");
       if (slash > 0) {
-        model = { provider: m.slice(0, slash), id: m.slice(slash + 1) };
+        let prefix = m.slice(0, slash);
+        // Normalize google-gemini-cli (OAuth Code Assist provider) back to
+        // "google (sign-in)" for display.
+        const display = prefix === "google-gemini-cli" ? "google (sign-in)" : prefix;
+        model = { provider: display, id: m.slice(slash + 1) };
       } else {
         model = {
           id: m,

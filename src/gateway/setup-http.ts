@@ -354,15 +354,19 @@ async function persistOAuthToAuthProfiles(
   try {
     const { upsertAuthProfileWithLock } =
       await import("../agents/auth-profiles/upsert-with-lock.js");
-    // Gemini lives under provider="google" in auth-profiles to match the
-    // runtime registry the @alien/google-plugin registers.
-    const authProvider = provider === "gemini" ? "google" : provider;
+    // For Gemini: the actual provider plugin registered by
+    // @alien/google-plugin for the OAuth Code Assist endpoint is
+    // "google-gemini-cli", NOT "google". (The "google" provider is the
+    // separate API-key path against generativelanguage.googleapis.com.)
+    // Writing under "google-gemini-cli" lets the agent runtime pick this
+    // profile when the operator's model id is google-gemini-cli/<model>.
+    const authProvider = provider === "gemini" ? "google-gemini-cli" : provider;
     const displayName =
       provider === "anthropic"
         ? "Claude (subscription)"
         : provider === "openai"
           ? "ChatGPT (subscription)"
-          : "Google Gemini (sign-in)";
+          : "Google Gemini (sign-in / Code Assist)";
     await upsertAuthProfileWithLock({
       profileId: `${provider}-subscription`,
       credential: {

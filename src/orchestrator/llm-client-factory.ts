@@ -31,6 +31,22 @@ export type LlmClientResolution = {
 
 export async function createLlmClientFromConfig(): Promise<LlmClientResolution> {
   const { provider, model } = await readDefaults();
+  if (provider === "google-gemini-cli") {
+    // Code Assist OAuth path — much higher free-tier quota than the
+    // public Generative Language API. createGeminiLlmClient tries the
+    // API key first and falls back to Code Assist when none is set; for
+    // an explicit google-gemini-cli pick we want Code Assist regardless.
+    const { tryCreateGeminiCodeAssistClient } = await import("./gemini-code-assist-client.js");
+    const ca = await tryCreateGeminiCodeAssistClient({ model });
+    if (ca) return { client: ca, provider, model };
+    // Fall through to the API-key client with a clear error if OAuth
+    // setup is incomplete.
+    return {
+      client: await createGeminiLlmClient({ model }),
+      provider,
+      model,
+    };
+  }
   if (provider === "google") {
     return {
       client: await createGeminiLlmClient({ model }),
